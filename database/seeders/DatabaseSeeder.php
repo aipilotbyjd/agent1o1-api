@@ -35,16 +35,18 @@ class DatabaseSeeder extends Seeder
             TriggerTypeSeeder::class,
             TriggerTypeFieldSeeder::class,
 
-            // Templates & skills
+            // Templates
             WorkflowTemplateSeeder::class,
             AgentTemplateSeeder::class,
             TemplateCollectionSeeder::class,
+
+            // Workspace bootstrap + demo data
+            WorkflowSeeder::class,
             ProductManagerSkillSeeder::class,
 
-            // Empty stubs (placeholder for future implementation)
+            // Workspace billing, usage, and members
             CreditTransactionSeeder::class,
             SubscriptionSeeder::class,
-            WorkflowSeeder::class,
             UsageDailySnapshotSeeder::class,
             WorkspaceMemberSeeder::class,
             WorkspaceUsagePeriodSeeder::class,

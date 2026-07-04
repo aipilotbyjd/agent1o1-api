@@ -205,7 +205,7 @@ class ArchiveTestExecutionsSeeder extends Seeder
         $modes = [
             ExecutionMode::Webhook,
             ExecutionMode::Manual,
-            ExecutionMode::Schedule,
+            ExecutionMode::Scheduled,
         ];
 
         return $modes[array_rand($modes)];
