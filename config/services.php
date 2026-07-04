@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'horizon' => [
+        'user' => env('HORIZON_USER'),
+        'password' => env('HORIZON_PASSWORD'),
+    ],
+
 ];
