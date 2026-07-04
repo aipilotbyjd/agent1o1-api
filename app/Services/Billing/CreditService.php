@@ -137,6 +137,17 @@ class CreditService
             return;
         }
 
+        // Idempotency: never refund the same subject twice (mirrors consume()).
+        $alreadyRefunded = CreditTransaction::where('usage_period_id', $period->id)
+            ->where('type', CreditTransactionType::Refund)
+            ->where('subject_type', get_class($subject))
+            ->where('subject_id', $subject->getKey())
+            ->exists();
+
+        if ($alreadyRefunded) {
+            return;
+        }
+
         $cost = abs($original->credits);
 
         DB::transaction(function () use ($workspace, $period, $cost, $subject) {

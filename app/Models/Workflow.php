@@ -132,4 +132,23 @@ class Workflow extends Model
         $this->increment('execution_count');
         $this->update(['last_executed_at' => now()]);
     }
+
+    /**
+     * Recompute success_rate as the percentage of terminal executions that
+     * completed successfully (completed vs. completed + failed; cancelled and
+     * in-flight runs are excluded). Called when an execution reaches a terminal
+     * state so the metric exposed by the API reflects reality.
+     */
+    public function refreshSuccessRate(): void
+    {
+        $counts = $this->executions()
+            ->selectRaw("count(*) as total, sum(case when status = 'completed' then 1 else 0 end) as ok")
+            ->whereIn('status', ['completed', 'failed'])
+            ->first();
+
+        $total = (int) ($counts->total ?? 0);
+        $ok = (int) ($counts->ok ?? 0);
+
+        $this->update(['success_rate' => $total > 0 ? round($ok / $total * 100, 2) : 0]);
+    }
 }

@@ -98,6 +98,8 @@ class LogExecutionActivity
         $this->write($event->execution, 'info', 'Execution completed.', [
             'duration_ms' => $event->execution->duration_ms,
         ]);
+
+        $event->execution->workflow?->refreshSuccessRate();
     }
 
     public function handleFailed(ExecutionFailedEvent $event): void
@@ -105,6 +107,8 @@ class LogExecutionActivity
         $this->write($event->execution, 'error', 'Execution failed.', [
             'error' => $event->errorMessage,
         ]);
+
+        $event->execution->workflow?->refreshSuccessRate();
     }
 
     /**
