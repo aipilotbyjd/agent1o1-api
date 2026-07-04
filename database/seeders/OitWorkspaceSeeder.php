@@ -167,7 +167,8 @@ class OitWorkspaceSeeder extends Seeder
             ExecutionLog::create([
                 'id' => Str::uuid(),
                 'execution_id' => $execution->id,
-                'execution_node_id' => $node->id,
+                'workspace_id' => $execution->workspace_id,
+                'node_id' => $node->node_id,
                 'level' => $levels[array_rand($levels)],
                 'message' => $messages[array_rand($messages)],
                 'context' => [
