@@ -1,0 +1,26 @@
+# secrets — env comes from Coolify at runtime, never bake it
+.env
+.env.*
+
+# vcs / ci
+.git
+.github
+
+# deps installed inside the image
+vendor
+node_modules
+
+# runtime junk (keep the .gitignore placeholders so dirs exist)
+storage/logs/*
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+!**/.gitignore
+
+# not needed in prod image
+tests
+.phpunit.cache
+docker-compose*
+Dockerfile*
+.dockerignore
+*.md

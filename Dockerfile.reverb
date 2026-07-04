@@ -1,0 +1,28 @@
+# Reverb WebSocket server on :8000
+FROM serversideup/php:8.4-fpm-nginx
+
+USER root
+RUN install-php-extensions pcntl intl bcmath exif pdo_pgsql
+
+ENV PHP_OPCACHE_ENABLE=1 SSL_MODE=off
+
+USER www-data
+WORKDIR /var/www/html
+
+COPY --chown=www-data:www-data composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction \
+    --prefer-dist --no-scripts --no-autoloader
+
+COPY --chown=www-data:www-data . .
+RUN composer dump-autoload --optimize --no-dev
+
+EXPOSE 8000
+STOPSIGNAL SIGTERM
+# Real HTTP check against Reverb's built-in /up endpoint ("is it accepting
+# connections"), not just process-alive. Same path works for Coolify/Traefik.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD curl -fsS http://localhost:8000/up || exit 1
+
+# Set REVERB_SCALING_ENABLED=true in Coolify env so overlapping instances
+# relay broadcasts via Redis during rolling deploys.
+CMD ["php", "/var/www/html/artisan", "reverb:start", "--host=0.0.0.0", "--port=8000"]

@@ -1,0 +1,25 @@
+# Horizon queue workers
+FROM serversideup/php:8.4-fpm-nginx
+
+USER root
+RUN install-php-extensions pcntl intl bcmath exif pdo_pgsql
+
+ENV PHP_OPCACHE_ENABLE=1 SSL_MODE=off
+
+USER www-data
+WORKDIR /var/www/html
+
+COPY --chown=www-data:www-data composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction \
+    --prefer-dist --no-scripts --no-autoloader
+
+COPY --chown=www-data:www-data . .
+RUN composer dump-autoload --optimize --no-dev
+
+# SIGTERM = graceful drain: Horizon finishes in-flight jobs before exit.
+# Pair with Coolify stop timeout 60-120s (must exceed longest job timeout).
+STOPSIGNAL SIGTERM
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD ["healthcheck-horizon"]
+
+CMD ["php", "/var/www/html/artisan", "horizon"]

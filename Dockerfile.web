@@ -1,0 +1,25 @@
+# Web: nginx + php-fpm on :8080
+# Tip: pin a versioned tag (e.g. 8.4-fpm-nginx-v3.x.y) once stable.
+FROM serversideup/php:8.4-fpm-nginx
+
+USER root
+# pcntl required by Horizon, pdo_pgsql for Postgres. (predis is pure PHP, no ext-redis)
+RUN install-php-extensions pcntl intl bcmath exif pdo_pgsql
+
+ENV PHP_OPCACHE_ENABLE=1 \
+    SSL_MODE=off \
+    HEALTHCHECK_PATH=/up
+
+USER www-data
+WORKDIR /var/www/html
+
+COPY --chown=www-data:www-data composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction \
+    --prefer-dist --no-scripts --no-autoloader
+
+COPY --chown=www-data:www-data . .
+RUN composer dump-autoload --optimize --no-dev
+
+# No CMD: image default boots nginx + fpm.
+# Image's built-in Docker HEALTHCHECK now curls /up (Laravel), not just nginx.
+# AUTORUN_ENABLED=true is set in Coolify env for THIS resource only.
