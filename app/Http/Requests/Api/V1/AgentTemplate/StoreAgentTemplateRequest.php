@@ -8,7 +8,8 @@ class StoreAgentTemplateRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        // Platform-admin only. Gate here so non-admins get 403 before validation.
+        return (bool) $this->user()?->can('platformAdmin');
     }
 
     public function rules(): array

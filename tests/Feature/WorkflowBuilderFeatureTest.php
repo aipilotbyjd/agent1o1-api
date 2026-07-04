@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\BuilderSessionStatus;
 use App\Enums\Role;
 use App\Models\User;
 use App\Models\WorkflowBuilderSession;
@@ -106,7 +107,9 @@ test('a user can delete their session', function () {
         ->deleteJson("/api/v1/workspaces/{$this->workspace->id}/workflow-builder/sessions/{$session->id}")
         ->assertOk();
 
-    expect(WorkflowBuilderSession::count())->toBe(0);
+    // Discarding archives the session (kept out of active lists), not hard-deletes it.
+    expect($session->fresh()->status)->toBe(BuilderSessionStatus::Archived)
+        ->and(WorkflowBuilderSession::active()->count())->toBe(0);
 });
 
 // ─── Session draft manipulation ───────────────────────────────────────────────
@@ -182,7 +185,7 @@ test('saving a session creates a workflow', function () {
         ->assertJsonPath('data.name', 'Save me');
 
     $session->refresh();
-    expect($session->status)->toBe('completed')
+    expect($session->status)->toBe(BuilderSessionStatus::Completed)
         ->and($session->workflow_id)->not->toBeNull();
 });
 

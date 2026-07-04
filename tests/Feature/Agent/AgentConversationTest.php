@@ -48,11 +48,11 @@ function makeConversation(Agent $agent, User $user, Workspace $workspace): Conve
         'agent' => WorkflowAgent::class,
         'role' => 'user',
         'content' => 'Hello',
-        'attachments' => '[]',
-        'tool_calls' => '[]',
-        'tool_results' => '[]',
-        'usage' => '[]',
-        'meta' => '[]',
+        'attachments' => [],
+        'tool_calls' => [],
+        'tool_results' => [],
+        'usage' => [],
+        'meta' => [],
     ]);
 
     return $conversation;

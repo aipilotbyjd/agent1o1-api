@@ -21,6 +21,10 @@ class OAuthCredentialState extends Model
 {
     use HasUuids;
 
+    // Without this, Eloquent infers "o_auth_credential_states" (it splits
+    // "OAuth" into "o_auth"), which does not match the migration's table.
+    protected $table = 'oauth_credential_states';
+
     protected function casts(): array
     {
         return [

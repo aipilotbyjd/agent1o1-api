@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\BillingInterval;
 use App\Enums\DiscoverySource;
 use App\Enums\JobRole;
 use App\Http\Controllers\Controller;
@@ -88,6 +89,8 @@ class OnboardingController extends Controller
                 [
                     'plan_id' => $plan->id,
                     'status' => 'active',
+                    'billing_interval' => BillingInterval::Monthly,
+                    'credits_per_cycle' => $plan->creditsMonthly(),
                     'current_period_start' => now(),
                     'current_period_end' => now()->addYear(),
                 ],
