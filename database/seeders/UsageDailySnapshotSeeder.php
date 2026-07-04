@@ -27,18 +27,18 @@ class UsageDailySnapshotSeeder extends Seeder
         $days = 30;
 
         for ($i = $days; $i >= 1; $i--) {
-            $execTotal = fake()->numberBetween(0, 80);
-            $execFailed = fake()->numberBetween(0, (int) ($execTotal * 0.2));
+            $execTotal = random_int(0, 80);
+            $execFailed = random_int(0, (int) ($execTotal * 0.2));
 
             UsageDailySnapshot::create([
                 'workspace_id' => $workspace->id,
                 'snapshot_date' => now()->subDays($i)->toDateString(),
-                'credits_used' => fake()->numberBetween(0, 400),
+                'credits_used' => random_int(0, 400),
                 'executions_total' => $execTotal,
                 'executions_succeeded' => $execTotal - $execFailed,
                 'executions_failed' => $execFailed,
-                'nodes_executed' => $execTotal * fake()->numberBetween(3, 8),
-                'ai_nodes_executed' => fake()->numberBetween(0, (int) ($execTotal * 0.4)),
+                'nodes_executed' => $execTotal * random_int(3, 8),
+                'ai_nodes_executed' => random_int(0, (int) ($execTotal * 0.4)),
             ]);
         }
 
