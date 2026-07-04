@@ -91,7 +91,7 @@ class ArchiveTestExecutionsSeeder extends Seeder
             'mode' => $this->randomMode(),
             'started_at' => $startedAt,
             'finished_at' => $finishedAt,
-            'duration_ms' => $finishedAt->diffInMilliseconds($startedAt),
+            'duration_ms' => $startedAt->diffInMilliseconds($finishedAt),
             'credits_consumed' => rand(5, 50),
             'trigger_data' => [
                 'source' => 'seeder',
@@ -101,8 +101,6 @@ class ArchiveTestExecutionsSeeder extends Seeder
                 'success' => true,
                 'message' => 'Test execution completed',
             ],
-            'node_count' => rand(3, 8),
-            'completed_node_count' => rand(3, 8),
             'created_at' => $createdAt,
             'updated_at' => $finishedAt,
         ]);
@@ -137,7 +135,7 @@ class ArchiveTestExecutionsSeeder extends Seeder
                 'status' => ExecutionNodeStatus::Completed,
                 'started_at' => $startedAt,
                 'finished_at' => $finishedAt,
-                'duration_ms' => $finishedAt->diffInMilliseconds($startedAt),
+                'duration_ms' => $startedAt->diffInMilliseconds($finishedAt),
                 'input_data' => ['test' => true],
                 'output_data' => ['result' => 'success'],
                 'sequence' => $i + 1,
