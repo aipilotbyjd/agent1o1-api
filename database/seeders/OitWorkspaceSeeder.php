@@ -34,10 +34,16 @@ class OitWorkspaceSeeder extends Seeder
 
         $this->command->info("Using workspace: {$workspace->name}");
 
+        $user = User::first();
+        if (! $user) {
+            $this->command->error('No users found. Please seed at least one user first.');
+
+            return;
+        }
+
         // Get or create workflow
         $workflow = $workspace->workflows()->first();
         if (! $workflow) {
-            $user = User::first();
             $workflow = Workflow::create([
                 'workspace_id' => $workspace->id,
                 'name' => 'OIT Demo Workflow',
@@ -49,8 +55,6 @@ class OitWorkspaceSeeder extends Seeder
         } else {
             $this->command->info("Using existing workflow: {$workflow->name}");
         }
-
-        $user = User::first();
 
         // Skip if demo executions already exist for this workflow
         if ($workflow->executions()->exists()) {
