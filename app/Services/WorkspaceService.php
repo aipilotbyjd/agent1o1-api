@@ -50,11 +50,17 @@ class WorkspaceService
 
     public function delete(Workspace $workspace, User $deleter): void
     {
-        $workspace->delete();
+        DB::transaction(function () use ($workspace): void {
+            // Clear the current-workspace pointer for every user referencing this
+            // workspace before deleting it. Otherwise the users.current_workspace_id
+            // foreign key blocks the delete with a constraint violation (HTTP 500).
+            User::query()
+                ->where('current_workspace_id', $workspace->id)
+                ->get()
+                ->each(fn (User $user) => $this->fallbackCurrentWorkspace($user, $workspace->id));
 
-        if ($deleter->current_workspace_id === $workspace->id) {
-            $this->fallbackCurrentWorkspace($deleter);
-        }
+            $workspace->delete();
+        });
     }
 
     public function transferOwnership(Workspace $workspace, User $newOwner): Workspace
@@ -101,9 +107,11 @@ class WorkspaceService
         }
     }
 
-    private function fallbackCurrentWorkspace(User $user): void
+    private function fallbackCurrentWorkspace(User $user, ?string $excludeId = null): void
     {
-        $other = $user->workspaces()->first();
+        $other = $user->workspaces()
+            ->when($excludeId, fn ($q) => $q->where('workspaces.id', '!=', $excludeId))
+            ->first();
         $user->update(['current_workspace_id' => $other?->id]);
     }
 
