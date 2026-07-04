@@ -17,6 +17,7 @@ use App\Jobs\ResumeWorkflowJob;
 use App\Models\Execution;
 use App\Models\ExecutionCheckpoint;
 use App\Models\Variable;
+use App\Services\Billing\CreditService;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -25,6 +26,7 @@ class WorkflowRunner
     public function __construct(
         private readonly NodeRunner $nodeRunner,
         private readonly ExecutionWriter $writer,
+        private readonly CreditService $credits,
     ) {}
 
     public function run(Execution $execution): void
@@ -32,6 +34,17 @@ class WorkflowRunner
         try {
             $graph = $this->buildGraph($execution);
             $context = $this->buildContext($execution, $graph);
+
+            // Authoritative, idempotent credit metering under a row lock. Charged
+            // once per execution before any node runs; throws when out of credits,
+            // which the catch block records as a failed execution.
+            if ($workspace = $execution->workspace) {
+                $this->credits->consume(
+                    $workspace,
+                    (int) config('billing.credits_per_execution', 1),
+                    $execution,
+                );
+            }
 
             $execution->update([
                 'status' => ExecutionStatus::Running->value,

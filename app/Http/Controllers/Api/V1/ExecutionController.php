@@ -10,13 +10,17 @@ use App\Http\Resources\V1\ExecutionResource;
 use App\Models\Execution;
 use App\Models\Workflow;
 use App\Models\Workspace;
+use App\Services\Billing\CreditService;
 use App\Services\ExecutionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ExecutionController extends Controller
 {
-    public function __construct(private readonly ExecutionService $executionService) {}
+    public function __construct(
+        private readonly ExecutionService $executionService,
+        private readonly CreditService $creditService,
+    ) {}
 
     public function index(Request $request, Workspace $workspace): JsonResponse
     {
@@ -45,6 +49,13 @@ class ExecutionController extends Controller
         if (! $workflow->currentVersion || empty($workflow->currentVersion->nodes_data)) {
             return $this->errorResponse('Workflow has no nodes to execute.', 422);
         }
+
+        // Fail fast with a clear 402 before queuing if the workspace is out of credits.
+        // Authoritative metering happens under a lock when the execution starts running.
+        $this->creditService->checkCredits(
+            $workspace,
+            (int) config('billing.credits_per_execution', 1),
+        );
 
         $execution = $this->executionService->trigger(
             $workflow,

@@ -1,6 +1,12 @@
 <?php
 
 return [
+    // Credits consumed per workflow execution. Metered when an execution starts.
+    'credits_per_execution' => (int) env('CREDITS_PER_EXECUTION', 1),
+
+    // Per-user request ceiling (requests/minute) for the authenticated API.
+    'api_rate_limit_per_minute' => (int) env('API_RATE_LIMIT_PER_MINUTE', 300),
+
     'packs' => [
         'small' => [
             'label' => '5,000 credits',

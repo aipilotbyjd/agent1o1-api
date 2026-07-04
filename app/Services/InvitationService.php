@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\Limit;
 use App\Models\Invitation;
 use App\Models\User;
 use App\Models\Workspace;
@@ -27,8 +28,6 @@ class InvitationService
                 'email' => ['A pending invitation already exists for this email.'],
             ]);
         }
-
-        $this->assertSeatAvailable($workspace);
 
         $rawToken = Str::random(64);
 
@@ -70,8 +69,6 @@ class InvitationService
             if ($workspace->invitations()->pending()->where('email', $email)->exists()) {
                 continue;
             }
-
-            $this->assertSeatAvailable($workspace);
 
             $rawToken = Str::random(64);
 
@@ -162,9 +159,25 @@ class InvitationService
         return $invitation;
     }
 
-    /** No-op in Phase 3; Phase 4 fills this with seat-limit enforcement. */
+    /**
+     * Enforce the workspace plan's seat limit at the point a member actually
+     * joins (invitation acceptance). Sending invites is never blocked; the seat
+     * is only consumed on join, so this is the correct and only enforcement gate.
+     */
     protected function assertSeatAvailable(Workspace $workspace): void
     {
-        // Phase 4: PlanLimits::check($workspace, Limit::Seats, $workspace->members()->count())
+        $plan = $workspace->currentPlan();
+
+        if (! $plan || $plan->isUnlimited(Limit::Seats)) {
+            return;
+        }
+
+        $limit = $plan->getLimit(Limit::Seats);
+
+        if ($workspace->members()->count() >= $limit) {
+            throw ValidationException::withMessages([
+                'token' => ["This workspace has reached its seat limit ({$limit}) on the {$plan->name} plan. The owner needs to upgrade to add more members."],
+            ]);
+        }
     }
 }

@@ -48,6 +48,12 @@ class CreditService
 
     public function checkCredits(Workspace $workspace, int $needed): void
     {
+        // No active usage period → metering isn't configured for this workspace;
+        // allow the action (mirrors consume(), which no-ops without a period).
+        if (! $workspace->currentPeriod) {
+            return;
+        }
+
         $available = $this->getAvailable($workspace);
 
         if ($available !== PHP_INT_MAX && $available < $needed) {

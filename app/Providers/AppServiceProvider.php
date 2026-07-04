@@ -70,6 +70,14 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('auth', function (Request $request): Limit {
             return Limit::perMinute(10)->by($request->ip());
         });
+
+        // Per-user (or per-IP for guests) ceiling on all authenticated API traffic
+        // to protect the platform from runaway or abusive request volume.
+        RateLimiter::for('api', function (Request $request): Limit {
+            $key = $request->user()?->getAuthIdentifier() ?: $request->ip();
+
+            return Limit::perMinute((int) config('billing.api_rate_limit_per_minute', 300))->by((string) $key);
+        });
     }
 
     /**
