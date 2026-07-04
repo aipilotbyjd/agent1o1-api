@@ -1,7 +1,15 @@
 <?php
 
-test('the application returns a successful response', function () {
-    $response = $this->get('/');
+use Database\Seeders\PlanSeeder;
 
-    $response->assertStatus(200);
+test('public plans endpoint returns active plans', function () {
+    $this->seed(PlanSeeder::class);
+
+    $this->getJson('/api/v1/plans')
+        ->assertOk()
+        ->assertJsonStructure([
+            'data' => [
+                '*' => ['id', 'name', 'slug'],
+            ],
+        ]);
 });

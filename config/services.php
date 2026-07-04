@@ -14,6 +14,10 @@ return [
     |
     */
 
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY'),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],
@@ -35,9 +39,15 @@ return [
         ],
     ],
 
-    'horizon' => [
-        'user' => env('HORIZON_USER'),
-        'password' => env('HORIZON_PASSWORD'),
+    'stripe' => [
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+    ],
+
+    'dashboard' => [
+        'user' => env('DASHBOARD_USER'),
+        'password' => env('DASHBOARD_PASSWORD'),
     ],
 
 ];

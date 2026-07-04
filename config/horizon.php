@@ -83,7 +83,7 @@ return [
     |
     */
 
-    'middleware' => ['web', \App\Http\Middleware\HorizonBasicAuth::class],
+    'middleware' => ['web', \App\Http\Middleware\DashboardBasicAuth::class],
 
     /*
     |--------------------------------------------------------------------------
@@ -210,6 +210,35 @@ return [
             'timeout' => 60,
             'nice' => 0,
         ],
+
+        // Workflow executions — long-running, isolated from other queues
+        'supervisor-engine' => [
+            'connection' => 'redis',
+            'queue' => ['engine'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'size',
+            'maxProcesses' => 2,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 256,
+            'tries' => 1,
+            'timeout' => 300,
+            'nice' => 0,
+        ],
+
+        // Trigger event processing — short, bursty jobs
+        'supervisor-triggers' => [
+            'connection' => 'redis',
+            'queue' => ['triggers'],
+            'balance' => 'simple',
+            'maxProcesses' => 2,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 128,
+            'tries' => 3,
+            'timeout' => 60,
+            'nice' => 0,
+        ],
     ],
 
     'environments' => [
@@ -219,11 +248,25 @@ return [
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
+            'supervisor-engine' => [
+                'maxProcesses' => 10,
+                'balanceMaxShift' => 2,
+                'balanceCooldown' => 3,
+            ],
+            'supervisor-triggers' => [
+                'maxProcesses' => 4,
+            ],
         ],
 
         'local' => [
             'supervisor-1' => [
                 'maxProcesses' => 3,
+            ],
+            'supervisor-engine' => [
+                'maxProcesses' => 2,
+            ],
+            'supervisor-triggers' => [
+                'maxProcesses' => 2,
             ],
         ],
     ],

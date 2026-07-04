@@ -15,11 +15,43 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            ['name' => 'Test User', 'password' => bcrypt('password')],
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            // Billing & credits
+            PlanSeeder::class,
+            CreditPackSeeder::class,
+
+            // Credential types
+            CredentialTypeSeeder::class,
+
+            // Nodes & triggers
+            NodeCategorySeeder::class,
+            NodeSeeder::class,
+            TriggerCategorySeeder::class,
+            TriggerTypeSeeder::class,
+            TriggerTypeFieldSeeder::class,
+
+            // Templates & skills
+            WorkflowTemplateSeeder::class,
+            AgentTemplateSeeder::class,
+            TemplateCollectionSeeder::class,
+            ProductManagerSkillSeeder::class,
+
+            // Empty stubs (placeholder for future implementation)
+            CreditTransactionSeeder::class,
+            SubscriptionSeeder::class,
+            WorkflowSeeder::class,
+            UsageDailySnapshotSeeder::class,
+            WorkspaceMemberSeeder::class,
+            WorkspaceUsagePeriodSeeder::class,
+
+            // Demo/test data (requires existing workspace/workflow)
+            OitWorkspaceSeeder::class,
+            ArchiveTestExecutionsSeeder::class,
         ]);
     }
 }

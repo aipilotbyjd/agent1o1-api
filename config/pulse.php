@@ -122,6 +122,7 @@ return [
 
     'middleware' => [
         'web',
+        \App\Http\Middleware\DashboardBasicAuth::class,
         Authorize::class,
     ],
 

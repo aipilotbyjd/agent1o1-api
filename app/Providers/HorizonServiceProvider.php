@@ -27,8 +27,8 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
      */
     protected function gate(): void
     {
-        // Access is guarded by App\Http\Middleware\HorizonBasicAuth
-        // (HTTP Basic Auth in non-local envs), so the gate itself allows through.
+        // Access is guarded by App\Http\Middleware\DashboardBasicAuth
+        // (HTTP Basic Auth in non-local envs), so the gate allows through.
         Gate::define('viewHorizon', fn ($user = null) => true);
     }
 }
