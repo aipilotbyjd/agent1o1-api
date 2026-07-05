@@ -1,6 +1,7 @@
 <?php
 
 use App\Engine\WorkflowRunner;
+use App\Enums\ExecutionNodeStatus;
 use App\Enums\ExecutionStatus;
 use App\Models\Execution;
 use App\Models\ExecutionNode;
@@ -129,12 +130,12 @@ test('try-catch routes to catch branch when upstream node fails', function () {
     $execution->refresh();
     expect($execution->status)->toBe(ExecutionStatus::Completed);
 
-    // catch_node should have run, try_node should not
+    // catch_node should have run; the not-taken try branch is recorded as skipped
     expect(ExecutionNode::where('execution_id', $execution->id)
-        ->where('node_id', 'catch_node')->exists())->toBeTrue();
+        ->where('node_id', 'catch_node')->first()->status)->toBe(ExecutionNodeStatus::Completed);
 
     expect(ExecutionNode::where('execution_id', $execution->id)
-        ->where('node_id', 'try_node')->exists())->toBeFalse();
+        ->where('node_id', 'try_node')->first()?->status)->toBe(ExecutionNodeStatus::Skipped);
 });
 
 // ── Checkpoint / resume ───────────────────────────────────────────────────────

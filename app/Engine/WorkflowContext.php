@@ -17,6 +17,12 @@ class WorkflowContext
 
     private array $completedNodes = [];
 
+    /** Nodes that have received at least one active (taken-branch) input edge. */
+    private array $activatedNodes = [];
+
+    /** Nodes skipped since the last drain, awaiting persistence by the runner. */
+    private array $skippedBuffer = [];
+
     private array $readyQueue = [];
 
     private array $variables;
@@ -86,23 +92,101 @@ class WorkflowContext
             $this->outputs->store($nodeId, $result->output);
         }
 
+        $this->propagate($nodeId, $result);
+
+        $this->releaseConsumedInputs($nodeId);
+    }
+
+    /**
+     * Drop one OutputBuffer reference on each predecessor whose output this node
+     * consumed. The buffer frees a producer's output when its refcount (initialised
+     * to the producer's consumer count) reaches zero.
+     */
+    private function releaseConsumedInputs(string $nodeId): void
+    {
+        foreach ($this->graph->getPredecessors($nodeId) as $predecessor) {
+            $this->outputs->release($predecessor);
+        }
+    }
+
+    /**
+     * Propagate a node's completion (or skip) to its successors: decrement each
+     * successor's in-degree, remember whether it received an active (taken-branch)
+     * input, and — once every incoming edge is resolved — either enqueue it or,
+     * if no active branch ever reached it, mark it Skipped and cascade the skip.
+     *
+     * This keeps a join (e.g. Merge) after a Condition alive: the not-taken branch
+     * is skip-propagated so the join's in-degree still reaches zero and it runs on
+     * the taken branch, instead of stranding the remainder of the graph.
+     */
+    private function propagate(string $nodeId, NodeResult $result): void
+    {
+        $isFailed = $result->status === ExecutionNodeStatus::Failed;
+        $isSkipped = $result->status === ExecutionNodeStatus::Skipped;
+
         foreach ($this->graph->getSuccessors($nodeId) as $successor) {
             $this->remainingInDegree[$successor]--;
 
-            if ($this->remainingInDegree[$successor] <= 0) {
-                if ($result->status === ExecutionNodeStatus::Failed) {
-                    // Only route failures to TryCatch nodes; all other branches stop
-                    if ($this->graph->getNodeType($successor) === NodeType::TryCatch) {
-                        $this->readyQueue[$successor] = true;
-                    }
-                } elseif ($this->isBranchActive($nodeId, $successor, $result)) {
+            // An edge is "active" only when a real completion flows down a taken branch.
+            if (! $isFailed && ! $isSkipped && $this->isBranchActive($nodeId, $successor, $result)) {
+                $this->activatedNodes[$successor] = true;
+            }
+
+            if ($this->remainingInDegree[$successor] > 0) {
+                continue;
+            }
+
+            if (isset($this->completedNodes[$successor]) || isset($this->readyQueue[$successor])) {
+                continue;
+            }
+
+            if ($isFailed) {
+                // Preserve failure semantics: only TryCatch catches failures; every
+                // other successor stops here and the runner halts the execution.
+                if ($this->graph->getNodeType($successor) === NodeType::TryCatch) {
                     $this->readyQueue[$successor] = true;
                 }
+
+                continue;
+            }
+
+            if (! empty($this->activatedNodes[$successor])) {
+                $this->readyQueue[$successor] = true;
+            } else {
+                $this->skipNode($successor);
             }
         }
+    }
 
-        // Release output buffer ref when all consumers have consumed
-        $this->outputs->release($nodeId);
+    /**
+     * Mark a node Skipped (no active branch reached it) and cascade the skip to its
+     * successors so downstream joins can still resolve their in-degree. Skipped
+     * nodes are buffered for the runner to persist via drainSkipped().
+     */
+    private function skipNode(string $nodeId): void
+    {
+        $result = NodeResult::skipped();
+
+        $this->completedNodes[$nodeId] = $result;
+        $this->skippedBuffer[$nodeId] = $result;
+
+        $this->propagate($nodeId, $result);
+
+        $this->releaseConsumedInputs($nodeId);
+    }
+
+    /**
+     * Return and clear the nodes skipped since the last drain so the runner can
+     * record them in the execution log.
+     *
+     * @return array<string, NodeResult>
+     */
+    public function drainSkipped(): array
+    {
+        $skipped = $this->skippedBuffer;
+        $this->skippedBuffer = [];
+
+        return $skipped;
     }
 
     /**

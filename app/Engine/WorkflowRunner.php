@@ -165,6 +165,14 @@ class WorkflowRunner
                     $this->writer->record($execution->id, $nodeId, $nodeId, $graph, $result, $sequence);
                     $context->markCompleted($nodeId, $result);
                     broadcast(new NodeCompletedEvent($execution, $nodeId, $result, $sequence));
+
+                    // Persist any nodes the completion skip-propagated (not-taken
+                    // branches) so the execution log reflects the full graph.
+                    foreach ($context->drainSkipped() as $skippedId => $skippedResult) {
+                        $skippedSequence = $context->nextSequence();
+                        $this->writer->record($execution->id, $skippedId, $skippedId, $graph, $skippedResult, $skippedSequence);
+                        broadcast(new NodeCompletedEvent($execution, $skippedId, $skippedResult, $skippedSequence));
+                    }
                 }
             }
 
