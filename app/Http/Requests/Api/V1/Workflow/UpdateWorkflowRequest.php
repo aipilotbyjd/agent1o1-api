@@ -7,6 +7,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateWorkflowRequest extends FormRequest
 {
+    use PreservesGraphPayload;
+
     public function authorize(): bool
     {
         return $this->user()->can(Permission::WorkflowUpdate->value);

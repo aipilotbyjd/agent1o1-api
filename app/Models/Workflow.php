@@ -142,6 +142,7 @@ class Workflow extends Model
     public function refreshSuccessRate(): void
     {
         $counts = $this->executions()
+            ->reorder() // the relation is ordered by created_at; Postgres rejects ORDER BY on an ungrouped aggregate
             ->selectRaw("count(*) as total, sum(case when status = 'completed' then 1 else 0 end) as ok")
             ->whereIn('status', ['completed', 'failed'])
             ->first();
