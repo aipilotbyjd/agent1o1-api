@@ -66,6 +66,8 @@ test('onboarding is fully completed when all 7 steps done', function () {
     $workspace->subscription()->create([
         'plan_id' => $plan->id,
         'status' => 'active',
+        'billing_interval' => 'monthly',
+        'credits_per_cycle' => $plan->creditsMonthly(),
         'current_period_start' => now(),
         'current_period_end' => now()->addYear(),
     ]);

@@ -49,9 +49,20 @@ class ProcessTriggerEventJob implements ShouldQueue
             'attempts' => $event->attempts + 1,
         ]);
 
-        // Apply guards in order: filters → rate limit → concurrency
+        // Apply guards in order: filters → concurrency → rate limit.
+        // Concurrency is a read-only count, so it must be checked before the rate
+        // limiter — RateLimiter::attempt() consumes a token, and if a concurrency
+        // re-queue happened after it, every retry would burn another token and
+        // eventually throttle legitimate events that never actually ran.
         if (! $filterEvaluator->passes($trigger, $event->event_data ?? [])) {
             $event->update(['status' => 'skipped', 'processed_at' => now()]);
+
+            return;
+        }
+
+        if (! $concurrencyGuard->canExecute($trigger)) {
+            $event->update(['status' => 'pending']);
+            self::dispatch($event->id)->onQueue('triggers')->delay(15);
 
             return;
         }
@@ -60,13 +71,6 @@ class ProcessTriggerEventJob implements ShouldQueue
             // Re-queue after the rate limit window opens up
             $event->update(['status' => 'pending']);
             self::dispatch($event->id)->onQueue('triggers')->delay($rateLimiter->availableIn($trigger));
-
-            return;
-        }
-
-        if (! $concurrencyGuard->canExecute($trigger)) {
-            $event->update(['status' => 'pending']);
-            self::dispatch($event->id)->onQueue('triggers')->delay(15);
 
             return;
         }

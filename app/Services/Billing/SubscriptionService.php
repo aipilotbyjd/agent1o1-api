@@ -65,6 +65,16 @@ class SubscriptionService
     {
         $subscription = $workspace->subscription;
 
+        // A swap to the same plan and interval is a no-op. Without this guard it
+        // would still open a fresh usage period (credits_used = 0), letting a user
+        // reset their credit meter mid-cycle for free by "changing" to their
+        // current plan. Nothing changed, so leave the period untouched.
+        if ($subscription->plan_id === $plan->id
+            && $subscription->billing_interval->value === $interval
+        ) {
+            return $subscription->fresh();
+        }
+
         DB::transaction(function () use ($workspace, $subscription, $plan, $interval) {
             $subscription->update([
                 'plan_id' => $plan->id,

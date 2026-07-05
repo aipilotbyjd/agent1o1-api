@@ -134,6 +134,9 @@ class RolloverCommand extends Command
 
     private function freePlanCredits(): int
     {
-        return (int) Plan::where('slug', 'free')->value('limits->credits_monthly') ?? 1000;
+        // Parenthesize the coalesce: the cast binds tighter than ??, so
+        // `(int) $x ?? 1000` is `((int) $x) ?? 1000` — and `(int) null` is 0
+        // (not null), which means the 1000 fallback could never fire.
+        return (int) (Plan::where('slug', 'free')->value('limits->credits_monthly') ?? 1000);
     }
 }

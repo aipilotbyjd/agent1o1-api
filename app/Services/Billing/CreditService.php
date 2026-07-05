@@ -224,6 +224,13 @@ class CreditService
 
             if ($delta < 0) {
                 $period->increment('credits_used', abs($delta));
+            } elseif ($delta > 0) {
+                // Positive grants must raise the available balance. creditsRemaining()
+                // is (limit + packs + rolled_over - used), so a grant that only wrote a
+                // transaction row — without touching any of those columns — had zero
+                // effect. Land it in credits_from_packs, the general "extra credits"
+                // bucket that adds to availability (and carries over like a purchase).
+                $period->increment('credits_from_packs', $delta);
             }
         });
 
