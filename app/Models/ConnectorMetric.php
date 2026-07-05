@@ -23,7 +23,11 @@ class ConnectorMetric extends Model
     protected function casts(): array
     {
         return [
-            'date' => 'date',
+            // Store as a bare date (Y-m-d). The default `date` cast serializes to
+            // `Y-m-d H:i:s`, so the persisted value ("...00:00:00") never matched the
+            // Y-m-d string used in the daily-rollup firstOrCreate() lookup — every
+            // record() then tried to re-INSERT and hit the unique constraint.
+            'date' => 'date:Y-m-d',
             'total_calls' => 'integer',
             'success_calls' => 'integer',
             'failed_calls' => 'integer',

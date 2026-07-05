@@ -29,6 +29,16 @@ class WorkflowBuilderSession extends Model
     /** @use HasFactory<WorkflowBuilderSessionFactory> */
     use HasFactory, HasUuids;
 
+    /**
+     * Mirror the DB default in memory. Eloquent does not hydrate database
+     * defaults onto a freshly created model, so without this the optimistic
+     * draft lock reads null and its "WHERE draft_lock_version = NULL" guard
+     * matches nothing — making the first draft mutation always conflict.
+     */
+    protected $attributes = [
+        'draft_lock_version' => 0,
+    ];
+
     protected function casts(): array
     {
         return [

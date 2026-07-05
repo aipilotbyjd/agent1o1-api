@@ -99,6 +99,58 @@ test('insufficient credits throws exception', function () {
         ->toThrow(InsufficientCreditsException::class);
 });
 
+test('positive admin adjustment raises the available balance', function () {
+    $admin = User::factory()->create();
+    $owner = User::factory()->create();
+    $workspace = Workspace::factory()->create(['owner_id' => $owner->id]);
+    $sub = Subscription::factory()->create(['workspace_id' => $workspace->id, 'plan_id' => Plan::where('slug', 'free')->first()->id]);
+    $period = UsagePeriod::factory()->create([
+        'workspace_id' => $workspace->id,
+        'subscription_id' => $sub->id,
+        'credits_limit' => 1000,
+        'credits_used' => 400,
+        'is_current' => true,
+    ]);
+
+    $creditService = app(CreditService::class);
+    $creditService->adjust($workspace, 250, 'Goodwill grant', $admin);
+
+    $period->refresh();
+    expect($period->creditsRemaining())->toBe(850); // 1000 + 250 - 400
+
+    // Negative adjustment lowers the balance.
+    $creditService->adjust($workspace, -100, 'Correction', $admin);
+    $period->refresh();
+    expect($period->creditsRemaining())->toBe(750);
+});
+
+// ── Plan swap ───────────────────────────────────────────────────────────────────
+
+test('swapping to the same plan and interval does not reset the credit meter', function () {
+    $owner = User::factory()->create();
+    $workspace = Workspace::factory()->create(['owner_id' => $owner->id]);
+    $plan = Plan::where('slug', 'pro')->first();
+    $sub = Subscription::factory()->create([
+        'workspace_id' => $workspace->id,
+        'plan_id' => $plan->id,
+        'billing_interval' => \App\Enums\BillingInterval::Monthly,
+        'stripe_subscription_id' => 'sub_test',
+    ]);
+    $period = UsagePeriod::factory()->create([
+        'workspace_id' => $workspace->id,
+        'subscription_id' => $sub->id,
+        'credits_limit' => $plan->creditsMonthly(),
+        'credits_used' => 500,
+        'is_current' => true,
+    ]);
+
+    app(\App\Services\Billing\SubscriptionService::class)->swap($workspace, $plan, 'monthly');
+
+    // No new period should have been opened, and usage must be preserved.
+    expect(UsagePeriod::where('workspace_id', $workspace->id)->count())->toBe(1);
+    expect($period->fresh()->credits_used)->toBe(500);
+});
+
 // ── Plan seeder ───────────────────────────────────────────────────────────────
 
 test('plan seeder creates 5 plans with correct slugs', function () {

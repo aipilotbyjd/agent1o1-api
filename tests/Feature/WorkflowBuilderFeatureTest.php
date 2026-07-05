@@ -5,6 +5,7 @@ use App\Enums\Role;
 use App\Models\User;
 use App\Models\WorkflowBuilderSession;
 use App\Models\Workspace;
+use App\Services\WorkflowBuilder\DraftService;
 use Database\Seeders\PlanSeeder;
 use Illuminate\Support\Str;
 
@@ -121,9 +122,10 @@ test('adding a node to the session draft is reflected in the response', function
         'title' => 'Draft test',
     ]);
 
-    $session->addNode(['id' => 'node_1', 'type' => 'trigger', 'name' => 'Webhook', 'config' => [], 'position' => ['x' => 0, 'y' => 200]]);
-    $session->addNode(['id' => 'node_2', 'type' => 'http_request', 'name' => 'HTTP', 'config' => [], 'position' => ['x' => 250, 'y' => 200]]);
-    $session->addEdge(['source' => 'node_1', 'target' => 'node_2', 'sourceHandle' => 'output', 'targetHandle' => 'input']);
+    $draft = app(DraftService::class);
+    $draft->addNode($session, ['id' => 'node_1', 'type' => 'trigger', 'name' => 'Webhook', 'config' => [], 'position' => ['x' => 0, 'y' => 200]]);
+    $draft->addNode($session, ['id' => 'node_2', 'type' => 'http_request', 'name' => 'HTTP', 'config' => [], 'position' => ['x' => 250, 'y' => 200]]);
+    $draft->addEdge($session, ['source' => 'node_1', 'target' => 'node_2', 'sourceHandle' => 'output', 'targetHandle' => 'input']);
 
     $session->refresh();
     expect($session->nodes_draft)->toHaveCount(2)
@@ -144,7 +146,7 @@ test('removing a node also removes its connected edges', function () {
         ],
     ]);
 
-    $session->removeNode('node_b');
+    app(DraftService::class)->removeNode($session, 'node_b');
     $session->refresh();
 
     expect($session->nodes_draft)->toHaveCount(1)
@@ -161,7 +163,7 @@ test('updating a node merges config fields', function () {
         ],
     ]);
 
-    $session->updateNode('node_x', ['name' => 'New name']);
+    app(DraftService::class)->updateNode($session, 'node_x', ['name' => 'New name']);
     $session->refresh();
 
     expect($session->nodes_draft[0]['name'])->toBe('New name')

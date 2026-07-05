@@ -62,6 +62,10 @@ class ExecutionService
             'attempt' => $execution->attempt + 1,
         ]);
 
+        // A retry is a fresh, credit-consuming run — count it like any other
+        // execution so execution_count stays consistent with success_rate.
+        $execution->workflow->incrementExecutionCount();
+
         ExecuteWorkflowJob::dispatch($retry->id);
 
         return $retry;
