@@ -104,7 +104,7 @@ class OnboardingController extends Controller
 
         // Paid plan — return a Stripe checkout URL via the existing billing flow.
         return $this->errorResponse(
-            'Paid plans require Stripe checkout. Use POST /api/v1/workspaces/{workspace}/subscriptions/checkout.',
+            'Paid plans require Stripe checkout. Use POST /api/v1/workspaces/{workspace}/subscription/checkout.',
             422,
         );
     }

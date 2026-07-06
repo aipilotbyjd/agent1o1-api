@@ -301,7 +301,10 @@ Route::prefix('v1')->as('v1.')->group(function () {
                 Route::prefix('credits')->as('credits.')->group(function () {
                     Route::get('balance', [CreditController::class, 'balance'])->name('balance');
                     Route::get('transactions', [CreditController::class, 'transactions'])->name('transactions');
+                    Route::get('packs', [CreditController::class, 'packs'])->name('packs');
                 });
+
+                Route::get('usage-snapshots', [CreditController::class, 'usageSnapshots'])->name('usage-snapshots');
 
                 /*
                 |--------------------------------------------------------------
