@@ -290,18 +290,28 @@ class WorkflowContext
     public function buildExpressionContext(): array
     {
         $nodes = [];
+        $topLevel = [];
 
         foreach ($this->completedNodes as $nodeId => $result) {
             $node = $this->graph->getNode($nodeId);
             $name = $node['name'] ?? $nodeId;
-            $nodes[$name] = ['output' => $result->output ?? []];
-            $nodes[$nodeId] = ['output' => $result->output ?? []];
+            $entry = ['output' => $result->output ?? []];
+
+            // Namespaced form: {{ nodes.node_2.output.city }}
+            $nodes[$name] = $entry;
+            $nodes[$nodeId] = $entry;
+
+            // Bare-id/name form: {{ node_2.output.city }}. ID-based references are
+            // stable across rename/duplicate; names are exposed for convenience.
+            $topLevel[$nodeId] = $entry;
+            $topLevel[$name] = $entry;
         }
 
-        return [
+        // Reserved roots always win over any node whose id/name collides with them.
+        return array_merge($topLevel, [
             'nodes' => $nodes,
             'variables' => $this->variables,
-        ];
+        ]);
     }
 
     public function nextSequence(): int

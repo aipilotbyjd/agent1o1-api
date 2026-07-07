@@ -9,6 +9,21 @@ class ExpressionResolver
 {
     private const EXPR_PATTERN = '/\{\{\s*(.+?)\s*\}\}/';
 
+    /**
+     * Value returned when a token references a path that does not exist in the
+     * context. Defaults to null (distinguishable from a present null); the
+     * execution path configures this to '' so missing tokens never crash a node
+     * and render as empty strings inside interpolated config values.
+     */
+    public function __construct(private mixed $missingValue = null) {}
+
+    public function withMissingValue(mixed $value): static
+    {
+        $this->missingValue = $value;
+
+        return $this;
+    }
+
     public function compile(string $template): array
     {
         if (! str_contains($template, '{{')) {
@@ -146,20 +161,10 @@ class ExpressionResolver
 
     private function resolvePath(string $path, array $context): mixed
     {
-        $parts = explode('.', $path);
-        $current = $context;
-
-        foreach ($parts as $part) {
-            if (is_array($current)) {
-                $current = $current[$part] ?? null;
-            } elseif (is_object($current)) {
-                $current = $current->{$part} ?? null;
-            } else {
-                return null;
-            }
-        }
-
-        return $current;
+        // Laravel data_get walks dot/index paths through nested arrays and
+        // objects — e.g. node_2.output.data.0.id — and returns the configured
+        // missing value when any segment is absent, without ever crashing.
+        return data_get($context, $path, $this->missingValue);
     }
 
     private function callFunction(string $name, string $argsRaw, array $context): mixed

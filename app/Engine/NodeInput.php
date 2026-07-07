@@ -25,7 +25,9 @@ readonly class NodeInput
         $node = $graph->getNode($nodeId);
         $compiledConfig = $graph->getCompiledConfig($nodeId);
         $expressionContext = $context->buildExpressionContext();
-        $resolver = app(Graph\ExpressionResolver::class);
+        // Missing tokens render as '' at run time so a typo or absent upstream
+        // field never crashes a node mid-execution.
+        $resolver = app(Graph\ExpressionResolver::class)->withMissingValue('');
 
         $config = $resolver->resolveConfig($compiledConfig, $expressionContext);
         $inputData = $context->gatherInputData($nodeId);
