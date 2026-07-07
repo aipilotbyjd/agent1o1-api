@@ -23,6 +23,7 @@ class ExecutionNodeResource extends JsonResource
             'started_at' => $this->started_at,
             'finished_at' => $this->finished_at,
             'duration_ms' => $this->duration_ms,
+            'attempt' => $this->attempt,
             'input_data' => $this->input_data,
             'output_data' => $this->output_data,
             'error' => $this->error,
