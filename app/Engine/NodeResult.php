@@ -13,6 +13,8 @@ readonly class NodeResult
         public int $durationMs = 0,
         public ?array $activeBranches = null,
         public ?array $loopItems = null,
+        public int $attempt = 1,
+        public ?array $input = null,
     ) {}
 
     public static function completed(array $output, int $durationMs = 0): self

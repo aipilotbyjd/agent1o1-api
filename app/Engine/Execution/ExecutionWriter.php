@@ -36,6 +36,8 @@ class ExecutionWriter
             'started_at' => $now,
             'finished_at' => $now,
             'duration_ms' => $result->durationMs,
+            'attempt' => $result->attempt,
+            'input_data' => $result->input ? json_encode($result->input) : null,
             'output_data' => $result->output ? json_encode($result->output) : null,
             'error' => $result->error ? json_encode($result->error) : null,
             'sequence' => $sequence,
@@ -56,8 +58,8 @@ class ExecutionWriter
         $this->pendingRows = [];
 
         ExecutionNode::upsert($rows, ['execution_id', 'node_run_key'], [
-            'node_type', 'node_name', 'status', 'finished_at', 'duration_ms',
-            'output_data', 'error', 'sequence', 'loop_index', 'parent_frame', 'updated_at',
+            'node_type', 'node_name', 'status', 'finished_at', 'duration_ms', 'attempt',
+            'input_data', 'output_data', 'error', 'sequence', 'loop_index', 'parent_frame', 'updated_at',
         ]);
 
         return count($rows);

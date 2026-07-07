@@ -122,36 +122,120 @@ class NodeRunner
             return NodeResult::failed("No handler registered for node type: {$type}");
         }
 
+        // Resolve the input once: templated config is deterministic against the
+        // current context, so every attempt runs against identical input. The
+        // resolved config is persisted alongside the result for debugging.
+        $input = NodeInput::build($nodeId, $graph, $context, $nodeId);
+        $persistedInput = ['config' => $input->config];
+
+        $policy = $this->retryPolicy($node);
         $startTime = hrtime(true);
+        $result = null;
 
-        try {
-            $input = NodeInput::build($nodeId, $graph, $context, $nodeId);
-            $result = $handler->handle($input);
-            $durationMs = (int) ((hrtime(true) - $startTime) / 1_000_000);
+        for ($attempt = 1; $attempt <= $policy['max_attempts']; $attempt++) {
+            try {
+                $result = $handler->handle($input);
+            } catch (Throwable $e) {
+                Log::error("Node execution threw: {$nodeId}", [
+                    'type' => $type,
+                    'attempt' => $attempt,
+                    'error' => $e->getMessage(),
+                    'execution_id' => $context->executionId,
+                ]);
 
-            // Attach actual duration
-            return new NodeResult(
-                status: $result->status,
-                output: $result->output,
-                error: $result->error,
-                durationMs: $durationMs,
-                activeBranches: $result->activeBranches,
-                loopItems: $result->loopItems,
-            );
-        } catch (Throwable $e) {
-            $durationMs = (int) ((hrtime(true) - $startTime) / 1_000_000);
+                $result = new NodeResult(
+                    status: ExecutionNodeStatus::Failed,
+                    error: ['message' => $e->getMessage(), 'class' => get_class($e)],
+                );
+            }
 
-            Log::error("Node execution failed: {$nodeId}", [
-                'type' => $type,
-                'error' => $e->getMessage(),
+            // Succeeded (or a non-failure terminal status): stop retrying.
+            if (! $result->isFailed()) {
+                break;
+            }
+
+            // Exhausted attempts: give up and let the run fail.
+            if ($attempt >= $policy['max_attempts']) {
+                Log::warning("Node failed after {$attempt} attempt(s): {$nodeId}", [
+                    'type' => $type,
+                    'execution_id' => $context->executionId,
+                    'error' => $result->error['message'] ?? null,
+                ]);
+
+                break;
+            }
+
+            // Transient failure with retries remaining: back off, then retry.
+            $delay = $this->backoffDelay($policy, $attempt);
+            Log::info("Retrying node {$nodeId} after failure", [
+                'attempt' => $attempt,
+                'next_attempt' => $attempt + 1,
+                'backoff_seconds' => $delay,
                 'execution_id' => $context->executionId,
             ]);
 
-            return new NodeResult(
-                status: ExecutionNodeStatus::Failed,
-                error: ['message' => $e->getMessage(), 'class' => get_class($e)],
-                durationMs: $durationMs,
-            );
+            $this->sleepSeconds($delay);
+        }
+
+        $durationMs = (int) ((hrtime(true) - $startTime) / 1_000_000);
+
+        return new NodeResult(
+            status: $result->status,
+            output: $result->output,
+            error: $result->error,
+            durationMs: $durationMs,
+            activeBranches: $result->activeBranches,
+            loopItems: $result->loopItems,
+            attempt: $attempt > $policy['max_attempts'] ? $policy['max_attempts'] : $attempt,
+            input: $persistedInput,
+        );
+    }
+
+    /**
+     * Resolve the effective retry policy for a node: engine defaults overlaid
+     * with any per-node overrides under config.retry.
+     *
+     * @param  array<string,mixed>  $node
+     * @return array{max_attempts:int, backoff:float, multiplier:float, max_backoff:float}
+     */
+    private function retryPolicy(array $node): array
+    {
+        $defaults = config('engine.node_retry', []);
+        $override = $node['config']['retry'] ?? $node['data']['retry'] ?? [];
+
+        return [
+            'max_attempts' => max(1, (int) ($override['max_attempts'] ?? $defaults['max_attempts'] ?? 1)),
+            'backoff' => max(0, (float) ($override['backoff'] ?? $defaults['backoff'] ?? 0)),
+            'multiplier' => max(1, (float) ($override['multiplier'] ?? $defaults['multiplier'] ?? 2)),
+            'max_backoff' => max(0, (float) ($override['max_backoff'] ?? $defaults['max_backoff'] ?? 60)),
+        ];
+    }
+
+    /**
+     * Exponential backoff delay (seconds) before the given 1-indexed attempt's
+     * retry: backoff * multiplier^(attempt-1), capped at max_backoff.
+     *
+     * @param  array{backoff:float, multiplier:float, max_backoff:float}  $policy
+     */
+    private function backoffDelay(array $policy, int $attempt): float
+    {
+        if ($policy['backoff'] <= 0) {
+            return 0.0;
+        }
+
+        $delay = $policy['backoff'] * ($policy['multiplier'] ** ($attempt - 1));
+
+        return min($delay, $policy['max_backoff']);
+    }
+
+    /**
+     * Sleep between retry attempts. Extracted as a seam so tests can exercise
+     * the retry loop without real delays (configure backoff to 0).
+     */
+    protected function sleepSeconds(float $seconds): void
+    {
+        if ($seconds > 0) {
+            usleep((int) round($seconds * 1_000_000));
         }
     }
 
