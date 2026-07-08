@@ -21,7 +21,7 @@ class WorkspaceController extends Controller
         $workspaces = $request->user()
             ->workspaces()
             ->with('owner')
-            ->withCount('members')
+            ->withCount(['members', 'workflows', 'agents'])
             ->paginate(15);
 
         return $this->paginatedResponse(

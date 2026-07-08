@@ -22,6 +22,8 @@ class WorkspaceResource extends JsonResource
             'owner' => new UserResource($this->whenLoaded('owner')),
             'role' => $request->attributes->get('workspace_role'),
             'member_count' => $this->whenCounted('members'),
+            'workflows_count' => $this->whenCounted('workflows'),
+            'agents_count' => $this->whenCounted('agents'),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
