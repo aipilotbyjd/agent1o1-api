@@ -8,6 +8,7 @@ use App\Http\Requests\Api\V1\Folder\DestroyFolderRequest;
 use App\Http\Requests\Api\V1\Folder\StoreFolderRequest;
 use App\Http\Resources\V1\FolderResource;
 use App\Models\Folder;
+use App\Models\Workflow;
 use App\Models\Workspace;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -64,5 +65,24 @@ class FolderController extends Controller
         $folder->delete();
 
         return $this->successResponse('Folder deleted.');
+    }
+
+    public function moveWorkflows(Request $request, Workspace $workspace): JsonResponse
+    {
+        if ($forbidden = $this->requirePermission(Permission::WorkflowUpdate)) {
+            return $forbidden;
+        }
+
+        $validated = $request->validate([
+            'workflow_ids' => 'required|array|min:1',
+            'workflow_ids.*' => 'string|uuid',
+            'folder_id' => 'nullable|string|uuid|exists:folders,id,workspace_id,' . $workspace->id,
+        ]);
+
+        $workspace->workflows()
+            ->whereIn('id', $validated['workflow_ids'])
+            ->update(['folder_id' => $validated['folder_id']]);
+
+        return $this->successResponse('Workflows moved.');
     }
 }

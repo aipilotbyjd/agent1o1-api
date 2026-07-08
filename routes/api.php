@@ -489,6 +489,7 @@ Route::prefix('v1')->as('v1.')->group(function () {
                 Route::prefix('folders')->as('folders.')->group(function () {
                     Route::get('/', [FolderController::class, 'index'])->name('index');
                     Route::post('/', [FolderController::class, 'store'])->name('store');
+                    Route::post('move-workflows', [FolderController::class, 'moveWorkflows'])->name('move-workflows');
                     Route::put('{folder}', [FolderController::class, 'update'])->name('update');
                     Route::delete('{folder}', [FolderController::class, 'destroy'])->name('destroy');
                 });
