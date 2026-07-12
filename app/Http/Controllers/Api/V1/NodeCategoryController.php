@@ -8,15 +8,19 @@ use App\Http\Resources\V1\NodeCategoryResource;
 use App\Models\NodeCategory;
 use App\Traits\ResolvesConnectedNodes;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class NodeCategoryController extends Controller
 {
     use ResolvesConnectedNodes;
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $categories = NodeCategory::query()
             ->withCount('nodes')
+            ->when($request->boolean('include_nodes'), fn ($q) => $q->with([
+                'nodes' => fn ($n) => $n->where('is_active', true)->orderBy('name'),
+            ]))
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get();
