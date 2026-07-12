@@ -54,8 +54,8 @@ class SessionService
             return $session;
         }
 
-        $nodes = $version->nodes_data ?? [];
-        $edges = $version->edges_data ?? [];
+        $nodes = $this->normalizeNodes($version->nodes_data ?? []);
+        $edges = $this->normalizeEdges($version->edges_data ?? []);
 
         $session->update([
             'workflow_id' => $workflowId,
@@ -73,6 +73,44 @@ class SessionService
         );
 
         return $session->fresh();
+    }
+
+    /**
+     * Normalize workflow-version nodes into the builder draft shape
+     * ({id, type, name, config, position}). Versions may be stored in canvas
+     * format ({id, type, position, data:{defKey,label,values}}) by the frontend
+     * autosave or already in builder format by the builder's own save path.
+     *
+     * @param  array<int, array<string, mixed>>  $nodes
+     * @return array<int, array<string, mixed>>
+     */
+    private function normalizeNodes(array $nodes): array
+    {
+        return array_values(array_map(function ($node) {
+            $data = is_array($node['data'] ?? null) ? $node['data'] : [];
+
+            return [
+                'id' => $node['id'] ?? 'node_'.uniqid(),
+                'type' => $node['type'] ?? ($data['defKey'] ?? 'unknown'),
+                'name' => $node['name'] ?? $data['label'] ?? $node['type'] ?? 'Node',
+                'config' => (array) ($node['config'] ?? $data['values'] ?? []),
+                'position' => (array) ($node['position'] ?? ['x' => 0, 'y' => 200]),
+            ];
+        }, $nodes));
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $edges
+     * @return array<int, array<string, mixed>>
+     */
+    private function normalizeEdges(array $edges): array
+    {
+        return array_values(array_map(fn ($edge) => [
+            'source' => $edge['source'] ?? '',
+            'target' => $edge['target'] ?? '',
+            'sourceHandle' => $edge['sourceHandle'] ?? $edge['source_handle'] ?? 'output',
+            'targetHandle' => $edge['targetHandle'] ?? $edge['target_handle'] ?? 'input',
+        ], $edges));
     }
 
     public function cleanupIdle(int $days = 30): int

@@ -20,7 +20,8 @@ class DraftService
             $nodes[] = $node;
             $locked->nodes_draft = $nodes;
             $locked->save();
-            $this->snapshot($locked, $triggeredBy, "Added node: {$node['name']}");
+            $label = $node['name'] ?? $node['type'] ?? $node['id'] ?? 'node';
+            $this->snapshot($locked, $triggeredBy, "Added node: {$label}");
         });
     }
 
