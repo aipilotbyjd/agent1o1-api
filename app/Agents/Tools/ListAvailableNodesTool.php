@@ -22,13 +22,21 @@ class ListAvailableNodesTool implements Tool
         $cacheKey = $category ? "nodes_catalog:category:{$category}" : 'nodes_catalog:all';
 
         $nodes = Cache::remember($cacheKey, 300, function () use ($category) {
-            $query = Node::query()->select(['type', 'name', 'description', 'category', 'node_kind']);
+            $query = Node::query()
+                ->join('node_categories', 'nodes.category_id', '=', 'node_categories.id')
+                ->select([
+                    'nodes.type',
+                    'nodes.name',
+                    'nodes.description',
+                    'node_categories.slug as category',
+                    'nodes.node_kind',
+                ]);
 
             if ($category) {
-                $query->where('category', $category);
+                $query->where('node_categories.slug', $category);
             }
 
-            return $query->orderBy('category')->orderBy('name')->get()->toArray();
+            return $query->orderBy('node_categories.slug')->orderBy('nodes.name')->get()->toArray();
         });
 
         return json_encode($nodes, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
