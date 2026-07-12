@@ -239,6 +239,21 @@ return [
             'timeout' => 60,
             'nice' => 0,
         ],
+
+        // AI workflow builder — long-running LLM/tool-calling jobs (ProcessBuilderMessageJob)
+        'supervisor-builder' => [
+            'connection' => 'redis',
+            'queue' => ['builder-ai'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'size',
+            'maxProcesses' => 2,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 256,
+            'tries' => 2,
+            'timeout' => 300,
+            'nice' => 0,
+        ],
     ],
 
     'environments' => [
@@ -256,6 +271,11 @@ return [
             'supervisor-triggers' => [
                 'maxProcesses' => 4,
             ],
+            'supervisor-builder' => [
+                'maxProcesses' => 4,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
         ],
 
         'local' => [
@@ -266,6 +286,9 @@ return [
                 'maxProcesses' => 2,
             ],
             'supervisor-triggers' => [
+                'maxProcesses' => 2,
+            ],
+            'supervisor-builder' => [
                 'maxProcesses' => 2,
             ],
         ],
