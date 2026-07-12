@@ -158,11 +158,22 @@ return [
             'key' => env('OPENROUTER_API_KEY'),
         ],
 
-        // AnyAPI — OpenAI-compatible gateway (400+ models behind one key).
+        // AnyAPI — OpenRouter-style gateway (400+ models behind one key).
+        // Custom "anyapi" driver (App\Ai\AnyApiProvider, registered in
+        // AppServiceProvider): OpenRouter-compatible /chat/completions with
+        // structured output sent as strict=false, which AnyAPI accepts.
+        // Model names are prefixed: openai/..., anthropic/..., google/...
         'anyapi' => [
-            'driver' => 'openai',
+            'driver' => 'anyapi',
             'key' => env('ANYAPI_API_KEY'),
             'url' => env('ANYAPI_URL', 'https://api.anyapi.ai/v1'),
+            'models' => [
+                'text' => [
+                    'default' => env('ANYAPI_MODEL', 'openai/gpt-4o-mini'),
+                    'cheapest' => 'openai/gpt-4o-mini',
+                    'smartest' => 'anthropic/claude-sonnet-4.6',
+                ],
+            ],
         ],
 
         'voyageai' => [

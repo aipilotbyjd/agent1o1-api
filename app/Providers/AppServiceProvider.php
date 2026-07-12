@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Ai\AnyApiProvider;
 use App\Authorization\WorkspaceContext;
 use App\Engine\Graph\ExpressionResolver;
 use App\Enums\Permission;
@@ -53,8 +54,21 @@ class AppServiceProvider extends ServiceProvider
         $this->configureBillingEvents();
         $this->configureExecutionLogging();
         $this->configureModelObservers();
+        $this->configureAiProviders();
 
         Password::defaults(fn (): Password => Password::min(8)->mixedCase()->numbers()->symbols());
+    }
+
+    /**
+     * Register custom Laravel AI drivers.
+     */
+    private function configureAiProviders(): void
+    {
+        // "anyapi" is an OpenRouter-style gateway. Registered as a custom driver
+        // so structured output is sent with strict=false (see App\Ai\AnyApiProvider).
+        app(\Laravel\Ai\AiManager::class)->extend('anyapi', function ($app, array $config): AnyApiProvider {
+            return new AnyApiProvider($config, $app->make(\Illuminate\Contracts\Events\Dispatcher::class));
+        });
     }
 
     private function configurePassport(): void
