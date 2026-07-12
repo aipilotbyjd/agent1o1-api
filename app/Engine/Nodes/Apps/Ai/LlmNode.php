@@ -36,6 +36,7 @@ class LlmNode extends AppNode
             'deepseek' => $this->openaiCompatible($input, $systemOverride, 'DeepSeek', 'https://api.deepseek.com/v1', 'deepseek-chat', 'DEEPSEEK_API_KEY'),
             'xai' => $this->openaiCompatible($input, $systemOverride, 'xAI', 'https://api.x.ai/v1', 'grok-3-mini', 'XAI_API_KEY'),
             'openrouter' => $this->openaiCompatible($input, $systemOverride, 'OpenRouter', 'https://openrouter.ai/api/v1', 'openai/gpt-4o-mini', 'OPENROUTER_API_KEY'),
+            'anyapi' => $this->openaiCompatible($input, $systemOverride, 'AnyAPI', env('ANYAPI_URL', 'https://api.anyapi.ai/v1'), env('ANYAPI_MODEL', 'gpt-4o-mini'), 'ANYAPI_API_KEY'),
             default => $this->fail("Llm: unknown provider '{$provider}'"),
         };
     }

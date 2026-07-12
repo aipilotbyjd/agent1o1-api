@@ -158,6 +158,13 @@ return [
             'key' => env('OPENROUTER_API_KEY'),
         ],
 
+        // AnyAPI — OpenAI-compatible gateway (400+ models behind one key).
+        'anyapi' => [
+            'driver' => 'openai',
+            'key' => env('ANYAPI_API_KEY'),
+            'url' => env('ANYAPI_URL', 'https://api.anyapi.ai/v1'),
+        ],
+
         'voyageai' => [
             'driver' => 'voyageai',
             'key' => env('VOYAGEAI_API_KEY'),
