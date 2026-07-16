@@ -143,12 +143,15 @@ class GmailNode extends AppNode
 
     private function deleteMessage(NodeInput $input): NodeResult
     {
+        // Move to Trash rather than permanently delete: trashing only needs the
+        // gmail.modify scope the credential requests, and it is reversible.
+        // Permanent deletion would require the full https://mail.google.com/ scope.
         $messageId = $input->config['message_id'];
         $response = $this->httpWithAuth($input, self::BASE_URL)
-            ->delete("/users/me/messages/{$messageId}");
+            ->post("/users/me/messages/{$messageId}/trash");
 
         return $response->successful()
-            ? $this->success(['deleted' => true, 'message_id' => $messageId])
+            ? $this->success(['trashed' => true, 'message_id' => $messageId])
             : $this->fail("Gmail delete_message failed: {$response->body()}");
     }
 

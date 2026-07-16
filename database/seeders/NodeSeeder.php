@@ -1268,7 +1268,7 @@ class NodeSeeder extends Seeder
                 'config_schema' => [
                     'type' => 'object',
                     'properties' => [
-                        'operation' => ['type' => 'string', 'enum' => ['send_email', 'reply_to_message', 'get_message', 'list_messages', 'modify_message', 'add_label', 'list_labels', 'delete_message', 'create_draft'], 'default' => 'send_email'],
+                        'operation' => ['type' => 'string', 'enum' => ['send_email', 'reply_to_message', 'get_message', 'list_messages', 'modify_message', 'add_label', 'list_labels', 'delete_message', 'create_draft'], 'default' => 'send_email', 'description' => 'delete_message moves the message to Trash (reversible), not a permanent delete.'],
                         'to' => ['type' => 'string', 'description' => 'Recipient email address'],
                         'subject' => ['type' => 'string'],
                         'body' => ['type' => 'string'],
@@ -1290,6 +1290,7 @@ class NodeSeeder extends Seeder
                         'threadId' => ['type' => 'string'],
                         'messages' => ['type' => 'array'],
                         'labels' => ['type' => 'array'],
+                        'trashed' => ['type' => 'boolean'],
                     ],
                 ],
             ],
@@ -1308,7 +1309,7 @@ class NodeSeeder extends Seeder
                     'type' => 'object',
                     'properties' => [
                         'operation' => ['type' => 'string', 'enum' => ['get_rows', 'append_row', 'update_row', 'clear_range', 'delete_rows', 'lookup_rows', 'create_spreadsheet', 'get_spreadsheet_info'], 'default' => 'get_rows'],
-                        'spreadsheet_id' => ['type' => 'string'],
+                        'spreadsheet_id' => ['type' => 'string', 'description' => 'Spreadsheet ID — required for every operation except create_spreadsheet.'],
                         'range' => ['type' => 'string', 'default' => 'Sheet1', 'description' => 'A1 notation e.g. Sheet1!A1:D10'],
                         'values' => ['type' => 'array', 'description' => 'Row values for append/update'],
                         'title' => ['type' => 'string', 'description' => 'Spreadsheet title (create_spreadsheet)'],
@@ -1318,7 +1319,7 @@ class NodeSeeder extends Seeder
                         'start_index' => ['type' => 'integer', 'description' => 'Start row index (0-based, delete_rows)'],
                         'end_index' => ['type' => 'integer', 'description' => 'End row index exclusive (delete_rows)'],
                     ],
-                    'required' => ['operation', 'spreadsheet_id'],
+                    'required' => ['operation'],
                 ],
                 'output_schema' => [
                     'type' => 'object',
@@ -1396,7 +1397,7 @@ class NodeSeeder extends Seeder
                         'time_min' => ['type' => 'string', 'format' => 'date-time', 'description' => 'Lower bound for list_events'],
                         'max_results' => ['type' => 'integer', 'default' => 10],
                     ],
-                    'required' => ['operation', 'calendar_id'],
+                    'required' => ['operation'],
                 ],
                 'output_schema' => [
                     'type' => 'object',
