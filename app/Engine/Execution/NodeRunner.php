@@ -201,7 +201,7 @@ class NodeRunner
     private function retryPolicy(array $node): array
     {
         $defaults = config('engine.node_retry', []);
-        $override = $node['config']['retry'] ?? $node['data']['retry'] ?? [];
+        $override = WorkflowGraph::configFor($node)['retry'] ?? [];
 
         return [
             'max_attempts' => max(1, (int) ($override['max_attempts'] ?? $defaults['max_attempts'] ?? 1)),

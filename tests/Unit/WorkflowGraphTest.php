@@ -78,3 +78,43 @@ test('edges referencing unknown nodes are ignored', function () {
 
     expect($graph->getSuccessors('a'))->toBe([]);
 });
+
+test('configFor reads editor field values saved under data.values', function () {
+    $node = [
+        'id' => 'code',
+        'type' => 'util.code',
+        'data' => [
+            'defKey' => 'util.code',
+            'label' => 'Code (JavaScript)',
+            'values' => ['code' => 'return { n: 42 };'],
+            'status' => 'idle',
+        ],
+    ];
+
+    expect(WorkflowGraph::configFor($node))->toBe(['code' => 'return { n: 42 };']);
+});
+
+test('configFor prefers an explicit config key over data', function () {
+    $node = [
+        'id' => 'code',
+        'type' => 'util.code',
+        'config' => ['code' => 'explicit'],
+        'data' => ['values' => ['code' => 'from values']],
+    ];
+
+    expect(WorkflowGraph::configFor($node))->toBe(['code' => 'explicit']);
+});
+
+test('configFor falls back to data when no values key is present', function () {
+    $node = [
+        'id' => 'code',
+        'type' => 'util.code',
+        'data' => ['code' => 'legacy shape'],
+    ];
+
+    expect(WorkflowGraph::configFor($node))->toBe(['code' => 'legacy shape']);
+});
+
+test('configFor returns an empty array for an unconfigured node', function () {
+    expect(WorkflowGraph::configFor(['id' => 'a', 'type' => 'trigger.manual']))->toBe([]);
+});

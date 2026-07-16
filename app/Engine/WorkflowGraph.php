@@ -44,6 +44,16 @@ readonly class WorkflowGraph
         $this->downstreamConsumers = $downstreamConsumers;
     }
 
+    /**
+     * Resolve a node's configuration regardless of which shape it was saved in.
+     * The editor persists field values under `data.values`; older/imported
+     * workflows carry them in `config` or directly on `data`.
+     */
+    public static function configFor(array $node): array
+    {
+        return $node['config'] ?? $node['data']['values'] ?? $node['data'] ?? [];
+    }
+
     public static function compile(array $nodes, array $edges): self
     {
         $nodeMap = [];
@@ -81,8 +91,7 @@ readonly class WorkflowGraph
         $resolver = app(ExpressionResolver::class);
         $compiledExpressions = [];
         foreach ($nodeMap as $id => $node) {
-            $config = $node['config'] ?? $node['data'] ?? [];
-            $compiledExpressions[$id] = $resolver->compileConfig($config);
+            $compiledExpressions[$id] = $resolver->compileConfig(self::configFor($node));
         }
 
         $downstreamConsumers = [];

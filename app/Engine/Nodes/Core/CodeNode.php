@@ -38,6 +38,10 @@ class CodeNode implements NodeHandler
 
         // Context via stdin prevents user-controlled data values from escaping
         // the JSON literal and becoming executable JavaScript.
+        //
+        // User code runs inside __run so that `return value` works. Assigning to
+        // `output` also still works, since __run closes over it. An explicit
+        // return wins over an assignment when both are present.
         $wrapper = <<<'JS'
         let __raw = '';
         process.stdin.setEncoding('utf8');
@@ -47,8 +51,12 @@ class CodeNode implements NodeHandler
             const input = __ctx.input;
             const variables = __ctx.variables;
             let output;
-            __USER_CODE__
-            process.stdout.write(JSON.stringify(typeof output !== 'undefined' ? output : {}));
+            const __run = (input, variables) => {
+                __USER_CODE__
+            };
+            const __returned = __run(input, variables);
+            if (__returned !== undefined) output = __returned;
+            process.stdout.write(JSON.stringify(output !== undefined ? output : {}));
         });
         JS;
 
