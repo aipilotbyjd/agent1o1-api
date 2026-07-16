@@ -38,6 +38,7 @@ class NodeCompletedEvent implements ShouldBroadcast
             'execution_id' => $this->execution->id,
             'node_id' => $this->nodeId,
             'status' => $this->result->status->value,
+            'input' => $this->result->input,
             'output' => $this->result->output,
             'error' => $this->result->error,
             'duration_ms' => $this->result->durationMs,
