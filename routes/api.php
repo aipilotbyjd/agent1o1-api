@@ -59,6 +59,7 @@ use App\Http\Controllers\Api\V1\WorkflowBuilder\GenerationController;
 use App\Http\Controllers\Api\V1\WorkflowBuilder\MessageController as BuilderMessageController;
 use App\Http\Controllers\Api\V1\WorkflowBuilder\SessionController as BuilderSessionController;
 use App\Http\Controllers\Api\V1\WorkflowContractController;
+use App\Http\Controllers\Api\V1\NodeTestController;
 use App\Http\Controllers\Api\V1\WorkflowController;
 use App\Http\Controllers\Api\V1\WorkflowEnvironmentReleaseController;
 use App\Http\Controllers\Api\V1\WorkflowImportExportController;
@@ -316,6 +317,9 @@ Route::prefix('v1')->as('v1.')->group(function () {
                 Route::prefix('workflows')->as('workflows.')->group(function () {
                     Route::get('/', [WorkflowController::class, 'index'])->name('index');
                     Route::post('/', [WorkflowController::class, 'store'])->name('store');
+                    // Literal route registered before the {workflow} params so
+                    // "test-node" is never captured as a workflow id.
+                    Route::post('test-node', [NodeTestController::class, 'test'])->name('test-node');
                     Route::get('{workflow}', [WorkflowController::class, 'show'])->name('show');
                     Route::put('{workflow}', [WorkflowController::class, 'update'])->name('update');
                     Route::delete('{workflow}', [WorkflowController::class, 'destroy'])->name('destroy');
