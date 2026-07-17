@@ -28,6 +28,7 @@ class AgentService
                 'max_steps' => $data['max_steps'] ?? 15,
                 'timeout_seconds' => $data['timeout_seconds'] ?? 180,
                 'is_active' => $data['is_active'] ?? true,
+                'category' => $data['category'] ?? null,
                 'metadata' => $data['metadata'] ?? null,
                 'default_workflow_id' => $data['default_workflow_id'] ?? null,
             ]);
@@ -52,7 +53,7 @@ class AgentService
 
             $agent->update(collect($data)->only([
                 'name', 'slug', 'description', 'instructions', 'model', 'provider',
-                'max_steps', 'timeout_seconds', 'is_active', 'metadata', 'default_workflow_id',
+                'max_steps', 'timeout_seconds', 'is_active', 'category', 'metadata', 'default_workflow_id',
             ])->all());
 
             if (array_key_exists('tools', $data)) {

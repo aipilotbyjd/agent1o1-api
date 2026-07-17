@@ -22,6 +22,7 @@ class UpdateAgentRequest extends FormRequest
             'max_steps' => ['nullable', 'integer', 'min:1', 'max:50'],
             'timeout_seconds' => ['nullable', 'integer', 'min:10', 'max:600'],
             'is_active' => ['nullable', 'boolean'],
+            'category' => ['nullable', 'string', 'max:100'],
             'metadata' => ['nullable', 'array'],
             'default_workflow_id' => ['nullable', 'uuid', 'exists:workflows,id'],
             'tools' => ['sometimes', 'array'],

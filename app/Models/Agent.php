@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'max_steps',
     'timeout_seconds',
     'is_active',
+    'category',
     'metadata',
     'default_workflow_id',
 ])]
@@ -82,5 +83,15 @@ class Agent extends Model
     public function triggers(): HasMany
     {
         return $this->hasMany(AgentTrigger::class);
+    }
+
+    /**
+     * Chat conversations held with this agent (stored in `agent_conversations`).
+     *
+     * @return HasMany<\Laravel\Ai\Models\Conversation, $this>
+     */
+    public function conversations(): HasMany
+    {
+        return $this->hasMany(\Laravel\Ai\Models\Conversation::class, 'agent_id');
     }
 }

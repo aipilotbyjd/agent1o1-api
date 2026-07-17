@@ -34,10 +34,11 @@ class AgentController extends Controller
         $sortDir = $request->query('sort_dir') === 'asc' ? 'asc' : 'desc';
 
         $agents = $workspace->agents()
-            ->withCount('skills')
+            ->withCount(['skills', 'conversations'])
             ->with('toolConfigs')
             ->when($request->query('search'), fn ($q, $search) => $q->where('name', 'ilike', "%{$search}%"))
             ->when($request->query('is_active') !== null, fn ($q) => $q->where('is_active', $request->boolean('is_active')))
+            ->when($request->query('category'), fn ($q, $category) => $q->where('category', $category))
             ->orderBy($sortBy, $sortDir)
             ->paginate((int) $request->query('per_page', 25));
 

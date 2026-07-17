@@ -24,6 +24,7 @@ class AgentResource extends JsonResource
             'max_steps' => $this->max_steps,
             'timeout_seconds' => $this->timeout_seconds,
             'is_active' => $this->is_active,
+            'category' => $this->category,
             'metadata' => $this->metadata,
             'default_workflow_id' => $this->default_workflow_id,
             'creator' => new UserResource($this->whenLoaded('creator')),
@@ -31,6 +32,7 @@ class AgentResource extends JsonResource
             'skills' => AgentSkillResource::collection($this->whenLoaded('skills')),
             'triggers' => AgentTriggerResource::collection($this->whenLoaded('triggers')),
             'skills_count' => $this->whenCounted('skills'),
+            'conversations_count' => $this->whenCounted('conversations'),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
