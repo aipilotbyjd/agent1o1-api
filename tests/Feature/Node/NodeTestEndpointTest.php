@@ -39,6 +39,18 @@ test('testing a node runs it for real and returns its output, input and duration
     expect($response->json('data.duration'))->toBeInt();
 });
 
+test('a node test resolves expressions against provided upstream output', function () {
+    $response = testNode([
+        'node_type' => 'data.transform',
+        'parameters' => ['mappings' => ['greeting' => 'Hello {{ node_5.output.name }}']],
+        'input' => ['node_5' => ['name' => 'jaydeep']],
+    ]);
+
+    $response->assertOk()
+        ->assertJsonPath('data.success', true)
+        ->assertJsonPath('data.output.greeting', 'Hello jaydeep');
+});
+
 test('testing a node with no handler returns a real error, not a fake success', function () {
     testNode(['node_type' => 'does.not.exist', 'parameters' => []])
         ->assertOk()
