@@ -27,6 +27,7 @@ class WorkflowController extends Controller
             ->with(['currentVersion', 'tags'])
             ->when($request->query('folder_id'), fn ($q, $folderId) => $q->where('folder_id', $folderId))
             ->when($request->query('is_active') !== null, fn ($q) => $q->where('is_active', $request->boolean('is_active')))
+            ->when($request->query('is_favorite') !== null, fn ($q) => $q->where('is_favorite', $request->boolean('is_favorite')))
             ->when($request->query('search'), fn ($q, $search) => $q->where('name', 'ilike', "%{$search}%"))
             ->latest()
             ->paginate((int) $request->query('per_page', 15));

@@ -46,7 +46,7 @@ class WorkflowService
     {
         return DB::transaction(function () use ($workflow, $data) {
             $workflow->update(collect($data)->only([
-                'name', 'description', 'icon', 'color', 'folder_id', 'error_workflow_id', 'max_concurrent_executions',
+                'name', 'description', 'icon', 'color', 'folder_id', 'error_workflow_id', 'max_concurrent_executions', 'is_favorite',
             ])->all());
 
             // Graph changes create a new version

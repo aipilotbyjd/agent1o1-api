@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'color',
     'is_active',
     'is_locked',
+    'is_favorite',
     'current_version_id',
     'error_workflow_id',
     'max_concurrent_executions',
@@ -37,6 +38,7 @@ class Workflow extends Model
         return [
             'is_active' => 'boolean',
             'is_locked' => 'boolean',
+            'is_favorite' => 'boolean',
             'max_concurrent_executions' => 'integer',
             'execution_count' => 'integer',
             'last_executed_at' => 'datetime',

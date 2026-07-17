@@ -594,11 +594,14 @@ Route::prefix('v1')->as('v1.')->group(function () {
                 });
 
                 Route::prefix('dashboard')->as('dashboard.')->group(function () {
+                    Route::get('/', [DashboardController::class, 'index'])->name('index');
                     Route::get('overview', [DashboardController::class, 'overview'])->name('overview');
                     Route::get('trends', [DashboardController::class, 'trends'])->name('trends');
                     Route::get('top-workflows', [DashboardController::class, 'topWorkflows'])->name('top-workflows');
                     Route::get('recent-activity', [DashboardController::class, 'recentActivity'])->name('recent-activity');
                 });
+
+                Route::get('stats', [DashboardController::class, 'quickStats'])->name('stats');
 
                 Route::prefix('log-streaming')->as('log-streaming.')->group(function () {
                     Route::get('/', [LogStreamingConfigController::class, 'index'])->name('index');

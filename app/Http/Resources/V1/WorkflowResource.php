@@ -22,10 +22,15 @@ class WorkflowResource extends JsonResource
             'folder_id' => $this->folder_id,
             'is_active' => $this->is_active,
             'is_locked' => $this->is_locked,
+            'is_favorite' => (bool) $this->is_favorite,
             'execution_count' => $this->execution_count,
             'last_executed_at' => $this->last_executed_at,
             'success_rate' => $this->success_rate,
             'max_concurrent_executions' => $this->max_concurrent_executions,
+            // Flattened graph from the current version so list cards can show a
+            // node count / app tags without digging into `current_version`.
+            'nodes' => $this->whenLoaded('currentVersion', fn () => $this->currentVersion?->nodes_data ?? [], []),
+            'node_count' => $this->whenLoaded('currentVersion', fn () => count($this->currentVersion?->nodes_data ?? []), 0),
             'current_version' => new WorkflowVersionResource($this->whenLoaded('currentVersion')),
             'tags' => TagResource::collection($this->whenLoaded('tags')),
             'triggers' => TriggerResource::collection($this->whenLoaded('triggers')),

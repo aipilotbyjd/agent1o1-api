@@ -24,6 +24,7 @@ class UpdateWorkflowRequest extends FormRequest
             'folder_id' => ['nullable', 'uuid', 'exists:folders,id'],
             'error_workflow_id' => ['nullable', 'uuid', 'exists:workflows,id'],
             'max_concurrent_executions' => ['sometimes', 'integer', 'min:1', 'max:50'],
+            'is_favorite' => ['sometimes', 'boolean'],
             'nodes' => ['sometimes', 'array'],
             'nodes.*.id' => ['required_with:nodes', 'string'],
             'nodes.*.type' => ['required_with:nodes', 'string'],
