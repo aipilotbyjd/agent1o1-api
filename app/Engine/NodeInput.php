@@ -16,15 +16,21 @@ readonly class NodeInput
         public ?string $nodeRunKey = null,
     ) {}
 
+    /**
+     * @param  array<string,mixed>  $extraContext  Extra roots merged into the
+     *   expression context — used by per-node Loop Mode to expose the current
+     *   `item`/`index` so config tokens like `{{ item.title }}` resolve per iteration.
+     */
     public static function build(
         string $nodeId,
         WorkflowGraph $graph,
         WorkflowContext $context,
         ?string $nodeRunKey = null,
+        array $extraContext = [],
     ): self {
         $node = $graph->getNode($nodeId);
         $compiledConfig = $graph->getCompiledConfig($nodeId);
-        $expressionContext = $context->buildExpressionContext();
+        $expressionContext = array_merge($context->buildExpressionContext(), $extraContext);
         // Missing tokens render as '' at run time so a typo or absent upstream
         // field never crashes a node mid-execution.
         $resolver = app(Graph\ExpressionResolver::class)->withMissingValue('');

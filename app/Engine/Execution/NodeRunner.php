@@ -122,15 +122,58 @@ class NodeRunner
             return NodeResult::failed("No handler registered for node type: {$type}");
         }
 
+        $policy = $this->retryPolicy($node);
+        $startTime = hrtime(true);
+
+        // Per-node Loop Mode: when the node is flagged and its incoming data is a
+        // list, run the handler once per item and aggregate the outputs. Falls back
+        // to a single normal run when no list is available upstream.
+        if ($this->isLoopMode($node)) {
+            $items = $this->resolveLoopItems($nodeId, $context);
+            if ($items !== null) {
+                return $this->executeLoopMode($nodeId, $graph, $context, $handler, $policy, $type, $items, $startTime);
+            }
+        }
+
         // Resolve the input once: templated config is deterministic against the
         // current context, so every attempt runs against identical input. The
         // resolved config is persisted alongside the result for debugging.
         $input = NodeInput::build($nodeId, $graph, $context, $nodeId);
-        $persistedInput = ['config' => $input->config];
 
-        $policy = $this->retryPolicy($node);
-        $startTime = hrtime(true);
+        [$result, $attempt] = $this->runWithRetry($handler, $input, $policy, $nodeId, $type, $context);
+
+        $durationMs = (int) ((hrtime(true) - $startTime) / 1_000_000);
+
+        return new NodeResult(
+            status: $result->status,
+            output: $result->output,
+            error: $result->error,
+            durationMs: $durationMs,
+            activeBranches: $result->activeBranches,
+            loopItems: $result->loopItems,
+            attempt: $attempt,
+            input: ['config' => $input->config],
+        );
+    }
+
+    /**
+     * Run a handler under the node's retry policy. Returns the terminal result and
+     * the 1-indexed attempt it settled on. Any thrown handler error is captured as
+     * a failed result so the retry/backoff loop can decide whether to try again.
+     *
+     * @param  array{max_attempts:int, backoff:float, multiplier:float, max_backoff:float}  $policy
+     * @return array{0: NodeResult, 1: int}
+     */
+    private function runWithRetry(
+        NodeHandler $handler,
+        NodeInput $input,
+        array $policy,
+        string $nodeId,
+        string $type,
+        WorkflowContext $context,
+    ): array {
         $result = null;
+        $attempt = 1;
 
         for ($attempt = 1; $attempt <= $policy['max_attempts']; $attempt++) {
             try {
@@ -177,17 +220,127 @@ class NodeRunner
             $this->sleepSeconds($delay);
         }
 
-        $durationMs = (int) ((hrtime(true) - $startTime) / 1_000_000);
+        return [$result, min($attempt, $policy['max_attempts'])];
+    }
+
+    /** Whether the node opts into per-item Loop Mode (Gumloop-style fan-out). */
+    private function isLoopMode(array $node): bool
+    {
+        return (bool) (data_get($node, 'data.loopMode')
+            ?? data_get($node, 'config.loop_mode')
+            ?? data_get($node, 'data.values.loop_mode')
+            ?? false);
+    }
+
+    /**
+     * The list a Loop Mode node iterates: the first list found among its
+     * predecessor outputs — either the output itself or a common list-valued field
+     * (items/data/results/…). Returns null when no list is upstream so the caller
+     * falls back to a single normal execution.
+     *
+     * @return list<mixed>|null
+     */
+    private function resolveLoopItems(string $nodeId, WorkflowContext $context): ?array
+    {
+        foreach ($context->gatherInputData($nodeId) as $output) {
+            $list = $this->firstList($output);
+            if ($list !== null) {
+                return $list;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Extract an iterable list from a value: the value itself when it's a list, or
+     * the first list-valued field (preferring conventional names) when it's a map.
+     *
+     * @return list<mixed>|null
+     */
+    private function firstList(mixed $value): ?array
+    {
+        if (! is_array($value)) {
+            return null;
+        }
+
+        if (array_is_list($value)) {
+            return $value;
+        }
+
+        foreach (['items', 'data', 'results', 'rows', 'records', 'body'] as $key) {
+            if (isset($value[$key]) && is_array($value[$key]) && array_is_list($value[$key])) {
+                return $value[$key];
+            }
+        }
+
+        foreach ($value as $nested) {
+            if (is_array($nested) && array_is_list($nested)) {
+                return $nested;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Run a Loop Mode node once per item, exposing the current `item`/`index`/`loop`
+     * to config expressions, and collect the per-item outputs into a single list
+     * result (`{ items: [...], count }`). Fails fast on the first failing iteration,
+     * mirroring normal node failure semantics.
+     *
+     * @param  array{max_attempts:int, backoff:float, multiplier:float, max_backoff:float}  $policy
+     * @param  list<mixed>  $items
+     */
+    private function executeLoopMode(
+        string $nodeId,
+        WorkflowGraph $graph,
+        WorkflowContext $context,
+        NodeHandler $handler,
+        array $policy,
+        string $type,
+        array $items,
+        float $startTime,
+    ): NodeResult {
+        $outputs = [];
+        $maxAttempt = 1;
+        $total = count($items);
+        $lastConfig = [];
+
+        foreach ($items as $index => $item) {
+            $input = NodeInput::build($nodeId, $graph, $context, $nodeId, [
+                'item' => $item,
+                'index' => $index,
+                'loop' => ['item' => $item, 'index' => $index, 'total' => $total],
+            ]);
+            $lastConfig = $input->config;
+
+            [$result, $attempt] = $this->runWithRetry($handler, $input, $policy, $nodeId, $type, $context);
+            $maxAttempt = max($maxAttempt, $attempt);
+
+            if ($result->isFailed()) {
+                return new NodeResult(
+                    status: ExecutionNodeStatus::Failed,
+                    output: ['items' => $outputs, 'count' => count($outputs)],
+                    error: array_merge(
+                        $result->error ?? ['message' => 'Loop iteration failed'],
+                        ['loop_index' => $index],
+                    ),
+                    durationMs: (int) ((hrtime(true) - $startTime) / 1_000_000),
+                    attempt: $maxAttempt,
+                    input: ['config' => $lastConfig],
+                );
+            }
+
+            $outputs[] = $result->output;
+        }
 
         return new NodeResult(
-            status: $result->status,
-            output: $result->output,
-            error: $result->error,
-            durationMs: $durationMs,
-            activeBranches: $result->activeBranches,
-            loopItems: $result->loopItems,
-            attempt: $attempt > $policy['max_attempts'] ? $policy['max_attempts'] : $attempt,
-            input: $persistedInput,
+            status: ExecutionNodeStatus::Completed,
+            output: ['items' => $outputs, 'count' => $total],
+            durationMs: (int) ((hrtime(true) - $startTime) / 1_000_000),
+            attempt: $maxAttempt,
+            input: ['config' => $lastConfig],
         );
     }
 
