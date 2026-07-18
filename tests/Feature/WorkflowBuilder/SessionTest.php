@@ -137,3 +137,80 @@ test('unauthenticated users cannot create sessions', function () {
         'title' => 'Should fail',
     ])->assertUnauthorized();
 });
+
+test('a user can sync manual canvas edits into the draft', function () {
+    $session = WorkflowBuilderSession::factory()->create([
+        'workspace_id' => $this->workspace->id,
+        'user_id' => $this->user->id,
+        'nodes_draft' => [],
+        'edges_draft' => [],
+    ]);
+
+    $this->actingAs($this->user, 'api')
+        ->patchJson("/api/v1/workspaces/{$this->workspace->id}/workflow-builder/sessions/{$session->id}/draft", [
+            'nodes' => [
+                ['id' => 'node_1', 'type' => 'webhook_trigger', 'name' => 'Webhook', 'config' => [], 'position' => ['x' => 0, 'y' => 200]],
+                ['id' => 'node_2', 'type' => 'slack_message', 'name' => 'Slack', 'config' => [], 'position' => ['x' => 250, 'y' => 200]],
+            ],
+            'edges' => [
+                ['source' => 'node_1', 'target' => 'node_2'],
+            ],
+        ])
+        ->assertOk()
+        ->assertJsonCount(2, 'data.nodes_draft')
+        ->assertJsonCount(1, 'data.edges_draft');
+
+    expect($session->fresh()->nodes_draft)->toHaveCount(2)
+        ->and($session->fresh()->edges_draft)->toHaveCount(1);
+});
+
+test('syncing the draft bumps the draft_lock_version and snapshots a version', function () {
+    $session = WorkflowBuilderSession::factory()->create([
+        'workspace_id' => $this->workspace->id,
+        'user_id' => $this->user->id,
+        'nodes_draft' => [],
+        'edges_draft' => [],
+        'draft_lock_version' => 1,
+    ]);
+
+    $this->actingAs($this->user, 'api')
+        ->patchJson("/api/v1/workspaces/{$this->workspace->id}/workflow-builder/sessions/{$session->id}/draft", [
+            'nodes' => [
+                ['id' => 'node_1', 'type' => 'webhook_trigger', 'name' => 'Webhook', 'config' => [], 'position' => ['x' => 0, 'y' => 200]],
+            ],
+            'edges' => [],
+        ])
+        ->assertOk();
+
+    expect($session->fresh()->draft_lock_version)->toBe(2)
+        ->and($session->fresh()->draftVersions()->count())->toBe(1);
+});
+
+test('another user cannot sync a draft they do not own', function () {
+    $other = User::factory()->create();
+    $session = WorkflowBuilderSession::factory()->create([
+        'workspace_id' => $this->workspace->id,
+        'user_id' => $other->id,
+    ]);
+
+    $this->actingAs($this->user, 'api')
+        ->patchJson("/api/v1/workspaces/{$this->workspace->id}/workflow-builder/sessions/{$session->id}/draft", [
+            'nodes' => [],
+            'edges' => [],
+        ])
+        ->assertNotFound();
+});
+
+test('syncing a draft on a completed session is rejected', function () {
+    $session = WorkflowBuilderSession::factory()->completed()->create([
+        'workspace_id' => $this->workspace->id,
+        'user_id' => $this->user->id,
+    ]);
+
+    $this->actingAs($this->user, 'api')
+        ->patchJson("/api/v1/workspaces/{$this->workspace->id}/workflow-builder/sessions/{$session->id}/draft", [
+            'nodes' => [],
+            'edges' => [],
+        ])
+        ->assertStatus(422);
+});

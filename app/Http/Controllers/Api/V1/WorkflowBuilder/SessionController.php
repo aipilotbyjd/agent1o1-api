@@ -7,11 +7,13 @@ use App\Enums\Permission;
 use App\Exceptions\DraftConflictException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\WorkflowBuilder\StoreSessionRequest;
+use App\Http\Requests\Api\V1\WorkflowBuilder\SyncDraftRequest;
 use App\Http\Requests\Api\V1\WorkflowBuilder\UpdateSessionRequest;
 use App\Http\Resources\V1\WorkflowBuilder\WorkflowBuilderSessionResource;
 use App\Http\Resources\V1\WorkflowResource;
 use App\Models\WorkflowBuilderSession;
 use App\Models\Workspace;
+use App\Services\WorkflowBuilder\DraftService;
 use App\Services\WorkflowBuilder\MessageService;
 use App\Services\WorkflowBuilder\SaveService;
 use App\Services\WorkflowBuilder\SessionService;
@@ -26,6 +28,7 @@ class SessionController extends Controller
         private readonly MessageService $messageService,
         private readonly ValidationService $validationService,
         private readonly SaveService $saveService,
+        private readonly DraftService $draftService,
     ) {}
 
     public function index(Request $request, Workspace $workspace): JsonResponse
@@ -102,6 +105,44 @@ class SessionController extends Controller
         $session = $this->sessionService->rename($builderSession, $request->validated('title'));
 
         return $this->successResponse('Session renamed.', new WorkflowBuilderSessionResource($session));
+    }
+
+    /**
+     * Sync manual canvas edits (drag, delete, add from the library, rename,
+     * etc.) into the session's draft, so the AI's tools see the current state
+     * instead of whatever it last wrote itself. Refreshes to the latest
+     * draft_lock_version first so this never spuriously conflicts with an AI
+     * turn that just finished.
+     */
+    public function syncDraft(SyncDraftRequest $request, Workspace $workspace, WorkflowBuilderSession $builderSession): JsonResponse
+    {
+        if ($denied = $this->requirePermission(Permission::WorkflowCreate)) {
+            return $denied;
+        }
+
+        if (! $builderSession->isOwnedBy($request->user()) || $builderSession->workspace_id !== $workspace->id) {
+            return $this->errorResponse('Session not found.', 404);
+        }
+
+        if (! $builderSession->isActive()) {
+            return $this->errorResponse('This session is no longer active.', 422);
+        }
+
+        $builderSession->refresh();
+
+        try {
+            $this->draftService->applyBulk(
+                $builderSession,
+                $request->validated('nodes'),
+                $request->validated('edges'),
+                null,
+                'Synced from canvas',
+            );
+        } catch (DraftConflictException $e) {
+            return $this->errorResponse($e->getMessage(), 409);
+        }
+
+        return $this->successResponse('Draft synced.', new WorkflowBuilderSessionResource($builderSession->fresh()));
     }
 
     public function destroy(Request $request, Workspace $workspace, WorkflowBuilderSession $builderSession): JsonResponse

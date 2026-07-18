@@ -428,6 +428,7 @@ Route::prefix('v1')->as('v1.')->group(function () {
                         Route::delete('{builderSession}', [BuilderSessionController::class, 'destroy'])->name('destroy');
                         Route::post('{builderSession}/validate', [BuilderSessionController::class, 'validate'])->name('validate');
                         Route::post('{builderSession}/save', [BuilderSessionController::class, 'save'])->name('save');
+                        Route::patch('{builderSession}/draft', [BuilderSessionController::class, 'syncDraft'])->name('draft')->middleware('throttle:30,1');
 
                         // Conversational messages
                         Route::prefix('{builderSession}/messages')->as('messages.')->group(function () {
