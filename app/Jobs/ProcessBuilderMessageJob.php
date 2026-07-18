@@ -9,6 +9,7 @@ use App\Models\AiGenerationLog;
 use App\Models\User;
 use App\Models\WorkflowBuilderMessage;
 use App\Models\WorkflowBuilderSession;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Laravel\Ai\Models\Conversation;
@@ -42,11 +43,17 @@ class ProcessBuilderMessageJob implements ShouldQueue
 
         $agent = new WorkflowRefinementAgent($this->session);
 
+        // Stream + broadcast each token/tool-call event on the session's private
+        // channel as it happens, instead of waiting for the whole reply — the
+        // frontend appends text_delta chunks live and shows tool_call/tool_result
+        // as inline progress (e.g. "Adding node: HTTP Request…").
+        $channel = new PrivateChannel("builder.session.{$this->session->id}");
+
         if ($this->session->conversation_id) {
             $response = $agent->continue($this->session->conversation_id, as: $this->user)
-                ->prompt($this->userMessage->content);
+                ->broadcastNow($this->userMessage->content, $channel);
         } else {
-            $response = $agent->forUser($this->user)->prompt($this->userMessage->content);
+            $response = $agent->forUser($this->user)->broadcastNow($this->userMessage->content, $channel);
 
             $conversationId = $response->conversationId ?? $agent->currentConversation();
             if ($conversationId) {
@@ -61,7 +68,7 @@ class ProcessBuilderMessageJob implements ShouldQueue
 
         $this->assistantMessage->update([
             'processing_status' => 'completed',
-            'content' => (string) $response,
+            'content' => $response->text ?? '',
             'draft_version_id' => $latestVersion?->id,
             'actions' => $this->buildActionDiff($previousNodes, $previousEdges),
         ]);
