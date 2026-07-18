@@ -6,19 +6,16 @@ use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Agent\ConversationMessageRequest;
 use App\Http\Resources\V1\AgentConversationResource;
+use App\Jobs\ProcessAgentMessageJob;
 use App\Models\Agent;
+use App\Models\AgentMessageRequest;
 use App\Models\Workspace;
-use App\Services\AgentConversationService;
-use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Laravel\Ai\Models\Conversation;
-use Throwable;
 
 class AgentConversationController extends Controller
 {
-    public function __construct(private readonly AgentConversationService $conversationService) {}
-
     public function index(Request $request, Workspace $workspace, Agent $agent): JsonResponse
     {
         if ($denied = $this->requirePermission(Permission::AgentRun)) {
@@ -34,23 +31,16 @@ class AgentConversationController extends Controller
         return $this->paginatedResponse('Conversations retrieved.', AgentConversationResource::collection($conversations));
     }
 
+    /** Starts a conversation by queuing its first message — the reply streams live over `agent.stream.{request_id}`. */
     public function store(ConversationMessageRequest $request, Workspace $workspace, Agent $agent): JsonResponse
     {
         if ($denied = $this->requirePermission(Permission::AgentRun)) {
             return $denied;
         }
 
-        try {
-            $result = $this->conversationService->startConversation(
-                $agent,
-                $request->user(),
-                $request->validated('message'),
-            );
-        } catch (Throwable $e) {
-            return $this->errorResponse($this->agentFailureMessage($e), 502);
-        }
+        $pending = $this->queueMessage($agent, $request->user(), $request->validated('message'), null);
 
-        return $this->successResponse('Conversation started.', $result, 201);
+        return $this->successResponse('Message queued.', ['request_id' => $pending->id], 202);
     }
 
     public function show(Request $request, Workspace $workspace, Agent $agent, string $conversation): JsonResponse
@@ -71,6 +61,7 @@ class AgentConversationController extends Controller
         );
     }
 
+    /** Continues a conversation by queuing the next message — the reply streams live over `agent.stream.{request_id}`. */
     public function sendMessage(ConversationMessageRequest $request, Workspace $workspace, Agent $agent, string $conversation): JsonResponse
     {
         if ($denied = $this->requirePermission(Permission::AgentRun)) {
@@ -81,18 +72,9 @@ class AgentConversationController extends Controller
             return $this->errorResponse('Conversation not found.', 404);
         }
 
-        try {
-            $result = $this->conversationService->sendMessage(
-                $agent,
-                $request->user(),
-                $conversation,
-                $request->validated('message'),
-            );
-        } catch (Throwable $e) {
-            return $this->errorResponse($this->agentFailureMessage($e), 502);
-        }
+        $pending = $this->queueMessage($agent, $request->user(), $request->validated('message'), $conversation);
 
-        return $this->successResponse('Message sent.', $result);
+        return $this->successResponse('Message queued.', ['request_id' => $pending->id], 202);
     }
 
     public function destroy(Request $request, Workspace $workspace, Agent $agent, string $conversation): JsonResponse
@@ -114,19 +96,22 @@ class AgentConversationController extends Controller
     }
 
     /**
-     * Provider HTTP failures (bad model id, bad/missing API key, rate limits) come back as
-     * RequestException with the provider's own error body — surface that verbatim since it's
-     * the only actionable detail; anything else stays generic to avoid leaking internals.
+     * Creates the ownership-checkable tracking row (also doubles as the
+     * `agent.stream.{id}` channel key — see routes/channels.php) and dispatches
+     * the job that actually streams the reply.
      */
-    private function agentFailureMessage(Throwable $e): string
+    private function queueMessage(Agent $agent, $user, string $message, ?string $conversationId): AgentMessageRequest
     {
-        if ($e instanceof RequestException && $e->response) {
-            $body = $e->response->json('error.message') ?? $e->response->body();
+        $pending = AgentMessageRequest::create([
+            'agent_id' => $agent->id,
+            'user_id' => $user->id,
+            'conversation_id' => $conversationId,
+            'status' => 'pending',
+        ]);
 
-            return "The agent's model provider rejected the request: {$body}";
-        }
+        ProcessAgentMessageJob::dispatch($agent, $user, $message, $pending);
 
-        return 'The agent failed to respond. Please try again.';
+        return $pending;
     }
 
     private function resolveConversation(Agent $agent, int $userId, string $conversationId): ?Conversation
