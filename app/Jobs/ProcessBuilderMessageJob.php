@@ -12,7 +12,9 @@ use App\Models\WorkflowBuilderSession;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Broadcast;
 use Laravel\Ai\Models\Conversation;
+use Laravel\Ai\Streaming\Events\StreamEvent;
 use Throwable;
 
 class ProcessBuilderMessageJob implements ShouldQueue
@@ -47,14 +49,26 @@ class ProcessBuilderMessageJob implements ShouldQueue
         // channel as it happens, instead of waiting for the whole reply — the
         // frontend appends text_delta chunks live and shows tool_call/tool_result
         // as inline progress (e.g. "Adding node: HTTP Request…").
+        //
+        // Broadcast manually (not the ->broadcastNow() convenience) so oversized
+        // payloads can be trimmed first — some tools (list_available_nodes with
+        // no category filter, in particular) can return the entire node catalog,
+        // which blows past Reverb/Pusher's ~10KB message limit. The LLM still
+        // gets the full result; only the broadcast copy is capped.
         $channel = new PrivateChannel("builder.session.{$this->session->id}");
 
-        if ($this->session->conversation_id) {
-            $response = $agent->continue($this->session->conversation_id, as: $this->user)
-                ->broadcastNow($this->userMessage->content, $channel);
-        } else {
-            $response = $agent->forUser($this->user)->broadcastNow($this->userMessage->content, $channel);
+        $stream = $this->session->conversation_id
+            ? $agent->continue($this->session->conversation_id, as: $this->user)
+                ->stream($this->userMessage->content)
+            : $agent->forUser($this->user)->stream($this->userMessage->content);
 
+        foreach ($stream as $event) {
+            $this->broadcastTrimmed($event, $channel);
+        }
+
+        $response = $stream;
+
+        if (! $this->session->conversation_id) {
             $conversationId = $response->conversationId ?? $agent->currentConversation();
             if ($conversationId) {
                 $this->stampConversation($conversationId);
@@ -111,6 +125,35 @@ class ProcessBuilderMessageJob implements ShouldQueue
         Conversation::query()
             ->whereKey($conversationId)
             ->update(['workspace_id' => $this->session->workspace_id]);
+    }
+
+    /**
+     * Broadcast a stream event, capping `result`/`arguments` if either is too
+     * large for the WebSocket transport (e.g. list_available_nodes returning
+     * the full catalog). The frontend only needs these fields for a couple of
+     * specific tools (AddNodeTool's node_id) — everything else just needs
+     * success/failure, so a trimmed payload loses nothing that's actually used.
+     */
+    private function broadcastTrimmed(StreamEvent $event, PrivateChannel $channel): void
+    {
+        $payload = $event->toArray();
+
+        foreach (['result', 'arguments'] as $key) {
+            if (! array_key_exists($key, $payload) || $payload[$key] === null) {
+                continue;
+            }
+
+            $isString = is_string($payload[$key]);
+            $encoded = $isString ? $payload[$key] : json_encode($payload[$key]);
+
+            if ($encoded !== false && strlen($encoded) > 3000) {
+                $payload[$key] = $isString
+                    ? json_encode(['truncated' => true])
+                    : ['truncated' => true];
+            }
+        }
+
+        Broadcast::on($channel)->as($event->type())->with($payload)->sendNow();
     }
 
     private function autoTitle(): void
