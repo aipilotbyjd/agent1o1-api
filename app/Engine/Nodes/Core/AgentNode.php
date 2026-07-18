@@ -12,7 +12,7 @@ class AgentNode implements NodeHandler
 {
     public function handle(NodeInput $input): NodeResult
     {
-        $model = $input->config['model'] ?? 'claude-sonnet-4-6';
+        $model = $input->config['model'] ?? 'claude-sonnet-5';
         $systemPrompt = $input->config['system_prompt'] ?? '';
         $userMessage = $input->config['message'] ?? '';
         $maxTokens = (int) ($input->config['max_tokens'] ?? 4096);

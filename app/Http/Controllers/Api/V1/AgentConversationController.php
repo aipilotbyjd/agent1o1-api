@@ -9,9 +9,11 @@ use App\Http\Resources\V1\AgentConversationResource;
 use App\Models\Agent;
 use App\Models\Workspace;
 use App\Services\AgentConversationService;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Laravel\Ai\Models\Conversation;
+use Throwable;
 
 class AgentConversationController extends Controller
 {
@@ -38,11 +40,15 @@ class AgentConversationController extends Controller
             return $denied;
         }
 
-        $result = $this->conversationService->startConversation(
-            $agent,
-            $request->user(),
-            $request->validated('message'),
-        );
+        try {
+            $result = $this->conversationService->startConversation(
+                $agent,
+                $request->user(),
+                $request->validated('message'),
+            );
+        } catch (Throwable $e) {
+            return $this->errorResponse($this->agentFailureMessage($e), 502);
+        }
 
         return $this->successResponse('Conversation started.', $result, 201);
     }
@@ -75,12 +81,16 @@ class AgentConversationController extends Controller
             return $this->errorResponse('Conversation not found.', 404);
         }
 
-        $result = $this->conversationService->sendMessage(
-            $agent,
-            $request->user(),
-            $conversation,
-            $request->validated('message'),
-        );
+        try {
+            $result = $this->conversationService->sendMessage(
+                $agent,
+                $request->user(),
+                $conversation,
+                $request->validated('message'),
+            );
+        } catch (Throwable $e) {
+            return $this->errorResponse($this->agentFailureMessage($e), 502);
+        }
 
         return $this->successResponse('Message sent.', $result);
     }
@@ -101,6 +111,22 @@ class AgentConversationController extends Controller
         $model->delete();
 
         return $this->successResponse('Conversation deleted.');
+    }
+
+    /**
+     * Provider HTTP failures (bad model id, bad/missing API key, rate limits) come back as
+     * RequestException with the provider's own error body — surface that verbatim since it's
+     * the only actionable detail; anything else stays generic to avoid leaking internals.
+     */
+    private function agentFailureMessage(Throwable $e): string
+    {
+        if ($e instanceof RequestException && $e->response) {
+            $body = $e->response->json('error.message') ?? $e->response->body();
+
+            return "The agent's model provider rejected the request: {$body}";
+        }
+
+        return 'The agent failed to respond. Please try again.';
     }
 
     private function resolveConversation(Agent $agent, int $userId, string $conversationId): ?Conversation

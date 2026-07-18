@@ -74,7 +74,7 @@ class LlmNode extends AppNode
             ->baseUrl('https://api.anthropic.com/v1')
             ->withHeaders(['x-api-key' => $apiKey, 'anthropic-version' => '2023-06-01'])
             ->post('/messages', array_filter([
-                'model' => $input->config['model'] ?? 'claude-sonnet-4-6',
+                'model' => $input->config['model'] ?? 'claude-sonnet-5',
                 'max_tokens' => (int) ($input->config['max_tokens'] ?? 4096),
                 'system' => $system,
                 'messages' => [['role' => 'user', 'content' => $input->config['prompt'] ?? '']],

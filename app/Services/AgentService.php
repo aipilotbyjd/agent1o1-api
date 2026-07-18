@@ -23,7 +23,7 @@ class AgentService
                 'slug' => $this->generateSlug($workspace, $data['name']),
                 'description' => $data['description'] ?? null,
                 'instructions' => $data['instructions'],
-                'model' => $data['model'] ?? 'claude-sonnet-4-6',
+                'model' => $data['model'] ?? 'claude-sonnet-5',
                 'provider' => $data['provider'] ?? 'anthropic',
                 'max_steps' => $data['max_steps'] ?? 15,
                 'timeout_seconds' => $data['timeout_seconds'] ?? 180,
