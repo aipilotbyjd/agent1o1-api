@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'execution_id',
+    'agent_run_id',
     'execution_node_key',
     'step_number',
     'action',
@@ -37,5 +38,13 @@ class AiAgentStep extends Model
     public function execution(): BelongsTo
     {
         return $this->belongsTo(Execution::class);
+    }
+
+    /**
+     * @return BelongsTo<AgentRun, $this>
+     */
+    public function agentRun(): BelongsTo
+    {
+        return $this->belongsTo(AgentRun::class);
     }
 }

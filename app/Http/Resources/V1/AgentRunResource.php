@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Http\Resources\V1;
+
+use App\Models\AgentRun;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+/**
+ * @mixin AgentRun
+ */
+class AgentRunResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'agent_id' => $this->agent_id,
+            'conversation_id' => $this->conversation_id,
+            'trigger_id' => $this->trigger_id,
+            'source' => $this->source,
+            'status' => $this->status,
+            'input' => $this->input,
+            'output' => $this->output,
+            'error' => $this->error,
+            'provider' => $this->provider,
+            'model' => $this->model,
+            'prompt_tokens' => $this->prompt_tokens,
+            'completion_tokens' => $this->completion_tokens,
+            'total_tokens' => $this->total_tokens,
+            'duration_ms' => $this->duration_ms,
+            'metadata' => $this->metadata,
+            'started_at' => $this->started_at,
+            'finished_at' => $this->finished_at,
+            'steps_count' => $this->whenCounted('steps'),
+            'steps' => AiAgentStepResource::collection($this->whenLoaded('steps')),
+            'created_at' => $this->created_at,
+        ];
+    }
+}

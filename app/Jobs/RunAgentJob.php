@@ -6,9 +6,11 @@ use App\Agents\AgentRunner;
 use App\Models\Agent;
 use App\Models\AgentTrigger;
 use App\Models\Credential;
+use App\Services\AgentRunRecorder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class RunAgentJob implements ShouldQueue
 {
@@ -30,13 +32,20 @@ class RunAgentJob implements ShouldQueue
         $this->onQueue('agents');
     }
 
-    public function handle(AgentRunner $runner): void
+    public function handle(AgentRunner $runner, AgentRunRecorder $recorder): void
     {
         $agent = Agent::with(['toolConfigs', 'skills.references', 'skills.scripts'])->find($this->agentId);
 
         if (! $agent || ! $agent->is_active) {
             return;
         }
+
+        $run = $recorder->start($agent, [
+            'user_id' => $this->context['fired_by'] ?? null,
+            'trigger_id' => $this->triggerId,
+            'source' => $this->triggerId ? 'trigger' : 'manual',
+            'input' => $this->message,
+        ]);
 
         // Only load credentials for node types the agent's tools actually require.
         // Loading the entire workspace credential store would expose unrelated secrets
@@ -56,11 +65,20 @@ class RunAgentJob implements ShouldQueue
             ->map(fn ($group) => $group->first()->getDecryptedData())
             ->all();
 
-        $response = $runner->run($this->message, [
-            ...$this->context,
-            'agent' => $agent,
-            'credentials' => $credentials,
-        ]);
+        try {
+            $response = $runner->run($this->message, [
+                ...$this->context,
+                'agent' => $agent,
+                'credentials' => $credentials,
+                'user_id' => $this->context['fired_by'] ?? null,
+            ]);
+        } catch (Throwable $e) {
+            $recorder->fail($run, $e);
+
+            throw $e;
+        }
+
+        $recorder->complete($run, $response);
 
         if ($this->triggerId) {
             AgentTrigger::whereKey($this->triggerId)->update(['last_fired_at' => now()]);

@@ -55,20 +55,21 @@ class AgentRunner implements AgentRunnable
      */
     public function build(Agent $agent, string $message, array $context = []): WorkflowAgent
     {
-        $agent->loadMissing(['toolConfigs', 'skills.references', 'skills.scripts']);
+        $agent->loadMissing(['toolConfigs', 'skills.references', 'skills.scripts', 'knowledge', 'memories']);
 
         $selectedSkills = $this->skillContextBuilder->select($agent->skills->all(), $message);
 
         return new WorkflowAgent(
-            $this->buildSystemPrompt($agent, $selectedSkills),
+            $this->buildSystemPrompt($agent, $selectedSkills, $context),
             $this->buildTools($agent, $selectedSkills, $context),
         );
     }
 
     /**
      * @param  AgentSkill[]  $skills
+     * @param  array<string, mixed>  $context
      */
-    private function buildSystemPrompt(Agent $agent, array $skills): string
+    private function buildSystemPrompt(Agent $agent, array $skills, array $context = []): string
     {
         $parts = [$agent->instructions];
 
@@ -84,6 +85,55 @@ class AgentRunner implements AgentRunnable
             foreach ($skill->references as $reference) {
                 $parts[] = "\n### {$reference->title}\n{$reference->content}";
             }
+        }
+
+        if ($knowledge = $this->buildKnowledgeContext($agent)) {
+            $parts[] = $knowledge;
+        }
+
+        if ($memory = $this->buildMemoryContext($agent, $context['user_id'] ?? null)) {
+            $parts[] = $memory;
+        }
+
+        return implode("\n", $parts);
+    }
+
+    /**
+     * Ground the agent with its active knowledge-base documents.
+     */
+    private function buildKnowledgeContext(Agent $agent): ?string
+    {
+        $items = $agent->knowledge->where('is_active', true);
+
+        if ($items->isEmpty()) {
+            return null;
+        }
+
+        $parts = ["\n\n---\n## Knowledge Base"];
+
+        foreach ($items as $item) {
+            $parts[] = "\n### {$item->title}\n{$item->content}";
+        }
+
+        return implode("\n", $parts);
+    }
+
+    /**
+     * Recall persisted memories — agent-wide plus any scoped to the running user.
+     */
+    private function buildMemoryContext(Agent $agent, ?int $userId): ?string
+    {
+        $memories = $agent->memories
+            ->filter(fn ($memory) => $memory->user_id === null || $memory->user_id === $userId);
+
+        if ($memories->isEmpty()) {
+            return null;
+        }
+
+        $parts = ["\n\n---\n## Remembered Context"];
+
+        foreach ($memories as $memory) {
+            $parts[] = "- {$memory->key}: {$memory->value}";
         }
 
         return implode("\n", $parts);
