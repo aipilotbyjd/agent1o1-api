@@ -94,4 +94,28 @@ class Agent extends Model
     {
         return $this->hasMany(\Laravel\Ai\Models\Conversation::class, 'agent_id');
     }
+
+    /**
+     * @return HasMany<AgentRun, $this>
+     */
+    public function runs(): HasMany
+    {
+        return $this->hasMany(AgentRun::class);
+    }
+
+    /**
+     * @return HasMany<AgentKnowledge, $this>
+     */
+    public function knowledge(): HasMany
+    {
+        return $this->hasMany(AgentKnowledge::class)->orderBy('sort_order');
+    }
+
+    /**
+     * @return HasMany<AgentMemory, $this>
+     */
+    public function memories(): HasMany
+    {
+        return $this->hasMany(AgentMemory::class);
+    }
 }

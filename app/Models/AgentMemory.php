@@ -10,14 +10,25 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'agent_id',
+    'workspace_id',
     'user_id',
-    'conversation_id',
-    'agent_run_id',
-    'status',
+    'key',
+    'value',
+    'type',
+    'metadata',
 ])]
-class AgentMessageRequest extends Model
+class AgentMemory extends Model
 {
     use HasFactory, HasUuids;
+
+    protected $table = 'agent_memories';
+
+    protected function casts(): array
+    {
+        return [
+            'metadata' => 'array',
+        ];
+    }
 
     /**
      * @return BelongsTo<Agent, $this>

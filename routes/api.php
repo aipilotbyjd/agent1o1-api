@@ -2,8 +2,13 @@
 
 use App\Http\Controllers\Api\V1\ActivityLogController;
 use App\Http\Controllers\Api\V1\AdminSettingsController;
+use App\Http\Controllers\Api\V1\AgentAnalyticsController;
 use App\Http\Controllers\Api\V1\AgentController;
 use App\Http\Controllers\Api\V1\AgentConversationController;
+use App\Http\Controllers\Api\V1\AgentKnowledgeController;
+use App\Http\Controllers\Api\V1\AgentMemoryController;
+use App\Http\Controllers\Api\V1\AgentMetadataController;
+use App\Http\Controllers\Api\V1\AgentRunController;
 use App\Http\Controllers\Api\V1\AgentSkillController;
 use App\Http\Controllers\Api\V1\AgentTemplateController;
 use App\Http\Controllers\Api\V1\AgentTriggerController;
@@ -514,6 +519,15 @@ Route::prefix('v1')->as('v1.')->group(function () {
                 */
 
                 Route::prefix('agents')->as('agents.')->group(function () {
+                    // Builder metadata — providers, models, tool catalog, categories, trigger types.
+                    Route::prefix('meta')->as('meta.')->group(function () {
+                        Route::get('providers', [AgentMetadataController::class, 'providers'])->name('providers');
+                        Route::get('models', [AgentMetadataController::class, 'models'])->name('models');
+                        Route::get('tools', [AgentMetadataController::class, 'tools'])->name('tools');
+                        Route::get('categories', [AgentMetadataController::class, 'categories'])->name('categories');
+                        Route::get('trigger-types', [AgentMetadataController::class, 'triggerTypes'])->name('trigger-types');
+                    });
+
                     Route::get('/', [AgentController::class, 'index'])->name('index');
                     Route::post('/', [AgentController::class, 'store'])->name('store');
                     Route::get('{agent}', [AgentController::class, 'show'])->name('show');
@@ -537,6 +551,36 @@ Route::prefix('v1')->as('v1.')->group(function () {
                         Route::put('{trigger}', [AgentTriggerController::class, 'update'])->name('update');
                         Route::delete('{trigger}', [AgentTriggerController::class, 'destroy'])->name('destroy');
                         Route::post('{trigger}/fire', [AgentTriggerController::class, 'fire'])->name('fire');
+                    });
+
+                    // Poll a queued message request's status (non-WebSocket clients).
+                    Route::get('{agent}/requests/{requestId}', [AgentConversationController::class, 'requestStatus'])
+                        ->name('requests.show');
+
+                    // Run history & step traces.
+                    Route::prefix('{agent}/runs')->as('runs.')->group(function () {
+                        Route::get('/', [AgentRunController::class, 'index'])->name('index');
+                        Route::get('{run}', [AgentRunController::class, 'show'])->name('show');
+                    });
+
+                    // Usage analytics.
+                    Route::get('{agent}/analytics', [AgentAnalyticsController::class, 'show'])->name('analytics');
+
+                    // Knowledge base (RAG grounding).
+                    Route::prefix('{agent}/knowledge')->as('knowledge.')->group(function () {
+                        Route::get('/', [AgentKnowledgeController::class, 'index'])->name('index');
+                        Route::post('/', [AgentKnowledgeController::class, 'store'])->name('store');
+                        Route::get('{knowledge}', [AgentKnowledgeController::class, 'show'])->name('show');
+                        Route::put('{knowledge}', [AgentKnowledgeController::class, 'update'])->name('update');
+                        Route::delete('{knowledge}', [AgentKnowledgeController::class, 'destroy'])->name('destroy');
+                    });
+
+                    // Persistent memory.
+                    Route::prefix('{agent}/memories')->as('memories.')->group(function () {
+                        Route::get('/', [AgentMemoryController::class, 'index'])->name('index');
+                        Route::post('/', [AgentMemoryController::class, 'store'])->name('store');
+                        Route::delete('/', [AgentMemoryController::class, 'clear'])->name('clear');
+                        Route::delete('{memory}', [AgentMemoryController::class, 'destroy'])->name('destroy');
                     });
                 });
 

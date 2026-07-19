@@ -6,8 +6,10 @@ use App\Agents\AgentRunner;
 use App\Events\AgentMessageReady;
 use App\Models\Agent;
 use App\Models\AgentMessageRequest;
+use App\Models\AgentRun;
 use App\Models\Credential;
 use App\Models\User;
+use App\Services\AgentRunRecorder;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -41,15 +43,24 @@ class ProcessAgentMessageJob implements ShouldQueue
         $this->timeout = max(60, $agent->timeout_seconds + 30);
     }
 
-    public function handle(AgentRunner $agentRunner): void
+    public function handle(AgentRunner $agentRunner, AgentRunRecorder $recorder): void
     {
         $this->request->update(['status' => 'processing']);
+
+        $run = $recorder->start($this->agent, [
+            'user_id' => $this->user->id,
+            'conversation_id' => $this->request->conversation_id,
+            'source' => 'conversation',
+            'input' => $this->message,
+        ]);
+        $this->request->update(['agent_run_id' => $run->id]);
 
         $channel = new PrivateChannel("agent.stream.{$this->request->id}");
 
         $workflowAgent = $agentRunner->build($this->agent, $this->message, [
             'agent' => $this->agent,
             'credentials' => $this->loadCredentials(),
+            'user_id' => $this->user->id,
         ]);
 
         $existingConversationId = $this->request->conversation_id;
@@ -66,13 +77,17 @@ class ProcessAgentMessageJob implements ShouldQueue
 
         foreach ($stream as $event) {
             $this->broadcastTrimmed($event, $channel);
+            $this->recordToolStep($recorder, $run, $event);
         }
 
         $conversationId = $stream->conversationId ?? $workflowAgent->currentConversation();
 
         if ($conversationId && ! $existingConversationId) {
             $this->stampConversation($conversationId);
+            $run->update(['conversation_id' => $conversationId]);
         }
+
+        $recorder->complete($run, (string) ($stream->text ?? ''), $this->extractUsage($stream));
 
         $this->request->update([
             'status' => 'completed',
@@ -89,7 +104,12 @@ class ProcessAgentMessageJob implements ShouldQueue
 
     public function failed(Throwable $exception): void
     {
+        $this->request->refresh();
         $this->request->update(['status' => 'failed']);
+
+        if ($this->request->agent_run_id && $run = AgentRun::find($this->request->agent_run_id)) {
+            app(AgentRunRecorder::class)->fail($run, $exception);
+        }
 
         AgentMessageReady::dispatch(
             $this->request->id,
@@ -137,6 +157,78 @@ class ProcessAgentMessageJob implements ShouldQueue
         }
 
         Broadcast::on($channel)->as($event->type())->with($payload)->sendNow();
+    }
+
+    /**
+     * Persist a trace step for tool-call stream events so the run history shows
+     * which tools the agent invoked and with what input/output. Non-tool events
+     * (text deltas, etc.) are ignored.
+     */
+    private function recordToolStep(AgentRunRecorder $recorder, AgentRun $run, StreamEvent $event): void
+    {
+        $type = $event->type();
+
+        if (! str_contains($type, 'tool')) {
+            return;
+        }
+
+        $payload = $event->toArray();
+
+        // Only record once a tool call carries a result — that event has both
+        // the arguments and the output, giving a complete step.
+        if (! array_key_exists('result', $payload) || $payload['result'] === null) {
+            return;
+        }
+
+        $recorder->recordStep($run, [
+            'action' => 'tool_call',
+            'tool_name' => $payload['name'] ?? $payload['tool'] ?? $payload['toolName'] ?? null,
+            'tool_input' => $this->arrayable($payload['arguments'] ?? null),
+            'tool_output' => $this->arrayable($payload['result'] ?? null),
+        ]);
+    }
+
+    /**
+     * Normalise a stream payload value to something JSON-castable for storage.
+     */
+    private function arrayable(mixed $value): ?array
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return is_array($value) ? $value : ['value' => $value];
+    }
+
+    /**
+     * Best-effort token usage extraction — the streaming response exposes usage
+     * differently across providers, so probe defensively and normalise.
+     *
+     * @return array<string, int|null>
+     */
+    private function extractUsage(object $stream): array
+    {
+        $usage = property_exists($stream, 'usage') ? $stream->usage : null;
+
+        if ($usage === null) {
+            return [];
+        }
+
+        $usage = is_array($usage) ? $usage : (array) $usage;
+
+        $prompt = $usage['prompt_tokens'] ?? $usage['promptTokens'] ?? $usage['input_tokens'] ?? null;
+        $completion = $usage['completion_tokens'] ?? $usage['completionTokens'] ?? $usage['output_tokens'] ?? null;
+        $total = $usage['total_tokens'] ?? $usage['totalTokens'] ?? null;
+
+        if ($total === null && ($prompt !== null || $completion !== null)) {
+            $total = (int) $prompt + (int) $completion;
+        }
+
+        return [
+            'prompt_tokens' => $prompt !== null ? (int) $prompt : null,
+            'completion_tokens' => $completion !== null ? (int) $completion : null,
+            'total_tokens' => $total !== null ? (int) $total : null,
+        ];
     }
 
     private function stampConversation(string $conversationId): void

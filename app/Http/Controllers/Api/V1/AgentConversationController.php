@@ -6,6 +6,7 @@ use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Agent\ConversationMessageRequest;
 use App\Http\Resources\V1\AgentConversationResource;
+use App\Http\Resources\V1\AgentMessageRequestResource;
 use App\Jobs\ProcessAgentMessageJob;
 use App\Models\Agent;
 use App\Models\AgentMessageRequest;
@@ -93,6 +94,30 @@ class AgentConversationController extends Controller
         $model->delete();
 
         return $this->successResponse('Conversation deleted.');
+    }
+
+    /**
+     * Polls the status of a queued message request for clients that can't hold
+     * the `agent.stream.{request_id}` WebSocket — returns pending/processing/
+     * completed/failed plus the resolved conversation and run ids.
+     */
+    public function requestStatus(Request $request, Workspace $workspace, Agent $agent, string $requestId): JsonResponse
+    {
+        if ($denied = $this->requirePermission(Permission::AgentRun)) {
+            return $denied;
+        }
+
+        $messageRequest = AgentMessageRequest::query()
+            ->whereKey($requestId)
+            ->where('agent_id', $agent->id)
+            ->where('user_id', $request->user()->id)
+            ->first();
+
+        if (! $messageRequest) {
+            return $this->errorResponse('Message request not found.', 404);
+        }
+
+        return $this->successResponse('Message request retrieved.', new AgentMessageRequestResource($messageRequest));
     }
 
     /**
