@@ -32,7 +32,12 @@ class ExportArtifactTool implements Tool
         return 'Export a file you generated (report, image, code, spreadsheet, HTML dashboard, etc.) as a '
             .'downloadable artifact. Provide a filename, mime_type, and the file content (UTF-8 text, or '
             .'base64 when is_base64 is true). Re-using the same filename in this conversation creates a new '
-            .'version instead of overwriting the previous one.';
+            .'version instead of overwriting the previous one. '
+            .'IMPORTANT: you must call this tool every single time you export or re-export a file, including '
+            .'when a user asks you to regenerate, update, or redo a file you already exported earlier in this '
+            .'conversation. Never claim a file was exported or a new version was created unless you actually '
+            .'called this tool for that exact request — a fresh call is required each time, even if the content '
+            .'or filename is unchanged.';
     }
 
     public function handle(Request $request): Stringable|string
