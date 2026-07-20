@@ -82,6 +82,34 @@ return [
             'key' => env('COHERE_API_KEY'),
         ],
 
+        // DigitalOcean Gradient AI Platform — serverless inference (OpenAI-
+        // compatible /chat/completions). Custom "digitalocean" driver
+        // (App\Ai\DigitalOceanProvider, registered in AppServiceProvider)
+        // uses the OpenRouter gateway but sends structured output as
+        // strict=false. Model ids confirmed against GET /v1/models on this
+        // access key (dashboard display names don't match API ids 1:1 —
+        // e.g. "Deepseek V4 Flash" is actually "deepseek-4-flash").
+        'digitalocean' => [
+            'driver' => 'digitalocean',
+            'key' => env('DIGITALOCEAN_AI_API_KEY'),
+            'url' => env('DIGITALOCEAN_AI_URL', 'https://inference.do-ai.run/v1'),
+            'models' => [
+                'text' => [
+                    'default' => env('DIGITALOCEAN_AI_MODEL', 'deepseek-4-flash'),
+                    'cheapest' => 'deepseek-4-flash',
+                    'smartest' => 'deepseek-v4-pro',
+                    'available' => [
+                        'deepseek-3.2',
+                        'deepseek-4-flash',
+                        'deepseek-r1-distill-llama-70b',
+                        'deepseek-v4-pro',
+                        'mimo-v2.5',
+                        'openai-gpt-4o-mini',
+                    ],
+                ],
+            ],
+        ],
+
         'deepseek' => [
             'driver' => 'deepseek',
             'key' => env('DEEPSEEK_API_KEY'),

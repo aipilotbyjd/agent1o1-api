@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Ai\AnyApiProvider;
+use App\Ai\DigitalOceanProvider;
 use App\Authorization\WorkspaceContext;
 use App\Engine\Graph\ExpressionResolver;
 use App\Enums\Permission;
@@ -68,6 +69,13 @@ class AppServiceProvider extends ServiceProvider
         // so structured output is sent with strict=false (see App\Ai\AnyApiProvider).
         app(\Laravel\Ai\AiManager::class)->extend('anyapi', function ($app, array $config): AnyApiProvider {
             return new AnyApiProvider($config, $app->make(\Illuminate\Contracts\Events\Dispatcher::class));
+        });
+
+        // "digitalocean" is DigitalOcean's Gradient AI Platform serverless
+        // inference (OpenAI-compatible). Registered as a custom driver so
+        // structured output is sent with strict=false (see App\Ai\DigitalOceanProvider).
+        app(\Laravel\Ai\AiManager::class)->extend('digitalocean', function ($app, array $config): DigitalOceanProvider {
+            return new DigitalOceanProvider($config, $app->make(\Illuminate\Contracts\Events\Dispatcher::class));
         });
     }
 
