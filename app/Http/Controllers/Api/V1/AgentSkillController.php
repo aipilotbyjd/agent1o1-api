@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\AgentSkill\GenerateAgentSkillRequest;
 use App\Http\Requests\Api\V1\AgentSkill\StoreAgentSkillRequest;
 use App\Http\Requests\Api\V1\AgentSkill\StoreReferenceRequest;
 use App\Http\Requests\Api\V1\AgentSkill\StoreScriptRequest;
@@ -15,6 +16,7 @@ use App\Http\Resources\V1\AgentSkillResource;
 use App\Http\Resources\V1\AgentSkillScriptResource;
 use App\Models\AgentSkill;
 use App\Models\Workspace;
+use App\Services\AgentSkill\SkillGenerationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -37,6 +39,17 @@ class AgentSkillController extends Controller
             ->paginate((int) $request->query('per_page', 25));
 
         return $this->paginatedResponse('Agent skills retrieved.', AgentSkillResource::collection($skills));
+    }
+
+    public function generate(GenerateAgentSkillRequest $request, Workspace $workspace, SkillGenerationService $service): JsonResponse
+    {
+        if ($denied = $this->requirePermission(Permission::AgentCreate)) {
+            return $denied;
+        }
+
+        $draft = $service->generate($workspace, $request->validated('prompt'), $request->user());
+
+        return $this->successResponse('Skill draft generated.', $draft);
     }
 
     public function store(StoreAgentSkillRequest $request, Workspace $workspace): JsonResponse

@@ -1,5 +1,6 @@
 <?php
 
+use App\Agents\Internal\SkillGeneratorAgent;
 use App\Enums\Role;
 use App\Models\AgentSkill;
 use App\Models\User;
@@ -17,6 +18,25 @@ beforeEach(function () {
         'role' => Role::Owner,
         'joined_at' => now(),
     ]);
+});
+
+test('a skill draft can be generated from a prompt', function () {
+    SkillGeneratorAgent::fake([
+        [
+            'name' => 'Refund Handler',
+            'description' => 'Explains the refund policy and processes requests.',
+            'category' => 'Communication',
+            'instructions' => 'When asked about refunds, explain the policy and offer to process eligible requests.',
+        ],
+    ]);
+
+    $this->actingAs($this->user, 'api')
+        ->postJson("/api/v1/workspaces/{$this->workspace->id}/agent-skills/generate", [
+            'prompt' => 'A skill that explains our refund policy to customers.',
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.name', 'Refund Handler')
+        ->assertJsonPath('data.category', 'Communication');
 });
 
 test('a skill can be created', function () {

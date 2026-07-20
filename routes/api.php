@@ -587,6 +587,7 @@ Route::prefix('v1')->as('v1.')->group(function () {
                 Route::prefix('agent-skills')->as('agent-skills.')->group(function () {
                     Route::get('/', [AgentSkillController::class, 'index'])->name('index');
                     Route::post('/', [AgentSkillController::class, 'store'])->name('store');
+                    Route::post('generate', [AgentSkillController::class, 'generate'])->name('generate')->middleware('throttle:10,1');
                     Route::get('{agentSkill}', [AgentSkillController::class, 'show'])->name('show');
                     Route::put('{agentSkill}', [AgentSkillController::class, 'update'])->name('update');
                     Route::delete('{agentSkill}', [AgentSkillController::class, 'destroy'])->name('destroy');
