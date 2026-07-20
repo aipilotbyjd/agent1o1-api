@@ -7,6 +7,7 @@ use App\Events\AgentMessageReady;
 use App\Models\Agent;
 use App\Models\AgentMessageRequest;
 use App\Models\AgentRun;
+use App\Models\Artifact;
 use App\Models\Credential;
 use App\Models\User;
 use App\Services\AgentRunRecorder;
@@ -57,13 +58,15 @@ class ProcessAgentMessageJob implements ShouldQueue
 
         $channel = new PrivateChannel("agent.stream.{$this->request->id}");
 
+        $existingConversationId = $this->request->conversation_id;
+
         $workflowAgent = $agentRunner->build($this->agent, $this->message, [
             'agent' => $this->agent,
             'credentials' => $this->loadCredentials(),
             'user_id' => $this->user->id,
+            'conversation_id' => $existingConversationId,
+            'agent_run_id' => $run->id,
         ]);
-
-        $existingConversationId = $this->request->conversation_id;
 
         $conversable = $existingConversationId
             ? $workflowAgent->continue($existingConversationId, as: $this->user)
@@ -78,6 +81,7 @@ class ProcessAgentMessageJob implements ShouldQueue
         foreach ($stream as $event) {
             $this->broadcastTrimmed($event, $channel);
             $this->recordToolStep($recorder, $run, $event);
+            $this->broadcastArtifact($event, $channel);
         }
 
         $conversationId = $stream->conversationId ?? $workflowAgent->currentConversation();
@@ -85,6 +89,13 @@ class ProcessAgentMessageJob implements ShouldQueue
         if ($conversationId && ! $existingConversationId) {
             $this->stampConversation($conversationId);
             $run->update(['conversation_id' => $conversationId]);
+
+            // Artifacts exported before the conversation id was known (the first
+            // turn) were recorded with a null conversation_id — backfill them so
+            // later turns in this same conversation can find them for versioning.
+            Artifact::where('agent_run_id', $run->id)
+                ->whereNull('conversation_id')
+                ->update(['conversation_id' => $conversationId]);
         }
 
         $recorder->complete($run, (string) ($stream->text ?? ''), $this->extractUsage($stream));
@@ -157,6 +168,29 @@ class ProcessAgentMessageJob implements ShouldQueue
         }
 
         Broadcast::on($channel)->as($event->type())->with($payload)->sendNow();
+    }
+
+    /**
+     * When the ExportArtifactTool produces a result, broadcast it as its own
+     * event on the same channel so the frontend can render a rich artifact
+     * card immediately instead of waiting for the run to finish.
+     */
+    private function broadcastArtifact(StreamEvent $event, PrivateChannel $channel): void
+    {
+        $payload = $event->toArray();
+        $toolName = $payload['name'] ?? $payload['tool'] ?? $payload['toolName'] ?? null;
+
+        if ($toolName !== 'ExportArtifactTool' || ! array_key_exists('result', $payload) || $payload['result'] === null) {
+            return;
+        }
+
+        $result = is_string($payload['result']) ? json_decode($payload['result'], true) : $payload['result'];
+
+        if (! is_array($result) || isset($result['error'])) {
+            return;
+        }
+
+        Broadcast::on($channel)->as('artifact')->with($result)->sendNow();
     }
 
     /**

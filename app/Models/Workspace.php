@@ -153,6 +153,11 @@ class Workspace extends Model
         return $this->hasMany(AgentSkill::class);
     }
 
+    public function artifacts(): HasMany
+    {
+        return $this->hasMany(Artifact::class);
+    }
+
     public function builderSessions(): HasMany
     {
         return $this->hasMany(WorkflowBuilderSession::class);

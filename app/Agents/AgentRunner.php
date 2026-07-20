@@ -3,6 +3,7 @@
 namespace App\Agents;
 
 use App\Agents\Internal\WorkflowAgent;
+use App\Agents\Tools\ExportArtifactTool;
 use App\Agents\Tools\ListSkillsTool;
 use App\Agents\Tools\LoadSkillTool;
 use App\Agents\Tools\SkillScriptTool;
@@ -51,7 +52,7 @@ class AgentRunner implements AgentRunnable
      */
     public function build(Agent $agent, string $message, array $context = []): WorkflowAgent
     {
-        $agent->loadMissing(['toolConfigs', 'skills.references', 'skills.scripts', 'knowledge', 'memories']);
+        $agent->loadMissing(['workspace', 'toolConfigs', 'skills.references', 'skills.scripts', 'knowledge', 'memories']);
 
         return new WorkflowAgent(
             $this->buildSystemPrompt($agent, $context),
@@ -166,6 +167,14 @@ class AgentRunner implements AgentRunnable
         if ($agent->default_workflow_id) {
             $tools[] = new WorkflowTool($agent->default_workflow_id);
         }
+
+        $tools[] = new ExportArtifactTool(
+            $agent,
+            $agent->workspace,
+            $context['conversation_id'] ?? null,
+            $context['agent_run_id'] ?? null,
+            $context['user_id'] ?? null,
+        );
 
         return $tools;
     }

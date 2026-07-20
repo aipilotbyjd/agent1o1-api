@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\AgentTemplateController;
 use App\Http\Controllers\Api\V1\AgentTriggerController;
 use App\Http\Controllers\Api\V1\AiAutofixController;
 use App\Http\Controllers\Api\V1\ArchivedExecutionController;
+use App\Http\Controllers\Api\V1\ArtifactController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
@@ -137,6 +138,10 @@ Route::prefix('v1')->as('v1.')->group(function () {
     });
 
     Route::get('shared/{token}', [SharedWorkflowController::class, 'show'])->name('shared.show');
+
+    Route::get('artifacts/{artifact}/preview', [ArtifactController::class, 'preview'])
+        ->middleware(['signed', 'throttle:60,1'])
+        ->name('artifacts.preview');
 
     /*
     |----------------------------------------------------------------------
@@ -599,6 +604,13 @@ Route::prefix('v1')->as('v1.')->group(function () {
                     Route::post('{agentSkill}/scripts', [AgentSkillController::class, 'addScript'])->name('scripts.store');
                     Route::put('{agentSkill}/scripts/{script}', [AgentSkillController::class, 'updateScript'])->name('scripts.update');
                     Route::delete('{agentSkill}/scripts/{script}', [AgentSkillController::class, 'removeScript'])->name('scripts.destroy');
+                });
+
+                Route::prefix('artifacts')->as('artifacts.')->group(function () {
+                    Route::get('/', [ArtifactController::class, 'index'])->name('index');
+                    Route::get('{artifact}', [ArtifactController::class, 'show'])->name('show');
+                    Route::delete('{artifact}', [ArtifactController::class, 'destroy'])->name('destroy');
+                    Route::get('{artifact}/download', [ArtifactController::class, 'download'])->name('download');
                 });
 
                 Route::post('agent-templates/{agentTemplate}/deploy', [AgentTemplateController::class, 'deploy'])
