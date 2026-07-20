@@ -30,6 +30,23 @@ test('a skill can be created', function () {
         ->assertJsonPath('data.version', 1);
 });
 
+test('a skill can be created with category, icon, color, and tags', function () {
+    $this->actingAs($this->user, 'api')
+        ->postJson("/api/v1/workspaces/{$this->workspace->id}/agent-skills", [
+            'name' => 'Competitor Research',
+            'instructions' => 'Research competitors and summarize findings.',
+            'category' => 'Research',
+            'icon' => 'Puzzle',
+            'color' => '#6366F1',
+            'tags' => ['competitors', 'market'],
+        ])
+        ->assertCreated()
+        ->assertJsonPath('data.category', 'Research')
+        ->assertJsonPath('data.icon', 'Puzzle')
+        ->assertJsonPath('data.color', '#6366F1')
+        ->assertJsonPath('data.tags', ['competitors', 'market']);
+});
+
 test('updating a skill bumps its version', function () {
     $skill = AgentSkill::factory()->create([
         'workspace_id' => $this->workspace->id,

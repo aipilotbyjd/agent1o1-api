@@ -32,6 +32,7 @@ class AgentSkillController extends Controller
             ->withCount(['references', 'scripts'])
             ->when($request->query('search'), fn ($q, $search) => $q->where('name', 'ilike', "%{$search}%"))
             ->when($request->query('is_shared') !== null, fn ($q) => $q->where('is_shared', $request->boolean('is_shared')))
+            ->when($request->query('category'), fn ($q, $category) => $q->where('category', $category))
             ->latest()
             ->paginate((int) $request->query('per_page', 25));
 
@@ -51,6 +52,10 @@ class AgentSkillController extends Controller
             'name' => $data['name'],
             'slug' => $this->generateSlug($workspace, $data['name']),
             'description' => $data['description'] ?? null,
+            'category' => $data['category'] ?? null,
+            'icon' => $data['icon'] ?? null,
+            'color' => $data['color'] ?? null,
+            'tags' => $data['tags'] ?? null,
             'instructions' => $data['instructions'],
             'is_shared' => $data['is_shared'] ?? false,
             'version' => 1,

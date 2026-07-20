@@ -17,6 +17,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'name',
     'slug',
     'description',
+    'category',
+    'icon',
+    'color',
+    'tags',
     'instructions',
     'is_shared',
     'version',
@@ -31,6 +35,7 @@ class AgentSkill extends Model
             'is_shared' => 'boolean',
             'version' => 'integer',
             'created_by' => 'integer',
+            'tags' => 'array',
         ];
     }
 
