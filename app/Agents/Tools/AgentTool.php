@@ -3,7 +3,6 @@
 namespace App\Agents\Tools;
 
 use App\Agents\AgentRunner;
-use App\Agents\Skills\SkillContextBuilder;
 use App\Models\Agent;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Contracts\Tool;
@@ -36,7 +35,7 @@ class AgentTool implements Tool
         }
 
         try {
-            $runner = new AgentRunner(new SkillContextBuilder);
+            $runner = new AgentRunner;
 
             return $runner->run($message, ['agent' => $this->subAgent]);
         } catch (\Throwable $e) {

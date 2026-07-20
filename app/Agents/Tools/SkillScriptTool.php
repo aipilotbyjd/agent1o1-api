@@ -4,9 +4,11 @@ namespace App\Agents\Tools;
 
 use App\Models\AgentSkillScript;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Process;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Tools\Request;
 use Stringable;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
 
 /**
  * Wraps an AgentSkillScript as a callable Laravel AI tool.
@@ -14,6 +16,8 @@ use Stringable;
  */
 class SkillScriptTool implements Tool
 {
+    private const TIMEOUT_SECONDS = 10;
+
     public function __construct(
         private readonly AgentSkillScript $script,
     ) {}
@@ -33,6 +37,8 @@ class SkillScriptTool implements Tool
                 'javascript' => $this->runJavaScript($input),
                 default => json_encode(['error' => "Unsupported language: {$this->script->language}"]),
             };
+        } catch (ProcessTimedOutException) {
+            return json_encode(['error' => 'Script timed out after '.self::TIMEOUT_SECONDS.'s']);
         } catch (\Throwable $e) {
             return json_encode(['error' => $e->getMessage()]);
         }
@@ -53,10 +59,13 @@ class SkillScriptTool implements Tool
         $wrapper = "<?php\n\$input = json_decode(<<<'INPUT'\n{$input}\nINPUT, true);\n\n{$code}";
         file_put_contents($tmpFile, $wrapper);
 
-        $output = shell_exec('php '.escapeshellarg($tmpFile).' 2>&1');
-        @unlink($tmpFile);
+        try {
+            $result = Process::timeout(self::TIMEOUT_SECONDS)->run(['php', $tmpFile]);
 
-        return $output ?? '';
+            return $result->output() ?: $result->errorOutput();
+        } finally {
+            @unlink($tmpFile);
+        }
     }
 
     private function runJavaScript(string $input): string
@@ -67,9 +76,12 @@ class SkillScriptTool implements Tool
         $wrapper = "const input = JSON.parse(`{$input}`);\n\n{$code}";
         file_put_contents($tmpFile, $wrapper);
 
-        $output = shell_exec('node '.escapeshellarg($tmpFile).' 2>&1');
-        @unlink($tmpFile);
+        try {
+            $result = Process::timeout(self::TIMEOUT_SECONDS)->run(['node', $tmpFile]);
 
-        return $output ?? '';
+            return $result->output() ?: $result->errorOutput();
+        } finally {
+            @unlink($tmpFile);
+        }
     }
 }

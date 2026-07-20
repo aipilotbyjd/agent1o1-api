@@ -3,24 +3,20 @@
 namespace App\Agents;
 
 use App\Agents\Internal\WorkflowAgent;
-use App\Agents\Skills\SkillContextBuilder;
+use App\Agents\Tools\ListSkillsTool;
+use App\Agents\Tools\LoadSkillTool;
 use App\Agents\Tools\SkillScriptTool;
 use App\Agents\Tools\UpdateSkillTool;
 use App\Agents\Tools\WorkflowNodeTool;
 use App\Agents\Tools\WorkflowTool;
 use App\Contracts\AgentRunnable;
 use App\Models\Agent;
-use App\Models\AgentSkill;
 use App\Models\Node;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Enums\Lab;
 
 class AgentRunner implements AgentRunnable
 {
-    public function __construct(
-        private readonly SkillContextBuilder $skillContextBuilder,
-    ) {}
-
     /**
      * Build the agent from a model record and run it with the given message.
      *
@@ -57,33 +53,26 @@ class AgentRunner implements AgentRunnable
     {
         $agent->loadMissing(['toolConfigs', 'skills.references', 'skills.scripts', 'knowledge', 'memories']);
 
-        $selectedSkills = $this->skillContextBuilder->select($agent->skills->all(), $message);
-
         return new WorkflowAgent(
-            $this->buildSystemPrompt($agent, $selectedSkills, $context),
-            $this->buildTools($agent, $selectedSkills, $context),
+            $this->buildSystemPrompt($agent, $context),
+            $this->buildTools($agent, $context),
         );
     }
 
     /**
-     * @param  AgentSkill[]  $skills
      * @param  array<string, mixed>  $context
      */
-    private function buildSystemPrompt(Agent $agent, array $skills, array $context = []): string
+    private function buildSystemPrompt(Agent $agent, array $context = []): string
     {
         $parts = [$agent->instructions];
 
-        foreach ($skills as $skill) {
-            $parts[] = "\n\n---\n## Skill: {$skill->name}";
+        if ($agent->skills->isNotEmpty()) {
+            $parts[] = "\n\n---\n## Skills available\nYou have skills attached. Call load_skill_tool "
+                ."with a skill's slug when its description below is relevant to the current request, "
+                ."before following it. Call list_skills_tool to see this list again.\n";
 
-            if ($skill->description) {
-                $parts[] = $skill->description;
-            }
-
-            $parts[] = $skill->instructions;
-
-            foreach ($skill->references as $reference) {
-                $parts[] = "\n### {$reference->title}\n{$reference->content}";
+            foreach ($agent->skills as $skill) {
+                $parts[] = "- {$skill->slug}: {$skill->description}";
             }
         }
 
@@ -140,11 +129,10 @@ class AgentRunner implements AgentRunnable
     }
 
     /**
-     * @param  AgentSkill[]  $skills
      * @param  array<string, mixed>  $context
      * @return list<Tool>
      */
-    private function buildTools(Agent $agent, array $skills, array $context): array
+    private function buildTools(Agent $agent, array $context): array
     {
         $tools = [];
 
@@ -163,13 +151,15 @@ class AgentRunner implements AgentRunnable
             );
         }
 
-        foreach ($skills as $skill) {
+        foreach ($agent->skills as $skill) {
             foreach ($skill->scripts->where('is_enabled', true) as $script) {
                 $tools[] = new SkillScriptTool($script);
             }
         }
 
         if ($agent->skills->isNotEmpty()) {
+            $tools[] = new ListSkillsTool($agent->skills);
+            $tools[] = new LoadSkillTool($agent->skills);
             $tools[] = new UpdateSkillTool($agent);
         }
 
