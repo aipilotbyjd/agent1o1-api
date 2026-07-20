@@ -4,11 +4,11 @@ namespace App\Agents\Tools;
 
 use App\Models\AgentSkillScript;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Process\Exceptions\ProcessTimedOutException;
 use Illuminate\Support\Facades\Process;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Tools\Request;
 use Stringable;
-use Symfony\Component\Process\Exception\ProcessTimedOutException;
 
 /**
  * Wraps an AgentSkillScript as a callable Laravel AI tool.
