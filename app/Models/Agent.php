@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Ai\Models\Conversation;
 
 #[Fillable([
     'workspace_id',
@@ -26,6 +28,25 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'category',
     'metadata',
     'default_workflow_id',
+    // Phase 1 — intelligence & reasoning
+    'planning_enabled',
+    'reflection_enabled',
+    'reflection_interval',
+    'child_agent_ids',
+    'memory_auto_extract',
+    'memory_semantic_recall',
+    'memory_recall_limit',
+    // Phase 2 — tooling & integrations
+    'code_execution_enabled',
+    'web_browsing_enabled',
+    'tool_cache_enabled',
+    // Phase 3 — ops & reliability
+    'guardrails',
+    'max_tokens_per_run',
+    'daily_token_budget',
+    'daily_cost_budget',
+    'is_paused',
+    'paused_reason',
 ])]
 class Agent extends Model
 {
@@ -39,7 +60,43 @@ class Agent extends Model
             'timeout_seconds' => 'integer',
             'metadata' => 'array',
             'created_by' => 'integer',
+            'planning_enabled' => 'boolean',
+            'reflection_enabled' => 'boolean',
+            'reflection_interval' => 'integer',
+            'child_agent_ids' => 'array',
+            'memory_auto_extract' => 'boolean',
+            'memory_semantic_recall' => 'boolean',
+            'memory_recall_limit' => 'integer',
+            'code_execution_enabled' => 'boolean',
+            'web_browsing_enabled' => 'boolean',
+            'tool_cache_enabled' => 'boolean',
+            'guardrails' => 'array',
+            'max_tokens_per_run' => 'integer',
+            'daily_token_budget' => 'integer',
+            'daily_cost_budget' => 'decimal:4',
+            'is_paused' => 'boolean',
         ];
+    }
+
+    /**
+     * Sub-agents this agent may delegate to as tools (roadmap item 3).
+     *
+     * @return Collection<int, Agent>
+     */
+    public function childAgents(): Collection
+    {
+        $ids = $this->child_agent_ids ?? [];
+
+        if ($ids === []) {
+            return new Collection;
+        }
+
+        return static::query()
+            ->where('workspace_id', $this->workspace_id)
+            ->whereKey($ids)
+            ->where('is_active', true)
+            ->whereKeyNot($this->getKey())
+            ->get();
     }
 
     /**
@@ -88,11 +145,11 @@ class Agent extends Model
     /**
      * Chat conversations held with this agent (stored in `agent_conversations`).
      *
-     * @return HasMany<\Laravel\Ai\Models\Conversation, $this>
+     * @return HasMany<Conversation, $this>
      */
     public function conversations(): HasMany
     {
-        return $this->hasMany(\Laravel\Ai\Models\Conversation::class, 'agent_id');
+        return $this->hasMany(Conversation::class, 'agent_id');
     }
 
     /**
@@ -117,5 +174,21 @@ class Agent extends Model
     public function memories(): HasMany
     {
         return $this->hasMany(AgentMemory::class);
+    }
+
+    /**
+     * @return HasMany<AgentVersion, $this>
+     */
+    public function versions(): HasMany
+    {
+        return $this->hasMany(AgentVersion::class)->orderByDesc('version');
+    }
+
+    /**
+     * @return HasMany<AgentEvalSuite, $this>
+     */
+    public function evalSuites(): HasMany
+    {
+        return $this->hasMany(AgentEvalSuite::class);
     }
 }

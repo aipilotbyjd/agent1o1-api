@@ -14,6 +14,7 @@ use App\Http\Requests\Api\V1\Agent\UpdateAgentRequest;
 use App\Http\Resources\V1\AgentResource;
 use App\Models\Agent;
 use App\Models\Workspace;
+use App\Services\Agent\AgentBudgetService;
 use App\Services\AgentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -126,5 +127,34 @@ class AgentController extends Controller
         $agent->skills()->detach($skillId);
 
         return $this->successResponse('Skill detached.');
+    }
+
+    /**
+     * Manually pause an agent — stops new runs until resumed (roadmap item 11).
+     */
+    public function pause(Request $request, Workspace $workspace, Agent $agent, AgentBudgetService $budgets): JsonResponse
+    {
+        if ($denied = $this->requirePermission(Permission::AgentUpdate)) {
+            return $denied;
+        }
+
+        $reason = $request->validate(['reason' => ['nullable', 'string', 'max:255']])['reason'] ?? 'Paused by an administrator.';
+        $budgets->pause($agent, $reason);
+
+        return $this->successResponse('Agent paused.', new AgentResource($agent->fresh()));
+    }
+
+    /**
+     * Clear a pause (manual or budget-triggered) so the agent can run again.
+     */
+    public function resume(Request $request, Workspace $workspace, Agent $agent, AgentBudgetService $budgets): JsonResponse
+    {
+        if ($denied = $this->requirePermission(Permission::AgentUpdate)) {
+            return $denied;
+        }
+
+        $budgets->resume($agent);
+
+        return $this->successResponse('Agent resumed.', new AgentResource($agent->fresh()));
     }
 }

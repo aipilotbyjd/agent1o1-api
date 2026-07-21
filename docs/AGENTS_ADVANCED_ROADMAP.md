@@ -4,6 +4,11 @@ Goal: make the user-facing **Agents** feature (`app/Models/Agent.php`, `AgentRun
 
 Phases are ordered by leverage vs. effort; suggested build order is at the bottom.
 
+> **Status: all 13 items implemented.** Every capability is opt-in per agent
+> (columns on `agents`, default off) so existing agents are unchanged until a
+> feature is switched on. See the "Implementation map" at the bottom for the
+> concrete files, columns, and API endpoints.
+
 ## Phase 1 — Agent Intelligence & Reasoning
 
 1. **Planner/Executor split** — `AgentRunner`/`WorkflowRefinementAgent` currently run a single tool-calling loop up to `max_steps`. Add a planning step before execution: the agent drafts a plan (sub-goals), stores it on the run, executes step-by-step against it, and revises the plan if a tool result contradicts an assumption.
@@ -34,3 +39,32 @@ Phases are ordered by leverage vs. effort; suggested build order is at the botto
 4. Eval framework (item 9) + versioning (item 10) — makes agents trustworthy enough to actually deploy, where Gumloop is weakest.
 5. Code execution + browsing tools (items 5–6) — expands what agents can do.
 6. Guardrails, cost caps, observability (items 11–13) — hardening once the above is live.
+
+---
+
+## Implementation map
+
+Config lives on `agents` (migration `..._add_advanced_features_to_agents_table`)
+and is validated by `AdvancedAgentRules`, persisted by `AgentService`, exposed on
+`AgentResource`. Reasoning wraps the executor in `AgentRunner` +
+`ProcessAgentMessageJob`.
+
+| # | Feature | Toggle / config | Key code |
+|---|---------|-----------------|----------|
+| 1 | Planner/executor split | `planning_enabled` | `AgentReasoningService::plan`, `Internal\PlannerAgent`, plan stored on `agent_runs.plan` |
+| 2 | Reflection / self-correction | `reflection_enabled` | `AgentReasoningService::reflect`, `Internal\ReflectionAgent`, `ProcessAgentMessageJob::applyCorrection`, stored on `agent_runs.reflections` |
+| 3 | Multi-agent delegation | `child_agent_ids[]` | `Agent::childAgents`, `Tools\AgentTool` (depth-1), wired in `AgentRunner::buildTools` |
+| 4 | Long-horizon memory | `memory_auto_extract`, `memory_semantic_recall`, `memory_recall_limit` | `AgentMemoryService`, `Internal\MemoryExtractionAgent`, `agent_memories.embedding` |
+| 5 | Code execution sandbox | `code_execution_enabled` | `Tools\CodeExecutionTool` |
+| 6 | Browsing tool | `web_browsing_enabled` | `Tools\WebBrowseTool` (SSRF-guarded) |
+| 7 | Connector templates | — | `ConnectorTemplateService`, `GET agents/meta/connectors` |
+| 8 | Tool result caching | `tool_cache_enabled` | `Tools\CachedTool` decorator |
+| 9 | Eval / testing framework | — | `AgentEvalService`, `Internal\EvalJudgeAgent`, `agent_eval_*` tables, `agents/{agent}/eval-suites` |
+| 10 | Versioning & rollback | — | `AgentVersionService`, `agent_versions` table, `agents/{agent}/versions` |
+| 11 | Cost & rate guardrails | `max_tokens_per_run`, `daily_token_budget`, `daily_cost_budget`, `is_paused` | `AgentBudgetService`, `agents/{agent}/pause`+`/resume` |
+| 12 | Structured observability | — | `AgentAnalyticsController` (tool failure rates, cost, latency) |
+| 13 | Guardrails / safety | `guardrails.{input,output}` | `AgentGuardrailService`, `Internal\ModerationAgent` |
+
+All LLM-dependent passes (plan, reflect, memory-extract, moderate, judge) are
+best-effort and fail open, so a flaky provider degrades gracefully rather than
+breaking a run.

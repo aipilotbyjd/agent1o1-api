@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Models\Workspace;
+use App\Services\Agent\ConnectorTemplateService;
 use App\Services\AgentMetadataService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -62,5 +63,18 @@ class AgentMetadataController extends Controller
         }
 
         return $this->successResponse('Trigger types retrieved.', ['trigger_types' => $this->metadata->triggerTypes()]);
+    }
+
+    /**
+     * One-click connector presets over the generic app nodes (roadmap item 7):
+     * curated tool configs a user can drop onto an agent and just add a key.
+     */
+    public function connectors(Request $request, Workspace $workspace, ConnectorTemplateService $connectors): JsonResponse
+    {
+        if ($denied = $this->requirePermission(Permission::AgentView)) {
+            return $denied;
+        }
+
+        return $this->successResponse('Connector templates retrieved.', ['connectors' => $connectors->all()]);
     }
 }

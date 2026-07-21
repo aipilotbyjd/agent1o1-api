@@ -4,6 +4,7 @@ use App\Agents\AgentRunner;
 use App\Agents\Tools\ListSkillsTool;
 use App\Agents\Tools\LoadSkillTool;
 use App\Agents\Tools\SkillScriptTool;
+use App\Enums\Role;
 use App\Models\Agent;
 use App\Models\AgentSkill;
 use App\Models\User;
@@ -19,7 +20,7 @@ beforeEach(function () {
     $this->workspace = Workspace::factory()->create(['owner_id' => $this->user->id]);
     $this->workspace->members()->attach($this->user->id, [
         'id' => Str::uuid()->toString(),
-        'role' => \App\Enums\Role::Owner,
+        'role' => Role::Owner,
         'joined_at' => now(),
     ]);
 

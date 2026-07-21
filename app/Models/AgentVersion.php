@@ -11,28 +11,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'agent_id',
     'workspace_id',
-    'user_id',
-    'agent_run_id',
-    'key',
-    'value',
-    'type',
-    'source',
-    'metadata',
-    'embedding',
-    'last_used_at',
+    'created_by',
+    'version',
+    'label',
+    'snapshot',
 ])]
-class AgentMemory extends Model
+class AgentVersion extends Model
 {
     use HasFactory, HasUuids;
-
-    protected $table = 'agent_memories';
 
     protected function casts(): array
     {
         return [
-            'metadata' => 'array',
-            'embedding' => 'array',
-            'last_used_at' => 'datetime',
+            'version' => 'integer',
+            'snapshot' => 'array',
+            'created_by' => 'integer',
         ];
     }
 
@@ -47,8 +40,8 @@ class AgentMemory extends Model
     /**
      * @return BelongsTo<User, $this>
      */
-    public function user(): BelongsTo
+    public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

@@ -7,34 +7,18 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'agent_id',
     'workspace_id',
-    'user_id',
-    'agent_run_id',
-    'key',
-    'value',
-    'type',
-    'source',
-    'metadata',
-    'embedding',
-    'last_used_at',
+    'created_by',
+    'name',
+    'description',
 ])]
-class AgentMemory extends Model
+class AgentEvalSuite extends Model
 {
     use HasFactory, HasUuids;
-
-    protected $table = 'agent_memories';
-
-    protected function casts(): array
-    {
-        return [
-            'metadata' => 'array',
-            'embedding' => 'array',
-            'last_used_at' => 'datetime',
-        ];
-    }
 
     /**
      * @return BelongsTo<Agent, $this>
@@ -45,10 +29,18 @@ class AgentMemory extends Model
     }
 
     /**
-     * @return BelongsTo<User, $this>
+     * @return HasMany<AgentEvalCase, $this>
      */
-    public function user(): BelongsTo
+    public function cases(): HasMany
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(AgentEvalCase::class, 'suite_id')->orderBy('sort_order');
+    }
+
+    /**
+     * @return HasMany<AgentEvalRun, $this>
+     */
+    public function runs(): HasMany
+    {
+        return $this->hasMany(AgentEvalRun::class, 'suite_id')->latest();
     }
 }

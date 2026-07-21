@@ -10,10 +10,15 @@ use App\Models\AgentRun;
 use App\Models\Artifact;
 use App\Models\Credential;
 use App\Models\User;
+use App\Services\Agent\AgentBudgetService;
+use App\Services\Agent\AgentGuardrailService;
+use App\Services\Agent\AgentMemoryService;
+use App\Services\Agent\AgentReasoningService;
 use App\Services\AgentRunRecorder;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Broadcast;
 use Laravel\Ai\Models\Conversation;
 use Laravel\Ai\Streaming\Events\StreamEvent;
@@ -34,6 +39,13 @@ class ProcessAgentMessageJob implements ShouldQueue
 
     public array $backoff = [5, 30];
 
+    /**
+     * Tool calls captured during the stream, fed into the reflection pass.
+     *
+     * @var list<array{tool: ?string, output: mixed}>
+     */
+    private array $toolContext = [];
+
     public function __construct(
         private readonly Agent $agent,
         private readonly User $user,
@@ -44,9 +56,33 @@ class ProcessAgentMessageJob implements ShouldQueue
         $this->timeout = max(60, $agent->timeout_seconds + 30);
     }
 
-    public function handle(AgentRunner $agentRunner, AgentRunRecorder $recorder): void
-    {
+    public function handle(
+        AgentRunner $agentRunner,
+        AgentRunRecorder $recorder,
+        AgentBudgetService $budgets,
+        AgentGuardrailService $guardrails,
+        AgentReasoningService $reasoning,
+        AgentMemoryService $memory,
+    ): void {
         $this->request->update(['status' => 'processing']);
+
+        $channel = new PrivateChannel("agent.stream.{$this->request->id}");
+
+        // Cost & rate guardrails (roadmap item 11): refuse to start a run when the
+        // agent is paused or has burned its daily budget.
+        if ($blockReason = $budgets->blockReason($this->agent)) {
+            $this->haltGracefully($channel, $blockReason);
+
+            return;
+        }
+
+        // Input safety guardrail (roadmap item 13).
+        $inputCheck = $guardrails->checkInput($this->agent, $this->message);
+        if ($inputCheck && $inputCheck['block']) {
+            $this->haltGracefully($channel, $guardrails->blockedMessage('input', $inputCheck));
+
+            return;
+        }
 
         $run = $recorder->start($this->agent, [
             'user_id' => $this->user->id,
@@ -56,17 +92,26 @@ class ProcessAgentMessageJob implements ShouldQueue
         ]);
         $this->request->update(['agent_run_id' => $run->id]);
 
-        $channel = new PrivateChannel("agent.stream.{$this->request->id}");
-
         $existingConversationId = $this->request->conversation_id;
 
-        $workflowAgent = $agentRunner->build($this->agent, $this->message, [
+        $context = [
             'agent' => $this->agent,
             'credentials' => $this->loadCredentials(),
             'user_id' => $this->user->id,
             'conversation_id' => $existingConversationId,
             'agent_run_id' => $run->id,
-        ]);
+        ];
+
+        // Planner/executor split (roadmap item 1): draft a plan up front, persist
+        // it on the run, and feed it to the executor via context.
+        $plan = $agentRunner->plan($this->agent, $this->message, $context);
+        if ($plan) {
+            $context['plan'] = $plan;
+            $run->update(['plan' => $plan]);
+            Broadcast::on($channel)->as('plan')->with($plan)->sendNow();
+        }
+
+        $workflowAgent = $agentRunner->build($this->agent, $this->message, $context);
 
         $conversable = $existingConversationId
             ? $workflowAgent->continue($existingConversationId, as: $this->user)
@@ -78,6 +123,8 @@ class ProcessAgentMessageJob implements ShouldQueue
             model: $this->agent->model,
         );
 
+        $this->toolContext = [];
+
         foreach ($stream as $event) {
             $this->broadcastTrimmed($event, $channel);
             $this->recordToolStep($recorder, $run, $event);
@@ -85,6 +132,38 @@ class ProcessAgentMessageJob implements ShouldQueue
         }
 
         $conversationId = $stream->conversationId ?? $workflowAgent->currentConversation();
+        $finalText = (string) ($stream->text ?? '');
+
+        // Reflection / self-correction (roadmap item 2): critique the draft and,
+        // when it is judged wrong with low confidence, run one corrective turn.
+        $reflection = $reasoning->reflect(
+            $this->agent,
+            $this->message,
+            $plan,
+            $this->toolContextSummary(),
+            $finalText,
+        );
+
+        if ($reflection) {
+            $run->update(['reflections' => [$reflection]]);
+
+            if (! $reflection['approved'] && $reflection['confidence'] < 0.5 && trim($reflection['critique']) !== '') {
+                $finalText = $this->applyCorrection(
+                    $workflowAgent,
+                    $conversationId,
+                    $reflection['critique'],
+                    $finalText,
+                    $channel,
+                );
+            }
+        }
+
+        // Output safety guardrail (roadmap item 13).
+        $outputCheck = $guardrails->checkOutput($this->agent, $finalText);
+        if ($outputCheck && $outputCheck['block']) {
+            $finalText = $guardrails->blockedMessage('output', $outputCheck);
+            Broadcast::on($channel)->as('guardrail_blocked')->with(['stage' => 'output', 'message' => $finalText])->sendNow();
+        }
 
         if ($conversationId && ! $existingConversationId) {
             $this->stampConversation($conversationId);
@@ -98,7 +177,16 @@ class ProcessAgentMessageJob implements ShouldQueue
                 ->update(['conversation_id' => $conversationId]);
         }
 
-        $recorder->complete($run, (string) ($stream->text ?? ''), $this->extractUsage($stream));
+        $recorder->complete($run, $finalText, $this->extractUsage($stream));
+        $run->refresh();
+
+        // Cost accounting + budget enforcement (roadmap item 11).
+        $budgets->settleRun($this->agent, $run);
+
+        // Automatic long-horizon memory extraction (roadmap item 4).
+        if ($this->agent->memory_auto_extract) {
+            $memory->extractAndStore($this->agent, $this->message, $finalText, $this->user->id, $run);
+        }
 
         $this->request->update([
             'status' => 'completed',
@@ -108,7 +196,83 @@ class ProcessAgentMessageJob implements ShouldQueue
         AgentMessageReady::dispatch(
             $this->request->id,
             $conversationId,
-            (string) ($stream->text ?? ''),
+            $finalText,
+            $this->agent,
+        );
+    }
+
+    /**
+     * Run a single corrective turn after reflection rejected the draft. Falls
+     * back to the original draft if the correction turn itself fails.
+     */
+    private function applyCorrection(
+        $workflowAgent,
+        ?string $conversationId,
+        string $critique,
+        string $draft,
+        PrivateChannel $channel,
+    ): string {
+        if (! $conversationId) {
+            return $draft;
+        }
+
+        try {
+            Broadcast::on($channel)->as('reflection')->with(['critique' => $critique])->sendNow();
+
+            $corrected = (string) $workflowAgent
+                ->continue($conversationId, as: $this->user)
+                ->prompt(
+                    "A reviewer found issues with your previous answer: {$critique}\n\n"
+                    .'Provide a corrected, complete answer. Do not mention this review.',
+                    provider: $this->agent->provider,
+                    model: $this->agent->model,
+                );
+
+            if (trim($corrected) === '') {
+                return $draft;
+            }
+
+            Broadcast::on($channel)->as('message.corrected')->with(['text' => $corrected])->sendNow();
+
+            return $corrected;
+        } catch (Throwable) {
+            return $draft;
+        }
+    }
+
+    /**
+     * A compact digest of the tool calls made this run, for the reflection pass.
+     */
+    private function toolContextSummary(): string
+    {
+        if ($this->toolContext === []) {
+            return '';
+        }
+
+        return collect($this->toolContext)
+            ->map(function (array $step) {
+                $output = is_string($step['output']) ? $step['output'] : json_encode($step['output']);
+                $output = mb_substr((string) $output, 0, 800);
+
+                return "- {$step['tool']}: {$output}";
+            })
+            ->implode("\n");
+    }
+
+    /**
+     * Mark the request complete with a canned assistant message (budget/guardrail
+     * refusals) without ever calling the model.
+     */
+    private function haltGracefully(PrivateChannel $channel, string $message): void
+    {
+        Broadcast::on($channel)->as('guardrail_blocked')->with(['message' => $message])->sendNow();
+
+        $this->request->update(['status' => 'completed']);
+
+        AgentMessageReady::dispatch(
+            $this->request->id,
+            $this->request->conversation_id,
+            $message,
             $this->agent,
         );
     }
@@ -135,7 +299,7 @@ class ProcessAgentMessageJob implements ShouldQueue
     /** Mirrors AgentConversationController::agentFailureMessage — surfaces the provider's own rejection reason. */
     private function agentFailureMessage(Throwable $e): string
     {
-        if ($e instanceof \Illuminate\Http\Client\RequestException && $e->response) {
+        if ($e instanceof RequestException && $e->response) {
             $body = $e->response->json('error.message') ?? $e->response->body();
 
             return "The agent's model provider rejected the request: {$body}";
@@ -214,12 +378,19 @@ class ProcessAgentMessageJob implements ShouldQueue
             return;
         }
 
+        $toolName = $payload['name'] ?? $payload['tool'] ?? $payload['toolName'] ?? null;
+
         $recorder->recordStep($run, [
             'action' => 'tool_call',
-            'tool_name' => $payload['name'] ?? $payload['tool'] ?? $payload['toolName'] ?? null,
+            'tool_name' => $toolName,
             'tool_input' => $this->arrayable($payload['arguments'] ?? null),
             'tool_output' => $this->arrayable($payload['result'] ?? null),
         ]);
+
+        $this->toolContext[] = [
+            'tool' => $toolName,
+            'output' => $payload['result'] ?? null,
+        ];
     }
 
     /**

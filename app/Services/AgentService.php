@@ -5,11 +5,27 @@ namespace App\Services;
 use App\Models\Agent;
 use App\Models\User;
 use App\Models\Workspace;
+use App\Services\Agent\AgentVersionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class AgentService
 {
+    /**
+     * Advanced-feature columns persisted verbatim from the validated payload.
+     *
+     * @var list<string>
+     */
+    private const ADVANCED_FIELDS = [
+        'planning_enabled', 'reflection_enabled', 'reflection_interval',
+        'child_agent_ids', 'memory_auto_extract', 'memory_semantic_recall',
+        'memory_recall_limit', 'code_execution_enabled', 'web_browsing_enabled',
+        'tool_cache_enabled', 'guardrails', 'max_tokens_per_run',
+        'daily_token_budget', 'daily_cost_budget',
+    ];
+
+    public function __construct(private readonly AgentVersionService $versions) {}
+
     /**
      * @param  array<string, mixed>  $data
      */
@@ -31,13 +47,19 @@ class AgentService
                 'category' => $data['category'] ?? null,
                 'metadata' => $data['metadata'] ?? null,
                 'default_workflow_id' => $data['default_workflow_id'] ?? null,
+                ...$this->advancedAttributes($data),
             ]);
 
             if (! empty($data['tools'])) {
                 $this->syncToolConfigs($agent, $data['tools']);
             }
 
-            return $agent->fresh(['toolConfigs', 'skills']);
+            $agent = $agent->fresh(['toolConfigs', 'skills']);
+
+            // Versioning & rollback (roadmap item 10): snapshot the initial config.
+            $this->versions->record($agent, $creator, 'Initial version');
+
+            return $agent;
         });
     }
 
@@ -54,14 +76,32 @@ class AgentService
             $agent->update(collect($data)->only([
                 'name', 'slug', 'description', 'instructions', 'model', 'provider',
                 'max_steps', 'timeout_seconds', 'is_active', 'category', 'metadata', 'default_workflow_id',
+                ...self::ADVANCED_FIELDS,
             ])->all());
 
             if (array_key_exists('tools', $data)) {
                 $this->syncToolConfigs($agent, $data['tools'] ?? []);
             }
 
-            return $agent->fresh(['toolConfigs', 'skills']);
+            $agent = $agent->fresh(['toolConfigs', 'skills']);
+
+            // Snapshot a new version whenever the behaviour-defining config changed.
+            $this->versions->record($agent, $agent->creator);
+
+            return $agent;
         });
+    }
+
+    /**
+     * Pull the advanced-feature attributes out of a validated payload, only
+     * including keys that were actually present so partial updates work.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function advancedAttributes(array $data): array
+    {
+        return collect($data)->only(self::ADVANCED_FIELDS)->all();
     }
 
     public function delete(Agent $agent): void
@@ -86,8 +126,10 @@ class AgentService
                 'max_steps' => $agent->max_steps,
                 'timeout_seconds' => $agent->timeout_seconds,
                 'is_active' => false,
+                'category' => $agent->category,
                 'metadata' => $agent->metadata,
                 'default_workflow_id' => $agent->default_workflow_id,
+                ...collect($agent->only(self::ADVANCED_FIELDS))->all(),
             ]);
 
             foreach ($agent->toolConfigs as $config) {
