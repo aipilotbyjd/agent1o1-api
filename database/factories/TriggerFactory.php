@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Agent;
 use App\Models\Trigger;
 use App\Models\Workflow;
 use App\Models\Workspace;
@@ -52,6 +53,23 @@ class TriggerFactory extends Factory
             'webhook_status' => 'active',
             'trigger_type_id' => $triggerTypeId,
         ]);
+    }
+
+    /**
+     * Target this trigger at an agent instead of a workflow.
+     */
+    public function forAgent(?Agent $agent = null): static
+    {
+        return $this->state(function () use ($agent) {
+            $agent ??= Agent::factory()->create();
+
+            return [
+                'workflow_id' => null,
+                'target_type' => 'agent',
+                'target_id' => $agent->id,
+                'workspace_id' => $agent->workspace_id,
+            ];
+        });
     }
 
     public function polling(): static

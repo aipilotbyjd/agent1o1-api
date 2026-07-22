@@ -8,8 +8,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 #[Fillable([
+    'target_type',
+    'target_id',
     'workflow_id',
     'workspace_id',
     'credential_id',
@@ -38,6 +41,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'total_events',
     'total_executions',
     'settings',
+    'initial_message',
+    'last_fired_at',
 ])]
 class Trigger extends Model
 {
@@ -52,6 +57,7 @@ class Trigger extends Model
             'polling_next_check_at' => 'datetime',
             'polling_last_seen_ids' => 'array',
             'schedule_next_run_at' => 'datetime',
+            'last_fired_at' => 'datetime',
             'polling_interval_seconds' => 'integer',
             'max_concurrency' => 'integer',
             'rate_limit_count' => 'integer',
@@ -60,6 +66,40 @@ class Trigger extends Model
             'total_executions' => 'integer',
             'settings' => 'array',
         ];
+    }
+
+    /**
+     * Keep the polymorphic target and the legacy workflow_id column consistent
+     * during the transition: code that sets only one side gets the other filled
+     * in automatically. Dropped once workflow_id is removed.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Trigger $trigger) {
+            if ($trigger->workflow_id && ! $trigger->target_type) {
+                $trigger->target_type = 'workflow';
+                $trigger->target_id = $trigger->workflow_id;
+            }
+
+            if ($trigger->target_type === 'workflow' && ! $trigger->workflow_id) {
+                $trigger->workflow_id = $trigger->target_id;
+            }
+        });
+    }
+
+    /**
+     * The automation this trigger fires — a Workflow or an Agent.
+     *
+     * @return MorphTo<Model, $this>
+     */
+    public function target(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    public function isForAgent(): bool
+    {
+        return $this->target_type === 'agent';
     }
 
     public function workflow(): BelongsTo

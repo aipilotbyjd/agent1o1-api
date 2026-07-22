@@ -3,6 +3,7 @@
 namespace App\Engine\Trigger;
 
 use App\Enums\ExecutionStatus;
+use App\Models\AgentRun;
 use App\Models\Execution;
 use App\Models\Trigger;
 
@@ -12,10 +13,22 @@ class TriggerConcurrencyGuard
     {
         $maxConcurrency = max(1, $trigger->max_concurrency);
 
-        $active = Execution::where('workflow_id', $trigger->workflow_id)
-            ->whereIn('status', [ExecutionStatus::Pending, ExecutionStatus::Running])
-            ->count();
+        return $this->activeRuns($trigger) < $maxConcurrency;
+    }
 
-        return $active < $maxConcurrency;
+    /**
+     * Count in-flight runs for the trigger's target so concurrency limits apply
+     * uniformly to workflows and agents.
+     */
+    private function activeRuns(Trigger $trigger): int
+    {
+        return match ($trigger->target_type) {
+            'agent' => AgentRun::where('agent_id', $trigger->target_id)
+                ->whereIn('status', ['pending', 'running'])
+                ->count(),
+            default => Execution::where('workflow_id', $trigger->target_id)
+                ->whereIn('status', [ExecutionStatus::Pending, ExecutionStatus::Running])
+                ->count(),
+        };
     }
 }

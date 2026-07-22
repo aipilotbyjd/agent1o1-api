@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\Automatable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,7 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'last_executed_at',
     'success_rate',
 ])]
-class Workflow extends Model
+class Workflow extends Model implements Automatable
 {
     use HasFactory, HasUuids, SoftDeletes;
 
