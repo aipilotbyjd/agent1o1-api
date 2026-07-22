@@ -6,6 +6,8 @@ use App\Agents\AgentRunner;
 use App\Models\Agent;
 use App\Models\AgentTrigger;
 use App\Models\Credential;
+use App\Services\Agent\AgentBudgetService;
+use App\Services\Agent\AgentMemoryService;
 use App\Services\AgentRunRecorder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -32,11 +34,25 @@ class RunAgentJob implements ShouldQueue
         $this->onQueue('agents');
     }
 
-    public function handle(AgentRunner $runner, AgentRunRecorder $recorder): void
-    {
+    public function handle(
+        AgentRunner $runner,
+        AgentRunRecorder $recorder,
+        AgentBudgetService $budgets,
+        AgentMemoryService $memory,
+    ): void {
         $agent = Agent::with(['toolConfigs', 'skills.references', 'skills.scripts'])->find($this->agentId);
 
         if (! $agent || ! $agent->is_active) {
+            return;
+        }
+
+        // Cost & rate guardrails (roadmap item 11): skip paused / over-budget agents.
+        if ($blockReason = $budgets->blockReason($agent)) {
+            Log::warning('Agent run skipped by budget guardrail.', [
+                'agent_id' => $agent->id,
+                'reason' => $blockReason,
+            ]);
+
             return;
         }
 
@@ -79,6 +95,15 @@ class RunAgentJob implements ShouldQueue
         }
 
         $recorder->complete($run, $response);
+        $run->refresh();
+
+        // Cost accounting + budget enforcement (roadmap item 11).
+        $budgets->settleRun($agent, $run);
+
+        // Automatic long-horizon memory extraction (roadmap item 4).
+        if ($agent->memory_auto_extract) {
+            $memory->extractAndStore($agent, $this->message, $response, $this->context['fired_by'] ?? null, $run);
+        }
 
         if ($this->triggerId) {
             AgentTrigger::whereKey($this->triggerId)->update(['last_fired_at' => now()]);
@@ -91,7 +116,7 @@ class RunAgentJob implements ShouldQueue
         ]);
     }
 
-    public function failed(?\Throwable $exception): void
+    public function failed(?Throwable $exception): void
     {
         Log::error('Agent run failed.', [
             'agent_id' => $this->agentId,

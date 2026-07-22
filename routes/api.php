@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\AdminSettingsController;
 use App\Http\Controllers\Api\V1\AgentAnalyticsController;
 use App\Http\Controllers\Api\V1\AgentController;
 use App\Http\Controllers\Api\V1\AgentConversationController;
+use App\Http\Controllers\Api\V1\AgentEvalController;
 use App\Http\Controllers\Api\V1\AgentKnowledgeController;
 use App\Http\Controllers\Api\V1\AgentMemoryController;
 use App\Http\Controllers\Api\V1\AgentMetadataController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Api\V1\AgentRunController;
 use App\Http\Controllers\Api\V1\AgentSkillController;
 use App\Http\Controllers\Api\V1\AgentTemplateController;
 use App\Http\Controllers\Api\V1\AgentTriggerController;
+use App\Http\Controllers\Api\V1\AgentVersionController;
 use App\Http\Controllers\Api\V1\AiAutofixController;
 use App\Http\Controllers\Api\V1\ArchivedExecutionController;
 use App\Http\Controllers\Api\V1\ArtifactController;
@@ -531,6 +533,7 @@ Route::prefix('v1')->as('v1.')->group(function () {
                         Route::get('tools', [AgentMetadataController::class, 'tools'])->name('tools');
                         Route::get('categories', [AgentMetadataController::class, 'categories'])->name('categories');
                         Route::get('trigger-types', [AgentMetadataController::class, 'triggerTypes'])->name('trigger-types');
+                        Route::get('connectors', [AgentMetadataController::class, 'connectors'])->name('connectors');
                     });
 
                     Route::get('/', [AgentController::class, 'index'])->name('index');
@@ -539,6 +542,8 @@ Route::prefix('v1')->as('v1.')->group(function () {
                     Route::put('{agent}', [AgentController::class, 'update'])->name('update');
                     Route::delete('{agent}', [AgentController::class, 'destroy'])->name('destroy');
                     Route::post('{agent}/duplicate', [AgentController::class, 'duplicate'])->name('duplicate');
+                    Route::post('{agent}/pause', [AgentController::class, 'pause'])->name('pause');
+                    Route::post('{agent}/resume', [AgentController::class, 'resume'])->name('resume');
                     Route::post('{agent}/skills/attach', [AgentController::class, 'attachSkill'])->name('skills.attach');
                     Route::delete('{agent}/skills/{skillId}', [AgentController::class, 'detachSkill'])->name('skills.detach');
 
@@ -586,6 +591,26 @@ Route::prefix('v1')->as('v1.')->group(function () {
                         Route::post('/', [AgentMemoryController::class, 'store'])->name('store');
                         Route::delete('/', [AgentMemoryController::class, 'clear'])->name('clear');
                         Route::delete('{memory}', [AgentMemoryController::class, 'destroy'])->name('destroy');
+                    });
+
+                    // Versioning & rollback (roadmap item 10).
+                    Route::prefix('{agent}/versions')->as('versions.')->group(function () {
+                        Route::get('/', [AgentVersionController::class, 'index'])->name('index');
+                        Route::get('{version}', [AgentVersionController::class, 'show'])->name('show');
+                        Route::get('{version}/diff', [AgentVersionController::class, 'diff'])->name('diff');
+                        Route::post('{version}/rollback', [AgentVersionController::class, 'rollback'])->name('rollback');
+                    });
+
+                    // Eval/testing framework (roadmap item 9).
+                    Route::prefix('{agent}/eval-suites')->as('eval-suites.')->group(function () {
+                        Route::get('/', [AgentEvalController::class, 'index'])->name('index');
+                        Route::post('/', [AgentEvalController::class, 'store'])->name('store');
+                        Route::get('{evalSuite}', [AgentEvalController::class, 'show'])->name('show');
+                        Route::delete('{evalSuite}', [AgentEvalController::class, 'destroy'])->name('destroy');
+                        Route::post('{evalSuite}/cases', [AgentEvalController::class, 'addCase'])->name('cases.store');
+                        Route::delete('{evalSuite}/cases/{caseId}', [AgentEvalController::class, 'destroyCase'])->name('cases.destroy');
+                        Route::post('{evalSuite}/run', [AgentEvalController::class, 'run'])->name('run');
+                        Route::get('{evalSuite}/runs', [AgentEvalController::class, 'runs'])->name('runs');
                     });
                 });
 

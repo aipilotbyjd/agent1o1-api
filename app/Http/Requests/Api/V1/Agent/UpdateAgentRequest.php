@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateAgentRequest extends FormRequest
 {
+    use AdvancedAgentRules;
+
     public function authorize(): bool
     {
         return true;
@@ -14,6 +16,7 @@ class UpdateAgentRequest extends FormRequest
     public function rules(): array
     {
         return [
+            ...$this->advancedRules(),
             'name' => ['sometimes', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
             'instructions' => ['sometimes', 'string'],

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
+use App\Models\AiAgentStep;
 use App\Models\Workspace;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -56,6 +57,34 @@ class AgentAnalyticsController extends Controller
             ->orderByRaw($dayExpr)
             ->get();
 
+        // Tool-level observability (roadmap item 12): which tools this agent
+        // leans on most, and how often each one errors. Derived from the step
+        // trace (ai_agent_steps) of the runs in range.
+        $runIds = (clone $base)->pluck('id');
+        $toolStats = AiAgentStep::query()
+            ->whereIn('agent_run_id', $runIds)
+            ->where('action', 'tool_call')
+            ->whereNotNull('tool_name')
+            ->get(['tool_name', 'tool_output'])
+            ->groupBy('tool_name')
+            ->map(function ($steps, $tool) {
+                $calls = $steps->count();
+                $failures = $steps->filter(function ($step) {
+                    $output = $step->tool_output;
+
+                    return is_array($output) && (isset($output['error']) || ($output['status'] ?? null) === 'failed');
+                })->count();
+
+                return [
+                    'tool' => $tool,
+                    'calls' => $calls,
+                    'failures' => $failures,
+                    'failure_rate' => $calls > 0 ? round($failures / $calls, 4) : 0.0,
+                ];
+            })
+            ->sortByDesc('calls')
+            ->values();
+
         return $this->successResponse('Agent analytics retrieved.', [
             'range' => ['from' => $from->toDateString(), 'to' => $to->toDateString()],
             'totals' => [
@@ -75,6 +104,9 @@ class AgentAnalyticsController extends Controller
                 'avg_duration_ms' => (int) $totals->avg_duration_ms,
                 'max_duration_ms' => (int) $totals->max_duration_ms,
             ],
+            'cost' => [
+                'total' => round((float) (clone $base)->sum('estimated_cost'), 6),
+            ],
             'by_source' => $bySource,
             'by_day' => $byDay->map(fn ($row) => [
                 'day' => Carbon::parse($row->day)->toDateString(),
@@ -82,6 +114,7 @@ class AgentAnalyticsController extends Controller
                 'tokens' => (int) $row->tokens,
                 'failed' => (int) $row->failed,
             ]),
+            'tools' => $toolStats,
         ]);
     }
 
