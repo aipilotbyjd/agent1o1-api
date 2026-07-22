@@ -1,15 +1,12 @@
 <?php
 
-namespace App\Agents\Internal;
+namespace App\Agents\Internal\Utility;
 
-use Laravel\Ai\Contracts\Agent;
-use Laravel\Ai\Promptable;
+use App\Agents\Internal\InternalAgent;
 use Stringable;
 
-class ChatAgent implements Agent
+class ChatAgent extends InternalAgent
 {
-    use Promptable;
-
     public function __construct(
         private string $systemPrompt = 'You are a helpful assistant.',
     ) {}

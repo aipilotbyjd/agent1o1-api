@@ -1,6 +1,6 @@
 <?php
 
-use App\Agents\Internal\WorkflowBuilderAgent;
+use App\Agents\Internal\Workflow\WorkflowBuilderAgent;
 use App\Enums\Role;
 use App\Models\User;
 use App\Models\Workflow;

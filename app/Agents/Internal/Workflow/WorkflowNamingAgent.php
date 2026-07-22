@@ -1,23 +1,20 @@
 <?php
 
-namespace App\Agents\Internal;
+namespace App\Agents\Internal\Workflow;
 
+use App\Agents\Internal\InternalAgent;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Attributes\Temperature;
 use Laravel\Ai\Attributes\Timeout;
-use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\HasStructuredOutput;
-use Laravel\Ai\Promptable;
 use Stringable;
 
 #[Temperature(0.2)]
 #[MaxSteps(1)]
 #[Timeout(15)]
-class WorkflowNamingAgent implements Agent, HasStructuredOutput
+class WorkflowNamingAgent extends InternalAgent implements HasStructuredOutput
 {
-    use Promptable;
-
     public function instructions(): Stringable|string
     {
         return <<<'PROMPT'

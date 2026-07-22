@@ -534,6 +534,7 @@ Route::prefix('v1')->as('v1.')->group(function () {
                         Route::get('categories', [AgentMetadataController::class, 'categories'])->name('categories');
                         Route::get('trigger-types', [AgentMetadataController::class, 'triggerTypes'])->name('trigger-types');
                         Route::get('connectors', [AgentMetadataController::class, 'connectors'])->name('connectors');
+                        Route::get('internal-agents', [AgentMetadataController::class, 'internalAgents'])->name('internal-agents');
                     });
 
                     Route::get('/', [AgentController::class, 'index'])->name('index');

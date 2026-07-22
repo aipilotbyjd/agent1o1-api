@@ -34,6 +34,17 @@ class AgentRunResource extends JsonResource
             'finished_at' => $this->finished_at,
             'steps_count' => $this->whenCounted('steps'),
             'steps' => AiAgentStepResource::collection($this->whenLoaded('steps')),
+            // System-overhead breakdown: internal agent calls (planner,
+            // reflection, moderation, ...) attributed to this run.
+            'internal_runs' => InternalAgentRunResource::collection($this->whenLoaded('internalRuns')),
+            'internal_cost' => $this->whenLoaded(
+                'internalRuns',
+                fn () => (float) $this->internalRuns->sum('estimated_cost'),
+            ),
+            'internal_tokens' => $this->whenLoaded(
+                'internalRuns',
+                fn () => (int) $this->internalRuns->sum('total_tokens'),
+            ),
             'created_at' => $this->created_at,
         ];
     }

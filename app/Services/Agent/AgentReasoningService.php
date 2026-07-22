@@ -2,8 +2,8 @@
 
 namespace App\Services\Agent;
 
-use App\Agents\Internal\PlannerAgent;
-use App\Agents\Internal\ReflectionAgent;
+use App\Agents\Internal\Reasoning\PlannerAgent;
+use App\Agents\Internal\Reasoning\ReflectionAgent;
 use App\Models\Agent;
 use Throwable;
 
@@ -21,9 +21,10 @@ class AgentReasoningService
      * planning is disabled/failed.
      *
      * @param  list<string>  $toolNames
+     * @param  array{workspace_id?: string|null, parent_run_id?: string|null}  $attribution
      * @return array{goal: string, needs_tools: bool, steps: list<array{title: string, detail?: string}>}|null
      */
-    public function plan(Agent $agent, string $message, array $toolNames = []): ?array
+    public function plan(Agent $agent, string $message, array $toolNames = [], array $attribution = []): ?array
     {
         if (! $agent->planning_enabled) {
             return null;
@@ -45,11 +46,12 @@ class AgentReasoningService
         PROMPT;
 
         try {
-            $response = (new PlannerAgent)->prompt(
-                $prompt,
-                provider: $agent->provider,
-                model: $agent->model,
-            );
+            $response = (new PlannerAgent)->run($prompt, [
+                'provider' => $agent->provider,
+                'model' => $agent->model,
+                'workspace_id' => $attribution['workspace_id'] ?? $agent->workspace_id,
+                'parent_run_id' => $attribution['parent_run_id'] ?? null,
+            ]);
         } catch (Throwable) {
             return null;
         }
@@ -108,9 +110,10 @@ class AgentReasoningService
      * Critique a draft answer against the request and gathered context.
      *
      * @param  array{goal: string, needs_tools: bool, steps: list<array{title: string, detail?: string}>}|null  $plan
+     * @param  array{workspace_id?: string|null, parent_run_id?: string|null}  $attribution
      * @return array{approved: bool, confidence: float, critique: string}|null
      */
-    public function reflect(Agent $agent, string $request, ?array $plan, string $toolContext, string $draft): ?array
+    public function reflect(Agent $agent, string $request, ?array $plan, string $toolContext, string $draft, array $attribution = []): ?array
     {
         if (! $agent->reflection_enabled || trim($draft) === '') {
             return null;
@@ -134,11 +137,12 @@ class AgentReasoningService
         PROMPT;
 
         try {
-            $response = (new ReflectionAgent)->prompt(
-                $prompt,
-                provider: $agent->provider,
-                model: $agent->model,
-            );
+            $response = (new ReflectionAgent)->run($prompt, [
+                'provider' => $agent->provider,
+                'model' => $agent->model,
+                'workspace_id' => $attribution['workspace_id'] ?? $agent->workspace_id,
+                'parent_run_id' => $attribution['parent_run_id'] ?? null,
+            ]);
         } catch (Throwable) {
             return null;
         }

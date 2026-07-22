@@ -1,23 +1,20 @@
 <?php
 
-namespace App\Agents\Internal;
+namespace App\Agents\Internal\Reasoning;
 
+use App\Agents\Internal\InternalAgent;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Attributes\Temperature;
 use Laravel\Ai\Attributes\Timeout;
-use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\HasStructuredOutput;
-use Laravel\Ai\Promptable;
 use Stringable;
 
 #[Temperature(0.3)]
 #[MaxSteps(5)]
 #[Timeout(60)]
-class ErrorDiagnosisAgent implements Agent, HasStructuredOutput
+class ErrorDiagnosisAgent extends InternalAgent implements HasStructuredOutput
 {
-    use Promptable;
-
     public function __construct(
         private string $errorMessage,
         private string $nodeType,

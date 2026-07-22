@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Agents\Internal\WorkflowNamingAgent;
-use App\Agents\Internal\WorkflowRefinementAgent;
+use App\Agents\Internal\Workflow\WorkflowNamingAgent;
+use App\Agents\Internal\Workflow\WorkflowRefinementAgent;
 use App\Events\BuilderMessageReady;
 use App\Models\AiGenerationLog;
 use App\Models\User;

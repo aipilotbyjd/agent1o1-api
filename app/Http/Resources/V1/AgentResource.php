@@ -15,6 +15,7 @@ class AgentResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'type' => $this->type ?? 'user',
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
@@ -27,6 +28,9 @@ class AgentResource extends JsonResource
             'category' => $this->category,
             'metadata' => $this->metadata,
             'default_workflow_id' => $this->default_workflow_id,
+            // Canonical grouped settings shape; the flat fields below are kept
+            // for backwards compatibility and will be deprecated.
+            'settings' => $this->settings,
             // Advanced capabilities (docs/AGENTS_ADVANCED_ROADMAP.md)
             'planning_enabled' => $this->planning_enabled,
             'reflection_enabled' => $this->reflection_enabled,

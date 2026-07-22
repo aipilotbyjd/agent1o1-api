@@ -45,7 +45,7 @@ class AgentRunController extends Controller
 
         return $this->successResponse(
             'Agent run retrieved.',
-            new AgentRunResource($run->load('steps')->loadCount('steps')),
+            new AgentRunResource($run->load(['steps', 'internalRuns'])->loadCount('steps')),
         );
     }
 }

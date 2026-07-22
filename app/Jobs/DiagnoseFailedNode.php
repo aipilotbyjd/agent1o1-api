@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Agents\Internal\ErrorDiagnosisAgent;
+use App\Agents\Internal\Reasoning\ErrorDiagnosisAgent;
 use App\Models\AiFixSuggestion;
 use App\Models\AiGenerationLog;
 use App\Models\Execution;

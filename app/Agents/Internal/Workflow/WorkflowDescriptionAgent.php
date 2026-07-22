@@ -1,17 +1,14 @@
 <?php
 
-namespace App\Agents\Internal;
+namespace App\Agents\Internal\Workflow;
 
+use App\Agents\Internal\InternalAgent;
 use Laravel\Ai\Attributes\Temperature;
-use Laravel\Ai\Contracts\Agent;
-use Laravel\Ai\Promptable;
 use Stringable;
 
 #[Temperature(0.3)]
-class WorkflowDescriptionAgent implements Agent
+class WorkflowDescriptionAgent extends InternalAgent
 {
-    use Promptable;
-
     public function instructions(): Stringable|string
     {
         return <<<'PROMPT'

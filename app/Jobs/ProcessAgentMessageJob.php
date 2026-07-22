@@ -142,6 +142,7 @@ class ProcessAgentMessageJob implements ShouldQueue
             $plan,
             $this->toolContextSummary(),
             $finalText,
+            ['workspace_id' => $this->agent->workspace_id, 'parent_run_id' => $run->id],
         );
 
         if ($reflection) {
@@ -159,7 +160,7 @@ class ProcessAgentMessageJob implements ShouldQueue
         }
 
         // Output safety guardrail (roadmap item 13).
-        $outputCheck = $guardrails->checkOutput($this->agent, $finalText);
+        $outputCheck = $guardrails->checkOutput($this->agent, $finalText, $run->id);
         if ($outputCheck && $outputCheck['block']) {
             $finalText = $guardrails->blockedMessage('output', $outputCheck);
             Broadcast::on($channel)->as('guardrail_blocked')->with(['stage' => 'output', 'message' => $finalText])->sendNow();

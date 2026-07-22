@@ -2,7 +2,7 @@
 
 namespace App\Services\AgentSkill;
 
-use App\Agents\Internal\SkillGeneratorAgent;
+use App\Agents\Internal\Utility\SkillGeneratorAgent;
 use App\Models\AiGenerationLog;
 use App\Models\User;
 use App\Models\Workspace;

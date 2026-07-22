@@ -29,6 +29,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Internal (platform-owned) Agents
+    |--------------------------------------------------------------------------
+    |
+    | Provider/model resolution for the code-defined agents registered in
+    | App\Agents\Internal\Registry. Resolution order per call:
+    | per-agent override here → the calling agent's provider/model → defaults.
+    | Leave `defaults` values null to always inherit from the caller.
+    |
+    */
+
+    'internal' => [
+        'defaults' => [
+            'provider' => env('INTERNAL_AGENT_PROVIDER'),
+            'model' => env('INTERNAL_AGENT_MODEL'),
+        ],
+        'overrides' => [
+            // 'planner' => ['provider' => 'anthropic', 'model' => 'claude-sonnet-4-6'],
+            // 'moderation' => ['provider' => 'anthropic', 'model' => 'claude-3-5-haiku-latest'],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Trigger Types
     |--------------------------------------------------------------------------
     |

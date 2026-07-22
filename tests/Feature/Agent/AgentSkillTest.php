@@ -1,6 +1,6 @@
 <?php
 
-use App\Agents\Internal\SkillGeneratorAgent;
+use App\Agents\Internal\Utility\SkillGeneratorAgent;
 use App\Enums\Role;
 use App\Models\AgentSkill;
 use App\Models\User;

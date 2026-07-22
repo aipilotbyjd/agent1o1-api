@@ -2,8 +2,8 @@
 
 namespace App\Services\WorkflowBuilder;
 
-use App\Agents\Internal\NodeConfigurationAgent;
-use App\Agents\Internal\NodeSuggestionAgent;
+use App\Agents\Internal\Workflow\NodeConfigurationAgent;
+use App\Agents\Internal\Workflow\NodeSuggestionAgent;
 
 class SuggestionService
 {

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Agents\Internal;
+namespace App\Agents\Internal\Workflow;
 
+use App\Agents\Internal\InternalAgent;
 use App\Agents\Tools\Draft\AddNodeTool;
 use App\Agents\Tools\Draft\ConnectNodesTool;
 use App\Agents\Tools\Draft\DisconnectNodesTool;
@@ -15,19 +16,17 @@ use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Attributes\Temperature;
 use Laravel\Ai\Attributes\Timeout;
 use Laravel\Ai\Concerns\RemembersConversations;
-use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Contracts\Tool;
-use Laravel\Ai\Promptable;
 use Stringable;
 
 #[Temperature(0.3)]
 #[MaxSteps(20)]
 #[Timeout(300)]
-class WorkflowRefinementAgent implements Agent, Conversational, HasTools
+class WorkflowRefinementAgent extends InternalAgent implements Conversational, HasTools
 {
-    use Promptable, RemembersConversations;
+    use RemembersConversations;
 
     public function __construct(private readonly WorkflowBuilderSession $session) {}
 

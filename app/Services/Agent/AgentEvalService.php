@@ -3,7 +3,7 @@
 namespace App\Services\Agent;
 
 use App\Agents\AgentRunner;
-use App\Agents\Internal\EvalJudgeAgent;
+use App\Agents\Internal\Evaluation\EvalJudgeAgent;
 use App\Models\Agent;
 use App\Models\AgentEvalCase;
 use App\Models\AgentEvalRun;
@@ -169,11 +169,11 @@ class AgentEvalService
         PROMPT;
 
         try {
-            $verdict = (new EvalJudgeAgent)->prompt(
-                $prompt,
-                provider: $agent->provider,
-                model: $agent->model,
-            );
+            $verdict = (new EvalJudgeAgent)->run($prompt, [
+                'provider' => $agent->provider,
+                'model' => $agent->model,
+                'workspace_id' => $agent->workspace_id,
+            ]);
         } catch (Throwable $e) {
             return 'Rubric judge failed: '.$e->getMessage();
         }

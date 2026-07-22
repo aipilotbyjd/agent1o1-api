@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Agents\Internal;
+namespace App\Agents\User;
 
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Attributes\Timeout;
@@ -14,7 +14,7 @@ use Stringable;
 
 #[MaxSteps(15)]
 #[Timeout(180)]
-class WorkflowAgent implements Agent, Conversational, HasTools
+class ConversationAgent implements Agent, Conversational, HasTools
 {
     use Promptable, RemembersConversations;
 

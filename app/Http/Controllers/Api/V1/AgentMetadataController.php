@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Agents\Internal\Registry;
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Models\InternalAgentRun;
 use App\Models\Workspace;
 use App\Services\Agent\ConnectorTemplateService;
 use App\Services\AgentMetadataService;
@@ -76,5 +78,50 @@ class AgentMetadataController extends Controller
         }
 
         return $this->successResponse('Connector templates retrieved.', ['connectors' => $connectors->all()]);
+    }
+
+    /**
+     * The platform-owned (internal) agent catalog: every agent in the
+     * Registry with its resolved provider/model config and this workspace's
+     * aggregate usage of it. Read-only — internal agents are code-defined.
+     */
+    public function internalAgents(Request $request, Workspace $workspace): JsonResponse
+    {
+        if ($denied = $this->requirePermission(Permission::AgentView)) {
+            return $denied;
+        }
+
+        $stats = InternalAgentRun::query()
+            ->where('workspace_id', $workspace->id)
+            ->selectRaw('name, count(*) as runs, coalesce(sum(total_tokens), 0) as tokens, coalesce(sum(estimated_cost), 0) as cost')
+            ->groupBy('name')
+            ->get()
+            ->keyBy('name');
+
+        $defaults = config('agents.internal.defaults', []);
+
+        $agents = collect(Registry::all())
+            ->map(function (string $class, string $name) use ($stats, $defaults) {
+                $override = config("agents.internal.overrides.{$name}", []);
+                $segments = explode('\\', $class);
+
+                return [
+                    'name' => $name,
+                    'class' => class_basename($class),
+                    'category' => strtolower($segments[count($segments) - 2] ?? 'general'),
+                    'version' => $class::$version,
+                    // null means "inherits the calling agent's provider/model".
+                    'provider' => $override['provider'] ?? $defaults['provider'] ?? null,
+                    'model' => $override['model'] ?? $defaults['model'] ?? null,
+                    'usage' => [
+                        'runs' => (int) ($stats[$name]->runs ?? 0),
+                        'total_tokens' => (int) ($stats[$name]->tokens ?? 0),
+                        'estimated_cost' => (float) ($stats[$name]->cost ?? 0),
+                    ],
+                ];
+            })
+            ->values();
+
+        return $this->successResponse('Internal agents retrieved.', ['internal_agents' => $agents]);
     }
 }

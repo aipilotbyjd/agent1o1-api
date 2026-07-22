@@ -4,6 +4,7 @@ namespace App\Services\Agent;
 
 use App\Models\Agent;
 use App\Models\AgentRun;
+use App\Models\InternalAgentRun;
 use App\Services\AdminAlertService;
 
 /**
@@ -147,15 +148,33 @@ class AgentBudgetService
 
     public function tokensUsedToday(Agent $agent): int
     {
-        return (int) $agent->runs()
+        $own = (int) $agent->runs()
             ->whereDate('created_at', today())
             ->sum('total_tokens');
+
+        return $own + (int) $this->internalRunsToday($agent)->sum('total_tokens');
     }
 
     public function costSpentToday(Agent $agent): float
     {
-        return (float) $agent->runs()
+        $own = (float) $agent->runs()
             ->whereDate('created_at', today())
             ->sum('estimated_cost');
+
+        return $own + (float) $this->internalRunsToday($agent)->sum('estimated_cost');
+    }
+
+    /**
+     * Internal-agent calls (planner, reflection, moderation, ...) made today in
+     * service of this agent's runs — counted toward its budgets so "system
+     * overhead" spend is no longer invisible.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder<InternalAgentRun>
+     */
+    private function internalRunsToday(Agent $agent)
+    {
+        return InternalAgentRun::query()
+            ->whereDate('created_at', today())
+            ->whereIn('parent_run_id', $agent->runs()->select('id'));
     }
 }

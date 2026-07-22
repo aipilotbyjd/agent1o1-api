@@ -2,7 +2,7 @@
 
 namespace App\Services\WorkflowBuilder;
 
-use App\Agents\Internal\WorkflowBuilderAgent;
+use App\Agents\Internal\Workflow\WorkflowBuilderAgent;
 use App\Models\AiGenerationLog;
 use App\Models\User;
 use App\Models\Workflow;
