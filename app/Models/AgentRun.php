@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * An agent run. Stored in the unified `runs` table (see Run); this subclass
+ * keeps the historical column names, casts, and relations, and is scoped to
+ * agent-targeted runs so existing agent runtime and API code works unchanged.
+ */
 #[Fillable([
     'agent_id',
     'workspace_id',
@@ -33,10 +36,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'started_at',
     'finished_at',
 ])]
-class AgentRun extends Model
+class AgentRun extends Run
 {
-    use HasFactory, HasUuids;
-
     protected function casts(): array
     {
         return [
@@ -51,6 +52,25 @@ class AgentRun extends Model
             'started_at' => 'datetime',
             'finished_at' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('agent', function (Builder $query) {
+            $query->where('runnable_type', 'agent');
+        });
+
+        static::saving(function (AgentRun $run) {
+            $run->runnable_type = 'agent';
+
+            if ($run->agent_id && ! $run->runnable_id) {
+                $run->runnable_id = $run->agent_id;
+            }
+
+            if ($run->runnable_id && ! $run->agent_id) {
+                $run->agent_id = $run->runnable_id;
+            }
+        });
     }
 
     /**

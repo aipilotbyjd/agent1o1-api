@@ -51,6 +51,7 @@ use App\Http\Controllers\Api\V1\OAuthCredentialController;
 use App\Http\Controllers\Api\V1\OnboardingController;
 use App\Http\Controllers\Api\V1\PinnedNodeDataController;
 use App\Http\Controllers\Api\V1\PlanController;
+use App\Http\Controllers\Api\V1\RunController;
 use App\Http\Controllers\Api\V1\SharedWorkflowController;
 use App\Http\Controllers\Api\V1\StickyNoteController;
 use App\Http\Controllers\Api\V1\SubscriptionController;
@@ -451,6 +452,12 @@ Route::prefix('v1')->as('v1.')->group(function () {
                             Route::post('{version}/restore', [DraftVersionController::class, 'restore'])->name('restore');
                         });
                     });
+                });
+
+                // Unified cross-type run view (workflow executions + agent runs).
+                Route::prefix('runs')->as('runs.')->group(function () {
+                    Route::get('/', [RunController::class, 'index'])->name('index');
+                    Route::get('{run}', [RunController::class, 'show'])->name('show');
                 });
 
                 Route::prefix('executions')->as('executions.')->group(function () {

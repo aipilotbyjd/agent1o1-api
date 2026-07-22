@@ -83,6 +83,15 @@ class Workspace extends Model
         return $this->hasMany(Execution::class);
     }
 
+    /**
+     * All runs in the workspace — workflow executions and agent runs — via the
+     * unified Run model.
+     */
+    public function runs(): HasMany
+    {
+        return $this->hasMany(Run::class);
+    }
+
     public function triggers(): HasMany
     {
         return $this->hasMany(Trigger::class);

@@ -5,13 +5,17 @@ namespace App\Models;
 use App\Enums\ExecutionMode;
 use App\Enums\ExecutionStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+/**
+ * A workflow execution. Stored in the unified `runs` table (see Run); this
+ * subclass keeps the historical column names, casts, and relations, and is
+ * scoped to workflow-targeted runs so existing engine, service, and API code
+ * continues to work unchanged.
+ */
 #[Fillable([
     'workflow_id',
     'workspace_id',
@@ -31,10 +35,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'parent_execution_id',
     'credits_consumed',
 ])]
-class Execution extends Model
+class Execution extends Run
 {
-    use HasFactory, HasUuids;
-
     protected function casts(): array
     {
         return [
@@ -53,14 +55,30 @@ class Execution extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        // Only ever see workflow runs through this model.
+        static::addGlobalScope('workflow', function (Builder $query) {
+            $query->where('runnable_type', 'workflow');
+        });
+
+        // Keep the polymorphic target in sync with workflow_id.
+        static::saving(function (Execution $execution) {
+            $execution->runnable_type = 'workflow';
+
+            if ($execution->workflow_id && ! $execution->runnable_id) {
+                $execution->runnable_id = $execution->workflow_id;
+            }
+
+            if ($execution->runnable_id && ! $execution->workflow_id) {
+                $execution->workflow_id = $execution->runnable_id;
+            }
+        });
+    }
+
     public function workflow(): BelongsTo
     {
         return $this->belongsTo(Workflow::class);
-    }
-
-    public function workspace(): BelongsTo
-    {
-        return $this->belongsTo(Workspace::class);
     }
 
     public function triggeredBy(): BelongsTo
