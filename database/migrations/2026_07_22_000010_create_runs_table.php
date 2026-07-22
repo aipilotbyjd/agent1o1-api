@@ -33,7 +33,6 @@ return new class extends Migration
             $table->longText('error')->nullable();
 
             // --- Workflow execution columns ---
-            $table->uuid('workflow_id')->nullable();
             $table->string('wait_token', 64)->nullable()->index();
             $table->string('mode')->nullable();
             $table->foreignId('triggered_by')->nullable()->constrained('users')->nullOnDelete();
@@ -46,7 +45,6 @@ return new class extends Migration
             $table->unsignedBigInteger('credits_consumed')->default(0);
 
             // --- Agent run columns ---
-            $table->uuid('agent_id')->nullable();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->uuid('conversation_id')->nullable();
             $table->uuid('trigger_id')->nullable();
@@ -66,10 +64,9 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['runnable_type', 'runnable_id']);
+            $table->index(['runnable_type', 'runnable_id', 'status']);
             $table->index(['workspace_id', 'status']);
             $table->index(['workspace_id', 'created_at']);
-            $table->index(['workflow_id', 'status']);
-            $table->index(['agent_id', 'created_at']);
         });
     }
 

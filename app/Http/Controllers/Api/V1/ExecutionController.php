@@ -30,7 +30,7 @@ class ExecutionController extends Controller
 
         $executions = $workspace->executions()
             ->with('workflow:id,name,icon,color')
-            ->when($request->query('workflow_id'), fn ($q, $id) => $q->where('workflow_id', $id))
+            ->when($request->query('workflow_id'), fn ($q, $id) => $q->where('runnable_id', $id))
             ->when($request->query('status'), fn ($q, $status) => $q->where('status', $status))
             ->when($request->query('mode'), fn ($q, $mode) => $q->where('mode', $mode))
             ->when($request->query('from'), fn ($q, $from) => $q->where('created_at', '>=', $from))

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -60,17 +61,26 @@ class AgentRun extends Run
             $query->where('runnable_type', 'agent');
         });
 
-        static::saving(function (AgentRun $run) {
+        static::creating(function (AgentRun $run) {
             $run->runnable_type = 'agent';
-
-            if ($run->agent_id && ! $run->runnable_id) {
-                $run->runnable_id = $run->agent_id;
-            }
-
-            if ($run->runnable_id && ! $run->agent_id) {
-                $run->agent_id = $run->runnable_id;
-            }
         });
+    }
+
+    /**
+     * Backwards-compatible alias over the polymorphic runnable columns.
+     */
+    protected function agentId(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->runnable_type === 'agent' ? $this->runnable_id : null,
+            set: function ($value) {
+                if ($value === null) {
+                    return [];
+                }
+
+                return ['runnable_type' => 'agent', 'runnable_id' => $value];
+            },
+        );
     }
 
     /**
@@ -78,7 +88,7 @@ class AgentRun extends Run
      */
     public function agent(): BelongsTo
     {
-        return $this->belongsTo(Agent::class);
+        return $this->belongsTo(Agent::class, 'runnable_id');
     }
 
     /**

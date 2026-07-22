@@ -6,6 +6,7 @@ use App\Enums\ExecutionMode;
 use App\Enums\ExecutionStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -62,23 +63,31 @@ class Execution extends Run
             $query->where('runnable_type', 'workflow');
         });
 
-        // Keep the polymorphic target in sync with workflow_id.
-        static::saving(function (Execution $execution) {
+        static::creating(function (Execution $execution) {
             $execution->runnable_type = 'workflow';
-
-            if ($execution->workflow_id && ! $execution->runnable_id) {
-                $execution->runnable_id = $execution->workflow_id;
-            }
-
-            if ($execution->runnable_id && ! $execution->workflow_id) {
-                $execution->workflow_id = $execution->runnable_id;
-            }
         });
+    }
+
+    /**
+     * Backwards-compatible alias over the polymorphic runnable columns.
+     */
+    protected function workflowId(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->runnable_type === 'workflow' ? $this->runnable_id : null,
+            set: function ($value) {
+                if ($value === null) {
+                    return [];
+                }
+
+                return ['runnable_type' => 'workflow', 'runnable_id' => $value];
+            },
+        );
     }
 
     public function workflow(): BelongsTo
     {
-        return $this->belongsTo(Workflow::class);
+        return $this->belongsTo(Workflow::class, 'runnable_id');
     }
 
     public function triggeredBy(): BelongsTo

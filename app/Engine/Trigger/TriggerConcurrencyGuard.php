@@ -26,7 +26,7 @@ class TriggerConcurrencyGuard
             'agent' => AgentRun::where('agent_id', $trigger->target_id)
                 ->whereIn('status', ['pending', 'running'])
                 ->count(),
-            default => Execution::where('workflow_id', $trigger->target_id)
+            default => Execution::where('runnable_id', $trigger->target_id)
                 ->whereIn('status', [ExecutionStatus::Pending, ExecutionStatus::Running])
                 ->count(),
         };

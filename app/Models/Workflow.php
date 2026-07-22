@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
@@ -74,12 +75,15 @@ class Workflow extends Model implements Automatable
 
     public function executions(): HasMany
     {
-        return $this->hasMany(Execution::class)->orderByDesc('created_at');
+        return $this->hasMany(Execution::class, 'runnable_id')->orderByDesc('created_at');
     }
 
-    public function triggers(): HasMany
+    /**
+     * @return MorphMany<Trigger, $this>
+     */
+    public function triggers(): MorphMany
     {
-        return $this->hasMany(Trigger::class);
+        return $this->morphMany(Trigger::class, 'target');
     }
 
     public function stickyNotes(): HasMany

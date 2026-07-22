@@ -31,7 +31,7 @@ class RunResource extends JsonResource
 
             // Workflow-execution fields.
             $this->mergeWhen($this->runnable_type === 'workflow', fn () => [
-                'workflow_id' => $this->workflow_id,
+                'workflow_id' => $this->runnable_id,
                 'mode' => $this->mode,
                 'trigger_data' => $this->trigger_data,
                 'result_data' => $this->result_data,
@@ -41,7 +41,7 @@ class RunResource extends JsonResource
 
             // Agent-run fields.
             $this->mergeWhen($this->runnable_type === 'agent', fn () => [
-                'agent_id' => $this->agent_id,
+                'agent_id' => $this->runnable_id,
                 'source' => $this->source,
                 'input' => $this->input,
                 'output' => $this->output,

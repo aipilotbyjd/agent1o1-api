@@ -1,6 +1,14 @@
 # Restructure: Unified Triggers & Runs
 
-Status: **Proposal** · Scope: `triggers` + `runs` seams only · Engines untouched
+Status: **Implemented (clean cut)** · Scope: `triggers` + `runs` seams only · Engines untouched
+
+> Implementation note: this was landed as a **clean polymorphic cut**, not an
+> expand/contract with legacy mirror columns. There is no old data to preserve,
+> so `triggers`/`trigger_events` use `target_type`/`target_id` as the only
+> target columns, and `runs` uses `runnable_type`/`runnable_id` as the only
+> runnable columns. The historical `workflow_id`/`agent_id` names survive purely
+> as **virtual accessor/mutator aliases** on the Trigger/TriggerEvent/Execution/
+> AgentRun models for source-compatibility — they are not database columns.
 
 ## 0. Goal
 

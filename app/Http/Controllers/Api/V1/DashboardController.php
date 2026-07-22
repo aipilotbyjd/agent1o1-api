@@ -143,12 +143,12 @@ class DashboardController extends Controller
 
         $rows = $workspace->executions()
             ->whereBetween('created_at', [$from, $to])
-            ->select('workflow_id')
+            ->select('runnable_id')
             ->selectRaw('COUNT(*) as total')
             ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as succeeded', [ExecutionStatus::Completed->value])
             ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as failed', [ExecutionStatus::Failed->value])
             ->selectRaw('AVG(duration_ms) as avg_duration_ms')
-            ->groupBy('workflow_id')
+            ->groupBy('runnable_id')
             ->orderByDesc('total')
             ->limit($limit)
             ->with('workflow:id,name,icon,color,is_active')
@@ -160,7 +160,7 @@ class DashboardController extends Controller
             $finished = $succeeded + $failed;
 
             return [
-                'workflow_id' => $row->workflow_id,
+                'workflow_id' => $row->runnable_id,
                 'name' => $row->workflow?->name,
                 'icon' => $row->workflow?->icon,
                 'color' => $row->workflow?->color,
@@ -343,13 +343,13 @@ class DashboardController extends Controller
         // ── Top workflows (by volume in window) ──────────────────────
         $topWorkflows = (clone $execs)
             ->where('created_at', '>=', $from)
-            ->select('workflow_id')
+            ->select('runnable_id')
             ->selectRaw('COUNT(*) as total')
             ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as succeeded', [ExecutionStatus::Completed->value])
             ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as failed', [ExecutionStatus::Failed->value])
             ->selectRaw('AVG(duration_ms) as avg_duration_ms')
             ->selectRaw('MAX(created_at) as last_executed_at')
-            ->groupBy('workflow_id')
+            ->groupBy('runnable_id')
             ->orderByDesc('total')
             ->limit(5)
             ->with('workflow:id,name,is_active')
@@ -360,7 +360,7 @@ class DashboardController extends Controller
                 $fin = $ok + $fail;
 
                 return [
-                    'id' => $row->workflow_id,
+                    'id' => $row->runnable_id,
                     'name' => $row->workflow?->name,
                     'status' => ($row->workflow?->is_active) ? 'active' : 'inactive',
                     'execution_count' => (int) $row->total,

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -69,25 +70,6 @@ class Trigger extends Model
     }
 
     /**
-     * Keep the polymorphic target and the legacy workflow_id column consistent
-     * during the transition: code that sets only one side gets the other filled
-     * in automatically. Dropped once workflow_id is removed.
-     */
-    protected static function booted(): void
-    {
-        static::saving(function (Trigger $trigger) {
-            if ($trigger->workflow_id && ! $trigger->target_type) {
-                $trigger->target_type = 'workflow';
-                $trigger->target_id = $trigger->workflow_id;
-            }
-
-            if ($trigger->target_type === 'workflow' && ! $trigger->workflow_id) {
-                $trigger->workflow_id = $trigger->target_id;
-            }
-        });
-    }
-
-    /**
      * The automation this trigger fires — a Workflow or an Agent.
      *
      * @return MorphTo<Model, $this>
@@ -102,9 +84,27 @@ class Trigger extends Model
         return $this->target_type === 'agent';
     }
 
+    /**
+     * Backwards-compatible alias: reads/writes the workflow target through the
+     * polymorphic columns so callers using `workflow_id` keep working.
+     */
+    protected function workflowId(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->target_type === 'workflow' ? $this->target_id : null,
+            set: function ($value) {
+                if ($value === null) {
+                    return [];
+                }
+
+                return ['target_type' => 'workflow', 'target_id' => $value];
+            },
+        );
+    }
+
     public function workflow(): BelongsTo
     {
-        return $this->belongsTo(Workflow::class);
+        return $this->belongsTo(Workflow::class, 'target_id');
     }
 
     public function workspace(): BelongsTo

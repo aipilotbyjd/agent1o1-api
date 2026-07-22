@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -38,20 +39,6 @@ class TriggerEvent extends Model
         ];
     }
 
-    protected static function booted(): void
-    {
-        static::saving(function (TriggerEvent $event) {
-            if ($event->workflow_id && ! $event->target_type) {
-                $event->target_type = 'workflow';
-                $event->target_id = $event->workflow_id;
-            }
-
-            if ($event->target_type === 'workflow' && ! $event->workflow_id) {
-                $event->workflow_id = $event->target_id;
-            }
-        });
-    }
-
     public function trigger(): BelongsTo
     {
         return $this->belongsTo(Trigger::class);
@@ -65,9 +52,26 @@ class TriggerEvent extends Model
         return $this->morphTo();
     }
 
+    /**
+     * Backwards-compatible alias over the polymorphic target columns.
+     */
+    protected function workflowId(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->target_type === 'workflow' ? $this->target_id : null,
+            set: function ($value) {
+                if ($value === null) {
+                    return [];
+                }
+
+                return ['target_type' => 'workflow', 'target_id' => $value];
+            },
+        );
+    }
+
     public function workflow(): BelongsTo
     {
-        return $this->belongsTo(Workflow::class);
+        return $this->belongsTo(Workflow::class, 'target_id');
     }
 
     public function isPending(): bool

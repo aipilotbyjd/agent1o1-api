@@ -162,7 +162,7 @@ class Agent extends Model implements Automatable
      */
     public function runs(): HasMany
     {
-        return $this->hasMany(AgentRun::class);
+        return $this->hasMany(AgentRun::class, 'runnable_id');
     }
 
     /**

@@ -2,29 +2,24 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Expand step: mirror the polymorphic target onto trigger_events so events for
- * agent-targeted triggers no longer require a workflow_id.
+ * Mirror the polymorphic target onto trigger_events. The old workflow-only
+ * `workflow_id` foreign key is removed in favour of target_type / target_id.
  */
 return new class extends Migration
 {
     public function up(): void
     {
         Schema::table('trigger_events', function (Blueprint $table) {
-            $table->string('target_type')->nullable()->after('trigger_id');
-            $table->uuid('target_id')->nullable()->after('target_type');
+            $table->dropConstrainedForeignId('workflow_id');
         });
 
-        DB::table('trigger_events')->whereNotNull('workflow_id')->update([
-            'target_type' => 'workflow',
-            'target_id' => DB::raw('workflow_id'),
-        ]);
-
         Schema::table('trigger_events', function (Blueprint $table) {
-            $table->uuid('workflow_id')->nullable()->change();
+            $table->string('target_type')->after('trigger_id');
+            $table->uuid('target_id')->after('target_type');
+
             $table->index(['target_type', 'target_id']);
         });
     }
@@ -34,6 +29,7 @@ return new class extends Migration
         Schema::table('trigger_events', function (Blueprint $table) {
             $table->dropIndex(['target_type', 'target_id']);
             $table->dropColumn(['target_type', 'target_id']);
+            $table->foreignUuid('workflow_id')->nullable()->constrained()->cascadeOnDelete();
         });
     }
 };
