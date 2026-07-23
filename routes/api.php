@@ -454,10 +454,17 @@ Route::prefix('v1')->as('v1.')->group(function () {
                     });
                 });
 
-                // Unified cross-type run view (workflow executions + agent runs).
+                // Unified run API (workflow executions + agent runs) over the
+                // single Run model. Type-specific actions are capability-gated.
                 Route::prefix('runs')->as('runs.')->group(function () {
                     Route::get('/', [RunController::class, 'index'])->name('index');
                     Route::get('{run}', [RunController::class, 'show'])->name('show');
+                    Route::delete('{run}', [RunController::class, 'destroy'])->name('destroy');
+                    Route::get('{run}/nodes', [RunController::class, 'nodes'])->name('nodes');
+                    Route::get('{run}/steps', [RunController::class, 'steps'])->name('steps');
+                    Route::get('{run}/logs', [RunController::class, 'logs'])->name('logs');
+                    Route::post('{run}/retry', [RunController::class, 'retry'])->name('retry');
+                    Route::post('{run}/cancel', [RunController::class, 'cancel'])->name('cancel');
                 });
 
                 Route::prefix('executions')->as('executions.')->group(function () {

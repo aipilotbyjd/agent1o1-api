@@ -4,20 +4,26 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\V1\AiAgentStepResource;
+use App\Http\Resources\V1\ExecutionLogResource;
+use App\Http\Resources\V1\ExecutionNodeResource;
 use App\Http\Resources\V1\RunResource;
 use App\Models\Run;
 use App\Models\Workspace;
+use App\Services\ExecutionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Unified, read-only view over all runs in a workspace — workflow executions
- * and agent runs together — backed by the polymorphic Run model. The per-type
- * ExecutionController and AgentRunController remain for type-specific actions
- * (trigger, retry, cancel, steps).
+ * Unified API for runs — workflow executions and agent runs — over the single
+ * Run model. Shared lifecycle actions (show, delete, cancel, logs) work for any
+ * run; type-specific actions are capability-gated: `nodes`/`retry` are workflow
+ * only, `steps` is agent only, returning 422 on the wrong runnable type.
  */
 class RunController extends Controller
 {
+    public function __construct(private readonly ExecutionService $executionService) {}
+
     public function index(Request $request, Workspace $workspace): JsonResponse
     {
         if ($forbidden = $this->requirePermission(Permission::ExecutionView)) {
@@ -42,8 +48,130 @@ class RunController extends Controller
             return $forbidden;
         }
 
-        abort_unless($run->workspace_id === $workspace->id, 404);
+        $this->authorizeRun($run, $workspace);
 
-        return $this->successResponse('Run retrieved.', new RunResource($run));
+        return $this->successResponse('Run retrieved.', new RunResource($run->load('runnable')));
+    }
+
+    public function nodes(Request $request, Workspace $workspace, Run $run): JsonResponse
+    {
+        if ($forbidden = $this->requirePermission(Permission::ExecutionView)) {
+            return $forbidden;
+        }
+
+        $this->authorizeRun($run, $workspace);
+
+        if ($guard = $this->ensureWorkflow($run)) {
+            return $guard;
+        }
+
+        return $this->successResponse('Run nodes retrieved.', ExecutionNodeResource::collection($run->nodes));
+    }
+
+    public function steps(Request $request, Workspace $workspace, Run $run): JsonResponse
+    {
+        if ($forbidden = $this->requirePermission(Permission::ExecutionView)) {
+            return $forbidden;
+        }
+
+        $this->authorizeRun($run, $workspace);
+
+        if ($guard = $this->ensureAgent($run)) {
+            return $guard;
+        }
+
+        return $this->successResponse('Run steps retrieved.', AiAgentStepResource::collection($run->steps));
+    }
+
+    public function logs(Request $request, Workspace $workspace, Run $run): JsonResponse
+    {
+        if ($forbidden = $this->requirePermission(Permission::ExecutionView)) {
+            return $forbidden;
+        }
+
+        $this->authorizeRun($run, $workspace);
+
+        $logs = $run->logs()
+            ->when($request->query('level'), fn ($q, $level) => $q->where('level', $level))
+            ->orderBy('logged_at')
+            ->paginate((int) $request->query('per_page', 100));
+
+        return $this->paginatedResponse('Run logs retrieved.', ExecutionLogResource::collection($logs));
+    }
+
+    public function retry(Request $request, Workspace $workspace, Run $run): JsonResponse
+    {
+        if ($forbidden = $this->requirePermission(Permission::ExecutionManage)) {
+            return $forbidden;
+        }
+
+        $this->authorizeRun($run, $workspace);
+
+        if ($guard = $this->ensureWorkflow($run)) {
+            return $guard;
+        }
+
+        if (! $run->isFailed()) {
+            return $this->errorResponse('Only failed runs can be retried.', 422);
+        }
+
+        $retry = $this->executionService->retry($run, $request->user());
+
+        return $this->successResponse(
+            'Retry queued.',
+            ['run' => new RunResource($retry), 'channel' => "private-execution.{$retry->id}"],
+            202,
+        );
+    }
+
+    public function cancel(Request $request, Workspace $workspace, Run $run): JsonResponse
+    {
+        if ($forbidden = $this->requirePermission(Permission::ExecutionManage)) {
+            return $forbidden;
+        }
+
+        $this->authorizeRun($run, $workspace);
+
+        if ($run->status->isTerminal()) {
+            return $this->errorResponse('Run already finished.', 422);
+        }
+
+        return $this->successResponse('Run cancelled.', new RunResource($this->executionService->cancel($run)));
+    }
+
+    public function destroy(Request $request, Workspace $workspace, Run $run): JsonResponse
+    {
+        if ($forbidden = $this->requirePermission(Permission::ExecutionManage)) {
+            return $forbidden;
+        }
+
+        $this->authorizeRun($run, $workspace);
+
+        if (! $run->status->isTerminal()) {
+            return $this->errorResponse('Cannot delete a running run. Cancel it first.', 422);
+        }
+
+        $run->delete();
+
+        return $this->successResponse('Run deleted.');
+    }
+
+    private function authorizeRun(Run $run, Workspace $workspace): void
+    {
+        abort_unless($run->workspace_id === $workspace->id, 404);
+    }
+
+    private function ensureWorkflow(Run $run): ?JsonResponse
+    {
+        return $run->isForWorkflow()
+            ? null
+            : $this->errorResponse('This action is only available for workflow runs.', 422);
+    }
+
+    private function ensureAgent(Run $run): ?JsonResponse
+    {
+        return $run->isForAgent()
+            ? null
+            : $this->errorResponse('This action is only available for agent runs.', 422);
     }
 }
