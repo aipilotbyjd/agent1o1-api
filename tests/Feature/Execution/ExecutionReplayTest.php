@@ -36,7 +36,7 @@ beforeEach(function () {
 
 test('a replay pack captures the workflow snapshot and trigger data', function () {
     $this->actingAs($this->user, 'api')
-        ->postJson("/api/v1/workspaces/{$this->workspace->id}/executions/{$this->execution->id}/replay-pack", [
+        ->postJson("/api/v1/workspaces/{$this->workspace->id}/runs/{$this->execution->id}/replay-pack", [
             'label' => 'Repro #1',
         ])
         ->assertCreated()

@@ -8,7 +8,7 @@ use App\Models\Credential;
 use App\Models\Trigger;
 use App\Services\Agent\AgentBudgetService;
 use App\Services\Agent\AgentMemoryService;
-use App\Services\AgentRunRecorder;
+use App\Services\RunService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -36,7 +36,7 @@ class RunAgentJob implements ShouldQueue
 
     public function handle(
         AgentRunner $runner,
-        AgentRunRecorder $recorder,
+        RunService $recorder,
         AgentBudgetService $budgets,
         AgentMemoryService $memory,
     ): void {

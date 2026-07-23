@@ -41,7 +41,7 @@ test('executing a workflow queues an engine job and returns the reverb channel',
         ]);
 
     $response->assertStatus(202)
-        ->assertJsonPath('data.execution.status', 'pending');
+        ->assertJsonPath('data.run.status', 'pending');
 
     $execution = Run::first();
     expect($execution)->not->toBeNull()
@@ -82,7 +82,7 @@ test('failed executions can be retried', function () {
     ]);
 
     $response = $this->actingAs($this->user, 'api')
-        ->postJson("/api/v1/workspaces/{$this->workspace->id}/executions/{$failed->id}/retry");
+        ->postJson("/api/v1/workspaces/{$this->workspace->id}/runs/{$failed->id}/retry");
 
     $response->assertStatus(202);
 
@@ -96,7 +96,7 @@ test('completed executions cannot be retried', function () {
     ]);
 
     $this->actingAs($this->user, 'api')
-        ->postJson("/api/v1/workspaces/{$this->workspace->id}/executions/{$completed->id}/retry")
+        ->postJson("/api/v1/workspaces/{$this->workspace->id}/runs/{$completed->id}/retry")
         ->assertStatus(422);
 });
 
@@ -107,7 +107,7 @@ test('a running execution can be cancelled', function () {
     ]);
 
     $this->actingAs($this->user, 'api')
-        ->postJson("/api/v1/workspaces/{$this->workspace->id}/executions/{$running->id}/cancel")
+        ->postJson("/api/v1/workspaces/{$this->workspace->id}/runs/{$running->id}/cancel")
         ->assertOk();
 
     expect($running->fresh()->status)->toBe(ExecutionStatus::Cancelled);
@@ -124,7 +124,7 @@ test('executions are filterable by status', function () {
     ]);
 
     $response = $this->actingAs($this->user, 'api')
-        ->getJson("/api/v1/workspaces/{$this->workspace->id}/executions?status=failed");
+        ->getJson("/api/v1/workspaces/{$this->workspace->id}/runs?status=failed");
 
     $response->assertOk()->assertJsonCount(1, 'data');
 });

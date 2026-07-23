@@ -16,6 +16,19 @@ Status: **Implemented (clean cut)** · Scope: `triggers` + `runs` seams only · 
 > (`steps`) both hang off `Run` and are simply empty for the other kind;
 > `status` is the `ExecutionStatus` enum for every run. `$workflow->executions()`
 > and `$agent->runs()` return `Run` instances scoped by the polymorphic target.
+>
+> The surrounding surface is unified to match: `RunService` replaces the former
+> `ExecutionService` + `AgentRunRecorder` split (trigger/retry/cancel for
+> workflows, start/step/complete/fail for agents), and `RunController` +
+> `RunResource` are the single controller/resource for run history — the old
+> `ExecutionController`, `AgentRunController`, `ExecutionLogController`,
+> `ExecutionResource`, and `AgentRunResource` are gone. The API exposes one
+> `runs` surface (`/workspaces/{ws}/runs/…`); `agents/{agent}/runs` remains as a
+> convenience view scoped to a single agent, and workflow-execution sub-resources
+> (`replay-pack`, `autofix`) hang off `runs/{run}/…`. The legacy `executions.*`
+> routes were removed. Note: DB column names (`execution_id`, `agent_run_id`,
+> `parent_execution_id`) are intentionally kept — they are internal to the
+> workflow-execution child tables and carry no API/class surface.
 
 ## 0. Goal
 

@@ -14,7 +14,7 @@ use App\Services\Agent\AgentBudgetService;
 use App\Services\Agent\AgentGuardrailService;
 use App\Services\Agent\AgentMemoryService;
 use App\Services\Agent\AgentReasoningService;
-use App\Services\AgentRunRecorder;
+use App\Services\RunService;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -58,7 +58,7 @@ class ProcessAgentMessageJob implements ShouldQueue
 
     public function handle(
         AgentRunner $agentRunner,
-        AgentRunRecorder $recorder,
+        RunService $recorder,
         AgentBudgetService $budgets,
         AgentGuardrailService $guardrails,
         AgentReasoningService $reasoning,
@@ -284,7 +284,7 @@ class ProcessAgentMessageJob implements ShouldQueue
         $this->request->update(['status' => 'failed']);
 
         if ($this->request->agent_run_id && $run = Run::find($this->request->agent_run_id)) {
-            app(AgentRunRecorder::class)->fail($run, $exception);
+            app(RunService::class)->fail($run, $exception);
         }
 
         AgentMessageReady::dispatch(
@@ -363,7 +363,7 @@ class ProcessAgentMessageJob implements ShouldQueue
      * which tools the agent invoked and with what input/output. Non-tool events
      * (text deltas, etc.) are ignored.
      */
-    private function recordToolStep(AgentRunRecorder $recorder, Run $run, StreamEvent $event): void
+    private function recordToolStep(RunService $recorder, Run $run, StreamEvent $event): void
     {
         $type = $event->type();
 
