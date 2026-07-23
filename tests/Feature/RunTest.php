@@ -2,8 +2,6 @@
 
 use App\Enums\Role;
 use App\Models\Agent;
-use App\Models\AgentRun;
-use App\Models\Execution;
 use App\Models\Run;
 use App\Models\User;
 use App\Models\Workflow;
@@ -23,7 +21,7 @@ beforeEach(function () {
     ]);
 });
 
-test('workflow executions and agent runs share the runs table', function () {
+test('workflow executions and agent runs share one Run model and table', function () {
     $workflow = Workflow::factory()->create([
         'workspace_id' => $this->workspace->id,
         'created_by' => $this->user->id,
@@ -33,26 +31,26 @@ test('workflow executions and agent runs share the runs table', function () {
         'created_by' => $this->user->id,
     ]);
 
-    $execution = Execution::factory()->create([
+    $execution = Run::factory()->create([
         'workflow_id' => $workflow->id,
         'workspace_id' => $this->workspace->id,
     ]);
-    $agentRun = AgentRun::create([
+    $agentRun = Run::create([
         'agent_id' => $agent->id,
         'workspace_id' => $this->workspace->id,
         'status' => 'completed',
         'output' => 'done',
     ]);
 
-    // Both land in the unified runs table with the right polymorphic target.
     expect(Run::count())->toBe(2);
     expect(Run::find($execution->id)->runnable_type)->toBe('workflow');
+    expect(Run::find($execution->id)->workflow_id)->toBe($workflow->id);
     expect(Run::find($agentRun->id)->runnable_type)->toBe('agent');
+    expect(Run::find($agentRun->id)->agent_id)->toBe($agent->id);
 
-    // Per-type models stay scoped to their own kind.
-    expect(Execution::count())->toBe(1);
-    expect(AgentRun::count())->toBe(1);
-    expect(Execution::find($agentRun->id))->toBeNull();
+    // The polymorphic target resolves to the right model.
+    expect($execution->fresh()->runnable)->toBeInstanceOf(Workflow::class);
+    expect($agentRun->fresh()->runnable)->toBeInstanceOf(Agent::class);
 });
 
 test('the unified runs endpoint lists both run types', function () {
@@ -65,11 +63,11 @@ test('the unified runs endpoint lists both run types', function () {
         'created_by' => $this->user->id,
     ]);
 
-    Execution::factory()->create([
+    Run::factory()->create([
         'workflow_id' => $workflow->id,
         'workspace_id' => $this->workspace->id,
     ]);
-    AgentRun::create([
+    Run::create([
         'agent_id' => $agent->id,
         'workspace_id' => $this->workspace->id,
         'status' => 'completed',
@@ -88,7 +86,7 @@ test('the runs endpoint can filter by runnable type', function () {
         'workspace_id' => $this->workspace->id,
         'created_by' => $this->user->id,
     ]);
-    AgentRun::create([
+    Run::create([
         'agent_id' => $agent->id,
         'workspace_id' => $this->workspace->id,
         'status' => 'running',

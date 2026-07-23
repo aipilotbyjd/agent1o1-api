@@ -3,8 +3,8 @@
 use App\Enums\ExecutionNodeStatus;
 use App\Enums\ExecutionStatus;
 use App\Enums\Role;
-use App\Models\Execution;
 use App\Models\ExecutionNode;
+use App\Models\Run;
 use App\Models\User;
 use App\Models\Workflow;
 use App\Models\Workspace;
@@ -36,7 +36,7 @@ test('returns empty schema when no completed executions exist', function () {
 
 test('infers schema from execution output history', function () {
     $nodeId = Str::uuid()->toString();
-    $execution = Execution::factory()->create([
+    $execution = Run::factory()->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
         'status' => ExecutionStatus::Completed,
@@ -60,7 +60,7 @@ test('infers schema from execution output history', function () {
 
 test('infers nested object schema correctly', function () {
     $nodeId = Str::uuid()->toString();
-    $execution = Execution::factory()->create([
+    $execution = Run::factory()->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
         'status' => ExecutionStatus::Completed,
@@ -84,7 +84,7 @@ test('infers nested object schema correctly', function () {
 
 test('truncates long string samples', function () {
     $nodeId = Str::uuid()->toString();
-    $execution = Execution::factory()->create([
+    $execution = Run::factory()->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
         'status' => ExecutionStatus::Completed,

@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Enums\ExecutionStatus;
 use App\Models\ArchivedExecutionLog;
-use App\Models\Execution;
 use App\Models\ExecutionLog;
+use App\Models\Run;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
@@ -56,7 +56,7 @@ class ExecutionArchiveService
     {
         $cutoff = CarbonImmutable::now()->subDays($days);
 
-        return Execution::query()
+        return Run::query()
             ->whereIn('status', [
                 ExecutionStatus::Completed,
                 ExecutionStatus::Failed,

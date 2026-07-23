@@ -7,7 +7,7 @@ use App\Agents\Tools\CodeExecutionTool;
 use App\Agents\Tools\WebBrowseTool;
 use App\Enums\Role;
 use App\Models\Agent;
-use App\Models\AgentRun;
+use App\Models\Run;
 use App\Models\User;
 use App\Models\Workspace;
 use App\Services\Agent\AgentBudgetService;
@@ -219,7 +219,7 @@ test('budget service blocks once the daily token budget is spent', function () {
     $budgets = app(AgentBudgetService::class);
     $this->agent->update(['daily_token_budget' => 1000]);
 
-    AgentRun::create([
+    Run::create([
         'agent_id' => $this->agent->id,
         'workspace_id' => $this->workspace->id,
         'status' => 'completed',
@@ -233,7 +233,7 @@ test('settling a run over the daily budget auto-pauses the agent', function () {
     $budgets = app(AgentBudgetService::class);
     $this->agent->update(['daily_token_budget' => 500]);
 
-    $run = AgentRun::create([
+    $run = Run::create([
         'agent_id' => $this->agent->id,
         'workspace_id' => $this->workspace->id,
         'status' => 'completed',

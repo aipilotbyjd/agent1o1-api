@@ -30,6 +30,6 @@ class ExecutionCheckpoint extends Model
 
     public function execution(): BelongsTo
     {
-        return $this->belongsTo(Execution::class);
+        return $this->belongsTo(Run::class);
     }
 }

@@ -5,7 +5,7 @@ namespace App\Jobs;
 use App\Agents\Internal\ErrorDiagnosisAgent;
 use App\Models\AiFixSuggestion;
 use App\Models\AiGenerationLog;
-use App\Models\Execution;
+use App\Models\Run;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Arr;
@@ -27,7 +27,7 @@ class DiagnoseFailedNode implements ShouldQueue
 
     public function handle(): void
     {
-        $execution = Execution::with(['workflow.currentVersion', 'nodes'])->find($this->executionId);
+        $execution = Run::with(['workflow.currentVersion', 'nodes'])->find($this->executionId);
 
         if (! $execution) {
             return;

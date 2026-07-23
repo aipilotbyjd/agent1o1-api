@@ -3,8 +3,8 @@
 use App\Engine\WorkflowRunner;
 use App\Enums\ExecutionNodeStatus;
 use App\Enums\ExecutionStatus;
-use App\Models\Execution;
 use App\Models\ExecutionNode;
+use App\Models\Run;
 use App\Models\Workflow;
 use App\Models\Workspace;
 use Database\Seeders\PlanSeeder;
@@ -50,7 +50,7 @@ test('loop node body executes once per item and records per-item node rows', fun
         ['source' => 'loop', 'target' => 'body'],
     ]);
 
-    $execution = Execution::factory()->create([
+    $execution = Run::factory()->create([
         'workflow_id' => $workflow->id,
         'workspace_id' => $this->workspace->id,
     ]);
@@ -83,7 +83,7 @@ test('loop with zero items completes without running body', function () {
         ['source' => 'loop', 'target' => 'body'],
     ]);
 
-    $execution = Execution::factory()->create([
+    $execution = Run::factory()->create([
         'workflow_id' => $workflow->id,
         'workspace_id' => $this->workspace->id,
     ]);
@@ -120,7 +120,7 @@ test('try-catch routes to catch branch when upstream node fails', function () {
         ['source' => 'tc', 'target' => 'try_node', 'sourceHandle' => 'try'],
     ]);
 
-    $execution = Execution::factory()->create([
+    $execution = Run::factory()->create([
         'workflow_id' => $workflow->id,
         'workspace_id' => $this->workspace->id,
     ]);
@@ -156,7 +156,7 @@ test('checkpoint saves suspended node and pending nodes separately', function ()
         ['source' => 'wait', 'target' => 'after'],
     ]);
 
-    $execution = Execution::factory()->create([
+    $execution = Run::factory()->create([
         'workflow_id' => $workflow->id,
         'workspace_id' => $this->workspace->id,
     ]);

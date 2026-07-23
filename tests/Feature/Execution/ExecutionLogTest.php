@@ -4,8 +4,8 @@ use App\Engine\NodeResult;
 use App\Enums\Role;
 use App\Events\ExecutionStartedEvent;
 use App\Events\NodeCompletedEvent;
-use App\Models\Execution;
 use App\Models\ExecutionLog;
+use App\Models\Run;
 use App\Models\User;
 use App\Models\Workflow;
 use App\Models\Workspace;
@@ -28,7 +28,7 @@ beforeEach(function () {
         'created_by' => $this->user->id,
     ]);
 
-    $this->execution = Execution::factory()->create([
+    $this->execution = Run::factory()->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
     ]);

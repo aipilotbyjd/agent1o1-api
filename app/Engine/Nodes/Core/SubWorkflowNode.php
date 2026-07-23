@@ -8,7 +8,7 @@ use App\Engine\NodeResult;
 use App\Enums\ExecutionMode;
 use App\Enums\ExecutionStatus;
 use App\Jobs\ExecuteWorkflowJob;
-use App\Models\Execution;
+use App\Models\Run;
 use App\Models\Workflow;
 
 class SubWorkflowNode implements NodeHandler
@@ -27,7 +27,7 @@ class SubWorkflowNode implements NodeHandler
             return NodeResult::failed("Sub-workflow not found: {$workflowId}");
         }
 
-        $execution = Execution::create([
+        $execution = Run::create([
             'workflow_id' => $workflowId,
             'workspace_id' => $input->executionMeta['workspace_id'],
             'status' => ExecutionStatus::Pending->value,

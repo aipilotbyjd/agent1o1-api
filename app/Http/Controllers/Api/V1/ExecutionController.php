@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Workflow\ExecuteWorkflowRequest;
 use App\Http\Resources\V1\ExecutionNodeResource;
 use App\Http\Resources\V1\ExecutionResource;
-use App\Models\Execution;
+use App\Models\Run;
 use App\Models\Workflow;
 use App\Models\Workspace;
 use App\Services\Billing\CreditService;
@@ -73,7 +73,7 @@ class ExecutionController extends Controller
         );
     }
 
-    public function show(Request $request, Workspace $workspace, Execution $execution): JsonResponse
+    public function show(Request $request, Workspace $workspace, Run $execution): JsonResponse
     {
         if ($forbidden = $this->requirePermission(Permission::ExecutionView)) {
             return $forbidden;
@@ -85,7 +85,7 @@ class ExecutionController extends Controller
         );
     }
 
-    public function nodes(Request $request, Workspace $workspace, Execution $execution): JsonResponse
+    public function nodes(Request $request, Workspace $workspace, Run $execution): JsonResponse
     {
         if ($forbidden = $this->requirePermission(Permission::ExecutionView)) {
             return $forbidden;
@@ -97,7 +97,7 @@ class ExecutionController extends Controller
         );
     }
 
-    public function retry(Request $request, Workspace $workspace, Execution $execution): JsonResponse
+    public function retry(Request $request, Workspace $workspace, Run $execution): JsonResponse
     {
         if ($forbidden = $this->requirePermission(Permission::ExecutionManage)) {
             return $forbidden;
@@ -119,7 +119,7 @@ class ExecutionController extends Controller
         );
     }
 
-    public function cancel(Request $request, Workspace $workspace, Execution $execution): JsonResponse
+    public function cancel(Request $request, Workspace $workspace, Run $execution): JsonResponse
     {
         if ($forbidden = $this->requirePermission(Permission::ExecutionManage)) {
             return $forbidden;
@@ -134,7 +134,7 @@ class ExecutionController extends Controller
         return $this->successResponse('Execution cancelled.', new ExecutionResource($execution));
     }
 
-    public function destroy(Request $request, Workspace $workspace, Execution $execution): JsonResponse
+    public function destroy(Request $request, Workspace $workspace, Run $execution): JsonResponse
     {
         if ($forbidden = $this->requirePermission(Permission::ExecutionManage)) {
             return $forbidden;

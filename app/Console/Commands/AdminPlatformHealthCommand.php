@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Enums\ExecutionStatus;
 use App\Models\Agent;
-use App\Models\Execution;
+use App\Models\Run;
 use App\Models\User;
 use App\Models\Workflow;
 use App\Models\Workspace;
@@ -24,8 +24,8 @@ class AdminPlatformHealthCommand extends Command
             'workflows' => Workflow::count(),
             'active_workflows' => Workflow::where('is_active', true)->count(),
             'agents' => Agent::count(),
-            'executions_24h' => Execution::where('created_at', '>=', now()->subDay())->count(),
-            'failed_24h' => Execution::where('created_at', '>=', now()->subDay())
+            'executions_24h' => Run::where('created_at', '>=', now()->subDay())->count(),
+            'failed_24h' => Run::where('created_at', '>=', now()->subDay())
                 ->where('status', ExecutionStatus::Failed)->count(),
         ];
 

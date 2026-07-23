@@ -3,7 +3,7 @@
 namespace App\Services\Agent;
 
 use App\Models\Agent;
-use App\Models\AgentRun;
+use App\Models\Run;
 use App\Services\AdminAlertService;
 
 /**
@@ -84,7 +84,7 @@ class AgentBudgetService
      * Persist a run's estimated cost and enforce budgets after it completes.
      * Pauses the agent + alerts admins if a daily budget is now exceeded.
      */
-    public function settleRun(Agent $agent, AgentRun $run): void
+    public function settleRun(Agent $agent, Run $run): void
     {
         $cost = $this->estimateCost($run->model, $run->prompt_tokens, $run->completion_tokens);
         $run->forceFill(['estimated_cost' => $cost])->save();

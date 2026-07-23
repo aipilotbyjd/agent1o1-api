@@ -2,8 +2,8 @@
 
 use App\Enums\Role;
 use App\Jobs\ExecuteWorkflowJob;
-use App\Models\Execution;
 use App\Models\ExecutionReplayPack;
+use App\Models\Run;
 use App\Models\User;
 use App\Models\Workflow;
 use App\Models\Workspace;
@@ -27,7 +27,7 @@ beforeEach(function () {
         'created_by' => $this->user->id,
     ]);
 
-    $this->execution = Execution::factory()->completed()->create([
+    $this->execution = Run::factory()->completed()->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
         'trigger_data' => ['foo' => 'bar'],

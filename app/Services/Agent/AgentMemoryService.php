@@ -5,7 +5,7 @@ namespace App\Services\Agent;
 use App\Agents\Internal\MemoryExtractionAgent;
 use App\Models\Agent;
 use App\Models\AgentMemory;
-use App\Models\AgentRun;
+use App\Models\Run;
 use Illuminate\Support\Collection;
 use Laravel\Ai\Embeddings;
 use Throwable;
@@ -69,7 +69,7 @@ class AgentMemoryService
      *
      * @return int Number of memories stored.
      */
-    public function extractAndStore(Agent $agent, string $userMessage, string $assistantReply, ?int $userId, ?AgentRun $run = null): int
+    public function extractAndStore(Agent $agent, string $userMessage, string $assistantReply, ?int $userId, ?Run $run = null): int
     {
         try {
             $response = (new MemoryExtractionAgent)->prompt(

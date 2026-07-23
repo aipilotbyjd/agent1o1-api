@@ -7,8 +7,15 @@ Status: **Implemented (clean cut)** · Scope: `triggers` + `runs` seams only · 
 > so `triggers`/`trigger_events` use `target_type`/`target_id` as the only
 > target columns, and `runs` uses `runnable_type`/`runnable_id` as the only
 > runnable columns. The historical `workflow_id`/`agent_id` names survive purely
-> as **virtual accessor/mutator aliases** on the Trigger/TriggerEvent/Execution/
-> AgentRun models for source-compatibility — they are not database columns.
+> as **virtual accessor/mutator aliases** on the models for source-compatibility
+> — they are not database columns.
+>
+> Final model shape: there is now a **single `Run` model** over the `runs`
+> table (the `Execution` and `AgentRun` classes were removed). Workflow-only
+> relations (`nodes`, `checkpoint`, `logs`, …) and agent-only relations
+> (`steps`) both hang off `Run` and are simply empty for the other kind;
+> `status` is the `ExecutionStatus` enum for every run. `$workflow->executions()`
+> and `$agent->runs()` return `Run` instances scoped by the polymorphic target.
 
 ## 0. Goal
 

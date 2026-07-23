@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Webhooks;
 use App\Enums\ExecutionStatus;
 use App\Http\Controllers\Controller;
 use App\Jobs\ResumeWorkflowJob;
-use App\Models\Execution;
+use App\Models\Run;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -17,7 +17,7 @@ class WaitWebhookController extends Controller
      */
     public function resume(Request $request, string $token): JsonResponse
     {
-        $execution = Execution::query()
+        $execution = Run::query()
             ->where('wait_token', $token)
             ->where('status', ExecutionStatus::Waiting)
             ->first();

@@ -75,7 +75,7 @@ class Workflow extends Model implements Automatable
 
     public function executions(): HasMany
     {
-        return $this->hasMany(Execution::class, 'runnable_id')->orderByDesc('created_at');
+        return $this->hasMany(Run::class, 'runnable_id')->orderByDesc('created_at');
     }
 
     /**

@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\ArchivedExecutionLog;
-use App\Models\Execution;
 use App\Models\ExecutionLog;
+use App\Models\Run;
 use App\Models\Workflow;
 use App\Models\Workspace;
 use App\Services\ExecutionArchiveService;
@@ -10,7 +10,7 @@ use App\Services\ExecutionArchiveService;
 beforeEach(function () {
     $this->workspace = Workspace::factory()->create();
     $this->workflow = Workflow::factory()->create(['workspace_id' => $this->workspace->id]);
-    $this->execution = Execution::factory()->completed()->create([
+    $this->execution = Run::factory()->completed()->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
     ]);
@@ -41,7 +41,7 @@ test('old logs are moved to cold storage', function () {
 });
 
 test('old terminal executions are pruned', function () {
-    Execution::factory()->completed()->create([
+    Run::factory()->completed()->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
         'created_at' => now()->subDays(120),

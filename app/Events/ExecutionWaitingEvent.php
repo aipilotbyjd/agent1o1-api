@@ -3,7 +3,7 @@
 namespace App\Events;
 
 use App\Engine\ExecutionPause;
-use App\Models\Execution;
+use App\Models\Run;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -16,7 +16,7 @@ class ExecutionWaitingEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public function __construct(
-        public readonly Execution $execution,
+        public readonly Run $execution,
         public readonly ExecutionPause $pause,
     ) {}
 

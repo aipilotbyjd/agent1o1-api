@@ -78,9 +78,10 @@ class Workspace extends Model
         return $this->hasMany(Workflow::class);
     }
 
+    /** Workflow executions only (the workflow-run subset of `runs`). */
     public function executions(): HasMany
     {
-        return $this->hasMany(Execution::class);
+        return $this->hasMany(Run::class)->where('runnable_type', 'workflow');
     }
 
     /**

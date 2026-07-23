@@ -55,11 +55,11 @@ class Artifact extends Model
     }
 
     /**
-     * @return BelongsTo<AgentRun, $this>
+     * @return BelongsTo<Run, $this>
      */
     public function agentRun(): BelongsTo
     {
-        return $this->belongsTo(AgentRun::class);
+        return $this->belongsTo(Run::class);
     }
 
     /**

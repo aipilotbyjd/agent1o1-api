@@ -2,12 +2,11 @@
 
 namespace App\Http\Resources\V1;
 
-use App\Models\Execution;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin Execution
+ * @mixin \App\Models\Run
  */
 class ExecutionResource extends JsonResource
 {

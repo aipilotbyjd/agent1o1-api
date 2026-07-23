@@ -4,9 +4,9 @@ namespace App\Listeners;
 
 use App\Events\ExecutionCompletedEvent;
 use App\Events\ExecutionFailedEvent;
-use App\Models\Execution;
 use App\Models\NotificationChannel;
 use App\Models\NotificationPreference;
+use App\Models\Run;
 use App\Models\User;
 use App\Notifications\ExecutionCompletedNotification;
 use App\Notifications\ExecutionFailedNotification;
@@ -37,7 +37,7 @@ class DispatchExecutionNotifications
         ];
     }
 
-    private function dispatch(Execution $execution, string $eventKey): void
+    private function dispatch(Run $execution, string $eventKey): void
     {
         try {
             $execution->loadMissing('workflow');
@@ -109,7 +109,7 @@ class DispatchExecutionNotifications
      * Fall back to an in-app notification for whoever triggered the execution
      * when no workspace preferences are configured.
      */
-    private function notifyTriggeredByUser(Execution $execution, string $eventKey): void
+    private function notifyTriggeredByUser(Run $execution, string $eventKey): void
     {
         if ($eventKey !== 'execution.failed' || ! $execution->triggered_by) {
             return;
@@ -130,7 +130,7 @@ class DispatchExecutionNotifications
         );
     }
 
-    private function buildTitle(Execution $execution, string $eventKey): string
+    private function buildTitle(Run $execution, string $eventKey): string
     {
         $workflowName = $execution->workflow?->name ?? 'Workflow';
 
@@ -139,7 +139,7 @@ class DispatchExecutionNotifications
             : "Execution completed: {$workflowName}";
     }
 
-    private function buildBody(Execution $execution, string $eventKey): ?string
+    private function buildBody(Run $execution, string $eventKey): ?string
     {
         if ($eventKey === 'execution.failed') {
             $error = $execution->error['message'] ?? 'An unexpected error occurred.';
