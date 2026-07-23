@@ -300,7 +300,133 @@ independently revertable.
 
 ---
 
-## 7. What this buys
+## 7. Laravel-standards workstream
+
+The codebase already follows the important conventions: Form Requests, API
+Resources, Policies, per-domain config files (`config/engine.php`,
+`config/workflow.php`, …), named rate limiters, Horizon, Passport, Reverb,
+Pulse, Pint and Pest 4 are all in place. The gaps to close, in order:
+
+1. **CI gate.** There is no CI pipeline in the repo. Add one workflow that
+   runs `vendor/bin/pint --test`, `php artisan test`, and the arch tests from
+   §4. Nothing in this document survives without this.
+2. **Model strictness.** Enable in `AppServiceProvider::boot()`:
+
+   ```php
+   Model::shouldBeStrict(! app()->isProduction());
+   ```
+
+   This turns lazy loading (N+1s), silently-discarded attributes, and
+   missing-attribute access into exceptions in dev/CI while staying safe in
+   production. Fix what it surfaces before moving files — moves are easier to
+   review when tests are strict.
+3. **Static analysis.** Add Larastan at level 5–6 with a baseline. The
+   namespace sweeps in §6 are exactly the kind of change static analysis
+   catches when a string reference is missed.
+4. **Scoped bindings on nested resources.** Routes like
+   `workflows/{workflow}/triggers/{trigger}` must use `->scopeBindings()` so a
+   trigger belonging to another workflow 404s instead of resolving. Audit all
+   nested groups in `routes/api.php`.
+5. **`env()` only inside `config/`.** One-time audit
+   (`grep -rn "env(" app/`); module code reads `config()` exclusively, so
+   `artisan config:cache` stays safe.
+6. **Pest arch presets.** Alongside the module boundary tests:
+   `arch()->preset()->laravel()` and `arch()->preset()->security()` — free
+   enforcement of framework conventions and obvious foot-guns.
+7. **Backed enums + casts carry into modules.** Existing `app/Enums` split per
+   §5; any remaining string-status columns get enum casts as they move.
+
+---
+
+## 8. Performance workstream
+
+### P0 — bug, fix immediately
+
+**The `agents` queue has no consumer.** `RunAgentJob` and `DiagnoseFailedNode`
+dispatch to `onQueue('agents')` (`app/Jobs/RunAgentJob.php:34`,
+`app/Jobs/DiagnoseFailedNode.php:25`), but Horizon's supervisors only consume
+`default`, `engine`, `triggers`, `builder-ai`, `agent-ai`
+(`config/horizon.php`). In any environment running Horizon as configured,
+queued agent runs and AI-autofix diagnoses sit in Redis forever. Fix: point
+both jobs at `agent-ai` (or add an `agents` supervisor) — one-line change,
+plus an arch/feature test asserting every `onQueue()` value appears in the
+Horizon config so this class of bug can't recur.
+
+### P1 — cheap, high leverage
+
+1. **N+1 elimination via strictness** (§7.2). With `shouldBeStrict()` on, the
+   test suite becomes the N+1 detector. Add missing eager loads /
+   `withCount()` on index endpoints as they surface, module by module during
+   the §6 moves.
+2. **Trim list payloads.** Run/log/version JSON blobs (`output_data`, node
+   configs, archived payloads) must not load on index endpoints — select
+   explicit columns in list queries and keep heavy fields to `show` routes.
+3. **phpredis over predis.** The app talks to Redis constantly (queues, cache,
+   Reverb scaling, Horizon). The C extension is meaningfully faster than
+   predis and is a Dockerfile-only change (`pecl install redis`, flip
+   `REDIS_CLIENT=phpredis`). Keep predis as the fallback in composer.json.
+4. **OPcache preloading.** `Dockerfile.web` gains
+   `opcache.preload=/var/www/html/preload.php` (framework + hot paths);
+   `artisan optimize` at boot already covers config/route/event caching.
+5. **Job idempotency + uniqueness.** `PollSingleTriggerJob` and the scheduled
+   sweepers implement `ShouldBeUnique` so an overlapping schedule tick can't
+   double-poll a trigger. (Complements `onOneServer()` from `docs/PLAN.md`.)
+
+### P2 — as modules land
+
+6. **Index audit on hot paths**, verified against real query plans before
+   adding: `runs` (workspace + status + created_at — the dashboard/list
+   query), trigger polling (`next_poll_at` + status), `trigger_events`
+   dedup lookups, `execution_logs` (run + sequence). Composite indexes only
+   where a query is measured, not speculatively.
+7. **Cursor pagination for append-only streams** — run logs, trigger events,
+   credit transactions. Offset pagination on those tables degrades with
+   depth; cursor pagination is O(1) and the UI for logs is forward-only
+   anyway.
+8. **Catalog caching.** Node catalog, credential types, and trigger catalog
+   are read-heavy and change only on deploy/seed. Cache whole-catalog
+   responses with explicit invalidation on seed (the per-schema 300s
+   `Cache::remember` in `InspectNodeSchemaTool` generalizes).
+9. **Retention as a feature.** `ExecutionLog`/`TriggerEvent`/`ArchivedExecutionLog`
+   get `Prunable` + a scheduled `model:prune` with per-plan retention windows —
+   this is both a performance fix (table growth is the slow death of every
+   automation platform) and a billing differentiator.
+10. **Pulse in production.** Already installed — wire the slow-query, slow-job,
+    and cache-interaction recorders and put the dashboard behind the admin
+    gate. Decisions in items 6–9 should be driven by what Pulse shows, not
+    guesses.
+
+### Deliberately deferred
+
+- **Octane / FrankenPHP**: real gains for this workload profile are in the
+  queue workers, not HTTP; the fpm deploy in `docs/PLAN.md` is fine until
+  Pulse shows request throughput as the bottleneck.
+- **Read replicas / partitioning**: not before retention (item 9) has capped
+  table growth.
+
+---
+
+## 9. Combined roadmap
+
+The standards/performance items slot into the §6 phases rather than forming a
+separate project:
+
+| Phase | Structure (§6) | Standards + performance |
+|---|---|---|
+| 0 | Arch tests + `Foundation/` | **P0 queue fix** · CI gate · `shouldBeStrict()` · Pint · Larastan baseline · arch presets |
+| 1 | Notifications, Observability, Billing | Pulse recorders wired (Observability move) |
+| 2 | Nodes | Catalog caching (P2.8) |
+| 3 | Connections, Triggers, Runs | Job uniqueness (P1.5) · cursor pagination + index audit on runs/logs (P2.6–7) · retention (P2.9) |
+| 4 | Identity, Workspaces, Workflows | Scoped bindings audit · list-payload trimming (P1.2) |
+| 5 | Agents, Assistant | phpredis + preload land in Dockerfiles (P1.3–4) |
+| 6 | Route split | Final `env()`/route-name audit |
+
+Each phase still ships as one PR, tests green, no behavior change except the
+explicitly-listed fixes (P0 queue, eager loads).
+
+---
+
+## 10. What this buys
 
 - **Feature work touches one directory.** A new Workflows endpoint = one
   module. A new integration = one node handler, instantly available to both
