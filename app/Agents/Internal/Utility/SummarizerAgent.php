@@ -1,17 +1,14 @@
 <?php
 
-namespace App\Agents\Internal;
+namespace App\Agents\Internal\Utility;
 
+use App\Agents\Internal\InternalAgent;
 use Laravel\Ai\Attributes\Temperature;
-use Laravel\Ai\Contracts\Agent;
-use Laravel\Ai\Promptable;
 use Stringable;
 
 #[Temperature(0.5)]
-class SummarizerAgent implements Agent
+class SummarizerAgent extends InternalAgent
 {
-    use Promptable;
-
     public function __construct(
         private string $format = 'paragraph',
         private int $maxLength = 200,

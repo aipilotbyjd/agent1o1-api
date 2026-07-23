@@ -2,7 +2,7 @@
 
 namespace App\Services\WorkflowBuilder;
 
-use App\Agents\Internal\WorkflowDescriptionAgent;
+use App\Agents\Internal\Workflow\WorkflowDescriptionAgent;
 
 class ExplainerService
 {

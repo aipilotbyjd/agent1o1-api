@@ -87,6 +87,7 @@ class RunAgentJob implements ShouldQueue
                 'agent' => $agent,
                 'credentials' => $credentials,
                 'user_id' => $this->context['fired_by'] ?? null,
+                'agent_run_id' => $run->id,
             ]);
         } catch (Throwable $e) {
             $recorder->fail($run, $e);

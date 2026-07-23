@@ -1,26 +1,23 @@
 <?php
 
-namespace App\Agents\Internal;
+namespace App\Agents\Internal\Workflow;
 
+use App\Agents\Internal\InternalAgent;
 use App\Agents\Tools\ListAvailableNodesTool;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Attributes\Temperature;
 use Laravel\Ai\Attributes\Timeout;
-use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Contracts\Tool;
-use Laravel\Ai\Promptable;
 use Stringable;
 
 #[Temperature(0.5)]
 #[MaxSteps(5)]
 #[Timeout(60)]
-class NodeSuggestionAgent implements Agent, HasStructuredOutput, HasTools
+class NodeSuggestionAgent extends InternalAgent implements HasStructuredOutput, HasTools
 {
-    use Promptable;
-
     public function instructions(): Stringable|string
     {
         return <<<'PROMPT'

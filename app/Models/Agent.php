@@ -17,6 +17,7 @@ use Laravel\Ai\Models\Conversation;
 
 #[Fillable([
     'workspace_id',
+    'type',
     'created_by',
     'name',
     'slug',
@@ -78,6 +79,83 @@ class Agent extends Model implements Automatable
             'daily_cost_budget' => 'decimal:4',
             'is_paused' => 'boolean',
         ];
+    }
+
+    /**
+     * The consolidated, grouped view of this agent's feature settings. This is
+     * the canonical API shape; the flat columns remain the storage layer. Kept
+     * in sync with settingsToAttributes() below.
+     *
+     * @return array<string, mixed>
+     */
+    public function getSettingsAttribute(): array
+    {
+        return [
+            'reasoning' => [
+                'planning_enabled' => (bool) $this->planning_enabled,
+                'reflection_enabled' => (bool) $this->reflection_enabled,
+                'reflection_interval' => $this->reflection_interval,
+                'child_agent_ids' => $this->child_agent_ids ?? [],
+            ],
+            'memory' => [
+                'auto_extract' => (bool) $this->memory_auto_extract,
+                'semantic_recall' => (bool) $this->memory_semantic_recall,
+                'recall_limit' => $this->memory_recall_limit,
+            ],
+            'tools' => [
+                'code_execution_enabled' => (bool) $this->code_execution_enabled,
+                'web_browsing_enabled' => (bool) $this->web_browsing_enabled,
+                'cache_enabled' => (bool) $this->tool_cache_enabled,
+            ],
+            'limits' => [
+                'max_steps' => $this->max_steps,
+                'timeout_seconds' => $this->timeout_seconds,
+                'max_tokens_per_run' => $this->max_tokens_per_run,
+                'daily_token_budget' => $this->daily_token_budget,
+                'daily_cost_budget' => $this->daily_cost_budget !== null ? (float) $this->daily_cost_budget : null,
+            ],
+            'guardrails' => $this->guardrails,
+        ];
+    }
+
+    /**
+     * Map a (partial) nested settings payload to the flat storage columns.
+     * The inverse of getSettingsAttribute(); unknown keys are ignored.
+     *
+     * @param  array<string, mixed>  $settings
+     * @return array<string, mixed>
+     */
+    public static function settingsToAttributes(array $settings): array
+    {
+        $map = [
+            'reasoning.planning_enabled' => 'planning_enabled',
+            'reasoning.reflection_enabled' => 'reflection_enabled',
+            'reasoning.reflection_interval' => 'reflection_interval',
+            'reasoning.child_agent_ids' => 'child_agent_ids',
+            'memory.auto_extract' => 'memory_auto_extract',
+            'memory.semantic_recall' => 'memory_semantic_recall',
+            'memory.recall_limit' => 'memory_recall_limit',
+            'tools.code_execution_enabled' => 'code_execution_enabled',
+            'tools.web_browsing_enabled' => 'web_browsing_enabled',
+            'tools.cache_enabled' => 'tool_cache_enabled',
+            'limits.max_steps' => 'max_steps',
+            'limits.timeout_seconds' => 'timeout_seconds',
+            'limits.max_tokens_per_run' => 'max_tokens_per_run',
+            'limits.daily_token_budget' => 'daily_token_budget',
+            'limits.daily_cost_budget' => 'daily_cost_budget',
+            'guardrails' => 'guardrails',
+        ];
+
+        $attributes = [];
+
+        foreach ($map as $path => $column) {
+            $value = data_get($settings, $path, '__missing__');
+            if ($value !== '__missing__') {
+                $attributes[$column] = $value;
+            }
+        }
+
+        return $attributes;
     }
 
     /**

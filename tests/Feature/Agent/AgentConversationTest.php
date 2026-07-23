@@ -1,6 +1,6 @@
 <?php
 
-use App\Agents\Internal\WorkflowAgent;
+use App\Agents\User\ConversationAgent;
 use App\Enums\Role;
 use App\Models\Agent;
 use App\Models\User;
@@ -45,7 +45,7 @@ function makeConversation(Agent $agent, User $user, Workspace $workspace): Conve
         'id' => Str::uuid()->toString(),
         'conversation_id' => $conversation->id,
         'user_id' => $user->id,
-        'agent' => WorkflowAgent::class,
+        'agent' => ConversationAgent::class,
         'role' => 'user',
         'content' => 'Hello',
         'attachments' => [],
@@ -59,7 +59,7 @@ function makeConversation(Agent $agent, User $user, Workspace $workspace): Conve
 }
 
 test('starting a conversation returns the agent reply', function () {
-    WorkflowAgent::fake(['Hello, how can I help?']);
+    ConversationAgent::fake(['Hello, how can I help?']);
 
     $this->actingAs($this->user, 'api')
         ->postJson("/api/v1/workspaces/{$this->workspace->id}/agents/{$this->agent->id}/conversations", [
@@ -89,7 +89,7 @@ test('a conversation can be shown with its messages', function () {
 });
 
 test('sending a message to an existing conversation returns a reply', function () {
-    WorkflowAgent::fake(['Sure thing.']);
+    ConversationAgent::fake(['Sure thing.']);
 
     $conversation = makeConversation($this->agent, $this->user, $this->workspace);
 

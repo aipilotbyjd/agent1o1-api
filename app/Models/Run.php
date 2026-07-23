@@ -162,6 +162,17 @@ class Run extends Model
         return $this->hasMany(AiAgentStep::class, 'agent_run_id')->orderBy('step_number');
     }
 
+    /**
+     * Internal-agent calls (planner, reflection, moderation, ...) made in
+     * service of this run — the previously invisible "system overhead".
+     *
+     * @return HasMany<InternalAgentRun, $this>
+     */
+    public function internalRuns(): HasMany
+    {
+        return $this->hasMany(InternalAgentRun::class, 'parent_run_id')->orderBy('created_at');
+    }
+
     // ── Status helpers ──────────────────────────────────────────────────
 
     public function isPending(): bool

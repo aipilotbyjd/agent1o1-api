@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Agents\Internal;
+namespace App\Agents\Internal\Safety;
 
+use App\Agents\Internal\InternalAgent;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Attributes\Temperature;
 use Laravel\Ai\Attributes\Timeout;
-use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\HasStructuredOutput;
-use Laravel\Ai\Promptable;
 use Stringable;
 
 /**
@@ -18,10 +17,8 @@ use Stringable;
  */
 #[Temperature(0)]
 #[Timeout(45)]
-class ModerationAgent implements Agent, HasStructuredOutput
+class ModerationAgent extends InternalAgent implements HasStructuredOutput
 {
-    use Promptable;
-
     public function instructions(): Stringable|string
     {
         return <<<'PROMPT'

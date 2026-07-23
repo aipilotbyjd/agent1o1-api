@@ -2,7 +2,7 @@
 
 namespace App\Services\WorkflowBuilder;
 
-use App\Agents\Internal\WorkflowEnhancementAgent;
+use App\Agents\Internal\Workflow\WorkflowEnhancementAgent;
 
 class EnhancementService
 {

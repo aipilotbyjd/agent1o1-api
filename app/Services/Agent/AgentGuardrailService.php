@@ -2,7 +2,7 @@
 
 namespace App\Services\Agent;
 
-use App\Agents\Internal\ModerationAgent;
+use App\Agents\Internal\Safety\ModerationAgent;
 use App\Models\Agent;
 use Throwable;
 
@@ -27,23 +27,23 @@ class AgentGuardrailService
     /**
      * @return array{flagged: bool, categories: list<string>, reason: string, block: bool}|null
      */
-    public function checkInput(Agent $agent, string $text): ?array
+    public function checkInput(Agent $agent, string $text, ?string $parentRunId = null): ?array
     {
-        return $this->check($agent, 'input', $text);
+        return $this->check($agent, 'input', $text, $parentRunId);
     }
 
     /**
      * @return array{flagged: bool, categories: list<string>, reason: string, block: bool}|null
      */
-    public function checkOutput(Agent $agent, string $text): ?array
+    public function checkOutput(Agent $agent, string $text, ?string $parentRunId = null): ?array
     {
-        return $this->check($agent, 'output', $text);
+        return $this->check($agent, 'output', $text, $parentRunId);
     }
 
     /**
      * @return array{flagged: bool, categories: list<string>, reason: string, block: bool}|null
      */
-    private function check(Agent $agent, string $stage, string $text): ?array
+    private function check(Agent $agent, string $stage, string $text, ?string $parentRunId = null): ?array
     {
         $config = $agent->guardrails[$stage] ?? null;
 
@@ -66,11 +66,12 @@ class AgentGuardrailService
         PROMPT;
 
         try {
-            $response = (new ModerationAgent)->prompt(
-                $prompt,
-                provider: $agent->provider,
-                model: $agent->model,
-            );
+            $response = (new ModerationAgent)->run($prompt, [
+                'provider' => $agent->provider,
+                'model' => $agent->model,
+                'workspace_id' => $agent->workspace_id,
+                'parent_run_id' => $parentRunId,
+            ]);
         } catch (Throwable) {
             return null; // fail open
         }

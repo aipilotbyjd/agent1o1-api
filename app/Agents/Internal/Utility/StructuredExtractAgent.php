@@ -1,17 +1,14 @@
 <?php
 
-namespace App\Agents\Internal;
+namespace App\Agents\Internal\Utility;
 
+use App\Agents\Internal\InternalAgent;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Stringable;
-use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\HasStructuredOutput;
-use Laravel\Ai\Promptable;
 
-class StructuredExtractAgent implements Agent, HasStructuredOutput
+class StructuredExtractAgent extends InternalAgent implements HasStructuredOutput
 {
-    use Promptable;
-
     public function __construct(
         private array $schemaProperties
     ) {}

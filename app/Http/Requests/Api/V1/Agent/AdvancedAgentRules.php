@@ -10,11 +10,29 @@ namespace App\Http\Requests\Api\V1\Agent;
 trait AdvancedAgentRules
 {
     /**
+     * Dual-read: clients may send the flat fields below or the grouped
+     * `settings` object (the canonical API shape going forward). A nested
+     * payload is flattened onto the flat fields before validation, so one set
+     * of rules covers both.
+     */
+    protected function prepareForValidation(): void
+    {
+        $settings = $this->input('settings');
+
+        if (is_array($settings)) {
+            $this->merge(\App\Models\Agent::settingsToAttributes($settings));
+        }
+    }
+
+    /**
      * @return array<string, array<int, mixed>>
      */
     protected function advancedRules(): array
     {
         return [
+            // Canonical grouped shape (flattened in prepareForValidation).
+            'settings' => ['nullable', 'array'],
+
             // Phase 1 — intelligence & reasoning
             'planning_enabled' => ['nullable', 'boolean'],
             'reflection_enabled' => ['nullable', 'boolean'],

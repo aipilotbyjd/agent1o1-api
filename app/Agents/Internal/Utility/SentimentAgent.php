@@ -1,19 +1,16 @@
 <?php
 
-namespace App\Agents\Internal;
+namespace App\Agents\Internal\Utility;
 
+use App\Agents\Internal\InternalAgent;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Attributes\Temperature;
-use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\HasStructuredOutput;
-use Laravel\Ai\Promptable;
 use Stringable;
 
 #[Temperature(0.3)]
-class SentimentAgent implements Agent, HasStructuredOutput
+class SentimentAgent extends InternalAgent implements HasStructuredOutput
 {
-    use Promptable;
-
     public function instructions(): Stringable|string
     {
         return 'You are a sentiment analysis expert. Analyze the sentiment of the given text. Determine whether the overall sentiment is positive, negative, or neutral. Provide a confidence score and list the primary emotions detected.';

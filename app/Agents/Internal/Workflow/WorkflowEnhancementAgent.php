@@ -1,27 +1,24 @@
 <?php
 
-namespace App\Agents\Internal;
+namespace App\Agents\Internal\Workflow;
 
+use App\Agents\Internal\InternalAgent;
 use App\Agents\Tools\InspectNodeSchemaTool;
 use App\Agents\Tools\ListAvailableNodesTool;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Attributes\Temperature;
 use Laravel\Ai\Attributes\Timeout;
-use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Contracts\Tool;
-use Laravel\Ai\Promptable;
 use Stringable;
 
 #[Temperature(0.5)]
 #[MaxSteps(8)]
 #[Timeout(90)]
-class WorkflowEnhancementAgent implements Agent, HasStructuredOutput, HasTools
+class WorkflowEnhancementAgent extends InternalAgent implements HasStructuredOutput, HasTools
 {
-    use Promptable;
-
     public function instructions(): Stringable|string
     {
         return <<<'PROMPT'

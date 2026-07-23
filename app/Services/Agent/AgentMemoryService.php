@@ -2,7 +2,7 @@
 
 namespace App\Services\Agent;
 
-use App\Agents\Internal\MemoryExtractionAgent;
+use App\Agents\Internal\Memory\MemoryExtractionAgent;
 use App\Models\Agent;
 use App\Models\AgentMemory;
 use App\Models\Run;
@@ -72,10 +72,14 @@ class AgentMemoryService
     public function extractAndStore(Agent $agent, string $userMessage, string $assistantReply, ?int $userId, ?Run $run = null): int
     {
         try {
-            $response = (new MemoryExtractionAgent)->prompt(
+            $response = (new MemoryExtractionAgent)->run(
                 "User:\n{$userMessage}\n\nAssistant:\n{$assistantReply}",
-                provider: $agent->provider,
-                model: $agent->model,
+                [
+                    'provider' => $agent->provider,
+                    'model' => $agent->model,
+                    'workspace_id' => $agent->workspace_id,
+                    'parent_run_id' => $run?->id,
+                ],
             );
 
             $proposed = $response['memories'] ?? [];
