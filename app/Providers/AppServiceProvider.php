@@ -22,6 +22,8 @@ use Carbon\CarbonInterval;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -29,6 +31,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Ai\AiManager;
 use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
@@ -55,6 +58,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureBillingEvents();
         $this->configureExecutionLogging();
         $this->configureModelObservers();
+        $this->configureMorphMap();
         $this->configureAiProviders();
 
         Password::defaults(fn (): Password => Password::min(8)->mixedCase()->numbers()->symbols());
@@ -67,15 +71,15 @@ class AppServiceProvider extends ServiceProvider
     {
         // "anyapi" is an OpenRouter-style gateway. Registered as a custom driver
         // so structured output is sent with strict=false (see App\Ai\AnyApiProvider).
-        app(\Laravel\Ai\AiManager::class)->extend('anyapi', function ($app, array $config): AnyApiProvider {
-            return new AnyApiProvider($config, $app->make(\Illuminate\Contracts\Events\Dispatcher::class));
+        app(AiManager::class)->extend('anyapi', function ($app, array $config): AnyApiProvider {
+            return new AnyApiProvider($config, $app->make(Dispatcher::class));
         });
 
         // "digitalocean" is DigitalOcean's Gradient AI Platform serverless
         // inference (OpenAI-compatible). Registered as a custom driver so
         // structured output is sent with strict=false (see App\Ai\DigitalOceanProvider).
-        app(\Laravel\Ai\AiManager::class)->extend('digitalocean', function ($app, array $config): DigitalOceanProvider {
-            return new DigitalOceanProvider($config, $app->make(\Illuminate\Contracts\Events\Dispatcher::class));
+        app(AiManager::class)->extend('digitalocean', function ($app, array $config): DigitalOceanProvider {
+            return new DigitalOceanProvider($config, $app->make(Dispatcher::class));
         });
     }
 
@@ -170,6 +174,20 @@ class AppServiceProvider extends ServiceProvider
         Workflow::observe(WorkflowObserver::class);
         Agent::observe(AgentObserver::class);
         InAppNotification::observe(InAppNotificationObserver::class);
+    }
+
+    /**
+     * Register short morph aliases for automation targets so the polymorphic
+     * Trigger/TriggerEvent/Run relations store 'workflow'/'agent' instead of
+     * fully-qualified class names. Non-enforcing: other models that store FQCN
+     * morph types (e.g. CreditTransaction::subject) keep resolving normally.
+     */
+    private function configureMorphMap(): void
+    {
+        Relation::morphMap([
+            'workflow' => Workflow::class,
+            'agent' => Agent::class,
+        ]);
     }
 
     protected function policies(): array

@@ -12,7 +12,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('version', 20)->nullable();
-            $table->foreignUuid('parent_run_id')->nullable()->constrained('agent_runs')->nullOnDelete();
+            $table->foreignUuid('parent_run_id')->nullable()->constrained('runs')->nullOnDelete();
             $table->foreignUuid('workspace_id')->nullable()->constrained('workspaces')->nullOnDelete();
             $table->string('provider')->nullable();
             $table->string('model')->nullable();

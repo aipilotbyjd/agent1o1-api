@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\AiFixSuggestion;
-use App\Models\Execution;
+use App\Models\Run;
 use App\Models\Workspace;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,7 +18,7 @@ class AiFixSuggestionFactory extends Factory
     public function definition(): array
     {
         return [
-            'execution_id' => Execution::factory(),
+            'execution_id' => Run::factory(),
             'workspace_id' => Workspace::factory(),
             'node_id' => 'node-'.fake()->numerify('###'),
             'node_type' => 'http_request',

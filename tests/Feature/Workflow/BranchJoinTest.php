@@ -2,8 +2,8 @@
 
 use App\Engine\WorkflowRunner;
 use App\Enums\ExecutionStatus;
-use App\Models\Execution;
 use App\Models\ExecutionNode;
+use App\Models\Run;
 use App\Models\Workflow;
 use App\Models\Workspace;
 use Database\Seeders\PlanSeeder;
@@ -30,11 +30,11 @@ function branchWorkflow(Workspace $workspace, array $nodes, array $edges): Workf
     return $workflow;
 }
 
-function runBranchWorkflow(Workspace $workspace, array $nodes, array $edges): Execution
+function runBranchWorkflow(Workspace $workspace, array $nodes, array $edges): Run
 {
     $workflow = branchWorkflow($workspace, $nodes, $edges);
 
-    $execution = Execution::factory()->create([
+    $execution = Run::factory()->create([
         'workflow_id' => $workflow->id,
         'workspace_id' => $workspace->id,
     ]);
@@ -45,7 +45,7 @@ function runBranchWorkflow(Workspace $workspace, array $nodes, array $edges): Ex
 }
 
 /** @return array<string, string> node_id => status */
-function nodeStatuses(Execution $execution): array
+function nodeStatuses(Run $execution): array
 {
     return ExecutionNode::where('execution_id', $execution->id)
         ->get()

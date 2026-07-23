@@ -3,7 +3,7 @@
 use App\Enums\Role;
 use App\Jobs\DiagnoseFailedNode;
 use App\Models\AiFixSuggestion;
-use App\Models\Execution;
+use App\Models\Run;
 use App\Models\User;
 use App\Models\Workflow;
 use App\Models\Workspace;
@@ -27,7 +27,7 @@ beforeEach(function () {
         'created_by' => $this->user->id,
     ]);
 
-    $this->execution = Execution::factory()->failed()->create([
+    $this->execution = Run::factory()->failed()->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
     ]);

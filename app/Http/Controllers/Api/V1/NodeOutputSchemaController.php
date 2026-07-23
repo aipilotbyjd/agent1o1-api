@@ -24,7 +24,7 @@ class NodeOutputSchemaController extends Controller
 
         $outputs = ExecutionNode::query()
             ->whereHas('execution', function ($q) use ($workflow) {
-                $q->where('workflow_id', $workflow->id)
+                $q->where('runnable_id', $workflow->id)
                     ->where('status', 'completed');
             })
             ->where('node_id', $nodeId)

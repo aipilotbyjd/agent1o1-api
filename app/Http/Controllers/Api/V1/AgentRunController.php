@@ -6,7 +6,7 @@ use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\AgentRunResource;
 use App\Models\Agent;
-use App\Models\AgentRun;
+use App\Models\Run;
 use App\Models\Workspace;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -33,7 +33,7 @@ class AgentRunController extends Controller
         return $this->paginatedResponse('Agent runs retrieved.', AgentRunResource::collection($runs));
     }
 
-    public function show(Request $request, Workspace $workspace, Agent $agent, AgentRun $run): JsonResponse
+    public function show(Request $request, Workspace $workspace, Agent $agent, Run $run): JsonResponse
     {
         if ($denied = $this->requirePermission(Permission::AgentView)) {
             return $denied;

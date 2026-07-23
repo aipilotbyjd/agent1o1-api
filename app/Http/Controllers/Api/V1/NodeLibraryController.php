@@ -19,8 +19,8 @@ class NodeLibraryController extends Controller
     {
         $used = ExecutionNode::query()
             ->select('execution_nodes.node_type', DB::raw('COUNT(*) as usage_count'))
-            ->join('executions', 'executions.id', '=', 'execution_nodes.execution_id')
-            ->where('executions.workspace_id', $workspace->id)
+            ->join('runs', 'runs.id', '=', 'execution_nodes.execution_id')
+            ->where('runs.workspace_id', $workspace->id)
             ->groupBy('execution_nodes.node_type')
             ->orderByDesc('usage_count')
             ->limit(6)

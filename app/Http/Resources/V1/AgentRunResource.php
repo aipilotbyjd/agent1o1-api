@@ -2,12 +2,11 @@
 
 namespace App\Http\Resources\V1;
 
-use App\Models\AgentRun;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin AgentRun
+ * @mixin \App\Models\Run
  */
 class AgentRunResource extends JsonResource
 {

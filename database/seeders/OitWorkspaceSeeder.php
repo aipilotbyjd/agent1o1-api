@@ -5,9 +5,9 @@ namespace Database\Seeders;
 use App\Enums\ExecutionMode;
 use App\Enums\ExecutionNodeStatus;
 use App\Enums\ExecutionStatus;
-use App\Models\Execution;
 use App\Models\ExecutionLog;
 use App\Models\ExecutionNode;
+use App\Models\Run;
 use App\Models\User;
 use App\Models\Workflow;
 use App\Models\Workspace;
@@ -79,14 +79,14 @@ class OitWorkspaceSeeder extends Seeder
     /**
      * Create a test execution
      */
-    private function createExecution(Workspace $workspace, Workflow $workflow, User $user, int $index): Execution
+    private function createExecution(Workspace $workspace, Workflow $workflow, User $user, int $index): Run
     {
         $hoursAgo = rand(1, 168); // Random time in last week
         $createdAt = now()->subHours($hoursAgo)->subMinutes(rand(0, 59));
         $startedAt = $createdAt->copy()->addSeconds(rand(1, 5));
         $finishedAt = $startedAt->copy()->addSeconds(rand(30, 180));
 
-        return Execution::create([
+        return Run::create([
             'id' => Str::uuid(),
             'workspace_id' => $workspace->id,
             'workflow_id' => $workflow->id,
@@ -113,7 +113,7 @@ class OitWorkspaceSeeder extends Seeder
     /**
      * Create execution nodes
      */
-    private function createExecutionNodes(Execution $execution, int $count): void
+    private function createExecutionNodes(Run $execution, int $count): void
     {
         $nodeTypes = [
             'trigger.webhook',
@@ -150,7 +150,7 @@ class OitWorkspaceSeeder extends Seeder
     /**
      * Create execution logs
      */
-    private function createExecutionLogs(Execution $execution, int $count): void
+    private function createExecutionLogs(Run $execution, int $count): void
     {
         $levels = ['debug', 'info', 'warning', 'error'];
         $messages = [

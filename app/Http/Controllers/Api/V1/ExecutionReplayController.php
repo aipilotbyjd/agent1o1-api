@@ -7,8 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Execution\StoreReplayPackRequest;
 use App\Http\Resources\V1\ExecutionReplayPackResource;
 use App\Http\Resources\V1\ExecutionResource;
-use App\Models\Execution;
 use App\Models\ExecutionReplayPack;
+use App\Models\Run;
 use App\Models\Workspace;
 use App\Services\ExecutionService;
 use Illuminate\Http\JsonResponse;
@@ -36,7 +36,7 @@ class ExecutionReplayController extends Controller
     /**
      * Capture a reproducible snapshot (graph version + trigger data) of an execution.
      */
-    public function store(StoreReplayPackRequest $request, Workspace $workspace, Execution $execution): JsonResponse
+    public function store(StoreReplayPackRequest $request, Workspace $workspace, Run $execution): JsonResponse
     {
         if ($denied = $this->requirePermission(Permission::ExecutionManage)) {
             return $denied;

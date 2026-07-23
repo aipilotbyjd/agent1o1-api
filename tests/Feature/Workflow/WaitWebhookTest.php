@@ -2,8 +2,8 @@
 
 use App\Enums\ExecutionStatus;
 use App\Jobs\ResumeWorkflowJob;
-use App\Models\Execution;
 use App\Models\ExecutionCheckpoint;
+use App\Models\Run;
 use App\Models\Workflow;
 use App\Models\Workspace;
 use Illuminate\Support\Facades\Queue;
@@ -14,7 +14,7 @@ beforeEach(function () {
     $this->workflow = Workflow::factory()->create(['workspace_id' => $this->workspace->id]);
     $this->token = Str::uuid()->toString();
 
-    $this->execution = Execution::factory()->create([
+    $this->execution = Run::factory()->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
         'status' => ExecutionStatus::Waiting,

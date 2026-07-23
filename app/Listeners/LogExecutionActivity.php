@@ -8,8 +8,8 @@ use App\Events\ExecutionFailedEvent;
 use App\Events\ExecutionStartedEvent;
 use App\Events\ExecutionWaitingEvent;
 use App\Events\NodeCompletedEvent;
-use App\Models\Execution;
 use App\Models\ExecutionLog;
+use App\Models\Run;
 use App\Services\ConnectorMetricService;
 use App\Services\CredentialMaskingService;
 use Illuminate\Events\Dispatcher;
@@ -73,7 +73,7 @@ class LogExecutionActivity
         );
     }
 
-    private function resolveNodeType(Execution $execution, string $nodeId): ?string
+    private function resolveNodeType(Run $execution, string $nodeId): ?string
     {
         $execution->loadMissing('workflow.currentVersion');
 
@@ -114,7 +114,7 @@ class LogExecutionActivity
     /**
      * @param  array<string, mixed>  $context
      */
-    private function write(Execution $execution, string $level, string $message, array $context = [], ?string $nodeId = null): void
+    private function write(Run $execution, string $level, string $message, array $context = [], ?string $nodeId = null): void
     {
         ExecutionLog::create([
             'execution_id' => $execution->id,

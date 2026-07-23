@@ -32,10 +32,10 @@ class ExecutionLog extends Model
     }
 
     /**
-     * @return BelongsTo<Execution, $this>
+     * @return BelongsTo<Run, $this>
      */
     public function execution(): BelongsTo
     {
-        return $this->belongsTo(Execution::class);
+        return $this->belongsTo(Run::class);
     }
 }

@@ -17,7 +17,7 @@ use Throwable;
  *  - provider/model resolution from config('agents.internal') — a per-agent
  *    override, else the caller's provider/model, else the global default;
  *  - best-effort observability: tokens, cost, duration and status recorded to
- *    `internal_agent_runs`, attributed to the parent AgentRun when one is
+ *    `internal_agent_runs`, attributed to the parent run when one is
  *    given, so "hidden" LLM spend is no longer invisible to analytics.
  *
  * Calling ->prompt() directly still works (Promptable), but bypasses

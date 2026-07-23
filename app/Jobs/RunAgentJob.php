@@ -4,8 +4,8 @@ namespace App\Jobs;
 
 use App\Agents\AgentRunner;
 use App\Models\Agent;
-use App\Models\AgentTrigger;
 use App\Models\Credential;
+use App\Models\Trigger;
 use App\Services\Agent\AgentBudgetService;
 use App\Services\Agent\AgentMemoryService;
 use App\Services\AgentRunRecorder;
@@ -107,7 +107,7 @@ class RunAgentJob implements ShouldQueue
         }
 
         if ($this->triggerId) {
-            AgentTrigger::whereKey($this->triggerId)->update(['last_fired_at' => now()]);
+            Trigger::whereKey($this->triggerId)->update(['last_fired_at' => now()]);
         }
 
         Log::info('Agent run completed.', [

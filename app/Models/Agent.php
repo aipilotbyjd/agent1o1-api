@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\Automatable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Ai\Models\Conversation;
 
@@ -49,7 +51,7 @@ use Laravel\Ai\Models\Conversation;
     'is_paused',
     'paused_reason',
 ])]
-class Agent extends Model
+class Agent extends Model implements Automatable
 {
     use HasFactory, HasUuids, SoftDeletes;
 
@@ -213,11 +215,14 @@ class Agent extends Model
     }
 
     /**
-     * @return HasMany<AgentTrigger, $this>
+     * Triggers targeting this agent. Unified with the workflow trigger system:
+     * a Trigger's polymorphic `target` points at either a Workflow or an Agent.
+     *
+     * @return MorphMany<Trigger, $this>
      */
-    public function triggers(): HasMany
+    public function triggers(): MorphMany
     {
-        return $this->hasMany(AgentTrigger::class);
+        return $this->morphMany(Trigger::class, 'target');
     }
 
     /**
@@ -231,11 +236,11 @@ class Agent extends Model
     }
 
     /**
-     * @return HasMany<AgentRun, $this>
+     * @return HasMany<Run, $this>
      */
     public function runs(): HasMany
     {
-        return $this->hasMany(AgentRun::class);
+        return $this->hasMany(Run::class, 'runnable_id');
     }
 
     /**

@@ -51,7 +51,7 @@ class AgentResource extends JsonResource
             'creator' => new UserResource($this->whenLoaded('creator')),
             'tool_configs' => AgentToolConfigResource::collection($this->whenLoaded('toolConfigs')),
             'skills' => AgentSkillResource::collection($this->whenLoaded('skills')),
-            'triggers' => AgentTriggerResource::collection($this->whenLoaded('triggers')),
+            'triggers' => TriggerResource::collection($this->whenLoaded('triggers')),
             'skills_count' => $this->whenCounted('skills'),
             'conversations_count' => $this->whenCounted('conversations'),
             'created_at' => $this->created_at,

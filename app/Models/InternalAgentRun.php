@@ -44,11 +44,11 @@ class InternalAgentRun extends Model
     }
 
     /**
-     * @return BelongsTo<AgentRun, $this>
+     * @return BelongsTo<Run, $this>
      */
     public function parentRun(): BelongsTo
     {
-        return $this->belongsTo(AgentRun::class, 'parent_run_id');
+        return $this->belongsTo(Run::class, 'parent_run_id');
     }
 
     /**

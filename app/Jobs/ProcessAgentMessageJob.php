@@ -6,9 +6,9 @@ use App\Agents\AgentRunner;
 use App\Events\AgentMessageReady;
 use App\Models\Agent;
 use App\Models\AgentMessageRequest;
-use App\Models\AgentRun;
 use App\Models\Artifact;
 use App\Models\Credential;
+use App\Models\Run;
 use App\Models\User;
 use App\Services\Agent\AgentBudgetService;
 use App\Services\Agent\AgentGuardrailService;
@@ -283,7 +283,7 @@ class ProcessAgentMessageJob implements ShouldQueue
         $this->request->refresh();
         $this->request->update(['status' => 'failed']);
 
-        if ($this->request->agent_run_id && $run = AgentRun::find($this->request->agent_run_id)) {
+        if ($this->request->agent_run_id && $run = Run::find($this->request->agent_run_id)) {
             app(AgentRunRecorder::class)->fail($run, $exception);
         }
 
@@ -363,7 +363,7 @@ class ProcessAgentMessageJob implements ShouldQueue
      * which tools the agent invoked and with what input/output. Non-tool events
      * (text deltas, etc.) are ignored.
      */
-    private function recordToolStep(AgentRunRecorder $recorder, AgentRun $run, StreamEvent $event): void
+    private function recordToolStep(AgentRunRecorder $recorder, Run $run, StreamEvent $event): void
     {
         $type = $event->type();
 

@@ -40,7 +40,8 @@ class TriggerEventDispatcher
 
             return TriggerEvent::create([
                 'trigger_id' => $trigger->id,
-                'workflow_id' => $trigger->workflow_id,
+                'target_type' => $trigger->target_type,
+                'target_id' => $trigger->target_id,
                 'workspace_id' => $trigger->workspace_id,
                 'event_data' => $eventData,
                 'provider' => $provider,

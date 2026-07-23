@@ -6,7 +6,7 @@ use App\Enums\Role;
 use App\Events\ExecutionCompletedEvent;
 use App\Events\ExecutionStartedEvent;
 use App\Jobs\ExecuteWorkflowJob;
-use App\Models\Execution;
+use App\Models\Run;
 use App\Models\User;
 use App\Models\Workflow;
 use App\Models\Workspace;
@@ -43,7 +43,7 @@ test('executing a workflow queues an engine job and returns the reverb channel',
     $response->assertStatus(202)
         ->assertJsonPath('data.execution.status', 'pending');
 
-    $execution = Execution::first();
+    $execution = Run::first();
     expect($execution)->not->toBeNull()
         ->and($execution->trigger_data)->toBe(['source' => 'test'])
         ->and($response->json('data.channel'))->toBe("private-execution.{$execution->id}");
@@ -54,7 +54,7 @@ test('executing a workflow queues an engine job and returns the reverb channel',
 test('the runner executes a simple graph to completion', function () {
     Event::fake(); // capture broadcasts without a running Reverb server
 
-    $execution = Execution::factory()->create([
+    $execution = Run::factory()->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
         'trigger_data' => ['hello' => 'world'],
@@ -76,7 +76,7 @@ test('the runner executes a simple graph to completion', function () {
 test('failed executions can be retried', function () {
     Queue::fake();
 
-    $failed = Execution::factory()->failed()->create([
+    $failed = Run::factory()->failed()->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
     ]);
@@ -86,11 +86,11 @@ test('failed executions can be retried', function () {
 
     $response->assertStatus(202);
 
-    expect(Execution::where('parent_execution_id', $failed->id)->exists())->toBeTrue();
+    expect(Run::where('parent_execution_id', $failed->id)->exists())->toBeTrue();
 });
 
 test('completed executions cannot be retried', function () {
-    $completed = Execution::factory()->completed()->create([
+    $completed = Run::factory()->completed()->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
     ]);
@@ -101,7 +101,7 @@ test('completed executions cannot be retried', function () {
 });
 
 test('a running execution can be cancelled', function () {
-    $running = Execution::factory()->running()->create([
+    $running = Run::factory()->running()->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
     ]);
@@ -114,11 +114,11 @@ test('a running execution can be cancelled', function () {
 });
 
 test('executions are filterable by status', function () {
-    Execution::factory()->completed()->count(2)->create([
+    Run::factory()->completed()->count(2)->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
     ]);
-    Execution::factory()->failed()->create([
+    Run::factory()->failed()->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
     ]);

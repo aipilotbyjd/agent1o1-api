@@ -3,9 +3,9 @@
 use App\Enums\ExecutionNodeStatus;
 use App\Enums\ExecutionStatus;
 use App\Enums\Role;
-use App\Models\Execution;
 use App\Models\ExecutionNode;
 use App\Models\Node;
+use App\Models\Run;
 use App\Models\User;
 use App\Models\Workspace;
 use Database\Seeders\PlanSeeder;
@@ -38,7 +38,7 @@ test('recently used returns nodes sorted by usage frequency', function () {
     $nodeA = Node::factory()->create(['is_active' => true, 'type' => 'transform']);
     $nodeB = Node::factory()->create(['is_active' => true, 'type' => 'http_request']);
 
-    $execution = Execution::factory()->create([
+    $execution = Run::factory()->create([
         'workspace_id' => $this->workspace->id,
         'status' => ExecutionStatus::Completed,
     ]);

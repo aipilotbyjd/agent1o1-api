@@ -10,7 +10,7 @@ use Throwable;
 
 /**
  * Persists one row per internal-agent LLM call to `internal_agent_runs`,
- * attributed to the parent AgentRun when one is in flight. Strictly
+ * attributed to the parent run when one is in flight. Strictly
  * best-effort: recording must never break the call it observes.
  */
 class InternalRunRecorder
