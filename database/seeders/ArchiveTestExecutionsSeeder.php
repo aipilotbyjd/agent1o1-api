@@ -5,9 +5,9 @@ namespace Database\Seeders;
 use App\Enums\ExecutionMode;
 use App\Enums\ExecutionNodeStatus;
 use App\Enums\ExecutionStatus;
-use App\Models\Execution;
 use App\Models\ExecutionLog;
 use App\Models\ExecutionNode;
+use App\Models\Run;
 use App\Models\User;
 use App\Models\Workflow;
 use App\Models\Workspace;
@@ -38,7 +38,7 @@ class ArchiveTestExecutionsSeeder extends Seeder
         $this->command->info("Using workflow: {$workflow->name}");
 
         // Skip if test executions already exist to prevent duplicates on re-run
-        if (Execution::where('workspace_id', $workspace->id)->exists()) {
+        if (Run::where('workspace_id', $workspace->id)->exists()) {
             $this->command->warn('Test executions already exist for this workspace — skipping to prevent duplicates.');
             $this->command->line('  Run php artisan migrate:fresh --seed to start fresh.');
 
@@ -76,13 +76,13 @@ class ArchiveTestExecutionsSeeder extends Seeder
     /**
      * Create a test execution
      */
-    private function createExecution(Workspace $workspace, Workflow $workflow, User $user, int $daysOld): Execution
+    private function createExecution(Workspace $workspace, Workflow $workflow, User $user, int $daysOld): Run
     {
         $createdAt = now()->subDays($daysOld)->subHours(rand(0, 23))->subMinutes(rand(0, 59));
         $startedAt = $createdAt->copy()->addSeconds(rand(1, 10));
         $finishedAt = $startedAt->copy()->addSeconds(rand(30, 300));
 
-        return Execution::create([
+        return Run::create([
             'id' => Str::uuid(),
             'workspace_id' => $workspace->id,
             'workflow_id' => $workflow->id,
@@ -109,7 +109,7 @@ class ArchiveTestExecutionsSeeder extends Seeder
     /**
      * Create execution nodes
      */
-    private function createExecutionNodes(Execution $execution, int $count): void
+    private function createExecutionNodes(Run $execution, int $count): void
     {
         $nodeTypes = [
             'trigger.webhook',
@@ -146,7 +146,7 @@ class ArchiveTestExecutionsSeeder extends Seeder
     /**
      * Create execution logs
      */
-    private function createExecutionLogs(Execution $execution, int $count): void
+    private function createExecutionLogs(Run $execution, int $count): void
     {
         $levels = ['debug', 'info', 'warning', 'error'];
         $messages = [

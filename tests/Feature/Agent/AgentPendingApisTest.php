@@ -4,7 +4,7 @@ use App\Enums\Role;
 use App\Models\Agent;
 use App\Models\AgentKnowledge;
 use App\Models\AgentMemory;
-use App\Models\AgentRun;
+use App\Models\Run;
 use App\Models\User;
 use App\Models\Workspace;
 use Database\Seeders\PlanSeeder;
@@ -52,7 +52,7 @@ test('metadata endpoints return catalogs', function () {
 });
 
 test('agent runs are listed and shown with steps', function () {
-    $run = AgentRun::create([
+    $run = Run::create([
         'agent_id' => $this->agent->id,
         'workspace_id' => $this->workspace->id,
         'user_id' => $this->user->id,
@@ -84,12 +84,12 @@ test('agent runs are listed and shown with steps', function () {
 });
 
 test('agent analytics aggregate run history', function () {
-    AgentRun::create([
+    Run::create([
         'agent_id' => $this->agent->id, 'workspace_id' => $this->workspace->id,
         'source' => 'conversation', 'status' => 'completed', 'total_tokens' => 100,
         'started_at' => now(), 'finished_at' => now(),
     ]);
-    AgentRun::create([
+    Run::create([
         'agent_id' => $this->agent->id, 'workspace_id' => $this->workspace->id,
         'source' => 'trigger', 'status' => 'failed', 'total_tokens' => 0,
         'started_at' => now(), 'finished_at' => now(),

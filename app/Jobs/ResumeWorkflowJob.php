@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Engine\WorkflowRunner;
-use App\Models\Execution;
+use App\Models\Run;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
@@ -22,7 +22,7 @@ class ResumeWorkflowJob implements ShouldQueue
 
     public function handle(WorkflowRunner $runner): void
     {
-        $execution = Execution::find($this->executionId);
+        $execution = Run::find($this->executionId);
 
         if (! $execution || ! $execution->isWaiting()) {
             return;

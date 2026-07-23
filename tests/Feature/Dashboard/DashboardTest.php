@@ -1,7 +1,7 @@
 <?php
 
 use App\Enums\Role;
-use App\Models\Execution;
+use App\Models\Run;
 use App\Models\UsageDailySnapshot;
 use App\Models\User;
 use App\Models\Workflow;
@@ -28,12 +28,12 @@ beforeEach(function () {
 });
 
 test('overview returns workflow and execution KPIs', function () {
-    Execution::factory()->completed()->count(3)->create([
+    Run::factory()->completed()->count(3)->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
         'credits_consumed' => 2,
     ]);
-    Execution::factory()->failed()->create([
+    Run::factory()->failed()->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
         'credits_consumed' => 1,
@@ -84,11 +84,11 @@ test('top workflows are ranked by execution volume', function () {
         'name' => 'Busy workflow',
     ]);
 
-    Execution::factory()->completed()->count(5)->create([
+    Run::factory()->completed()->count(5)->create([
         'workflow_id' => $busy->id,
         'workspace_id' => $this->workspace->id,
     ]);
-    Execution::factory()->completed()->create([
+    Run::factory()->completed()->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
     ]);
@@ -102,7 +102,7 @@ test('top workflows are ranked by execution volume', function () {
 });
 
 test('recent activity returns the latest executions', function () {
-    Execution::factory()->completed()->count(3)->create([
+    Run::factory()->completed()->count(3)->create([
         'workflow_id' => $this->workflow->id,
         'workspace_id' => $this->workspace->id,
     ]);

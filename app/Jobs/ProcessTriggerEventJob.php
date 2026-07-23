@@ -2,11 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Engine\Trigger\RunDispatcher;
 use App\Engine\Trigger\TriggerConcurrencyGuard;
 use App\Engine\Trigger\TriggerFilterEvaluator;
 use App\Engine\Trigger\TriggerRateLimiter;
 use App\Models\TriggerEvent;
-use App\Services\ExecutionService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
@@ -27,9 +27,9 @@ class ProcessTriggerEventJob implements ShouldQueue
         TriggerFilterEvaluator $filterEvaluator,
         TriggerRateLimiter $rateLimiter,
         TriggerConcurrencyGuard $concurrencyGuard,
-        ExecutionService $executionService,
+        RunDispatcher $runDispatcher,
     ): void {
-        $event = TriggerEvent::with('trigger.workflow')->find($this->triggerEventId);
+        $event = TriggerEvent::with('trigger.target')->find($this->triggerEventId);
 
         if (! $event || ! $event->isPending()) {
             return;
@@ -75,7 +75,7 @@ class ProcessTriggerEventJob implements ShouldQueue
             return;
         }
 
-        $executionService->triggerFromEvent($trigger, $event);
+        $runDispatcher->dispatch($trigger, $event);
 
         $trigger->increment('total_executions');
         $event->update(['status' => 'processed', 'processed_at' => now()]);

@@ -33,18 +33,18 @@ class AiAgentStep extends Model
     }
 
     /**
-     * @return BelongsTo<Execution, $this>
+     * @return BelongsTo<Run, $this>
      */
     public function execution(): BelongsTo
     {
-        return $this->belongsTo(Execution::class);
+        return $this->belongsTo(Run::class);
     }
 
     /**
-     * @return BelongsTo<AgentRun, $this>
+     * @return BelongsTo<Run, $this>
      */
     public function agentRun(): BelongsTo
     {
-        return $this->belongsTo(AgentRun::class);
+        return $this->belongsTo(Run::class);
     }
 }

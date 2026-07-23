@@ -14,8 +14,8 @@ use App\Events\ExecutionStartedEvent;
 use App\Events\ExecutionWaitingEvent;
 use App\Events\NodeCompletedEvent;
 use App\Jobs\ResumeWorkflowJob;
-use App\Models\Execution;
 use App\Models\ExecutionCheckpoint;
+use App\Models\Run;
 use App\Models\Variable;
 use App\Services\Billing\CreditService;
 use Illuminate\Support\Facades\Log;
@@ -29,7 +29,7 @@ class WorkflowRunner
         private readonly CreditService $credits,
     ) {}
 
-    public function run(Execution $execution): void
+    public function run(Run $execution): void
     {
         try {
             $graph = $this->buildGraph($execution);
@@ -70,7 +70,7 @@ class WorkflowRunner
         }
     }
 
-    public function resume(Execution $execution): void
+    public function resume(Run $execution): void
     {
         try {
             $checkpoint = $execution->checkpoint;
@@ -103,7 +103,7 @@ class WorkflowRunner
         }
     }
 
-    private function executeLoop(Execution $execution, WorkflowGraph $graph, WorkflowContext $context): void
+    private function executeLoop(Run $execution, WorkflowGraph $graph, WorkflowContext $context): void
     {
         while (true) {
             $readyNodes = $context->popReadyNodes();
@@ -223,7 +223,7 @@ class WorkflowRunner
      * per-iteration run key so each item gets its own execution_nodes row.
      */
     private function executeLoopBody(
-        Execution $execution,
+        Run $execution,
         WorkflowGraph $graph,
         WorkflowContext $outerContext,
         string $loopNodeId,
@@ -372,7 +372,7 @@ class WorkflowRunner
         return $visited;
     }
 
-    private function buildGraph(Execution $execution): WorkflowGraph
+    private function buildGraph(Run $execution): WorkflowGraph
     {
         $version = $execution->workflow->currentVersion;
 
@@ -386,7 +386,7 @@ class WorkflowRunner
         );
     }
 
-    private function buildContext(Execution $execution, WorkflowGraph $graph): WorkflowContext
+    private function buildContext(Run $execution, WorkflowGraph $graph): WorkflowContext
     {
         $variables = ['trigger_data' => $execution->trigger_data ?? []];
 
@@ -410,7 +410,7 @@ class WorkflowRunner
         );
     }
 
-    private function restoreContext(Execution $execution, WorkflowGraph $graph, ExecutionCheckpoint $checkpoint): WorkflowContext
+    private function restoreContext(Run $execution, WorkflowGraph $graph, ExecutionCheckpoint $checkpoint): WorkflowContext
     {
         $contextSnapshot = $checkpoint->context_snapshot ?? [];
         $bufferSnapshot = $checkpoint->output_buffer_snapshot ?? [];
@@ -460,7 +460,7 @@ class WorkflowRunner
     }
 
     private function saveCheckpoint(
-        Execution $execution,
+        Run $execution,
         WorkflowContext $context,
         string $suspendedNodeId,
         array $pendingNodes,

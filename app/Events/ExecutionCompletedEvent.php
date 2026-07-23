@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\Execution;
+use App\Models\Run;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -14,7 +14,7 @@ class ExecutionCompletedEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public function __construct(public readonly Execution $execution) {}
+    public function __construct(public readonly Run $execution) {}
 
     public function broadcastOn(): array|Channel
     {

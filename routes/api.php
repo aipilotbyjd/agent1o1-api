@@ -43,6 +43,7 @@ use App\Http\Controllers\Api\V1\NodeController;
 use App\Http\Controllers\Api\V1\NodeLibraryController;
 use App\Http\Controllers\Api\V1\NodeOutputSchemaController;
 use App\Http\Controllers\Api\V1\NodeSandboxController;
+use App\Http\Controllers\Api\V1\NodeTestController;
 use App\Http\Controllers\Api\V1\NotificationChannelController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\NotificationPreferenceController;
@@ -50,6 +51,7 @@ use App\Http\Controllers\Api\V1\OAuthCredentialController;
 use App\Http\Controllers\Api\V1\OnboardingController;
 use App\Http\Controllers\Api\V1\PinnedNodeDataController;
 use App\Http\Controllers\Api\V1\PlanController;
+use App\Http\Controllers\Api\V1\RunController;
 use App\Http\Controllers\Api\V1\SharedWorkflowController;
 use App\Http\Controllers\Api\V1\StickyNoteController;
 use App\Http\Controllers\Api\V1\SubscriptionController;
@@ -67,7 +69,6 @@ use App\Http\Controllers\Api\V1\WorkflowBuilder\GenerationController;
 use App\Http\Controllers\Api\V1\WorkflowBuilder\MessageController as BuilderMessageController;
 use App\Http\Controllers\Api\V1\WorkflowBuilder\SessionController as BuilderSessionController;
 use App\Http\Controllers\Api\V1\WorkflowContractController;
-use App\Http\Controllers\Api\V1\NodeTestController;
 use App\Http\Controllers\Api\V1\WorkflowController;
 use App\Http\Controllers\Api\V1\WorkflowEnvironmentReleaseController;
 use App\Http\Controllers\Api\V1\WorkflowImportExportController;
@@ -78,7 +79,6 @@ use App\Http\Controllers\Api\V1\WorkspaceAccessController;
 use App\Http\Controllers\Api\V1\WorkspaceController;
 use App\Http\Controllers\Api\V1\WorkspaceEnvironmentController;
 use App\Http\Controllers\Api\V1\WorkspaceMemberController;
-use App\Http\Controllers\Webhooks\AgentWebhookController;
 use App\Http\Controllers\Webhooks\GitSyncWebhookController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Http\Controllers\Webhooks\TriggerWebhookController;
@@ -104,10 +104,8 @@ Route::prefix('v1')->as('v1.')->group(function () {
         ->middleware('throttle:60,1')
         ->name('webhooks.trigger');
 
-    Route::post('agent-webhooks/{triggerUuid}', [AgentWebhookController::class, 'receive'])
-        ->where('triggerUuid', '[0-9a-f\-]{36}')
-        ->middleware('throttle:60,1')
-        ->name('agent-webhooks.receive');
+    // Agent webhooks are unified into the trigger webhook endpoint above; an
+    // agent-targeted Trigger resolves by its webhook_uuid like any other.
 
     Route::match(['GET', 'POST'], 'webhook-wait/{token}', [WaitWebhookController::class, 'resume'])
         ->where('token', '[0-9a-f\-]{36}')
@@ -454,6 +452,19 @@ Route::prefix('v1')->as('v1.')->group(function () {
                             Route::post('{version}/restore', [DraftVersionController::class, 'restore'])->name('restore');
                         });
                     });
+                });
+
+                // Unified run API (workflow executions + agent runs) over the
+                // single Run model. Type-specific actions are capability-gated.
+                Route::prefix('runs')->as('runs.')->group(function () {
+                    Route::get('/', [RunController::class, 'index'])->name('index');
+                    Route::get('{run}', [RunController::class, 'show'])->name('show');
+                    Route::delete('{run}', [RunController::class, 'destroy'])->name('destroy');
+                    Route::get('{run}/nodes', [RunController::class, 'nodes'])->name('nodes');
+                    Route::get('{run}/steps', [RunController::class, 'steps'])->name('steps');
+                    Route::get('{run}/logs', [RunController::class, 'logs'])->name('logs');
+                    Route::post('{run}/retry', [RunController::class, 'retry'])->name('retry');
+                    Route::post('{run}/cancel', [RunController::class, 'cancel'])->name('cancel');
                 });
 
                 Route::prefix('executions')->as('executions.')->group(function () {

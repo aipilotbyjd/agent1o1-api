@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Agent;
-use App\Models\AgentRun;
+use App\Models\Run;
 use Throwable;
 
 /**
@@ -16,7 +16,7 @@ class AgentRunRecorder
     /**
      * @param  array<string, mixed>  $attributes
      */
-    public function start(Agent $agent, array $attributes = []): AgentRun
+    public function start(Agent $agent, array $attributes = []): Run
     {
         return $agent->runs()->create([
             'workspace_id' => $agent->workspace_id,
@@ -34,7 +34,7 @@ class AgentRunRecorder
      *
      * @param  array<string, mixed>  $attributes
      */
-    public function recordStep(AgentRun $run, array $attributes): void
+    public function recordStep(Run $run, array $attributes): void
     {
         $run->steps()->create([
             'execution_node_key' => $attributes['execution_node_key'] ?? 'agent',
@@ -52,7 +52,7 @@ class AgentRunRecorder
     /**
      * @param  array<string, int|null>  $usage
      */
-    public function complete(AgentRun $run, string $output, array $usage = [], ?int $durationMs = null): void
+    public function complete(Run $run, string $output, array $usage = [], ?int $durationMs = null): void
     {
         $run->update([
             'status' => 'completed',
@@ -65,7 +65,7 @@ class AgentRunRecorder
         ]);
     }
 
-    public function fail(AgentRun $run, Throwable|string $error, ?int $durationMs = null): void
+    public function fail(Run $run, Throwable|string $error, ?int $durationMs = null): void
     {
         $run->update([
             'status' => 'failed',
@@ -75,7 +75,7 @@ class AgentRunRecorder
         ]);
     }
 
-    private function elapsed(AgentRun $run): ?int
+    private function elapsed(Run $run): ?int
     {
         return $run->started_at ? (int) $run->started_at->diffInMilliseconds(now()) : null;
     }

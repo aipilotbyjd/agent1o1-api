@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use App\Enums\ExecutionNodeStatus;
-use App\Models\Execution;
 use App\Models\ExecutionNode;
+use App\Models\Run;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -15,7 +15,7 @@ class ExecutionNodeFactory extends Factory
     public function definition(): array
     {
         return [
-            'execution_id' => Execution::factory(),
+            'execution_id' => Run::factory(),
             'node_id' => fake()->uuid(),
             'node_run_key' => fake()->uuid(),
             'node_type' => 'transform',

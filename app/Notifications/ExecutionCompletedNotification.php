@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\Execution;
+use App\Models\Run;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -12,7 +12,7 @@ class ExecutionCompletedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(private readonly Execution $execution) {}
+    public function __construct(private readonly Run $execution) {}
 
     public function via(object $notifiable): array
     {

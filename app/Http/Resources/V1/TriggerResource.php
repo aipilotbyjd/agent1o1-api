@@ -15,10 +15,14 @@ class TriggerResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'target_type' => $this->target_type,
+            'target_id' => $this->target_id,
             'workflow_id' => $this->workflow_id,
             'trigger_type_id' => $this->trigger_type_id,
             'name' => $this->name,
             'type' => $this->type,
+            'initial_message' => $this->initial_message,
+            'last_fired_at' => $this->last_fired_at,
             'webhook_provider' => $this->webhook_provider,
             'is_active' => $this->is_active,
             'is_paused' => $this->is_paused,

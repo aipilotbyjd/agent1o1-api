@@ -3,11 +3,11 @@
 use App\Events\ExecutionCompletedEvent;
 use App\Events\ExecutionFailedEvent;
 use App\Events\InAppNotificationCreated;
-use App\Models\Execution;
 use App\Models\InAppNotification;
 use App\Models\NotificationChannel;
 use App\Models\NotificationPreference;
 use App\Models\Plan;
+use App\Models\Run;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Models\Workflow;
@@ -77,7 +77,7 @@ test('execution failure creates in-app notification for members with preference'
         'email' => false,
     ]);
 
-    $execution = Execution::factory()->create([
+    $execution = Run::factory()->create([
         'workspace_id' => $this->workspace->id,
         'workflow_id' => $this->workflow->id,
         'error' => ['message' => 'Something went wrong'],
@@ -93,7 +93,7 @@ test('execution failure creates in-app notification for members with preference'
 });
 
 test('execution failure falls back to notifying triggered_by user when no preferences exist', function () {
-    $execution = Execution::factory()->create([
+    $execution = Run::factory()->create([
         'workspace_id' => $this->workspace->id,
         'workflow_id' => $this->workflow->id,
         'triggered_by' => $this->user->id,
@@ -110,7 +110,7 @@ test('execution failure falls back to notifying triggered_by user when no prefer
 });
 
 test('execution completion does not fall back to triggered_by when no preferences exist', function () {
-    $execution = Execution::factory()->completed()->create([
+    $execution = Run::factory()->completed()->create([
         'workspace_id' => $this->workspace->id,
         'workflow_id' => $this->workflow->id,
         'triggered_by' => $this->user->id,
@@ -134,7 +134,7 @@ test('execution failure sends email when email preference is enabled', function 
         'email' => true,
     ]);
 
-    $execution = Execution::factory()->create([
+    $execution = Run::factory()->create([
         'workspace_id' => $this->workspace->id,
         'workflow_id' => $this->workflow->id,
         'error' => ['message' => 'Node failed'],
@@ -156,7 +156,7 @@ test('execution completion sends email when email preference is enabled', functi
         'email' => true,
     ]);
 
-    $execution = Execution::factory()->completed()->create([
+    $execution = Run::factory()->completed()->create([
         'workspace_id' => $this->workspace->id,
         'workflow_id' => $this->workflow->id,
     ]);
@@ -187,7 +187,7 @@ test('execution failure delivers to configured notification channel', function (
         'channel_ids' => [$channel->id],
     ]);
 
-    $execution = Execution::factory()->create([
+    $execution = Run::factory()->create([
         'workspace_id' => $this->workspace->id,
         'workflow_id' => $this->workflow->id,
         'error' => ['message' => 'Failed'],

@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Enums\ExecutionMode;
 use App\Enums\ExecutionStatus;
 use App\Jobs\ExecuteWorkflowJob;
-use App\Models\Execution;
+use App\Models\Run;
 use App\Models\Trigger;
 use App\Models\TriggerEvent;
 use App\Models\User;
@@ -16,9 +16,9 @@ class ExecutionService
     /**
      * Start a manual execution of a workflow.
      */
-    public function trigger(Workflow $workflow, ?User $user, array $triggerData = [], ExecutionMode $mode = ExecutionMode::Manual): Execution
+    public function trigger(Workflow $workflow, ?User $user, array $triggerData = [], ExecutionMode $mode = ExecutionMode::Manual): Run
     {
-        $execution = Execution::create([
+        $execution = Run::create([
             'workflow_id' => $workflow->id,
             'workspace_id' => $workflow->workspace_id,
             'status' => ExecutionStatus::Pending,
@@ -37,7 +37,7 @@ class ExecutionService
     /**
      * Start an execution from a trigger event (webhook / polling / schedule).
      */
-    public function triggerFromEvent(Trigger $trigger, TriggerEvent $event): Execution
+    public function triggerFromEvent(Trigger $trigger, TriggerEvent $event): Run
     {
         $mode = match ($trigger->type) {
             'webhook' => ExecutionMode::Webhook,
@@ -49,9 +49,9 @@ class ExecutionService
         return $this->trigger($trigger->workflow, null, $event->event_data ?? [], $mode);
     }
 
-    public function retry(Execution $execution, ?User $user): Execution
+    public function retry(Run $execution, ?User $user): Run
     {
-        $retry = Execution::create([
+        $retry = Run::create([
             'workflow_id' => $execution->workflow_id,
             'workspace_id' => $execution->workspace_id,
             'status' => ExecutionStatus::Pending,
@@ -71,7 +71,7 @@ class ExecutionService
         return $retry;
     }
 
-    public function cancel(Execution $execution): Execution
+    public function cancel(Run $execution): Run
     {
         if ($execution->status->isTerminal()) {
             return $execution;

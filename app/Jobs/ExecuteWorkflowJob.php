@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\Engine\WorkflowRunner;
 use App\Enums\ExecutionStatus;
-use App\Models\Execution;
+use App\Models\Run;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
@@ -23,7 +23,7 @@ class ExecuteWorkflowJob implements ShouldQueue
 
     public function handle(WorkflowRunner $runner): void
     {
-        $execution = Execution::find($this->executionId);
+        $execution = Run::find($this->executionId);
 
         if (! $execution || ! $execution->isPending()) {
             return;
@@ -34,7 +34,7 @@ class ExecuteWorkflowJob implements ShouldQueue
 
     public function failed(?\Throwable $exception): void
     {
-        Execution::where('id', $this->executionId)
+        Run::where('id', $this->executionId)
             ->whereIn('status', [ExecutionStatus::Pending, ExecutionStatus::Running])
             ->update([
                 'status' => ExecutionStatus::Failed,

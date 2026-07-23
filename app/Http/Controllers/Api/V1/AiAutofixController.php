@@ -7,14 +7,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\AiFixSuggestionResource;
 use App\Jobs\DiagnoseFailedNode;
 use App\Models\AiFixSuggestion;
-use App\Models\Execution;
+use App\Models\Run;
 use App\Models\Workspace;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AiAutofixController extends Controller
 {
-    public function index(Request $request, Workspace $workspace, Execution $execution): JsonResponse
+    public function index(Request $request, Workspace $workspace, Run $execution): JsonResponse
     {
         if ($denied = $this->requirePermission(Permission::ExecutionView)) {
             return $denied;
@@ -26,7 +26,7 @@ class AiAutofixController extends Controller
         );
     }
 
-    public function diagnose(Request $request, Workspace $workspace, Execution $execution): JsonResponse
+    public function diagnose(Request $request, Workspace $workspace, Run $execution): JsonResponse
     {
         if ($denied = $this->requirePermission(Permission::ExecutionManage)) {
             return $denied;
@@ -41,7 +41,7 @@ class AiAutofixController extends Controller
         return $this->successResponse('Diagnosis queued. Suggestions will appear shortly.', null, 202);
     }
 
-    public function apply(Request $request, Workspace $workspace, Execution $execution, AiFixSuggestion $fixSuggestion): JsonResponse
+    public function apply(Request $request, Workspace $workspace, Run $execution, AiFixSuggestion $fixSuggestion): JsonResponse
     {
         if ($denied = $this->requirePermission(Permission::WorkflowUpdate)) {
             return $denied;
@@ -77,7 +77,7 @@ class AiAutofixController extends Controller
         return $this->successResponse('Fix applied to the current workflow version.', new AiFixSuggestionResource($fixSuggestion));
     }
 
-    public function dismiss(Request $request, Workspace $workspace, Execution $execution, AiFixSuggestion $fixSuggestion): JsonResponse
+    public function dismiss(Request $request, Workspace $workspace, Run $execution, AiFixSuggestion $fixSuggestion): JsonResponse
     {
         if ($denied = $this->requirePermission(Permission::ExecutionManage)) {
             return $denied;
