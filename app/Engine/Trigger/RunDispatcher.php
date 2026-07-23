@@ -5,7 +5,7 @@ namespace App\Engine\Trigger;
 use App\Jobs\RunAgentJob;
 use App\Models\Trigger;
 use App\Models\TriggerEvent;
-use App\Services\ExecutionService;
+use App\Services\RunService;
 use RuntimeException;
 
 /**
@@ -16,7 +16,7 @@ use RuntimeException;
  */
 class RunDispatcher
 {
-    public function __construct(private readonly ExecutionService $executions) {}
+    public function __construct(private readonly RunService $runs) {}
 
     public function dispatch(Trigger $trigger, TriggerEvent $event): void
     {
@@ -37,7 +37,7 @@ class RunDispatcher
             throw new RuntimeException("Trigger {$trigger->id} targets a missing workflow.");
         }
 
-        $this->executions->triggerFromEvent($trigger, $event);
+        $this->runs->triggerFromEvent($trigger, $event);
     }
 
     private function dispatchAgent(Trigger $trigger, TriggerEvent $event): void

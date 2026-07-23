@@ -6,7 +6,7 @@ use App\Enums\ExecutionMode;
 use App\Enums\ExecutionStatus;
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\V1\ExecutionResource;
+use App\Http\Resources\V1\RunResource;
 use App\Models\UsageDailySnapshot;
 use App\Models\Workspace;
 use Illuminate\Http\JsonResponse;
@@ -196,7 +196,7 @@ class DashboardController extends Controller
 
         return $this->successResponse(
             'Recent activity retrieved.',
-            ExecutionResource::collection($executions),
+            RunResource::collection($executions),
         );
     }
 

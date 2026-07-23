@@ -9,7 +9,6 @@ use App\Http\Controllers\Api\V1\AgentEvalController;
 use App\Http\Controllers\Api\V1\AgentKnowledgeController;
 use App\Http\Controllers\Api\V1\AgentMemoryController;
 use App\Http\Controllers\Api\V1\AgentMetadataController;
-use App\Http\Controllers\Api\V1\AgentRunController;
 use App\Http\Controllers\Api\V1\AgentSkillController;
 use App\Http\Controllers\Api\V1\AgentTemplateController;
 use App\Http\Controllers\Api\V1\AgentTriggerController;
@@ -31,8 +30,6 @@ use App\Http\Controllers\Api\V1\CredentialController;
 use App\Http\Controllers\Api\V1\CredentialTypeController;
 use App\Http\Controllers\Api\V1\CreditController;
 use App\Http\Controllers\Api\V1\DashboardController;
-use App\Http\Controllers\Api\V1\ExecutionController;
-use App\Http\Controllers\Api\V1\ExecutionLogController;
 use App\Http\Controllers\Api\V1\ExecutionReplayController;
 use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\GitSyncController;
@@ -336,7 +333,7 @@ Route::prefix('v1')->as('v1.')->group(function () {
                     Route::post('{workflow}/activate', [WorkflowController::class, 'activate'])->name('activate');
                     Route::post('{workflow}/deactivate', [WorkflowController::class, 'deactivate'])->name('deactivate');
                     Route::post('{workflow}/duplicate', [WorkflowController::class, 'duplicate'])->name('duplicate');
-                    Route::post('{workflow}/execute', [ExecutionController::class, 'store'])->name('execute');
+                    Route::post('{workflow}/execute', [RunController::class, 'store'])->name('execute');
 
                     Route::prefix('{workflow}/triggers')->as('triggers.')->group(function () {
                         Route::get('/', [TriggerController::class, 'index'])->name('index');
@@ -455,7 +452,9 @@ Route::prefix('v1')->as('v1.')->group(function () {
                 });
 
                 // Unified run API (workflow executions + agent runs) over the
-                // single Run model. Type-specific actions are capability-gated.
+                // single Run model. Type-specific actions are capability-gated:
+                // nodes/retry/replay-pack/autofix are workflow-only, steps is
+                // agent-only, returning 422 on the wrong runnable type.
                 Route::prefix('runs')->as('runs.')->group(function () {
                     Route::get('/', [RunController::class, 'index'])->name('index');
                     Route::get('{run}', [RunController::class, 'show'])->name('show');
@@ -465,22 +464,12 @@ Route::prefix('v1')->as('v1.')->group(function () {
                     Route::get('{run}/logs', [RunController::class, 'logs'])->name('logs');
                     Route::post('{run}/retry', [RunController::class, 'retry'])->name('retry');
                     Route::post('{run}/cancel', [RunController::class, 'cancel'])->name('cancel');
-                });
+                    Route::post('{run}/replay-pack', [ExecutionReplayController::class, 'store'])->name('replay-pack.store');
 
-                Route::prefix('executions')->as('executions.')->group(function () {
-                    Route::get('/', [ExecutionController::class, 'index'])->name('index');
-                    Route::get('{execution}', [ExecutionController::class, 'show'])->name('show');
-                    Route::delete('{execution}', [ExecutionController::class, 'destroy'])->name('destroy');
-                    Route::get('{execution}/nodes', [ExecutionController::class, 'nodes'])->name('nodes');
-                    Route::post('{execution}/retry', [ExecutionController::class, 'retry'])->name('retry');
-                    Route::post('{execution}/cancel', [ExecutionController::class, 'cancel'])->name('cancel');
-                    Route::get('{execution}/logs', [ExecutionLogController::class, 'index'])->name('logs');
-                    Route::post('{execution}/replay-pack', [ExecutionReplayController::class, 'store'])->name('replay-pack.store');
-
-                    Route::get('{execution}/autofix', [AiAutofixController::class, 'index'])->name('autofix.index');
-                    Route::post('{execution}/autofix', [AiAutofixController::class, 'diagnose'])->name('autofix.diagnose');
-                    Route::post('{execution}/autofix/{fixSuggestion}/apply', [AiAutofixController::class, 'apply'])->name('autofix.apply');
-                    Route::post('{execution}/autofix/{fixSuggestion}/dismiss', [AiAutofixController::class, 'dismiss'])->name('autofix.dismiss');
+                    Route::get('{run}/autofix', [AiAutofixController::class, 'index'])->name('autofix.index');
+                    Route::post('{run}/autofix', [AiAutofixController::class, 'diagnose'])->name('autofix.diagnose');
+                    Route::post('{run}/autofix/{fixSuggestion}/apply', [AiAutofixController::class, 'apply'])->name('autofix.apply');
+                    Route::post('{run}/autofix/{fixSuggestion}/dismiss', [AiAutofixController::class, 'dismiss'])->name('autofix.dismiss');
                 });
 
                 Route::prefix('replay-packs')->as('replay-packs.')->group(function () {
@@ -579,10 +568,12 @@ Route::prefix('v1')->as('v1.')->group(function () {
                     Route::get('{agent}/requests/{requestId}', [AgentConversationController::class, 'requestStatus'])
                         ->name('requests.show');
 
-                    // Run history & step traces.
+                    // Run history & step traces. Agent runs live on the unified
+                    // Run model; this nested view scopes the shared RunController
+                    // to a single agent.
                     Route::prefix('{agent}/runs')->as('runs.')->group(function () {
-                        Route::get('/', [AgentRunController::class, 'index'])->name('index');
-                        Route::get('{run}', [AgentRunController::class, 'show'])->name('show');
+                        Route::get('/', [RunController::class, 'indexForAgent'])->name('index');
+                        Route::get('{run}', [RunController::class, 'showForAgent'])->name('show');
                     });
 
                     // Usage analytics.

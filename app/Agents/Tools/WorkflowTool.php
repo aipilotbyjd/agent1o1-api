@@ -5,7 +5,7 @@ namespace App\Agents\Tools;
 use App\Enums\ExecutionMode;
 use App\Models\User;
 use App\Models\Workflow;
-use App\Services\ExecutionService;
+use App\Services\RunService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Tools\Request;
@@ -43,10 +43,10 @@ class WorkflowTool implements Tool
         }
 
         try {
-            /** @var ExecutionService $executionService */
-            $executionService = app(ExecutionService::class);
+            /** @var RunService $runService */
+            $runService = app(RunService::class);
 
-            $execution = $executionService->trigger(
+            $execution = $runService->trigger(
                 $workflow,
                 $user,
                 $inputData,

@@ -37,7 +37,7 @@ test('diagnosing a failed node queues the diagnosis job', function () {
     Queue::fake();
 
     $this->actingAs($this->user, 'api')
-        ->postJson("/api/v1/workspaces/{$this->workspace->id}/executions/{$this->execution->id}/autofix", [
+        ->postJson("/api/v1/workspaces/{$this->workspace->id}/runs/{$this->execution->id}/autofix", [
             'node_id' => 'transform-1',
         ])
         ->assertStatus(202);
@@ -53,7 +53,7 @@ test('fix suggestions are listed for an execution', function () {
     ]);
 
     $this->actingAs($this->user, 'api')
-        ->getJson("/api/v1/workspaces/{$this->workspace->id}/executions/{$this->execution->id}/autofix")
+        ->getJson("/api/v1/workspaces/{$this->workspace->id}/runs/{$this->execution->id}/autofix")
         ->assertOk()
         ->assertJsonCount(1, 'data');
 });
@@ -69,7 +69,7 @@ test('applying a suggestion patches the workflow version node config', function 
     ]);
 
     $this->actingAs($this->user, 'api')
-        ->postJson("/api/v1/workspaces/{$this->workspace->id}/executions/{$this->execution->id}/autofix/{$suggestion->id}/apply", [
+        ->postJson("/api/v1/workspaces/{$this->workspace->id}/runs/{$this->execution->id}/autofix/{$suggestion->id}/apply", [
             'suggestion_index' => 0,
         ])
         ->assertOk()

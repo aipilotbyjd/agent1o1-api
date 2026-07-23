@@ -6,17 +6,17 @@ use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Execution\StoreReplayPackRequest;
 use App\Http\Resources\V1\ExecutionReplayPackResource;
-use App\Http\Resources\V1\ExecutionResource;
+use App\Http\Resources\V1\RunResource;
 use App\Models\ExecutionReplayPack;
 use App\Models\Run;
 use App\Models\Workspace;
-use App\Services\ExecutionService;
+use App\Services\RunService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ExecutionReplayController extends Controller
 {
-    public function __construct(private readonly ExecutionService $executionService) {}
+    public function __construct(private readonly RunService $runs) {}
 
     public function index(Request $request, Workspace $workspace): JsonResponse
     {
@@ -36,19 +36,19 @@ class ExecutionReplayController extends Controller
     /**
      * Capture a reproducible snapshot (graph version + trigger data) of an execution.
      */
-    public function store(StoreReplayPackRequest $request, Workspace $workspace, Run $execution): JsonResponse
+    public function store(StoreReplayPackRequest $request, Workspace $workspace, Run $run): JsonResponse
     {
         if ($denied = $this->requirePermission(Permission::ExecutionManage)) {
             return $denied;
         }
 
-        $execution->loadMissing('workflow.currentVersion');
-        $version = $execution->workflow?->currentVersion;
+        $run->loadMissing('workflow.currentVersion');
+        $version = $run->workflow?->currentVersion;
 
         $pack = ExecutionReplayPack::create([
             'workspace_id' => $workspace->id,
-            'workflow_id' => $execution->workflow_id,
-            'execution_id' => $execution->id,
+            'workflow_id' => $run->workflow_id,
+            'execution_id' => $run->id,
             'created_by' => $request->user()->id,
             'label' => $request->validated('label'),
             'version_snapshot' => [
@@ -56,7 +56,7 @@ class ExecutionReplayController extends Controller
                 'nodes' => $version?->nodes_data ?? [],
                 'edges' => $version?->edges_data ?? [],
             ],
-            'trigger_data' => $execution->trigger_data,
+            'trigger_data' => $run->trigger_data,
         ]);
 
         return $this->successResponse('Replay pack created.', new ExecutionReplayPackResource($pack), 201);
@@ -77,15 +77,15 @@ class ExecutionReplayController extends Controller
             return $this->errorResponse('Source workflow no longer exists.', 422);
         }
 
-        $execution = $this->executionService->trigger(
+        $run = $this->runs->trigger(
             $workflow,
             $request->user(),
             $replayPack->trigger_data ?? [],
         );
 
         return $this->successResponse('Replay queued.', [
-            'execution' => new ExecutionResource($execution),
-            'channel' => "private-execution.{$execution->id}",
+            'run' => new RunResource($run),
+            'channel' => "private-execution.{$run->id}",
         ], 202);
     }
 }

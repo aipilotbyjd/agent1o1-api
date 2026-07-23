@@ -65,7 +65,7 @@ test('logs can be listed via the api', function () {
     ]);
 
     $this->actingAs($this->user, 'api')
-        ->getJson("/api/v1/workspaces/{$this->workspace->id}/executions/{$this->execution->id}/logs")
+        ->getJson("/api/v1/workspaces/{$this->workspace->id}/runs/{$this->execution->id}/logs")
         ->assertOk()
         ->assertJsonCount(1, 'data');
 });
