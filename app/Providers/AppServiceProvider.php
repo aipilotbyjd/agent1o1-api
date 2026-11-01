@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Ai\Observability\AiActivityCard;
 use App\Authorization\WorkspaceContext;
 use App\Contracts\Triggers\RunStarter;
 use App\Enums\Triggers\TriggerTargetType;
@@ -67,6 +68,7 @@ use Laravel\Cashier\Cashier;
 use Laravel\Passport\Bridge\RefreshTokenRepository;
 use Laravel\Passport\Passport;
 use League\OAuth2\Server\AuthorizationServer;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -98,6 +100,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
         $this->configureGate();
         $this->configureObservers();
+        $this->configurePulseCards();
         $this->configureMorphMap();
         $this->configureCashier();
         $this->configureSchedulerRecording();
@@ -274,6 +277,14 @@ class AppServiceProvider extends ServiceProvider
 
             return app(WorkspaceContext::class)->allows($permission) ?: null;
         });
+    }
+
+    /**
+     * Pulse dashboard cards that live outside `App\Livewire`.
+     */
+    private function configurePulseCards(): void
+    {
+        Livewire::component('pulse.ai-activity', AiActivityCard::class);
     }
 
     private function configureObservers(): void
