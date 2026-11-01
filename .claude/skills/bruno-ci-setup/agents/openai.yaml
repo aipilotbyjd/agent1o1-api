@@ -1,0 +1,5 @@
+interface:
+  display_name: "Bruno CI Setup"
+  short_description: "CI for Bruno via the official GitHub Action, Docker image, or CLI."
+  icon: "workflow"
+  color: "#ECAC42"
