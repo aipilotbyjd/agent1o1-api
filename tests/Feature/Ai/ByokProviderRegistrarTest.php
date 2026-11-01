@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Workspaces\Workspace;
 use App\Services\Ai\ByokProviderRegistrar;
 use App\Services\Workspaces\WorkspaceService;
+use Illuminate\Queue\Events\Looping;
 use Illuminate\Support\Facades\Http;
 use Laravel\Ai\AiManager;
 
@@ -38,11 +39,12 @@ it('puts a team key ahead of the platform hop it stands in for', function () {
         'openai' => 'gpt-4o',
         'openrouter' => 'openai/gpt-4o',
     ])->and($model)->toBeNull()
-        ->and(config("ai.providers.byok-{$credential->id}"))->toMatchArray([
+        ->and(app(AiManager::class)->getInstanceConfig("byok-{$credential->id}"))->toMatchArray([
             'driver' => 'openai',
             'key' => 'sk-team',
             'url' => config('ai.providers.openai.url'),
-        ]);
+        ])
+        ->and(config("ai.providers.byok-{$credential->id}"))->toBeNull();
 });
 
 it('drops the platform hop when the platform has no key for it', function () {
@@ -186,4 +188,25 @@ it('leaves a chain nobody has any key for untouched', function () {
 
     expect(app(ByokProviderRegistrar::class)->apply(['openrouter' => 'x', 'openai' => 'y'], null, $workspace->id, null))
         ->toBe([['openrouter' => 'x', 'openai' => 'y'], null]);
+});
+
+it('uses a replaced key on the next call instead of the one it built before', function () {
+    $workspace = byokRegistrarWorkspace();
+    $credential = AiProviderCredential::factory()->forWorkspace($workspace)->default()->create(['data' => ['api_key' => 'sk-old']]);
+    app(ByokProviderRegistrar::class)->apply('openai', 'gpt-4o', $workspace->id, null);
+
+    $credential->forceFill(['data' => ['api_key' => 'sk-new']])->save();
+    app(ByokProviderRegistrar::class)->apply('openai', 'gpt-4o', $workspace->id, null);
+
+    expect(app(AiManager::class)->getInstanceConfig("byok-{$credential->id}")['key'])->toBe('sk-new');
+});
+
+it('forgets a workspace key once the queue moves on to the next job', function () {
+    $workspace = byokRegistrarWorkspace();
+    $credential = AiProviderCredential::factory()->forWorkspace($workspace)->default()->create(['data' => ['api_key' => 'sk-team']]);
+    app(ByokProviderRegistrar::class)->apply('openai', 'gpt-4o', $workspace->id, null);
+
+    event(new Looping('redis', 'default'));
+
+    expect(app(AiManager::class)->getInstanceConfig("byok-{$credential->id}"))->not->toHaveKey('key');
 });

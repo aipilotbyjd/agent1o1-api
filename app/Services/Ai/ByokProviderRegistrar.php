@@ -253,20 +253,22 @@ class ByokProviderRegistrar
     }
 
     /**
-     * Registers the key as a runtime provider and returns its name. The
-     * cached SDK instance is dropped every time, so a long-running worker
-     * never keeps calling with a key that has since been replaced.
+     * Builds the key as an on-demand SDK provider (`AiManager::build()`) and
+     * returns its name. It never enters `config('ai.providers')`, so it does
+     * not show up in provider lists, and the SDK forgets it between queue
+     * jobs, so a worker never keeps calling with a key that has since been
+     * replaced or reuses one workspace's key for another's job. Building it
+     * again replaces the instance with the current key.
      */
     private function register(AiProviderCredential $credential, string $provider): string
     {
         $name = self::PREFIX.$credential->id;
 
-        config(["ai.providers.{$name}" => [
+        $this->ai->build([
             ...(array) config("ai.providers.{$provider}", ['driver' => $provider]),
+            'name' => $name,
             'key' => $credential->apiKey(),
-        ]]);
-
-        $this->ai->purge($name);
+        ]);
 
         if ($credential->last_used_at === null || $credential->last_used_at->diffInSeconds(now()) > self::LAST_USED_RESOLUTION_SECONDS) {
             AiProviderCredential::query()->whereKey($credential->id)->update(['last_used_at' => now()]);
