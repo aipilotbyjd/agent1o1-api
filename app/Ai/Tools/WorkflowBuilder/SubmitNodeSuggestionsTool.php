@@ -8,7 +8,7 @@ use Laravel\Ai\Tools\Request;
 use Stringable;
 
 /**
- * How `WorkflowNodeSuggestionAgent` hands back its suggestions (see `ToolSubmission`).
+ * How `WorkflowNodeSuggestionAgent` hands back its suggestions (see `SubmitsStructuredOutput`).
  */
 class SubmitNodeSuggestionsTool implements Tool
 {

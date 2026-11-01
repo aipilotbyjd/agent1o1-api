@@ -10,7 +10,7 @@ use Laravel\Ai\Tools\Request;
 use Stringable;
 
 /**
- * How `PageDesignerAgent` hands back a page (see `ToolSubmission`). Block
+ * How `PageDesignerAgent` hands back a page (see `SubmitsStructuredOutput`). Block
  * props and children are left open here; `PageSchema::bindToWorkflow()`
  * decides what of them is kept.
  */

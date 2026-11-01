@@ -9,7 +9,7 @@ use Laravel\Ai\Tools\Request;
 use Stringable;
 
 /**
- * How `ReflectionReviewerAgent` hands back its findings (see `ToolSubmission`).
+ * How `ReflectionReviewerAgent` hands back its findings (see `SubmitsStructuredOutput`).
  */
 class SubmitReflectionsTool implements Tool
 {

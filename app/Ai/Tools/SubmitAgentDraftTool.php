@@ -9,7 +9,7 @@ use Laravel\Ai\Tools\Request;
 use Stringable;
 
 /**
- * How `AgentDraftAgent` hands back a drafted agent (see `ToolSubmission`).
+ * How `AgentDraftAgent` hands back a drafted agent (see `SubmitsStructuredOutput`).
  */
 class SubmitAgentDraftTool implements Tool
 {

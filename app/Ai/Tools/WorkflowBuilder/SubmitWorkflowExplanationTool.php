@@ -8,7 +8,7 @@ use Laravel\Ai\Tools\Request;
 use Stringable;
 
 /**
- * How `WorkflowExplanationAgent` hands back its explanation (see `ToolSubmission`).
+ * How `WorkflowExplanationAgent` hands back its explanation (see `SubmitsStructuredOutput`).
  */
 class SubmitWorkflowExplanationTool implements Tool
 {

@@ -2,22 +2,23 @@
 
 namespace App\Ai\Agents;
 
+use App\Ai\Agents\Concerns\SubmitsStructuredOutput;
 use App\Ai\Tools\WorkflowBuilder\SubmitWorkflowExplanationTool;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Promptable;
-use Laravel\Ai\ToolChoice;
 
 /**
  * Explains a draft in plain language, for someone who didn't build it.
  * Answers only through `SubmitWorkflowExplanationTool`.
  */
-#[ToolChoice(ToolChoice::tool, SubmitWorkflowExplanationTool::NAME)]
 #[MaxSteps(1)]
-class WorkflowExplanationAgent implements Agent, HasTools
+class WorkflowExplanationAgent implements Agent, HasStructuredOutput, HasTools
 {
-    use Promptable;
+    use Promptable, SubmitsStructuredOutput;
 
     public function instructions(): string
     {
@@ -29,12 +30,12 @@ class WorkflowExplanationAgent implements Agent, HasTools
         Mention branches (router conditions) and failure handling ("error" edges) where they matter.
         Describe only what the workflow actually does; don't speculate about what it should do.
 
-        Submit the explanation by calling the submit_workflow_explanation tool.
+        Submit the explanation as your structured result.
         INSTRUCTIONS;
     }
 
-    public function tools(): iterable
+    protected function submissionTool(): Tool
     {
-        return [new SubmitWorkflowExplanationTool];
+        return new SubmitWorkflowExplanationTool;
     }
 }

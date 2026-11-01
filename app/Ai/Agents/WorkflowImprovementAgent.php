@@ -2,12 +2,14 @@
 
 namespace App\Ai\Agents;
 
+use App\Ai\Agents\Concerns\SubmitsStructuredOutput;
 use App\Ai\Tools\WorkflowBuilder\SubmitWorkflowImprovementsTool;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Promptable;
-use Laravel\Ai\ToolChoice;
 
 /**
  * Reviews a draft and suggests concrete improvements. The draft, the
@@ -15,11 +17,10 @@ use Laravel\Ai\ToolChoice;
  * (`WorkflowBuilderAssistant`); answers only through
  * `SubmitWorkflowImprovementsTool`.
  */
-#[ToolChoice(ToolChoice::tool, SubmitWorkflowImprovementsTool::NAME)]
 #[MaxSteps(1)]
-class WorkflowImprovementAgent implements Agent, HasTools
+class WorkflowImprovementAgent implements Agent, HasStructuredOutput, HasTools
 {
-    use Promptable;
+    use Promptable, SubmitsStructuredOutput;
 
     public function instructions(): string
     {
@@ -34,12 +35,12 @@ class WorkflowImprovementAgent implements Agent, HasTools
         Give 3 to 7 suggestions, each specific to this workflow: name the nodes involved. If a fix
         needs a new node, pick its type from the catalog. Don't pad the list with generic advice.
 
-        Submit the suggestions by calling the submit_workflow_improvements tool.
+        Submit the suggestions as your structured result.
         INSTRUCTIONS;
     }
 
-    public function tools(): iterable
+    protected function submissionTool(): Tool
     {
-        return [new SubmitWorkflowImprovementsTool];
+        return new SubmitWorkflowImprovementsTool;
     }
 }

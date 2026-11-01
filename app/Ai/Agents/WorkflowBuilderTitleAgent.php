@@ -2,23 +2,24 @@
 
 namespace App\Ai\Agents;
 
+use App\Ai\Agents\Concerns\SubmitsStructuredOutput;
 use App\Ai\Tools\WorkflowBuilder\SubmitWorkflowTitleTool;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Promptable;
-use Laravel\Ai\ToolChoice;
 
 /**
  * Names a builder session from the first thing the user asked for, so the
  * session list isn't a column of "Untitled workflow". Answers only through
  * `SubmitWorkflowTitleTool`.
  */
-#[ToolChoice(ToolChoice::tool, SubmitWorkflowTitleTool::NAME)]
 #[MaxSteps(1)]
-class WorkflowBuilderTitleAgent implements Agent, HasTools
+class WorkflowBuilderTitleAgent implements Agent, HasStructuredOutput, HasTools
 {
-    use Promptable;
+    use Promptable, SubmitsStructuredOutput;
 
     public function instructions(): string
     {
@@ -30,12 +31,12 @@ class WorkflowBuilderTitleAgent implements Agent, HasTools
         in Slack" becomes "GitHub PR Merge Alert"; "every morning email me yesterday's signups"
         becomes "Daily Signup Email".
 
-        Submit the title by calling the submit_workflow_title tool.
+        Submit the title as your structured result.
         INSTRUCTIONS;
     }
 
-    public function tools(): iterable
+    protected function submissionTool(): Tool
     {
-        return [new SubmitWorkflowTitleTool];
+        return new SubmitWorkflowTitleTool;
     }
 }

@@ -2,23 +2,24 @@
 
 namespace App\Ai\Agents;
 
+use App\Ai\Agents\Concerns\SubmitsStructuredOutput;
 use App\Ai\Tools\SubmitAgentDraftTool;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Promptable;
-use Laravel\Ai\ToolChoice;
 
 /**
  * Turns a plain-language request ("an agent that triages support tickets")
  * into a starting agent configuration, answering only through
  * `SubmitAgentDraftTool`.
  */
-#[ToolChoice(ToolChoice::tool, SubmitAgentDraftTool::NAME)]
 #[MaxSteps(1)]
-class AgentDraftAgent implements Agent, HasTools
+class AgentDraftAgent implements Agent, HasStructuredOutput, HasTools
 {
-    use Promptable;
+    use Promptable, SubmitsStructuredOutput;
 
     public function instructions(): string
     {
@@ -32,12 +33,12 @@ class AgentDraftAgent implements Agent, HasTools
 
         Pick the icon and color that best fit the agent's purpose.
 
-        Submit the draft by calling the submit_agent_draft tool.
+        Submit the draft as your structured result.
         INSTRUCTIONS;
     }
 
-    public function tools(): iterable
+    protected function submissionTool(): Tool
     {
-        return [new SubmitAgentDraftTool];
+        return new SubmitAgentDraftTool;
     }
 }

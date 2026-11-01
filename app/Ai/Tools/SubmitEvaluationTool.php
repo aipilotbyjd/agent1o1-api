@@ -8,7 +8,7 @@ use Laravel\Ai\Tools\Request;
 use Stringable;
 
 /**
- * How `SessionEvalJudgeAgent` hands back its verdict (see `ToolSubmission`).
+ * How `SessionEvalJudgeAgent` hands back its verdict (see `SubmitsStructuredOutput`).
  */
 class SubmitEvaluationTool implements Tool
 {

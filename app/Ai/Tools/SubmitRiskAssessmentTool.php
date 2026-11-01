@@ -9,7 +9,7 @@ use Laravel\Ai\Tools\Request;
 use Stringable;
 
 /**
- * How `ActionReviewerAgent` hands back its assessment (see `ToolSubmission`).
+ * How `ActionReviewerAgent` hands back its assessment (see `SubmitsStructuredOutput`).
  */
 class SubmitRiskAssessmentTool implements Tool
 {

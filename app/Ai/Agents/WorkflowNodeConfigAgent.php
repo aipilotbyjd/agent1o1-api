@@ -2,12 +2,14 @@
 
 namespace App\Ai\Agents;
 
+use App\Ai\Agents\Concerns\SubmitsStructuredOutput;
 use App\Ai\Tools\WorkflowBuilder\SubmitNodeConfigTool;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Promptable;
-use Laravel\Ai\ToolChoice;
 
 /**
  * Proposes a config for one node from a plain-language request ("post the
@@ -15,11 +17,10 @@ use Laravel\Ai\ToolChoice;
  * outputs of the nodes before it are in the prompt
  * (`WorkflowBuilderAssistant`); answers only through `SubmitNodeConfigTool`.
  */
-#[ToolChoice(ToolChoice::tool, SubmitNodeConfigTool::NAME)]
 #[MaxSteps(1)]
-class WorkflowNodeConfigAgent implements Agent, HasTools
+class WorkflowNodeConfigAgent implements Agent, HasStructuredOutput, HasTools
 {
-    use Promptable;
+    use Promptable, SubmitsStructuredOutput;
 
     public function instructions(): string
     {
@@ -33,12 +34,12 @@ class WorkflowNodeConfigAgent implements Agent, HasTools
         config: reference a stored secret as {{ secrets.<NAME> }} and list it under needs_from_user.
         List anything else only the user can provide (IDs, channel names, addresses) there too.
 
-        Submit the config by calling the submit_node_config tool.
+        Submit the config as your structured result.
         INSTRUCTIONS;
     }
 
-    public function tools(): iterable
+    protected function submissionTool(): Tool
     {
-        return [new SubmitNodeConfigTool];
+        return new SubmitNodeConfigTool;
     }
 }
