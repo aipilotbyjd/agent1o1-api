@@ -7,6 +7,7 @@ use App\Actions\Artifacts\StoreArtifactAction;
 use App\Ai\Agents\EmbeddedAgent;
 use App\Ai\Agents\WorkspaceAgent;
 use App\Ai\ResponseUsage;
+use App\Ai\Runtime\PauseState;
 use App\Enums\Agents\AgentActionStatus;
 use App\Enums\Agents\AgentMessageRole;
 use App\Enums\RunStatus;
@@ -25,7 +26,6 @@ use App\Models\Artifacts\Artifact;
 use App\Models\Runs\Run;
 use App\Services\Agents\Approvals\AgentActionExecutor;
 use App\Services\Agents\Approvals\AutonomyResolver;
-use App\Services\Agents\Approvals\PausedTurn;
 use App\Services\Agents\Approvals\Resumption;
 use App\Services\Ai\ByokProviderRegistrar;
 use App\Services\Ai\ModelCatalogResolver;
@@ -449,14 +449,14 @@ class AgentRunner
 
     /**
      * Parks the turn until its waiting calls are decided: the reply so far
-     * is kept with what resuming needs (`PausedTurn`), the calls are linked
+     * is kept with what resuming needs (`PauseState`), the calls are linked
      * to it, and the turn's `Run` waits in `awaiting_approval`, not
      * `running`, so it neither blocks the conversation nor gets failed as
      * stuck, and isn't billed until it finishes.
      */
     private function pauseTurn(AgentSession $session, Run $run, AgentMessage $assistantMessage, AgentResponse $response): AgentMessage
     {
-        $assistantMessage->forceFill(['paused_state' => PausedTurn::stateFrom($response)])->save();
+        $assistantMessage->forceFill(['paused_state' => [...PauseState::from($response), 'paused_at' => now()->toIso8601String()]])->save();
 
         $actions = $this->linkPendingActions($run, $session, $assistantMessage);
 
@@ -841,7 +841,7 @@ class AgentRunner
      */
     private function pauseInConversation(AgentSession $session, Run $run, AgentMessage $assistantMessage, AgentResponse $response): never
     {
-        $assistantMessage->forceFill(['paused_state' => PausedTurn::stateFrom($response)])->save();
+        $assistantMessage->forceFill(['paused_state' => [...PauseState::from($response), 'paused_at' => now()->toIso8601String()]])->save();
 
         $actions = $this->linkPendingActions($run, $session, $assistantMessage);
 

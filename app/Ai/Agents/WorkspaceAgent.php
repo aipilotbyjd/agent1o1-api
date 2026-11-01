@@ -3,11 +3,11 @@
 namespace App\Ai\Agents;
 
 use App\Ai\Agents\Concerns\AppliesGenerationSettings;
+use App\Ai\Runtime\PauseState;
 use App\Enums\Agents\AgentMessageRole;
 use App\Models\Agents\AgentMessage;
 use App\Models\Agents\AgentSession;
 use App\Models\Artifacts\Artifact;
-use App\Services\Agents\Approvals\PausedTurn;
 use App\Services\Agents\GenerationSettings;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Contracts\Agent;
@@ -58,7 +58,7 @@ class WorkspaceAgent implements Agent, Conversational, HasTools
      *
      * `$resumingMessageId` is set when a paused turn is being resumed with
      * approval decisions: that assistant message is replayed with its
-     * unanswered calls intact (`PausedTurn::replay()`) instead of the usual
+     * unanswered calls intact (`PauseState::replay()`) instead of the usual
      * results-only replay, since those calls are what the decisions answer.
      *
      * @param  array<int, Tool>  $tools
@@ -123,7 +123,7 @@ class WorkspaceAgent implements Agent, Conversational, HasTools
                 fn ($messages) => $messages->skipUntil(fn (AgentMessage $message): bool => $message->role === AgentMessageRole::User),
             )
             ->flatMap(fn (AgentMessage $message): array => match (true) {
-                $message->id === $this->resumingMessageId && $message->paused_state !== null => PausedTurn::replay($message),
+                $message->id === $this->resumingMessageId && $message->paused_state !== null => PauseState::replay($message->content, $message->tool_calls, $message->tool_results, $message->paused_state),
                 $message->role === AgentMessageRole::Assistant => $this->assistantTurn($message),
                 $message->attachments->isNotEmpty() => [
                     new UserMessage($message->content, $message->attachments->map(fn (Artifact $artifact) => $artifact->toPromptAttachment())),

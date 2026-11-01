@@ -26,7 +26,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Str;
+use Laravel\Ai\Exceptions\StreamErrorException;
 use Laravel\Ai\Responses\Data\FinishReason;
+use Laravel\Ai\Responses\StreamableAgentResponse;
 use Laravel\Ai\Responses\StreamedAgentResponse;
 use Laravel\Ai\Streaming\Events\Error as StreamError;
 use Laravel\Ai\Streaming\Events\StreamEnd;
@@ -182,7 +184,36 @@ class ProcessWorkflowBuilderMessageJob implements ShouldQueue
             $finished = $response;
         });
 
+        try {
+            $this->relayStream($session, $stream, $endReason, $lastBroadcastLockVersion);
+        } catch (StreamErrorException $exception) {
+            throw new RuntimeException('Provider stream error: '.($exception->error?->message ?? $exception->getMessage()), previous: $exception);
+        }
+
+        if ($finished === null) {
+            throw new RuntimeException('The builder stream ended without a response.');
+        }
+
+        return [
+            'text' => (string) ($stream->text ?? $finished->text),
+            'usage' => ResponseUsage::from($finished, $startedAt),
+            // The loop only ends on a tool-call step when MaxSteps ran out.
+            'cut_off' => $endReason === FinishReason::ToolCalls->value,
+        ];
+    }
+
+    /**
+     * Broadcasts the stream's events to the canvas as they arrive. A
+     * sub-agent's preliminary tool results are skipped: only the final
+     * result of a call is shown.
+     */
+    private function relayStream(WorkflowBuilderSession $session, StreamableAgentResponse $stream, ?string &$endReason, int &$lastBroadcastLockVersion): void
+    {
         foreach ($stream as $event) {
+            if ($event instanceof ToolResult && $event->preliminary) {
+                continue;
+            }
+
             match (true) {
                 $event instanceof TextDelta => $this->broadcast($session, 'delta', ['delta' => $event->delta]),
                 $event instanceof ToolCall => $this->broadcast($session, 'tool-call', [
@@ -212,17 +243,6 @@ class ProcessWorkflowBuilderMessageJob implements ShouldQueue
                 ]);
             }
         }
-
-        if ($finished === null) {
-            throw new RuntimeException('The builder stream ended without a response.');
-        }
-
-        return [
-            'text' => (string) ($stream->text ?? $finished->text),
-            'usage' => ResponseUsage::from($finished, $startedAt),
-            // The loop only ends on a tool-call step when MaxSteps ran out.
-            'cut_off' => $endReason === FinishReason::ToolCalls->value,
-        ];
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Services\Assistant\Runtime;
 
+use App\Ai\Runtime\PauseState;
 use App\Enums\Assistant\AssistantMessageRole;
 use App\Models\Assistant\AssistantMessage;
 use App\Models\Assistant\AssistantSession;
@@ -53,7 +54,7 @@ final class ConversationHistory
         return $answered
             ->when($history->count() === $limit, fn ($messages) => $messages->skipUntil(fn (AssistantMessage $message): bool => $message->role === AssistantMessageRole::User))
             ->flatMap(fn (AssistantMessage $message): array => match (true) {
-                $message->id === $this->resumingMessageId && $message->paused_state !== null => PausedStep::replay($message),
+                $message->id === $this->resumingMessageId && $message->paused_state !== null => PauseState::replay($message->content, $message->tool_calls, $message->tool_results, $message->paused_state),
                 $message->role === AssistantMessageRole::Assistant => $this->assistantReply($message),
                 default => [new Message('user', (string) $message->content)],
             })
