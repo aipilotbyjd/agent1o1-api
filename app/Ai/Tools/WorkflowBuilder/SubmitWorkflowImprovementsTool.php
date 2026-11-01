@@ -8,7 +8,7 @@ use Laravel\Ai\Tools\Request;
 use Stringable;
 
 /**
- * How `WorkflowImprovementAgent` hands back its suggestions (see `ToolSubmission`).
+ * How `WorkflowImprovementAgent` hands back its suggestions (see `SubmitsStructuredOutput`).
  */
 class SubmitWorkflowImprovementsTool implements Tool
 {

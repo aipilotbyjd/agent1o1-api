@@ -1,7 +1,6 @@
 <?php
 
 use App\Ai\Agents\ReflectionReviewerAgent;
-use App\Ai\Tools\SubmitReflectionsTool;
 use App\Enums\Agents\ReflectionRunStatus;
 use App\Enums\Agents\ReflectionStatus;
 use App\Enums\Billing\CreditTransactionType;
@@ -21,14 +20,13 @@ use App\Services\Workspaces\WorkspaceService;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Notification;
 use Laravel\Ai\Prompts\AgentPrompt;
-use Laravel\Ai\Responses\Data\ToolCall;
 
 /**
  * @param  array<int, array<string, mixed>>  $reflections
  */
 function reviewerSubmits(array $reflections): void
 {
-    ReflectionReviewerAgent::fake([new ToolCall('call_1', SubmitReflectionsTool::NAME, ['reflections' => $reflections])]);
+    ReflectionReviewerAgent::fake([['reflections' => $reflections]]);
 }
 
 /**
@@ -134,7 +132,7 @@ it('fails the run when the model does not submit its findings and keeps the sess
     $run = app(ReflectionAnalyzer::class)->run($agent);
 
     expect($run->status)->toBe(ReflectionRunStatus::Failed);
-    expect($run->skip_reason)->toContain('did not call submit_reflections');
+    expect($run->skip_reason)->toContain('did not return a structured result');
     expect($settings->fresh()->last_run_at)->toBeNull();
 });
 

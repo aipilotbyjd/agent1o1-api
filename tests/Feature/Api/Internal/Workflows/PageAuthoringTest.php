@@ -1,7 +1,6 @@
 <?php
 
 use App\Ai\Agents\PageDesignerAgent;
-use App\Ai\Tools\SubmitPageTool;
 use App\Enums\Billing\CreditTransactionType;
 use App\Enums\Workspaces\Role;
 use App\Events\Pages\PageActivity;
@@ -17,7 +16,6 @@ use App\Services\Workflows\Pages\PageSchema;
 use App\Services\Workflows\Pages\PageVersions;
 use App\Services\Workspaces\WorkspaceService;
 use Illuminate\Support\Facades\Event;
-use Laravel\Ai\Responses\Data\ToolCall;
 use Laravel\Passport\Passport;
 
 beforeEach(function () {
@@ -146,7 +144,7 @@ it('lets the author edit and anyone who builds pages resolve', function () {
 it('designs a page with AI, bound to the workflow, and charges for it', function () {
     Event::fake([PageActivity::class]);
 
-    PageDesignerAgent::fake([new ToolCall('call_1', SubmitPageTool::NAME, [
+    PageDesignerAgent::fake([[
         'theme' => ['accent' => '#ff0000', 'appearance' => 'dark', 'background' => 'plain', 'radius' => 'lg', 'font' => 'serif', 'width' => 'wide'],
         'blocks' => [
             ['type' => 'heading', 'props' => ['text' => 'Write a better note', 'level' => 1]],
@@ -155,7 +153,7 @@ it('designs a page with AI, bound to the workflow, and charges for it', function
             ]],
             ['type' => 'output', 'props' => ['output_name' => 'note']],
         ],
-    ])]);
+    ]]);
 
     $generation = $this->postJson("{$this->base}/generations", ['prompt' => 'A bold page for note writing', 'keep_theme' => false])
         ->assertStatus(202)
@@ -178,10 +176,10 @@ it('designs a page with AI, bound to the workflow, and charges for it', function
 });
 
 it('keeps the page’s theme unless asked not to', function () {
-    PageDesignerAgent::fake([new ToolCall('call_1', SubmitPageTool::NAME, [
+    PageDesignerAgent::fake([[
         'theme' => ['accent' => '#ff0000'],
         'blocks' => [['type' => 'heading', 'props' => ['text' => 'Hi', 'level' => 1]]],
-    ])]);
+    ]]);
 
     $id = $this->postJson("{$this->base}/generations", ['prompt' => 'Simpler please'])->assertStatus(202)->json('data.generation.id');
 

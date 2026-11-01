@@ -8,7 +8,7 @@ use Laravel\Ai\Tools\Request;
 use Stringable;
 
 /**
- * How `AgentInstructionsAgent` hands back rewritten instructions (see `ToolSubmission`).
+ * How `AgentInstructionsAgent` hands back rewritten instructions (see `SubmitsStructuredOutput`).
  */
 class SubmitAgentInstructionsTool implements Tool
 {

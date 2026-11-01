@@ -2,14 +2,16 @@
 
 namespace App\Ai\Agents;
 
+use App\Ai\Agents\Concerns\SubmitsStructuredOutput;
 use App\Ai\Tools\SubmitEvaluationTool;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentEvaluationSettings;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Contracts\Agent as AgentContract;
+use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Promptable;
-use Laravel\Ai\ToolChoice;
 
 /**
  * Grades one `AgentSession` transcript against its agent's
@@ -25,20 +27,19 @@ use Laravel\Ai\ToolChoice;
  * Given only the agent's name, description and skills (never its system
  * prompt) mirroring Gumloop's stated privacy boundary
  * (docs/gumloop/output/raw/core-concepts/evaluations.md's "Does the
- * evaluator see my agent's system prompt?"). Its only tool,
- * `SubmitEvaluationTool`, carries the verdict back and can't act on
+ * evaluator see my agent's system prompt?"). It answers with a structured
+ * verdict (`SubmitEvaluationTool`'s schema) and has no tool that can act on
  * anything. Transcript content is treated purely as data, never as
  * instructions.
  */
-#[ToolChoice(ToolChoice::tool, SubmitEvaluationTool::NAME)]
 #[MaxSteps(1)]
-class SessionEvalJudgeAgent implements AgentContract, HasTools
+class SessionEvalJudgeAgent implements AgentContract, HasStructuredOutput, HasTools
 {
-    use Promptable;
+    use Promptable, SubmitsStructuredOutput;
 
-    public function tools(): iterable
+    protected function submissionTool(): Tool
     {
-        return [new SubmitEvaluationTool];
+        return new SubmitEvaluationTool;
     }
 
     public function instructions(): string
@@ -67,7 +68,7 @@ class SessionEvalJudgeAgent implements AgentContract, HasTools
           "failure", or "unknown".
         - Write a one or two sentence summary of what happened.
 
-        Submit your grading by calling the submit_evaluation tool.
+        Submit your grading as your structured result.
         INSTRUCTIONS;
     }
 

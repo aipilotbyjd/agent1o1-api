@@ -10,7 +10,7 @@ use Laravel\Ai\Tools\Request;
 use Stringable;
 
 /**
- * How `SkillDraftAgent` hands back a drafted skill (see `ToolSubmission`).
+ * How `SkillDraftAgent` hands back a drafted skill (see `SubmitsStructuredOutput`).
  */
 class SubmitSkillDraftTool implements Tool
 {

@@ -2,12 +2,14 @@
 
 namespace App\Ai\Agents;
 
+use App\Ai\Agents\Concerns\SubmitsStructuredOutput;
 use App\Ai\Tools\WorkflowBuilder\SubmitNodeSuggestionsTool;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Promptable;
-use Laravel\Ai\ToolChoice;
 
 /**
  * Suggests the next few nodes for a partial draft: the "what could come
@@ -15,11 +17,10 @@ use Laravel\Ai\ToolChoice;
  * the prompt (`WorkflowBuilderAssistant`); answers only through
  * `SubmitNodeSuggestionsTool`.
  */
-#[ToolChoice(ToolChoice::tool, SubmitNodeSuggestionsTool::NAME)]
 #[MaxSteps(1)]
-class WorkflowNodeSuggestionAgent implements Agent, HasTools
+class WorkflowNodeSuggestionAgent implements Agent, HasStructuredOutput, HasTools
 {
-    use Promptable;
+    use Promptable, SubmitsStructuredOutput;
 
     public function instructions(): string
     {
@@ -32,12 +33,12 @@ class WorkflowNodeSuggestionAgent implements Agent, HasTools
         fail, or a way to deliver the result. Only suggest types from the catalog. Don't suggest
         something the workflow already does.
 
-        Submit the suggestions by calling the submit_node_suggestions tool.
+        Submit the suggestions as your structured result.
         INSTRUCTIONS;
     }
 
-    public function tools(): iterable
+    protected function submissionTool(): Tool
     {
-        return [new SubmitNodeSuggestionsTool];
+        return new SubmitNodeSuggestionsTool;
     }
 }

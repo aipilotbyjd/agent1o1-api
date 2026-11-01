@@ -2,23 +2,24 @@
 
 namespace App\Ai\Agents;
 
+use App\Ai\Agents\Concerns\SubmitsStructuredOutput;
 use App\Ai\Tools\SubmitSkillDraftTool;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Promptable;
-use Laravel\Ai\ToolChoice;
 
 /**
  * Turns a plain-language request ("how we triage support tickets") into a
  * starting skill (instructions, references and scripts) answering only
  * through `SubmitSkillDraftTool`.
  */
-#[ToolChoice(ToolChoice::tool, SubmitSkillDraftTool::NAME)]
 #[MaxSteps(1)]
-class SkillDraftAgent implements Agent, HasTools
+class SkillDraftAgent implements Agent, HasStructuredOutput, HasTools
 {
-    use Promptable;
+    use Promptable, SubmitsStructuredOutput;
 
     public function instructions(): string
     {
@@ -44,12 +45,12 @@ class SkillDraftAgent implements Agent, HasTools
 
         Pick the category, icon and color that best fit the skill.
 
-        Submit the draft by calling the submit_skill_draft tool.
+        Submit the draft as your structured result.
         INSTRUCTIONS;
     }
 
-    public function tools(): iterable
+    protected function submissionTool(): Tool
     {
-        return [new SubmitSkillDraftTool];
+        return new SubmitSkillDraftTool;
     }
 }

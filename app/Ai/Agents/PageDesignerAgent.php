@@ -2,26 +2,27 @@
 
 namespace App\Ai\Agents;
 
+use App\Ai\Agents\Concerns\SubmitsStructuredOutput;
 use App\Ai\Tools\SubmitPageTool;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Attributes\MaxTokens;
 use Laravel\Ai\Attributes\Timeout;
 use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Promptable;
-use Laravel\Ai\ToolChoice;
 
 /**
  * Designs a workflow page (or reworks the current one) from a member's
  * request, answering only through `SubmitPageTool`. Run by `GeneratePageJob`.
  */
-#[ToolChoice(ToolChoice::tool, SubmitPageTool::NAME)]
 #[MaxSteps(1)]
 #[Timeout(240)]
 #[MaxTokens(12000)]
-class PageDesignerAgent implements Agent, HasTools
+class PageDesignerAgent implements Agent, HasStructuredOutput, HasTools
 {
-    use Promptable;
+    use Promptable, SubmitsStructuredOutput;
 
     public function instructions(): string
     {
@@ -72,12 +73,12 @@ class PageDesignerAgent implements Agent, HasTools
         Theme: pick an accent colour, light or dark appearance, background, corner radius, font and page width that
         suit the request.
 
-        Submit the page by calling the submit_page tool.
+        Submit the page as your structured result.
         INSTRUCTIONS;
     }
 
-    public function tools(): iterable
+    protected function submissionTool(): Tool
     {
-        return [new SubmitPageTool];
+        return new SubmitPageTool;
     }
 }

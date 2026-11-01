@@ -2,22 +2,23 @@
 
 namespace App\Ai\Agents;
 
+use App\Ai\Agents\Concerns\SubmitsStructuredOutput;
 use App\Ai\Tools\SubmitAgentInstructionsTool;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Promptable;
-use Laravel\Ai\ToolChoice;
 
 /**
  * Rewrites an existing agent's instructions from what it is for and what it
  * can do, answering only through `SubmitAgentInstructionsTool`.
  */
-#[ToolChoice(ToolChoice::tool, SubmitAgentInstructionsTool::NAME)]
 #[MaxSteps(1)]
-class AgentInstructionsAgent implements Agent, HasTools
+class AgentInstructionsAgent implements Agent, HasStructuredOutput, HasTools
 {
-    use Promptable;
+    use Promptable, SubmitsStructuredOutput;
 
     public function instructions(): string
     {
@@ -34,12 +35,12 @@ class AgentInstructionsAgent implements Agent, HasTools
         The agent is already told its name, purpose and today's date elsewhere, so don't repeat them as
         standalone lines.
 
-        Submit the result by calling the submit_agent_instructions tool.
+        Submit the result as your structured result.
         INSTRUCTIONS;
     }
 
-    public function tools(): iterable
+    protected function submissionTool(): Tool
     {
-        return [new SubmitAgentInstructionsTool];
+        return new SubmitAgentInstructionsTool;
     }
 }

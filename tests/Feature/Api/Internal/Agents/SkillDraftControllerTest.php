@@ -1,7 +1,6 @@
 <?php
 
 use App\Ai\Agents\SkillDraftAgent;
-use App\Ai\Tools\SubmitSkillDraftTool;
 use App\Enums\Billing\CreditTransactionType;
 use App\Enums\Workspaces\Role;
 use App\Models\Ai\ModelCatalog;
@@ -10,7 +9,6 @@ use App\Models\User;
 use App\Models\Workspaces\Workspace;
 use App\Services\Workspaces\WorkspaceService;
 use Laravel\Ai\Prompts\AgentPrompt;
-use Laravel\Ai\Responses\Data\ToolCall;
 use Laravel\Passport\Passport;
 
 /**
@@ -31,7 +29,7 @@ function skillDraftEndpoint(): array
 it('drafts a skill with references and scripts without saving it', function () {
     [$url, $catalog] = skillDraftEndpoint();
 
-    SkillDraftAgent::fake([new ToolCall('call_1', SubmitSkillDraftTool::NAME, [
+    SkillDraftAgent::fake([[
         'name' => 'Weekly MRR Report',
         'description' => 'Builds the weekly MRR report. Load it when asked for revenue updates.',
         'category' => 'Data',
@@ -46,7 +44,7 @@ it('drafts a skill with references and scripts without saving it', function () {
             'language' => 'python',
             'code' => 'print(sum(amounts))',
         ]],
-    ])]);
+    ]]);
 
     $this->postJson($url, ['prompt' => 'Our weekly MRR report process', 'model_catalog_id' => $catalog->id])
         ->assertOk()
@@ -80,7 +78,7 @@ it('drafts a skill with references and scripts without saving it', function () {
 it('falls back to a category and look the Skills page offers, and drops references and scripts it would reject', function () {
     [$url, $catalog] = skillDraftEndpoint();
 
-    SkillDraftAgent::fake([new ToolCall('call_1', SubmitSkillDraftTool::NAME, [
+    SkillDraftAgent::fake([[
         'name' => 'X',
         'description' => 'Y',
         'category' => 'Reporting',
@@ -93,7 +91,7 @@ it('falls back to a category and look the Skills page offers, and drops referenc
             ['name' => 'ruby_script', 'description' => '', 'language' => 'ruby', 'code' => 'puts 1'],
             ['name' => 'kept', 'description' => '', 'language' => 'bash', 'code' => 'echo 1'],
         ],
-    ])]);
+    ]]);
 
     $this->postJson($url, ['prompt' => 'Anything', 'model_catalog_id' => $catalog->id])
         ->assertOk()

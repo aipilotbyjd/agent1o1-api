@@ -3,7 +3,6 @@
 use App\Actions\Workflows\Builder\SendWorkflowBuilderMessageAction;
 use App\Ai\Agents\WorkflowBuilderAgent;
 use App\Ai\Agents\WorkflowBuilderTitleAgent;
-use App\Ai\Tools\WorkflowBuilder\SubmitWorkflowTitleTool;
 use App\Enums\Billing\CreditTransactionType;
 use App\Enums\Workflows\BuilderMessageStatus;
 use App\Events\Workflows\WorkflowBuilderActivity;
@@ -74,7 +73,7 @@ it('charges the turn once, against its reply', function () {
 
 it('titles an untitled session from its first message', function () {
     WorkflowBuilderAgent::fake(['Done.']);
-    WorkflowBuilderTitleAgent::fake([new ToolCall('call_1', SubmitWorkflowTitleTool::NAME, ['title' => 'Signup Slack Alert'])]);
+    WorkflowBuilderTitleAgent::fake([['title' => 'Signup Slack Alert']]);
     $session = builderJobSession();
 
     app(SendWorkflowBuilderMessageAction::class)->execute($session, 'When someone signs up, post it to Slack');
