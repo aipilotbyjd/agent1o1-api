@@ -3,16 +3,16 @@
 namespace App\Services\Workflows;
 
 use App\Actions\Billing\DeductCreditsAction;
-use App\Ai\Agents\WorkflowExplanationAgent;
-use App\Ai\Agents\WorkflowImprovementAgent;
-use App\Ai\Agents\WorkflowNodeConfigAgent;
-use App\Ai\Agents\WorkflowNodeSuggestionAgent;
-use App\Ai\ResponseUsage;
+use App\Ai\Agents\Builder\WorkflowExplanationAgent;
+use App\Ai\Agents\Builder\WorkflowImprovementAgent;
+use App\Ai\Agents\Builder\WorkflowNodeConfigAgent;
+use App\Ai\Agents\Builder\WorkflowNodeSuggestionAgent;
+use App\Ai\Support\ToolSubmission;
 use App\Ai\Tools\WorkflowBuilder\SubmitNodeConfigTool;
 use App\Ai\Tools\WorkflowBuilder\SubmitNodeSuggestionsTool;
 use App\Ai\Tools\WorkflowBuilder\SubmitWorkflowExplanationTool;
 use App\Ai\Tools\WorkflowBuilder\SubmitWorkflowImprovementsTool;
-use App\Ai\ToolSubmission;
+use App\Ai\Usage\ResponseUsage;
 use App\Enums\Billing\CreditTransactionType;
 use App\Enums\Workflows\FlowControlNodeType;
 use App\Jobs\Workflows\ProcessWorkflowBuilderMessageJob;

@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\WorkspaceAgent;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
 use App\Broadcasting\Channels;
 use App\Enums\Agents\AgentMessageRole;
 use App\Enums\RunStatus;

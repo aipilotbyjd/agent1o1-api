@@ -2,9 +2,9 @@
 
 namespace App\Services\Assistant\Tools;
 
-use App\Ai\Assistant\Tools\ReadKnowledgeEntryTool;
-use App\Ai\Assistant\Tools\SaveToKnowledgeTool;
-use App\Ai\Assistant\Tools\SearchKnowledgeBaseTool;
+use App\Ai\Tools\Assistant\ReadKnowledgeEntryTool;
+use App\Ai\Tools\Assistant\SaveToKnowledgeTool;
+use App\Ai\Tools\Assistant\SearchKnowledgeBaseTool;
 use App\Contracts\Assistant\ProvidesAssistantTools;
 use App\Models\Assistant\Assistant;
 use App\Models\Assistant\AssistantSession;

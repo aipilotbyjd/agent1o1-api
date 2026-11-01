@@ -1,7 +1,7 @@
 <?php
 
 use App\Actions\Workflows\StartWorkflowRunAction;
-use App\Ai\Agents\AdHocPromptAgent;
+use App\Ai\Agents\Workspace\AdHocPromptAgent;
 use App\Enums\NodeRunStatus;
 use App\Enums\RunStatus;
 use App\Models\Ai\ModelCatalog;

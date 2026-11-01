@@ -3,10 +3,10 @@
 namespace App\Services\Assistant\Runtime;
 
 use App\Actions\Billing\DeductCreditsAction;
-use App\Ai\Assistant\AssistantAgent;
-use App\Ai\Assistant\Tools\AssistantTool;
-use App\Ai\ResponseUsage;
+use App\Ai\Agents\Assistant\AssistantAgent;
 use App\Ai\Runtime\PauseState;
+use App\Ai\Tools\Assistant\AssistantTool;
+use App\Ai\Usage\ResponseUsage;
 use App\Enums\Assistant\AssistantActionStatus;
 use App\Enums\Assistant\AssistantMessageRole;
 use App\Enums\Assistant\AssistantTurnStatus;

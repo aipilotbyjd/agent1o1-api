@@ -3,8 +3,8 @@
 namespace App\Services\Assistant\Computer;
 
 use App\Actions\Artifacts\StoreArtifactAction;
-use App\Ai\Assistant\Tools\ExportFileTool;
-use App\Ai\Assistant\Tools\RunCodeTool;
+use App\Ai\Tools\Assistant\ExportFileTool;
+use App\Ai\Tools\Assistant\RunCodeTool;
 use App\Contracts\Assistant\ProvidesAssistantTools;
 use App\Models\Assistant\Assistant;
 use App\Models\Assistant\AssistantSession;

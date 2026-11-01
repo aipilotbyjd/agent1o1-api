@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\ResponseUsage;
+use App\Ai\Usage\ResponseUsage;
 
 it('adds up a turn paused before the upgrade and resumed after it', function () {
     $combined = ResponseUsage::combine(

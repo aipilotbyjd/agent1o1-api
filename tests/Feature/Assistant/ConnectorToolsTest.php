@@ -1,7 +1,7 @@
 <?php
 
-use App\Ai\Assistant\AssistantAgent;
-use App\Ai\Assistant\Tools\ConnectorNodeTool;
+use App\Ai\Agents\Assistant\AssistantAgent;
+use App\Ai\Tools\Assistant\ConnectorNodeTool;
 use App\Enums\Assistant\AssistantActionStatus;
 use App\Enums\Assistant\AssistantToolEffect;
 use App\Enums\Assistant\AssistantTurnStatus;

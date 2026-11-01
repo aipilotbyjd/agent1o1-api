@@ -1,8 +1,8 @@
 <?php
 
 use App\Actions\Workflows\Builder\SendWorkflowBuilderMessageAction;
-use App\Ai\Agents\WorkflowBuilderAgent;
-use App\Ai\Agents\WorkflowBuilderTitleAgent;
+use App\Ai\Agents\Builder\WorkflowBuilderAgent;
+use App\Ai\Agents\Builder\WorkflowBuilderTitleAgent;
 use App\Ai\Tools\WorkflowBuilder\AddNodeTool;
 use App\Ai\Tools\WorkflowBuilder\ConnectNodesTool;
 use App\Ai\Tools\WorkflowBuilder\ValidateWorkflowTool;

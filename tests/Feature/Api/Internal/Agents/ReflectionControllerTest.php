@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\ReflectionReviewerAgent;
+use App\Ai\Agents\Judges\ReflectionReviewerAgent;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentMessage;
 use App\Models\Agents\AgentSession;

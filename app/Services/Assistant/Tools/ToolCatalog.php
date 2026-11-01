@@ -2,17 +2,17 @@
 
 namespace App\Services\Assistant\Tools;
 
-use App\Ai\Assistant\Tools\AssistantTool;
-use App\Ai\Assistant\Tools\CancelFollowUpTool;
-use App\Ai\Assistant\Tools\ChangeTriggerTool;
-use App\Ai\Assistant\Tools\CreateTriggerTool;
-use App\Ai\Assistant\Tools\ForgetTool;
-use App\Ai\Assistant\Tools\ImportSkillsTool;
-use App\Ai\Assistant\Tools\ListFollowUpsTool;
-use App\Ai\Assistant\Tools\ListTriggersTool;
-use App\Ai\Assistant\Tools\RememberTool;
-use App\Ai\Assistant\Tools\TrackFollowUpTool;
-use App\Ai\Assistant\Tools\UpdateStyleTool;
+use App\Ai\Tools\Assistant\AssistantTool;
+use App\Ai\Tools\Assistant\CancelFollowUpTool;
+use App\Ai\Tools\Assistant\ChangeTriggerTool;
+use App\Ai\Tools\Assistant\CreateTriggerTool;
+use App\Ai\Tools\Assistant\ForgetTool;
+use App\Ai\Tools\Assistant\ImportSkillsTool;
+use App\Ai\Tools\Assistant\ListFollowUpsTool;
+use App\Ai\Tools\Assistant\ListTriggersTool;
+use App\Ai\Tools\Assistant\RememberTool;
+use App\Ai\Tools\Assistant\TrackFollowUpTool;
+use App\Ai\Tools\Assistant\UpdateStyleTool;
 use App\Contracts\Assistant\ProvidesAssistantTools;
 use App\Enums\Assistant\AssistantToolRule;
 use App\Models\Assistant\Assistant;

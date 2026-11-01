@@ -3,8 +3,8 @@
 namespace App\Services\Assistant\Personalization;
 
 use App\Actions\Billing\DeductCreditsAction;
-use App\Ai\Assistant\StyleLearnerAgent;
-use App\Ai\ResponseUsage;
+use App\Ai\Agents\Assistant\StyleLearnerAgent;
+use App\Ai\Usage\ResponseUsage;
 use App\Enums\Assistant\AssistantFeedbackStatus;
 use App\Enums\Assistant\AssistantStyleKind;
 use App\Enums\Assistant\AssistantStyleSource;

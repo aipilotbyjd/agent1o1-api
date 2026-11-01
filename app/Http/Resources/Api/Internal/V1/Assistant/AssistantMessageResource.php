@@ -2,8 +2,8 @@
 
 namespace App\Http\Resources\Api\Internal\V1\Assistant;
 
-use App\Ai\Assistant\Tools\ExportFileTool;
-use App\Ai\Assistant\Tools\RunCodeTool;
+use App\Ai\Tools\Assistant\ExportFileTool;
+use App\Ai\Tools\Assistant\RunCodeTool;
 use App\Models\Assistant\AssistantMessage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;

@@ -1,7 +1,7 @@
 <?php
 
-use App\Ai\Assistant\AssistantAgent;
-use App\Ai\Assistant\BriefingWriterAgent;
+use App\Ai\Agents\Assistant\AssistantAgent;
+use App\Ai\Agents\Assistant\BriefingWriterAgent;
 use App\Broadcasting\WorkspaceChannelGate;
 use App\Enums\Assistant\AssistantBriefingRunStatus;
 use App\Enums\Assistant\AssistantBriefingType;

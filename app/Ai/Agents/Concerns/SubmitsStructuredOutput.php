@@ -12,7 +12,7 @@ use Laravel\Ai\ToolChoice;
  * structured output (`HasStructuredOutput`) and the agent has no tools. An
  * agent listed in `ai.structured_output.forced_tool` instead gets the
  * submit tool and is forced to call it, which works on any provider that
- * can call tools. `App\Ai\ToolSubmission` reads the result either way.
+ * can call tools. `App\Ai\Support\ToolSubmission` reads the result either way.
  *
  * The using class implements `HasStructuredOutput` and `HasTools`.
  */

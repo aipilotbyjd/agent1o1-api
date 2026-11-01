@@ -3,7 +3,7 @@
 namespace App\Services\Agents\Approvals;
 
 use App\Actions\Workflows\StartWorkflowRunAction;
-use App\Ai\Tools\WorkflowTool;
+use App\Ai\Tools\Workspace\WorkflowTool;
 use App\Enums\Agents\ActionToolKind;
 use App\Enums\Agents\ActionVerdict;
 use App\Enums\Agents\AgentActionStatus;

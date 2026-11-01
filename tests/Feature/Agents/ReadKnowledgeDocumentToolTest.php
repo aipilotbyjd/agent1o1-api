@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Tools\ReadKnowledgeDocumentTool;
+use App\Ai\Tools\Knowledge\ReadKnowledgeDocumentTool;
 use App\Models\Agents\DocumentEmbedding;
 use App\Models\User;
 use App\Services\Agents\KnowledgeBase;

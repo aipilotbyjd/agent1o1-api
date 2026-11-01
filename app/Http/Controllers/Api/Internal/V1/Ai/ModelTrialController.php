@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\Internal\V1\Ai;
 
 use App\Actions\Billing\DeductCreditsAction;
-use App\Ai\Agents\AdHocPromptAgent;
-use App\Ai\ResponseUsage;
+use App\Ai\Agents\Workspace\AdHocPromptAgent;
+use App\Ai\Usage\ResponseUsage;
 use App\Ai\Usage\TokenUsage;
 use App\Enums\Billing\CreditTransactionType;
 use App\Enums\Workspaces\Permission;

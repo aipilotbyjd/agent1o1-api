@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\WorkflowBuilderAgent;
+use App\Ai\Agents\Builder\WorkflowBuilderAgent;
 use App\Exceptions\WorkflowValidationException;
 use App\Models\User;
 use App\Models\Workflows\Builder\WorkflowBuilderSession;

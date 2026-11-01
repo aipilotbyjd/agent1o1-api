@@ -1,8 +1,8 @@
 <?php
 
 use App\Actions\Workflows\Builder\SendWorkflowBuilderMessageAction;
-use App\Ai\Agents\WorkflowBuilderAgent;
-use App\Ai\Agents\WorkflowBuilderTitleAgent;
+use App\Ai\Agents\Builder\WorkflowBuilderAgent;
+use App\Ai\Agents\Builder\WorkflowBuilderTitleAgent;
 use App\Enums\Billing\CreditTransactionType;
 use App\Enums\Workflows\BuilderMessageStatus;
 use App\Events\Workflows\WorkflowBuilderActivity;

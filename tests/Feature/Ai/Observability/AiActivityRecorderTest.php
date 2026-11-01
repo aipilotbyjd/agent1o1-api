@@ -1,9 +1,9 @@
 <?php
 
-use App\Ai\Agents\EvalJudgeAgent;
+use App\Ai\Agents\Judges\EvalJudgeAgent;
 use App\Ai\Observability\AiActivityCard;
 use App\Ai\Observability\AiActivityRecorder;
-use App\Ai\Tools\SubmitVerdictTool;
+use App\Ai\Tools\Submissions\SubmitVerdictTool;
 use Laravel\Ai\AiManager;
 use Laravel\Ai\Events\ProviderFailedOver;
 use Laravel\Ai\Events\StepCompleted;

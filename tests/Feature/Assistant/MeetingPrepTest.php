@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Assistant\MeetingBriefAgent;
+use App\Ai\Agents\Assistant\MeetingBriefAgent;
 use App\Enums\Assistant\AssistantBriefingRunStatus;
 use App\Enums\Assistant\AssistantMeetingPrepStatus;
 use App\Enums\Connectors\ConnectorCredentialScope;

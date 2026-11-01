@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Tools\NodeTool;
+use App\Ai\Tools\Workspace\NodeTool;
 use App\Contracts\NodeContract;
 use App\Enums\Billing\CreditTransactionType;
 use App\Models\Agents\AgentToolBinding;

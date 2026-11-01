@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\EmbeddedAgent;
+use App\Ai\Agents\Workspace\EmbeddedAgent;
 use App\Enums\Agents\AgentActionStatus;
 use App\Enums\Agents\AutonomyMode;
 use App\Enums\Agents\EvalRunStatus;

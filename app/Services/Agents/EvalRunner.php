@@ -2,7 +2,7 @@
 
 namespace App\Services\Agents;
 
-use App\Ai\ResponseUsage;
+use App\Ai\Usage\ResponseUsage;
 use App\Enums\Agents\EvalRunStatus;
 use App\Enums\Agents\EvalRunTrigger;
 use App\Enums\RunStatus;

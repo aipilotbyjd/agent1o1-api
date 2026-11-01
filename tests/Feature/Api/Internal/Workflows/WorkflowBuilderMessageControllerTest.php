@@ -1,7 +1,7 @@
 <?php
 
-use App\Ai\Agents\WorkflowBuilderAgent;
-use App\Ai\Agents\WorkflowBuilderTitleAgent;
+use App\Ai\Agents\Builder\WorkflowBuilderAgent;
+use App\Ai\Agents\Builder\WorkflowBuilderTitleAgent;
 use App\Enums\Queue as QueueName;
 use App\Enums\Workflows\BuilderMessageMode;
 use App\Enums\Workflows\BuilderMessageStatus;

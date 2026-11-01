@@ -1,7 +1,7 @@
 <?php
 
 use App\Actions\Agents\CreateAgentSessionAction;
-use App\Ai\Agents\WorkspaceAgent;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
 use App\Models\Agents\Agent;
 use App\Models\Agents\Skill;
 use App\Models\Runs\Run;

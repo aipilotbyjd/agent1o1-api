@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\ReflectionReviewerAgent;
+use App\Ai\Agents\Judges\ReflectionReviewerAgent;
 use App\Enums\Agents\ReflectionRunStatus;
 use App\Enums\Agents\ReflectionStatus;
 use App\Enums\Billing\CreditTransactionType;

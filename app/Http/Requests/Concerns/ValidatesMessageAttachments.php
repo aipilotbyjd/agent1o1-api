@@ -14,7 +14,7 @@ trait ValidatesMessageAttachments
 {
     /**
      * `$documents: false` refuses PDFs, for a chat whose model is only ever
-     * sent images and inlined text (see `App\Ai\InlinedAttachments`).
+     * sent images and inlined text (see `App\Ai\Support\InlinedAttachments`).
      *
      * @return array<string, mixed>
      */

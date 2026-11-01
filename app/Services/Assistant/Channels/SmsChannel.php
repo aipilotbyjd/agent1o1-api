@@ -2,7 +2,7 @@
 
 namespace App\Services\Assistant\Channels;
 
-use App\Ai\Assistant\ThreadRouterAgent;
+use App\Ai\Agents\Assistant\ThreadRouterAgent;
 use App\Enums\Assistant\AssistantSessionOrigin;
 use App\Enums\Assistant\AssistantTurnStatus;
 use App\Enums\Billing\Feature;

@@ -3,9 +3,9 @@
 namespace App\Services\Assistant\Inbox;
 
 use App\Actions\Billing\DeductCreditsAction;
-use App\Ai\Assistant\InboxClassifierAgent;
-use App\Ai\Assistant\ReplyDrafterAgent;
-use App\Ai\ResponseUsage;
+use App\Ai\Agents\Assistant\InboxClassifierAgent;
+use App\Ai\Agents\Assistant\ReplyDrafterAgent;
+use App\Ai\Usage\ResponseUsage;
 use App\Enums\Assistant\AssistantInboxDraftMode;
 use App\Enums\Assistant\AssistantInboxDraftStatus;
 use App\Enums\Assistant\AssistantInboxLabelGroup;

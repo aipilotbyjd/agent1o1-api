@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Tools\UpdateInstructionsTool;
+use App\Ai\Tools\Workspace\UpdateInstructionsTool;
 use App\Enums\Workspaces\Role;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentSession;
