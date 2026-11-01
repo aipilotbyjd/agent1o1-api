@@ -1,0 +1,21 @@
+meta {
+  name: Members - Leave
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/leave
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Removes the authenticated user from the workspace.
+
+  Responds `204 No Content` with no envelope.
+}

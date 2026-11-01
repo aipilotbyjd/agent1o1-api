@@ -1,0 +1,26 @@
+meta {
+  name: Publish Requests - Get
+  type: http
+  seq: 44
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/publish-requests/:publishRequest
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+  publishRequest: {{publishRequestId}}
+}
+
+docs {
+  One publish request in full, including the `editor_graph` under review,
+  `requester`, `reviewer`, `base_version`, `published_version`,
+  `can_review` and `can_withdraw`. Requires the `workflow.view`
+  permission. A request from another workflow answers `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { request } }`.
+}

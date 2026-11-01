@@ -1,0 +1,35 @@
+meta {
+  name: Tags - Sync For Agent
+  type: http
+  seq: 70
+}
+
+put {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/tags
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+body:json {
+  {
+    "tag_ids": ["{{tagId}}"]
+  }
+}
+
+docs {
+  Replaces the full set of tags on an agent (pass every tag ID you want
+  attached — omitted ones are detached). Requires the `agent.manage`
+  permission.
+
+  - `tag_ids` — must be present (may be `[]` to clear all tags); each must
+    be a tag in this workspace. Create tags with `Workflows/Tags - Create`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { agent } }` with `agent.tags`
+  populated.
+}

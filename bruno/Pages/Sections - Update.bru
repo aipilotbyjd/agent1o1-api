@@ -1,0 +1,32 @@
+meta {
+  name: Sections - Update
+  type: http
+  seq: 10
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/page-sections/:section
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  section: {{pageSectionId}}
+}
+
+body:json {
+  {
+    "name": "Intro heading (large)"
+  }
+}
+
+docs {
+  Renames a saved section. Requires the `page.manage` permission.
+
+  - `name` — optional, max 120.
+  - `block` is prohibited here (422) — save a new section to change it.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { section } }`.
+}

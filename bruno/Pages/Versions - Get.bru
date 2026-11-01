@@ -1,0 +1,26 @@
+meta {
+  name: Versions - Get
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/versions/:version
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+  version: {{pageVersionId}}
+}
+
+docs {
+  Fetches one version including its `content` and `variant_content`.
+  Requires the `page.manage` permission. A version of another page
+  answers 404.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { version } }`.
+}

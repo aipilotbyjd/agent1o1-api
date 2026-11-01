@@ -1,0 +1,48 @@
+meta {
+  name: Versions - Save
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/versions
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+body:json {
+  {
+    "label": "Before copy rewrite",
+    "kind": "saved"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const version = res.body.data?.version;
+    if (version && version.id) {
+      bru.setVar("pageVersionId", version.id);
+    }
+  }
+}
+
+docs {
+  Snapshots the current draft (and version B, if any) as a numbered
+  version. Requires the `page.manage` permission. Stores the ID in
+  `pageVersionId`.
+
+  - `label` — optional, max 120.
+  - `kind` — optional, `saved` (default) or `before_generation` (what the
+    builder sends before applying an AI design).
+
+  Publishing creates `published` versions and restoring creates
+  `before_restore` ones automatically.
+
+  Response is wrapped (201):
+  `{ success, statusCode, message, data: { version } }` (no content).
+}

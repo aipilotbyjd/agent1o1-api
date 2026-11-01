@@ -1,0 +1,34 @@
+meta {
+  name: Library - View
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/v1/library/:artifact/view
+  body: none
+  auth: none
+}
+
+params:path {
+  artifact: {{libraryArtifactId}}
+}
+
+params:query {
+  ~expires: 
+  ~signature: 
+}
+
+docs {
+  Serves a library file inline for thumbnails and the viewer.
+
+  **This request will not work as-is.** It sits outside the authenticated
+  group behind the `signed` middleware: no bearer token, no workspace
+  segment, and `403 Invalid signature.` unless `expires` and `signature`
+  match. Take the whole `view_url` from a `Library - List` item (valid
+  30 minutes) and paste it in.
+
+  Only previewable files have a `view_url`; anything else is 404. The
+  response is the raw file under a `sandbox` Content-Security-Policy and
+  `nosniff`, not the JSON envelope.
+}

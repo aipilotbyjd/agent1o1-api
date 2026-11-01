@@ -1,0 +1,31 @@
+meta {
+  name: Skill Sources - Delete
+  type: http
+  seq: 30
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skill-sources/:skillSource?keep_skills=1
+  body: none
+  auth: inherit
+}
+
+params:query {
+  keep_skills: 1
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skillSource: {{skillSourceId}}
+}
+
+docs {
+  Disconnects a skill source. Requires the `agent-skill.manage`
+  permission.
+
+  `keep_skills=1` keeps its synced skills as ordinary, editable ones;
+  without it they're removed along with the source. `409` while the source
+  is syncing.
+
+  Responds `204 No Content` with no envelope.
+}

@@ -1,0 +1,22 @@
+meta {
+  name: Inbox - Disable
+  type: http
+  seq: 64
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/inbox/disable
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Turns Smart Inbox off. Requires the `assistant.use` permission. Settings
+  and labels are kept.
+
+  Response is wrapped: same payload as `Inbox - Get`.
+}

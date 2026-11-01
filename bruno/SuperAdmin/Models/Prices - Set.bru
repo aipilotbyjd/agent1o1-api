@@ -1,0 +1,31 @@
+meta {
+  name: Prices - Set
+  type: http
+  seq: 20
+}
+
+put {
+  url: {{baseUrl}}/super-admin/v1/models/prices
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+body:json {
+  {
+    "reason": "Routing around a provider outage",
+    "provider": "openai",
+    "model_id": "gpt-4o",
+    "input_per_mtok": 2.5,
+    "output_per_mtok": 10,
+    "source": "provider_list",
+    "notes": ""
+  }
+}
+
+docs {
+  Creates the price or replaces it, and confirms it (`checked_at` becomes now). `source`: provider_list, contract or estimate. Needs `models.prices`.
+}

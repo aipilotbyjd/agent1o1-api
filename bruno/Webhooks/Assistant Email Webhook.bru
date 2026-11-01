@@ -1,0 +1,55 @@
+meta {
+  name: Assistant Email Webhook
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/hooks/assistant/email?token={{assistantEmailInboundToken}}
+  body: json
+  auth: none
+}
+
+params:query {
+  token: {{assistantEmailInboundToken}}
+}
+
+body:json {
+  {
+    "MessageID": "00000000-0000-0000-0000-000000000000",
+    "From": "jane.doe@example.com",
+    "FromFull": {
+      "Email": "jane.doe@example.com",
+      "Name": "Jane Doe"
+    },
+    "ToFull": [
+      {
+        "Email": "orb@example.com",
+        "Name": ""
+      }
+    ],
+    "CcFull": [],
+    "Subject": "Can you move my 3pm?",
+    "TextBody": "Please move my 3pm call to tomorrow morning.",
+    "StrippedTextReply": "",
+    "Headers": []
+  }
+}
+
+docs {
+  Inbound email for the personal assistant, posted by the mail provider
+  (Postmark-style inbound JSON). Not called by clients.
+
+  **Auth.** No session; the `token` query string must equal
+  `ASSISTANT_EMAIL_INBOUND_TOKEN` (`assistant.channels.email.inbound_token`).
+  Missing or wrong token — or no token configured — answers `404`.
+  Throttled to 120 per minute.
+
+  Mail is acted on only when a `To`/`Cc` address is the assistant's
+  address, the sender is a known member, and (unless
+  `ASSISTANT_EMAIL_REQUIRE_AUTH` is off) the `Headers` show SPF or DKIM
+  passed — so this hand-written sample is normally ignored.
+
+  Response is **not** wrapped: `200 { "result": "<outcome>" }`, e.g.
+  `ignored: not addressed to the assistant`, `ignored: unknown sender`.
+}

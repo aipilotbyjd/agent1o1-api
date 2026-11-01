@@ -1,0 +1,23 @@
+meta {
+  name: Builder Messages - List
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-builder-sessions/:session/messages
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{builderSessionId}}
+}
+
+docs {
+  Every message in the session, oldest first, with each assistant reply's
+  `processing_status`, `error_message`, `actions` and `draft_version_id`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { messages } }`.
+}

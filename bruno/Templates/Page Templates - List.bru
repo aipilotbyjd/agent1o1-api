@@ -1,0 +1,35 @@
+meta {
+  name: Page Templates - List
+  type: http
+  seq: 24
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/page-templates
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  ~category: sales
+}
+
+docs {
+  Lists page templates visible to the workspace, newest first. Requires
+  the `template.view` permission.
+
+  "Visible" means the workspace's own templates plus the global public
+  ones. There's no `Create` or `Use` endpoint: templates are made with
+  `Page Templates - Save From Page`, and used by sending `template_id` to
+  `Pages/Pages - Create`.
+
+  - `category` — optional, filters to one category.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { page_templates } }`, each
+  including its `content`.
+}

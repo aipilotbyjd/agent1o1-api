@@ -1,0 +1,32 @@
+meta {
+  name: Folders - Move Workflows
+  type: http
+  seq: 22
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/folders/move-workflows
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "workflow_ids": ["{{workflowId}}"],
+    "folder_id": "{{folderId}}"
+  }
+}
+
+docs {
+  Bulk-moves workflows into a folder in one call. Requires the
+  `workflow.manage` permission.
+
+  Set `folder_id` to `null` to clear the folder (move workflows back to
+  unfiled). `workflow_ids` must belong to `:workspace`.
+
+  Response is wrapped: `{ success, statusCode, message, data: null }`.
+}

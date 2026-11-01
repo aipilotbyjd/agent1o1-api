@@ -1,0 +1,31 @@
+meta {
+  name: Node Runs - Get
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseUrl}}/public/v1/runs/:run/node-runs/:nodeRun
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  run: {{runId}}
+  nodeRun: 1
+}
+
+docs {
+  Fetches one step of a run. Requires the `runs:read` ability on the key.
+
+  Set `nodeRun` by hand from a `Node Runs - List` response — there's no
+  create step to populate it. A node run belonging to another run answers
+  `404`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { node_run } }`.
+}

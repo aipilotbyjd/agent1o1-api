@@ -1,0 +1,49 @@
+meta {
+  name: Workflow Templates - Use
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-templates/:workflowTemplate/use
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflowTemplate: {{workflowTemplateId}}
+}
+
+body:json {
+  {
+    "name": "Lead intake"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const workflow = res.body.data?.workflow;
+    if (workflow && workflow.id) {
+      bru.setVar("workflowId", workflow.id);
+    }
+  }
+}
+
+docs {
+  Materializes a new draft workflow from the template's graph and bumps the
+  template's `usage_count`. Requires the `workflow.manage` permission (not
+  `template.manage` — you're creating a workflow here).
+
+  Works for any visible template, global public ones included. Overwrites
+  the `workflowId` collection variable with the new workflow.
+
+  - `name` — required, max 255. The slug is derived from it.
+  - `folder_id` — optional, files the new workflow under a workflow folder
+    of this workspace.
+
+  `402` if the plan's workflow limit is reached.
+
+  `201`, wrapped: `{ success, statusCode, message, data: { workflow } }`
+  with `nodes` and `edges` eager-loaded.
+}

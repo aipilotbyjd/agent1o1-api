@@ -1,0 +1,34 @@
+meta {
+  name: Transcribe
+  type: http
+  seq: 23
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/transcribe
+  body: multipartForm
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:multipart-form {
+  audio: @file(/path/to/audio.webm)
+}
+
+docs {
+  Voice input: turns a recording into text for the chat box. Requires the
+  `assistant.use` permission. Throttled to 20 per minute. Only the
+  transcript comes back — the audio isn't stored or sent to the model.
+
+  `audio` is required: webm, ogg, mpeg, mp4/m4a or wav, max 25 MB
+  (`assistant.transcription.max_kilobytes`). Point the file at a real
+  recording before running.
+
+  `503` when voice isn't configured (see `features.voice` on
+  `Assistant - Get`).
+
+  Response is wrapped: `{ success, statusCode, message, data: { text } }`.
+}

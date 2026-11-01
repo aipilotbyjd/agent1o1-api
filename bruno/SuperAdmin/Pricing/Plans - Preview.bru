@@ -1,0 +1,32 @@
+meta {
+  name: Plans - Preview
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/pricing/plans/:plan/preview
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  plan: {{saPlanId}}
+}
+
+body:json {
+  {
+    "credits_monthly": 400,
+    "limits": { "agents": 3 },
+    "features": { "git_sync": false },
+    "prices": { "monthly": 3900 }
+  }
+}
+
+docs {
+  What a proposed change would do to current customers. Writes nothing.
+}

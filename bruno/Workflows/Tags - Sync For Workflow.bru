@@ -1,0 +1,34 @@
+meta {
+  name: Tags - Sync For Workflow
+  type: http
+  seq: 27
+}
+
+put {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/tags
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+body:json {
+  {
+    "tag_ids": ["{{tagId}}"]
+  }
+}
+
+docs {
+  Replaces the full set of tags on a workflow (pass every tag ID you want
+  attached — omitted ones are detached). Requires the `workflow.manage`
+  permission.
+
+  Send `"tag_ids": []` to clear all tags from the workflow.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { workflow } }` with `workflow.tags`
+  populated.
+}

@@ -1,0 +1,66 @@
+meta {
+  name: Rules - Create
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/referrals/programs/:program/rules
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  program: {{referralProgramId}}
+}
+
+body:json {
+  {
+    "name": "Yearly bonus",
+    "trigger": "first_payment",
+    "recipient": "referrer",
+    "reward_type": "credits",
+    "credits_amount": 3000,
+    "conditions": {
+      "billing_intervals": [
+        "yearly"
+      ]
+    }
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const id = res.body.data?.rule?.id;
+    if (id) {
+      bru.setVar("referralRuleId", id);
+    }
+  }
+}
+
+docs {
+  "When `trigger` happens, give `reward_type` to `recipient`."
+
+  - `trigger`: `signup_verified` | `activated` | `first_payment` | `repeat_payment` | `milestone`
+  - `recipient`: `referrer` | `referee` (the new user)
+  - `reward_type` and the fields it needs:
+    - `credits` → `credits_amount`
+    - `plan_time` → `plan_id`, `duration_days`, optional `if_already_on_plan`
+      (`grant_anyway` | `skip` | `convert_to_credits` | `stripe_balance_credit`) and `fallback_credits`
+    - `stripe_balance_credit` → `amount_cents`, or `amount_percent_of_plan` + `plan_id`
+    - `trial_extension` → `trial_days` (referee only)
+  - `milestone_count` for milestone rules (referrer only)
+  - Optional: `hold_days`, `max_per_recipient`, `starts_at`, `ends_at`, `is_active`, and
+    `conditions` {`min_payment_cents`, `plan_ids`, `billing_intervals`, `payment_sources`,
+    `nth_payment_min`, `nth_payment_max`}
+
+  Invalid combinations are refused with 422 and field errors.
+
+  Stores `referralRuleId`.
+
+  `201`, wrapped: `{ success, statusCode, message, data: { rule } }`.
+}

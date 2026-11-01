@@ -1,0 +1,22 @@
+meta {
+  name: Skills - Get
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skills/:skill
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skill: {{skillId}}
+}
+
+docs {
+  Fetches a single skill. Requires the `agent.view` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { skill } }`.
+}

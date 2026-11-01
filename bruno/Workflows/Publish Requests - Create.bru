@@ -1,0 +1,47 @@
+meta {
+  name: Publish Requests - Create
+  type: http
+  seq: 43
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/publish-requests
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+body:json {
+  {
+    "notes": "Adds the CRM sync step."
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const request = res.body.data?.request;
+    if (request && request.id) {
+      bru.setVar("publishRequestId", request.id);
+    }
+  }
+}
+
+docs {
+  Asks for the current draft to be reviewed before it goes live, for
+  workspaces whose publish approval policy is on (where `Versions -
+  Publish` answers `409`). Requires the `workflow.publish` permission.
+  Stores the new ID as `publishRequestId`.
+
+  `notes` — optional, max 500 characters. The draft graph is validated and
+  snapshotted; an open request for the same workflow is superseded.
+
+  `409` when the workspace publishes directly or the draft matches the
+  live version; `422` with `issues` when the graph fails validation.
+
+  Response is wrapped: `{ success, statusCode, message, data: { request } }`
+  (`201`).
+}

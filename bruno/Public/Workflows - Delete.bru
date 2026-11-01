@@ -1,0 +1,26 @@
+meta {
+  name: Workflows - Delete
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrl}}/public/v1/workflows/:workflow
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  workflow: {{workflowId}}
+}
+
+docs {
+  Deletes a workflow. Requires the `workflows:write` ability on the key. A
+  workflow outside the key's workspace answers `404`.
+
+  Answers `204 No Content` with no envelope.
+}

@@ -1,0 +1,34 @@
+meta {
+  name: Rules - Reorder
+  type: http
+  seq: 13
+}
+
+patch {
+  url: {{baseUrl}}/super-admin/v1/referrals/programs/:program/rules/reorder
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  program: {{referralProgramId}}
+}
+
+body:json {
+  {
+    "rule_ids": [
+      "{{referralRuleId}}"
+    ]
+  }
+}
+
+docs {
+  Sets the order of the program's rules. `rule_ids` must all belong to the
+  program; the list order becomes `sort_order`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { rules } }`.
+}

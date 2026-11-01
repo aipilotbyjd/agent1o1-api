@@ -1,0 +1,39 @@
+meta {
+  name: Reflection Runs - Start
+  type: http
+  seq: 50
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/reflection-runs
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const run = res.body.data?.run;
+    if (run && run.id) {
+      bru.setVar("reflectionRunId", run.id);
+    }
+  }
+}
+
+docs {
+  Triggers `Services\Agents\ReflectionAnalyzer` on demand, outside its
+  cron schedule. Requires the `agent.manage` permission.
+
+  Reviews every `AgentSession` since the last run, mines them for recurring
+  patterns, and proposes `Reflection`s (new/updated skills, instruction
+  changes, or flagged tool gaps). Skips (rather than fails) if fewer than
+  `min_chats_threshold` new sessions exist.
+
+  Takes no body. Stores the new run's ID in `reflectionRunId`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { run } }`.
+}

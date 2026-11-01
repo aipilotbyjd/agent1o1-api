@@ -1,0 +1,24 @@
+meta {
+  name: Comments - Delete
+  type: http
+  seq: 19
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/comments/:comment
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+  comment: {{pageCommentId}}
+}
+
+docs {
+  Deletes a comment (a thread takes its replies with it). Requires the
+  `page.view` permission, and either authorship or `page.manage`.
+
+  Answers `204 No Content` with no envelope.
+}

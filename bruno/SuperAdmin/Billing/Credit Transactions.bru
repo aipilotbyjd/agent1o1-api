@@ -1,0 +1,23 @@
+meta {
+  name: Credit Transactions
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/billing/workspaces/:workspace/credit-transactions
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  workspace: {{saWorkspaceId}}
+}
+
+docs {
+  The credit ledger, newest first, cursor-paginated.
+}

@@ -1,0 +1,28 @@
+meta {
+  name: Publish Requests - List
+  type: http
+  seq: 42
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/publish-requests
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+docs {
+  The workflow's review history. Requires the `workflow.view` permission.
+
+  `pending` is the open request in full (its `editor_graph`, plus
+  `draft_changed_since` and `live_version_changed_since`), or `null`.
+  `requests` is the latest 50 requests of any status (`pending`,
+  `approved`, `rejected`, `withdrawn`, `superseded`) without their graphs.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { pending, requests } }`.
+}

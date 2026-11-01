@@ -1,0 +1,25 @@
+meta {
+  name: Referrals - Get Admin
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/referrals/referrals/:referral
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  referral: {{referralId}}
+}
+
+docs {
+  One referral with both people, its rewards and its payment count.
+
+  Response is wrapped: `{ success, statusCode, message, data: { referral } }`.
+}

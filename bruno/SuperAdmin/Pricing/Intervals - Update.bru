@@ -1,0 +1,27 @@
+meta {
+  name: Intervals - Update
+  type: http
+  seq: 24
+}
+
+put {
+  url: {{baseUrl}}/super-admin/v1/pricing/intervals
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456",
+    "intervals": { "lifetime": false }
+  }
+}
+
+docs {
+  Withdraws or restores an interval for every plan at once. Existing purchases are unaffected.
+}

@@ -1,0 +1,26 @@
+meta {
+  name: Variant - Promote
+  type: http
+  seq: 21
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/variant/promote
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+docs {
+  Ends the test with B as the winner: B's draft becomes the page's draft
+  and B is removed. Requires the `page.manage` permission. 409 without a
+  version B.
+
+  Visitors get the existing published page until you publish again.
+
+  Response is wrapped: `{ success, statusCode, message, data: { page } }`.
+}

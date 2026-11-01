@@ -1,0 +1,28 @@
+meta {
+  name: Invoices - Get
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/invoices/:invoiceId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  invoiceId: {{invoiceId}}
+}
+
+docs {
+  A single invoice, read live from Stripe. Requires the `billing.view`
+  permission. `invoiceId` is a Stripe invoice id (e.g. `in_...`), not a
+  local database id — `Invoices - List` stores the newest as `invoiceId`.
+
+  404s (not 403) for an invoice belonging to another workspace's Stripe
+  customer, so the endpoint never confirms someone else's invoice id
+  exists.
+
+  Response is wrapped: `{ success, statusCode, message, data: { invoice } }`.
+}

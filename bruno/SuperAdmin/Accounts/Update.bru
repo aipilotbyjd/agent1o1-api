@@ -1,0 +1,32 @@
+meta {
+  name: Update
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/super-admin/v1/accounts/:account
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  account: {{saAccountId}}
+}
+
+body:json {
+  {
+    "name": "Ops Person",
+    "allowed_ips": [
+      "203.0.113.0/24"
+    ]
+  }
+}
+
+docs {
+  Name and the per-account IP allowlist (addresses or CIDR ranges).
+}

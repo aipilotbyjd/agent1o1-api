@@ -1,0 +1,35 @@
+meta {
+  name: Agents - Update
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+body:json {
+  {
+    "instructions": "You triage inbound support tickets. Classify each one, suggest a next action, and flag anything urgent.",
+    "temperature": 0.4
+  }
+}
+
+docs {
+  Updates an agent. All fields are optional. Requires the `agent.manage`
+  permission.
+
+  Set `model_catalog_id` to an ID from `Ai/Model Catalog - List` to run
+  this agent on that entry's resolved (possibly multi-backend) chain
+  instead of the raw `provider`/`model` fields above — see
+  `Services\Ai\ModelCatalogResolver`. Set it back to `null` to opt out.
+
+  Response is wrapped: `{ success, statusCode, message, data: { agent } }`.
+}

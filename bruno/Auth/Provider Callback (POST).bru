@@ -1,0 +1,31 @@
+meta {
+  name: Provider Callback (POST)
+  type: http
+  seq: 25
+}
+
+post {
+  url: {{baseUrl}}/v1/auth/social/:provider/callback
+  body: formUrlEncoded
+  auth: none
+}
+
+params:path {
+  provider: google
+}
+
+body:form-urlencoded {
+  code: {{socialCode}}
+  ~state: {{socialState}}
+}
+
+docs {
+  The POST form of `Provider Callback`, for popup-based OAuth flows that
+  post the provider's `code` back instead of navigating to it. Same
+  route, same handling. `provider` must be `google` or `github`.
+
+  Does **not** return tokens or JSON: it redirects to
+  `{APP_FRONTEND_URL}/oauth/callback?code=<one-time code>` (or
+  `?error=<message>` when sign-in fails); trade that code via
+  `Social Exchange` within 60 seconds.
+}

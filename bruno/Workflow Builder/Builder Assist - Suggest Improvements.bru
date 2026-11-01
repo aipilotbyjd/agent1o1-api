@@ -1,0 +1,24 @@
+meta {
+  name: Builder Assist - Suggest Improvements
+  type: http
+  seq: 17
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-builder-sessions/:session/assist/suggest-improvements
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{builderSessionId}}
+}
+
+docs {
+  Reviews the draft (including the validator's findings) and suggests 3-7
+  concrete improvements with a priority, the nodes involved, and a node type
+  to add where one is needed. 422 for an empty draft. Charged in credits.
+
+  Response is wrapped: `{ success, statusCode, message, data: { improvements } }`.
+}

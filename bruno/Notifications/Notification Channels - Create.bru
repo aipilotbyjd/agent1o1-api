@@ -1,0 +1,52 @@
+meta {
+  name: Notification Channels - Create
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/notification-channels
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "type": "webhook",
+    "name": "Operations webhook",
+    "config": {
+      "url": "https://example.com/webhooks/notifications"
+    },
+    "is_active": true
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const channel = res.body.data?.channel ?? {};
+    if (channel.id) {
+      bru.setVar("notificationChannelId", channel.id);
+    }
+  }
+}
+
+docs {
+  Adds a channel. Requires `notification-channel.manage`.
+
+  - `type` — required: `slack`, `discord` or `webhook`.
+  - `name` — required, max 100.
+  - `config.url` — required; must be a public URL (private/internal hosts
+    are refused).
+  - `config.headers` — optional string map, sent with every delivery.
+  - `config.signing_secret` — optional, a Slack app's signing secret so its
+    approve/reject buttons can be trusted.
+  - `is_active` — optional, default `true`.
+
+  Stores `notificationChannelId`.
+
+  `201`, wrapped: `{ success, statusCode, message, data: { channel } }`.
+}

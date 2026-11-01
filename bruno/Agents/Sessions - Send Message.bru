@@ -1,0 +1,41 @@
+meta {
+  name: Sessions - Send Message
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/sessions/:session/messages
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+}
+
+body:json {
+  {
+    "message": "A customer says their invoice is wrong. What should I do?"
+  }
+}
+
+docs {
+  Sends a user message to the agent and returns its reply. Requires the
+  `agent.chat` permission.
+
+  - `message` — required.
+  - `skill_id` — optional uuid; a skill attached to this agent to use for
+    this message (`422` if it isn't attached).
+
+  A reply with `awaiting_approval: true` is paused on actions — see
+  `Session Actions - List` / `Session Actions - Decide`.
+
+  Synchronous — the response waits on the model (and any tools the agent
+  calls), so expect this to be slower than the other requests here.
+  Returns `402` when the workspace is out of credits.
+
+  Response is wrapped: `{ success, statusCode, message, data: { message } }`.
+}

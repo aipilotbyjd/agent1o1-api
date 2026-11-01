@@ -1,0 +1,44 @@
+meta {
+  name: Skill Sources - Resolve
+  type: http
+  seq: 24
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skill-sources/:skillSource/resolve
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skillSource: {{skillSourceId}}
+}
+
+body:json {
+  {
+    "path": "skills/refund-policy",
+    "resolution": "merged",
+    "commit_sha": "0123456789abcdef0123456789abcdef01234567",
+    "files": {
+      "SKILL.md": "---\nname: Refund policy\ndescription: How to handle refund requests.\n---\n\nRefunds are allowed within 30 days of purchase."
+    }
+  }
+}
+
+docs {
+  Chooses how to settle one two-way sync conflict; the next sync applies
+  it. Requires the `agent-skill.manage` permission.
+
+  - `path` — required (may be `null`), the conflict's skill folder, from
+    the source's `conflicts`.
+  - `commit_sha` — required, the conflict's `commit_sha`.
+  - `resolution` — `local`, `remote` or `merged`.
+  - `files` — required for `merged`: an object of relative file path to
+    contents that includes `SKILL.md`, max 61 files.
+
+  `422` when the conflict has changed since it was loaded, or the merged
+  files aren't one complete skill.
+
+  Response is wrapped: `{ success, statusCode, message, data: { source } }`.
+}

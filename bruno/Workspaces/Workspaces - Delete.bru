@@ -1,0 +1,22 @@
+meta {
+  name: Workspaces - Delete
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Deletes a workspace. Requires the `workspace.delete` permission.
+  Destructive — use a disposable test workspace.
+
+  Responds `204 No Content` with no envelope.
+}

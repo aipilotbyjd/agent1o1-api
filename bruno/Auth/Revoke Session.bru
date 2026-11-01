@@ -1,0 +1,21 @@
+meta {
+  name: Revoke Session
+  type: http
+  seq: 14
+}
+
+delete {
+  url: {{baseUrl}}/v1/auth/sessions/:tokenId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  tokenId: replace-with-token-id
+}
+
+docs {
+  Revokes a single session/token by ID, as returned by `List Sessions`.
+
+  Responds `204 No Content` with no envelope.
+}

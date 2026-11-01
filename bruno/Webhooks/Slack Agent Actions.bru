@@ -1,0 +1,38 @@
+meta {
+  name: Slack Agent Actions
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/slack/agent-actions
+  body: formUrlEncoded
+  auth: none
+}
+
+headers {
+  X-Slack-Request-Timestamp: {{slackRequestTimestamp}}
+  X-Slack-Signature: {{slackSignature}}
+}
+
+body:form-urlencoded {
+  payload: {"type":"block_actions","user":{"id":"U00000000","username":"jane.doe"},"actions":[{"value":"<encrypted-button-value>"}]}
+}
+
+docs {
+  Slack interactivity endpoint for Approve/Reject buttons on agent
+  approval messages. Point the Slack app's Interactivity Request URL here.
+  Not called by clients. Rate limited by the `trigger-hooks` throttle.
+
+  **Auth.** Two checks: the button's encrypted `value` must decode to an
+  action + decision (else `400 Not an approval button.`), and
+  `X-Slack-Signature` (`v0=` HMAC-SHA256 of `v0:{timestamp}:{raw body}`,
+  timestamp within 5 minutes) must match the `signing_secret` of one of
+  the action's workspace's active Slack notification channels (else
+  `401`). The workspace must allow chat approvals (else `403`). Actions
+  with named approvers must be decided in the app.
+
+  Response is **not** wrapped: Slack message JSON `{ response_type:
+  "ephemeral", replace_original: false, text }`, e.g. `Approved <tool>
+  (by <user>).` or `Already approved.`
+}

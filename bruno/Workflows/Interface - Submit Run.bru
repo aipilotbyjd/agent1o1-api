@@ -1,0 +1,50 @@
+meta {
+  name: Interface - Submit Run
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/interface/runs
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+body:json {
+  {
+    "input": {
+      "customer_email": "buyer@example.com",
+      "priority": "urgent"
+    }
+  }
+}
+
+script:post-response {
+  if (res.status === 202) {
+    const run = res.body.data?.run;
+    if (run && run.id) {
+      bru.setVar("runId", run.id);
+    }
+  }
+}
+
+docs {
+  Starts a run from a filled-in form. Requires the `run.trigger`
+  permission. Stores the new run's ID in `runId`.
+
+  Unlike `Runs - Start`, which takes any input array because an API caller
+  or webhook payload is trusted to know the shape, this validates `input`
+  against the contract `Interface - Get` returns. A form built from that
+  response can't submit something the workflow will reject — you get a
+  `422` naming the field instead of a run that quietly resolves
+  `{{ input.x }}` to null. Declared defaults are applied for fields you
+  omit.
+
+  Answers `202 Accepted`; the run is queued, not finished. Response is
+  wrapped: `{ success, statusCode, message, data: { run } }`.
+}

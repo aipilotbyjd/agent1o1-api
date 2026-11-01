@@ -1,0 +1,35 @@
+meta {
+  name: Channels - SMS Verify Start
+  type: http
+  seq: 58
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/channels/sms/verify-start
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "phone": "+15555550123"
+  }
+}
+
+docs {
+  Texts a verification code to the caller's phone. Requires the
+  `assistant.use` permission. Throttled to 6 per minute.
+
+  `phone` is required (string, max 20, international format, e.g.
+  `+14155550123`). `404` when Twilio isn't configured on the server; `402`
+  when the plan lacks the `assistant_sms` feature; `422` on `phone` for a
+  badly formatted number, one linked to another account, or a resend
+  within a minute / too many codes this hour.
+
+  Response is wrapped: `{ success, statusCode, message: "Code sent.",
+  data: [] }`.
+}

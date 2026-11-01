@@ -1,0 +1,19 @@
+meta {
+  name: Trigger Presets - List
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/catalog/trigger-presets
+  body: none
+  auth: inherit
+}
+
+docs {
+  Lists the active trigger presets, grouped by category. This is a global
+  catalog — it needs authentication but no workspace context.
+
+  Response is wrapped: `{ success, statusCode, message, data: { presets } }`,
+  where `presets` is an object keyed by category.
+}

@@ -1,0 +1,25 @@
+meta {
+  name: Eval Cases - List
+  type: http
+  seq: 23
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/eval-suites/:suite/cases
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  suite: {{evalSuiteId}}
+}
+
+docs {
+  Lists the suite's cases. Requires the `agent.view` permission.
+
+  Each case is one input plus the assertions that grade the answer to it.
+
+  Response is wrapped: `{ success, statusCode, message, data: { cases } }`.
+}

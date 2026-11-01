@@ -1,0 +1,24 @@
+meta {
+  name: Workflow Tools - Detach
+  type: http
+  seq: 35
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/workflows/:workflow
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  workflow: {{workflowId}}
+}
+
+docs {
+  Detaches a workflow from the agent's tools. The workflow itself is not
+  deleted. Requires the `agent.manage` permission.
+
+  Responds `204 No Content` with no envelope.
+}

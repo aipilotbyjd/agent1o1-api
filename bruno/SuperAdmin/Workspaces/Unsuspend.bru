@@ -1,0 +1,29 @@
+meta {
+  name: Unsuspend
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/workspaces/:workspace/unsuspend
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  workspace: {{saWorkspaceId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request, ticket 1234"
+  }
+}
+
+docs {
+  Needs a `reason`.
+}

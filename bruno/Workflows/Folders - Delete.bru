@@ -1,0 +1,27 @@
+meta {
+  name: Folders - Delete
+  type: http
+  seq: 21
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/folders/:folder
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  folder: {{folderId}}
+}
+
+docs {
+  Deletes a folder. Its workflows or agents and any child folders fall
+  back to no folder (`folder_id` is nulled, not cascaded). Requires
+  `workflow.manage` for a workflow folder, `agent.manage` for an agent
+  folder.
+
+  404s if `:folder` doesn't belong to `:workspace`.
+
+  Responds `204 No Content` with no envelope.
+}

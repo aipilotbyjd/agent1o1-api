@@ -1,0 +1,49 @@
+meta {
+  name: Collection Items - Add
+  type: http
+  seq: 21
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/template-collections/:templateCollection/items
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  templateCollection: {{templateCollectionId}}
+}
+
+body:json {
+  {
+    "templatable_type": "workflow_template",
+    "templatable_id": "{{workflowTemplateId}}",
+    "position": 0
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const item = res.body.data?.item;
+    if (item && item.id) {
+      bru.setVar("templateCollectionItemId", item.id);
+    }
+  }
+}
+
+docs {
+  Adds a workflow template or an agent template to the collection.
+  Requires the `template.manage` permission. Stores the new item's ID in
+  the `templateCollectionItemId` collection variable.
+
+  - `templatable_type` — required, either `workflow_template` or
+    `agent_template`.
+  - `templatable_id` — required UUID, the template's ID. Swap it to
+    `{{agentTemplateId}}` when adding an agent template. A template not
+    visible to the workspace answers `422`.
+  - `position` — optional integer from 0; defaults to the end of the list.
+
+  `201`, wrapped: `{ success, statusCode, message, data: { item } }`
+  with the underlying template loaded.
+}

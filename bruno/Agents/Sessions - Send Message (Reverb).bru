@@ -1,0 +1,59 @@
+meta {
+  name: Sessions - Send Message (Reverb)
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/sessions/:session/turns
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+}
+
+body:json {
+  {
+    "message": "A customer says their invoice is wrong. What should I do?"
+  }
+}
+
+docs {
+  The same turn `Sessions - Send Message` runs, but the reply is not in the
+  response. The request opens the turn (credit check, your message, any
+  attachments) and returns `202` with `turn.run_id`; the model call runs on
+  the queue and streams to Reverb. Requires the `agent.chat` permission. A
+  conversation still answering the previous message, or a workspace out of
+  credits, is refused here, before anything is queued.
+
+  Subscribe before sending, to the private channel
+  `workspaces.{workspaceId}.agent-sessions.{sessionId}` (authorized by
+  `POST /api/broadcasting/auth`). Event names (Echo: prefix with `.`):
+
+  - `turn.changed` — the turn moved. `turn.status` is `running` when
+    streaming starts, then `completed`, `awaiting_approval` or `failed`.
+    Anything but `running` is the cue to fetch the stored message
+    (`turn.message_id`) and, when paused, the waiting actions
+    (`turn.pending_action_ids`). `turn.error` is set on `failed`.
+  - `turn.delta` — a chunk of assistant text (`run_id`, `text`);
+    concatenate in the order received. Chunks are batched, not per token.
+  - `turn.tool` — a tool call `started` or `finished` (`tool_call_id`,
+    `tool`, `phase`; `arguments` when started and `output` when finished,
+    `successful` / `denied` when finished, and `subagent_task_id` for a
+    started subagent). `arguments` is left out when larger than 1500 bytes
+    and `output` is cut at 1000 characters — the full call is on the stored
+    message.
+  - `agent.message` — a message was appended (any tab, any teammate).
+  - `agent.actions.requested` — the turn paused on actions that need a
+    decision; `Session Actions - Decide` records the
+    decisions and answers `{ actions, resumed, run_id }` — when `resumed` is
+    true the paused turn carries on, streaming the same events for `run_id`.
+
+  Events are not replayed. The transcript is persisted whether or not
+  anyone is listening, so a client that connects late or reconnects loads
+  `Sessions - Messages` and uses the socket only for what follows.
+}

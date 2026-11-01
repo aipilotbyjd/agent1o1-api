@@ -1,0 +1,25 @@
+meta {
+  name: Briefings - Pause
+  type: http
+  seq: 52
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/briefings/:type/pause
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  type: daily
+}
+
+docs {
+  Pauses a report without changing its settings (sets `paused_at`).
+  Requires the `assistant.use` permission. `type` is `daily` or
+  `meeting_prep`.
+
+  Response is wrapped: same shape as `Briefings - Get`, with
+  `config.paused: true`.
+}

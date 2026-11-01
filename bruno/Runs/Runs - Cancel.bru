@@ -1,0 +1,26 @@
+meta {
+  name: Runs - Cancel
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/runs/:run/cancel
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  run: {{runId}}
+}
+
+docs {
+  Cancels an in-flight run. Requires the `run.trigger` permission — the
+  same right needed to start one.
+
+  Takes no body. Cancelling a run that has already finished answers `409`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { run } }`
+  with `nodeRuns` loaded.
+}

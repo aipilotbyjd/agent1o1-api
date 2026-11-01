@@ -1,0 +1,46 @@
+meta {
+  name: Agent Actions - List
+  type: http
+  seq: 85
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agent-actions
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  ~status: pending
+  ~agent_id: {{agentId}}
+  ~effect: destructive
+  ~risk: high
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const actions = res.body.data;
+    if (Array.isArray(actions) && actions.length > 0) {
+      bru.setVar("agentActionId", actions[0].id);
+    }
+  }
+}
+
+docs {
+  The workspace's approvals inbox across every agent, 25 per page, each
+  with its `agent` and `session`. Requires the `agent.view` permission.
+
+  - `status` — optional, defaults to `pending` (oldest request first);
+    any other status lists newest first. Values as in `Actions - List`.
+  - `agent_id` — optional uuid.
+  - `effect` — optional: `read`, `write`, `external`, `destructive`.
+  - `risk` — optional: `low`, `medium`, `high`.
+
+  Stores the first action's ID in `agentActionId`.
+
+  Paginated: `{ success, statusCode, message, data: [...], meta }`.
+}

@@ -1,0 +1,35 @@
+meta {
+  name: Publish Requests - Reject
+  type: http
+  seq: 46
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/publish-requests/:publishRequest/reject
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+  publishRequest: {{publishRequestId}}
+}
+
+body:json {
+  {
+    "notes": "Please add error handling to the CRM step first."
+  }
+}
+
+docs {
+  Rejects a pending request; the requester is notified and the draft is
+  left as it is. Requires the `workflow.approve-publish` permission.
+
+  `notes` — optional, max 1000 characters.
+
+  `403` when reviewing your own request; `409` when the request is no
+  longer pending.
+
+  Response is wrapped: `{ success, statusCode, message, data: { request } }`.
+}

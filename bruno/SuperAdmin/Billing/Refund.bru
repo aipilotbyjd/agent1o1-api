@@ -1,0 +1,32 @@
+meta {
+  name: Refund
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/billing/workspaces/:workspace/refunds
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  workspace: {{saWorkspaceId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456",
+    "payment_intent": "pi_123",
+    "amount_cents": null
+  }
+}
+
+docs {
+  Refunds a payment of this workspace's own Stripe customer, in full unless `amount_cents` is given. A full refund of the payment that bought a plan grant also withdraws that grant.
+}

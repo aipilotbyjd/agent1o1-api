@@ -1,0 +1,19 @@
+meta {
+  name: BYOK
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/models/byok
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+docs {
+  How workspaces use their own keys: keys per provider by state, the keys a provider has rejected (workspace, hint and message, never the key), and how many workspaces chose a stricter key policy.
+}

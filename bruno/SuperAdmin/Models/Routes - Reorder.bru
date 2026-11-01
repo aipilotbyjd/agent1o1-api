@@ -1,0 +1,32 @@
+meta {
+  name: Routes - Reorder
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/models/:model/routes/reorder
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  model: {{saModelId}}
+}
+
+body:json {
+  {
+    "reason": "Routing around a provider outage",
+    "route_ids": [
+      "{{saRouteId}}"
+    ]
+  }
+}
+
+docs {
+  Puts the routes in order: the first is tried first. List every route of the model exactly once.
+}

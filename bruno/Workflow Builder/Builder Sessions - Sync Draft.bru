@@ -1,0 +1,37 @@
+meta {
+  name: Builder Sessions - Sync Draft
+  type: http
+  seq: 9
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-builder-sessions/:session/draft
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{builderSessionId}}
+}
+
+body:json {
+  {
+    "draft_lock_version": 0,
+    "nodes": [
+      { "key": "shape_lead", "type": "transform", "config": { "mapping": [] }, "position": { "x": 0, "y": 0 } }
+    ],
+    "edges": []
+  }
+}
+
+docs {
+  Replaces the draft with the canvas's copy after hand edits, so the
+  assistant's next turn works from what the user sees. Send the
+  `draft_lock_version` you last loaded: a 409 means the assistant (or
+  another tab) changed the draft since — reload the session first. 422 when
+  a node's type or config is invalid, keys repeat, or an edge points at a
+  missing node.
+
+  Response is wrapped: `{ success, statusCode, message, data: { session } }`.
+}

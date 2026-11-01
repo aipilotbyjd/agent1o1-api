@@ -1,0 +1,25 @@
+meta {
+  name: Workflows - List
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Lists the workspace's visible workflows, newest first; trashed ones are
+  in `Workflows - Trash`. Requires the `workflow.view` permission.
+
+  Each item adds `nodes_count`, `node_types`, `last_run_at` and the
+  caller's `is_favorite`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { workflows } }`.
+}

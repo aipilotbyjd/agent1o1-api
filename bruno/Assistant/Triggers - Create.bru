@@ -1,0 +1,58 @@
+meta {
+  name: Triggers - Create
+  type: http
+  seq: 72
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/triggers
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "type": "schedule",
+    "name": "Weekday inbox sweep",
+    "prompt": "Check my inbox and tell me what needs a reply today.",
+    "cron": "0 9 * * 1-5",
+    "timezone": "Europe/London"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const trigger = res.body.data?.trigger;
+    if (trigger && trigger.id) {
+      bru.setVar("assistantTriggerId", trigger.id);
+    }
+    if (trigger && trigger.webhook_url) {
+      bru.setVar("assistantTriggerToken", trigger.webhook_url.split("/").pop());
+    }
+  }
+}
+
+docs {
+  Creates a trigger that runs the caller's assistant with `prompt`.
+  Requires the `assistant.use` permission. Stores the ID in
+  `assistantTriggerId`; for a `webhook` trigger also stores the URL's
+  token in `assistantTriggerToken`.
+
+  - `type` (required) — `schedule` | `once` | `webhook`
+  - `name` (required, max 120), `prompt` (required, max 4000)
+  - `cron` — required for `schedule` (e.g. `0 9 * * 1-5`)
+  - `run_at` — required for `once`, must be in the future; read in
+    `timezone`
+  - `timezone` (optional, max 64)
+  - `status` is not allowed on create.
+
+  `422` on an invalid cron, unknown timezone, past `run_at`, or past 50
+  triggers per assistant.
+
+  Responds `201`, wrapped: `{ success, statusCode, message, data: {
+  trigger } }` (shape as in `Triggers - List`).
+}

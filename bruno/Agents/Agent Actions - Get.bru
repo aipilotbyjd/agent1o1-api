@@ -1,0 +1,23 @@
+meta {
+  name: Agent Actions - Get
+  type: http
+  seq: 86
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agent-actions/:action
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  action: {{agentActionId}}
+}
+
+docs {
+  Fetches one agent action with its `agent` and `session`. Requires the
+  `agent.view` permission. An action from another workspace answers `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { action } }`.
+}

@@ -1,0 +1,37 @@
+meta {
+  name: Create
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/accounts
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456",
+    "name": "Ops Person",
+    "email": "ops@example.com",
+    "role": "support",
+    "allowed_ips": []
+  }
+}
+
+script:post-response {
+  if (res.status === 200 || res.status === 201) {
+    const v = res.body.data?.admin?.id;
+    if (v) bru.setVar("saAccountId", v);
+  }
+}
+
+docs {
+  Returns a one-time `temporary_password`. The new account must change it at first sign-in, then enrol two-factor authentication. Roles: owner, operator, finance, support, viewer.
+}

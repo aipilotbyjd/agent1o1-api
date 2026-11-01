@@ -1,0 +1,46 @@
+meta {
+  name: Inbox - Get
+  type: http
+  seq: 61
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/inbox
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const message = (res.body.data?.messages || []).find((m) => m.suggestion);
+    if (message && message.id) {
+      bru.setVar("assistantInboxMessageId", message.id);
+    }
+  }
+}
+
+docs {
+  Smart Inbox state for the caller's assistant. Requires the
+  `assistant.use` permission. Stores the first message with a reply
+  suggestion in `assistantInboxMessageId` (for `Inbox - Accept
+  Suggestion`).
+
+  Response is wrapped: `{ success, statusCode, message, data: { available,
+  config, labels, messages } }`:
+
+  - `available` — `{ plan, gmail_connected, outlook_connected }`
+  - `config` — `enabled`, `provider`, `account`, `draft_mode`,
+    `drafting_instructions`, `known_senders_only`, `skip_existing_labels`,
+    `last_checked_at`, `last_error`
+  - `labels[]` — `id`, `name`, `definition`, `color`, `group`, `enabled`,
+    `builtin`
+  - `messages[]` — the latest 50 processed emails (`status`, `labels`,
+    `archived`, `skipped_reason`, `suggestion`, `draft_status`, ...)
+
+  `Inbox - Update`, `Enable`, `Disable` and the label endpoints all return
+  this same payload.
+}

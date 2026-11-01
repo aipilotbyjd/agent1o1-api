@@ -1,0 +1,33 @@
+meta {
+  name: Eval Suites - Update
+  type: http
+  seq: 21
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/eval-suites/:suite
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  suite: {{evalSuiteId}}
+}
+
+body:json {
+  {
+    "name": "Refund policy regressions (v2)"
+  }
+}
+
+docs {
+  Renames a suite, edits its description, or toggles `run_on_change`.
+  Requires the `agent.manage` permission. Every field is `sometimes` —
+  send only what changes.
+
+  Cases are managed separately through the `Eval Cases` requests.
+
+  Response is wrapped: `{ success, statusCode, message, data: { suite } }`.
+}

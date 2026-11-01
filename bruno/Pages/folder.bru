@@ -1,0 +1,58 @@
+meta {
+  name: Pages
+  seq: 24
+}
+
+docs {
+  Workflow pages: a hosted form-and-result page in front of a workflow, so
+  people can run it without opening the canvas. Every page belongs to one
+  workflow. Viewing and using pages needs `page.view`; building, publishing
+  and sharing them needs `page.manage`.
+
+  ## Lifecycle
+
+  - **Draft vs live.** `content` is the draft the builder edits
+    (`Pages - Update`); `published_content` is what people see, copied from
+    the draft by `Pages - Publish` — which refuses (422) while the draft has
+    error-level `issues`. `Pages - Unpublish` takes it down again.
+  - **Access.** `workspace` (default) pages are used from inside the app
+    (`Pages - View`, `Submissions - Create`). `link` and `password` pages are
+    also served at the public link — see below. Public access needs the
+    plan's public-pages feature (403 otherwise).
+  - **Variants (A/B).** `Variant - Create` copies the draft into a version
+    B. Publishing then makes both live; visitors are bucketed by
+    `variant_split` (% to B). `Variant - Promote` makes B the draft (publish
+    to go live), `Variant - Remove` ends the test.
+  - **Versions.** Every publish snapshots a version; `Versions - Save` adds a
+    labelled one by hand, `Versions - Restore` copies one back into the
+    draft (after snapshotting the current draft).
+  - **Generations.** `Generations - Create` asks AI to design or rework the
+    draft. It's queued (202) — poll `Generations - Get` until `status` is
+    `completed` or `failed`. Costs credits.
+
+  ## Public link
+
+  Each page has a `public_token` (stored in `pageToken` by `Pages - Create`,
+  `Pages - Get`, `Pages - Update` and `Pages - Rotate Link`). The
+  `Public Page - ...` requests hit `/v1/p/{token}` with no auth. They answer
+  404 unless the page is published, `is_enabled`, and `access` is `link` or
+  `password`. Setting a new password or rotating the link changes the
+  token and kills the old one.
+
+  ## Variables
+
+  `pageId`, `pageToken`, `pageGenerationId`, `pageSectionId`,
+  `pageVersionId`, `pageCommentId`, `pageSubmissionId`,
+  `publicPageSubmissionId`, `publicPageSubmissionSecret`,
+  `pageAccessToken`. Also needs `workflowId` (any workflow with an
+  interface). Page templates live in the `Templates` folder.
+
+  ## Suggested order
+
+  `Pages - Create` → `Pages - Update` (set `access: link`) →
+  `Versions` / `Comments` / `Variant` as needed → `Pages - Publish` →
+  `Pages - View` / `Submissions - Create` → `Public Page - Get` →
+  `Public Page - Submit` → `Public Page - Get Submission` →
+  `Insights - Get` / `Submissions - Export` → `Pages - Unpublish` →
+  `Pages - Delete`.
+}

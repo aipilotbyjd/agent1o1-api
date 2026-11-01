@@ -1,0 +1,23 @@
+meta {
+  name: Usage - Daily
+  type: http
+  seq: 28
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/models/usage/daily?days=14
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:query {
+  days: 14
+}
+
+docs {
+  Calls and estimated cost per day, oldest first, for a trend line. Days nothing ran show zero.
+}

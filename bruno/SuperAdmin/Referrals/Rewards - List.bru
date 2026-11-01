@@ -1,0 +1,41 @@
+meta {
+  name: Rewards - List
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/referrals/rewards?status=&page=1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:query {
+  status: 
+  page: 1
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const items = res.body.data;
+    if (Array.isArray(items) && items.length > 0) {
+      bru.setVar("referralRewardId", items[0].id);
+    }
+  }
+}
+
+docs {
+  The reward ledger. Filters: `status` (`awaiting_approval`, `pending`,
+  `granted`, `revoked`), `reward_type`, `recipient_user_id`, `referral_id`;
+  `per_page` defaults to 25.
+
+  Set `status=awaiting_approval` to see what needs your approval.
+
+  Stores the first reward as `referralRewardId`.
+
+  Paginated: `{ success, statusCode, message, data: [...], meta }`.
+}

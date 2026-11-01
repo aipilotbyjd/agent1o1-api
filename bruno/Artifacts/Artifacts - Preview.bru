@@ -1,0 +1,44 @@
+meta {
+  name: Artifacts - Preview
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/v1/artifacts/:artifact/preview
+  body: none
+  auth: none
+}
+
+params:path {
+  artifact: {{artifactId}}
+}
+
+params:query {
+  ~expires: 
+  ~signature: 
+}
+
+docs {
+  Serves an artifact's bytes inline for display, rather than as the
+  attachment `Artifacts - Download` returns.
+
+  **This request will not work as-is.** The endpoint sits outside the
+  authenticated group and is protected by a signed URL instead: no bearer
+  token, no workspace segment. It answers `403 Invalid or expired
+  signature.` unless the `expires` and `signature` query parameters match.
+
+  Don't hand-build those. Take the whole ready-made URL from the
+  `preview_url` field of an `Artifacts - Get` or `Artifacts - List`
+  response and paste it in — it's a temporary signed route valid for
+  15 minutes.
+
+  Only previewable artifacts have a `preview_url` at all: images, HTML,
+  PDF, and spreadsheet types (`text/csv`, `.xls`, `.xlsx`). Anything else
+  answers `404`.
+
+  The response is the raw file, not the JSON envelope. HTML artifacts are
+  served under a `sandbox` Content-Security-Policy and `nosniff`, since
+  they're member- and model-supplied bytes coming from the application's
+  own origin.
+}

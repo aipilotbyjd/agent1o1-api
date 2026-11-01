@@ -1,0 +1,40 @@
+meta {
+  name: Turns - Get
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/sessions/:session/turns/:turn
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{assistantSessionId}}
+  turn: {{assistantTurnId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const actions = res.body.data?.turn?.actions || [];
+    const pending = actions.find((action) => action.status === "pending");
+    if (pending && pending.tool_call_id) {
+      bru.setVar("assistantToolCallId", pending.tool_call_id);
+    }
+  }
+}
+
+docs {
+  One turn with its tool actions — the polling fallback for the Reverb
+  stream. Requires the `assistant.use` permission. Stores the first
+  pending action's `tool_call_id` in `assistantToolCallId`.
+
+  `status` is `queued`, `running`, `awaiting_approval`, `completed`,
+  `failed` or `cancelled`. Each action has `id`, `tool_call_id`, `tool`,
+  `arguments`, `effect`, `reason`, `status`, `decision_note`,
+  `expires_at`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { turn } }`.
+}

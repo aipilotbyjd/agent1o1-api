@@ -1,0 +1,27 @@
+meta {
+  name: Skill Sources - List
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skill-sources
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Lists the GitHub repositories the workspace syncs skills from, newest
+  first. Requires the `agent.view` permission.
+
+  Each source carries `repo`, `branch`, `path`, `url`, `status` (`pending`,
+  `syncing`, `ready`, `conflict`, `forking`, `cannot_publish`, `failed`),
+  `last_error`, `two_way`, `pending_changes`, `conflicts`, `fork_request`,
+  `upstream_repo`, `account` and `skills_count`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { sources } }`.
+}

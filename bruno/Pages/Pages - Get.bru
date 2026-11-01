@@ -1,0 +1,34 @@
+meta {
+  name: Pages - Get
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const page = res.body.data?.page;
+    if (page && page.public_token) {
+      bru.setVar("pageToken", page.public_token);
+    }
+  }
+}
+
+docs {
+  Fetches one page with its draft `content`, `published_content`, version B
+  (`variant.content`), validation `issues`, `draft_revision` and
+  `share_preview`. Requires the `page.view` permission. Refreshes
+  `pageToken`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { page } }`.
+}

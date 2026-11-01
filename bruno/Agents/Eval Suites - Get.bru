@@ -1,0 +1,26 @@
+meta {
+  name: Eval Suites - Get
+  type: http
+  seq: 20
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/eval-suites/:suite
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  suite: {{evalSuiteId}}
+}
+
+docs {
+  Fetches one eval suite with its `cases` eager-loaded. Requires the
+  `agent.view` permission.
+
+  A suite belonging to another agent answers `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { suite } }`.
+}

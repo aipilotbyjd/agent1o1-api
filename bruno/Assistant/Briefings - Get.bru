@@ -1,0 +1,31 @@
+meta {
+  name: Briefings - Get
+  type: http
+  seq: 50
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/briefings/:type
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  type: daily
+}
+
+docs {
+  Returns one background report's settings for the caller's own assistant.
+  Requires the `assistant.use` permission.
+
+  `type` is `daily` (Daily report) or `meeting_prep` (Meeting Prep);
+  anything else is `404`. The Daily config is created on first read
+  (disabled, 08:00 Mon–Fri UTC, all connectors, no email delivery).
+
+  Response is wrapped: `{ success, statusCode, message, data: { config,
+  readable_sources, runs } }` — `config` holds `enabled`, `paused`,
+  `schedule`, `connector_scope`, `connector_keys`, `instructions`,
+  `delivery`, `settings`; `runs` is the last 20 non-meeting runs (no
+  `document`).
+}

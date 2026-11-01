@@ -1,0 +1,23 @@
+meta {
+  name: Retirement - Impact
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/models/:model/retirement-impact
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  model: {{saModelId}}
+}
+
+docs {
+  What retiring the model would move: agents, assistants, workspace settings.
+}

@@ -1,0 +1,31 @@
+meta {
+  name: Workflows - Get Graph
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/public/v1/workflows/:workflow/graph
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  workflow: {{workflowId}}
+}
+
+docs {
+  Reads the workflow's draft graph — the nodes and edges as they currently
+  stand, published or not. Requires the `workflows:read` ability on the
+  key.
+
+  `has_unpublished_changes` tells you whether the draft has moved ahead of
+  the published version.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { graph, has_unpublished_changes } }`.
+}

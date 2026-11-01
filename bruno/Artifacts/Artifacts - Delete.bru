@@ -1,0 +1,26 @@
+meta {
+  name: Artifacts - Delete
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/artifacts/:artifact
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  artifact: {{artifactId}}
+}
+
+docs {
+  Soft-deletes every version in the artifact's group. Requires
+  `artifact.manage`. Returns 204.
+
+  The stored files and rows survive — this only drops them from list/show
+  results. If an agent later re-exports (or a member re-uploads) the same
+  filename into this group, the whole group is restored and its version
+  history continues rather than starting a new group.
+}

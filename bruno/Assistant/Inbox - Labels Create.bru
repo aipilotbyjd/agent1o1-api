@@ -1,0 +1,52 @@
+meta {
+  name: Inbox - Labels Create
+  type: http
+  seq: 65
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/inbox/labels
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "name": "Invoices",
+    "definition": "Bills, invoices and payment receipts from vendors.",
+    "color": "#4a86e8",
+    "group": "move_out",
+    "enabled": true
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const name = req.getBody()?.name;
+    const label = (res.body.data?.labels || []).find((l) => l.name === name);
+    if (label && label.id) {
+      bru.setVar("assistantInboxLabelId", label.id);
+    }
+  }
+}
+
+docs {
+  Adds a Smart Inbox label. Requires the `assistant.use` permission.
+  Stores the new label's ID in `assistantInboxLabelId`.
+
+  - `name` (required, max 60; no `/`, `\` or `"`)
+  - `definition` (required, max 500) — what mail belongs under it
+  - `color` (optional, `#rrggbb`)
+  - `group` — `keep` | `move_out`
+  - `enabled` (bool)
+
+  `422` past 25 labels or on a duplicate name (case-insensitive). Synced
+  to the mailbox when Smart Inbox is on.
+
+  Responds `201`, wrapped: same payload as `Inbox - Get` (the new label is
+  in `labels[]`).
+}

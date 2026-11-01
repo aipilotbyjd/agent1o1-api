@@ -1,0 +1,35 @@
+meta {
+  name: Social Exchange
+  type: http
+  seq: 23
+}
+
+post {
+  url: {{baseUrl}}/v1/auth/social/exchange
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "code": "{{socialExchangeCode}}"
+  }
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setVar("accessToken", res.body.data?.tokens?.access_token);
+  }
+}
+
+docs {
+  Trades the one-time code from the social callback redirect
+  (`?code=` on `{APP_FRONTEND_URL}/oauth/callback`) for an access token,
+  with the refresh token set as an httpOnly cookie — the same shape
+  `Login` returns. The code lasts 60 seconds and is single-use.
+
+  Runs the `social_exchange` OAuth grant, so signing in with Google or
+  GitHub never touches the account's password.
+
+  Response is wrapped: `{ success, statusCode, message, data: { user, tokens } }`.
+}

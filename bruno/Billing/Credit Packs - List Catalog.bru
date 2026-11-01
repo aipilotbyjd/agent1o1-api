@@ -1,0 +1,27 @@
+meta {
+  name: Credit Packs - List Catalog
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/credit-packs
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Lists the purchasable packs from `config('billing.packs')` (key, label,
+  credits, price_cents), each flagged `available` based on whether the
+  workspace's current plan has the `credit_packs` feature. Requires the
+  `billing.view` permission.
+
+  `available: false` doesn't hide a pack — `Credit Packs - Checkout` still
+  403s with `FeatureNotAvailableException` if attempted.
+
+  Response is wrapped: `{ success, statusCode, message, data: { packs } }`.
+}

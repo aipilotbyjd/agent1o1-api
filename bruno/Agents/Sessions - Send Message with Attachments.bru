@@ -1,0 +1,45 @@
+meta {
+  name: Sessions - Send Message with Attachments
+  type: http
+  seq: 64
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/sessions/:session/messages
+  body: multipartForm
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+}
+
+body:multipart-form {
+  message: What does this file show?
+  attachments[]: @file()
+}
+
+docs {
+  The same request as "Sessions - Send Message", sent as multipart so files
+  can ride along with the message. The Reverb endpoint
+  (`.../turns`) accepts the same `attachments[]` field.
+
+  - `attachments[]` — optional; up to
+    `config('artifacts.message_attachments.max_files')` files (10 by
+    default), each within `config('artifacts.max_upload_kilobytes')`.
+    Allowed: images (JPEG, PNG, GIF, WebP), PDF, and plain-text formats
+    (txt, Markdown, CSV, JSON, HTML, XML, YAML). The type is detected from
+    the file's own bytes; anything else is a `422`.
+
+  Each file is stored as an artifact linked to the new user message and
+  sent to the model with it — and again with that message on every later
+  turn of the conversation. Attachments are never indexed into the agent's
+  searchable knowledge.
+
+  "Sessions - Messages" and "Sessions - Get" return each message's
+  `attachments`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { message } }`.
+}

@@ -1,0 +1,25 @@
+meta {
+  name: Rewards - Grant Now
+  type: http
+  seq: 23
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/referrals/rewards/:reward/grant-now
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  reward: {{referralRewardId}}
+}
+
+docs {
+  Grants a pending or awaiting reward immediately, skipping its hold.
+
+  Response is wrapped: `{ success, statusCode, message, data: { reward } }`.
+}

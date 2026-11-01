@@ -1,0 +1,29 @@
+meta {
+  name: Connectors - Disable
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/catalog/connectors/:connector/disable
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  connector: {{saConnectorId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request, ticket 1234"
+  }
+}
+
+docs {
+  Needs a `reason`.
+}

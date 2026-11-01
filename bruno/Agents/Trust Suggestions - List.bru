@@ -1,0 +1,27 @@
+meta {
+  name: Trust Suggestions - List
+  type: http
+  seq: 83
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/trust-suggestions
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+docs {
+  Tools this agent keeps asking about that people approve as-is: approved
+  unedited enough times recently and never rejected, and not already set
+  to run without asking. Requires the `agent.view` permission.
+
+  Each suggestion is `{ tool_name, tool_kind, approvals }` (`tool_kind` is
+  `node` or `workflow`).
+
+  Response is wrapped: `{ success, statusCode, message, data: { suggestions } }`.
+}

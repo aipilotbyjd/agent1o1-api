@@ -1,0 +1,28 @@
+meta {
+  name: Security Events
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{baseUrl}}/v1/auth/events?per_page=25
+  body: none
+  auth: inherit
+}
+
+params:query {
+  per_page: 25
+}
+
+docs {
+  The authenticated user's own security log — sign-ins, failed attempts,
+  password and two-factor changes, email changes, session revocations —
+  newest first, with the IP and user agent behind each one.
+
+  These are the same records that drive the security alert emails, so a
+  user can answer "was that me?" without contacting support.
+
+  `per_page` defaults to 25 and is capped at 100.
+
+  Paginated: `{ success, statusCode, message, data: [...], meta }`.
+}

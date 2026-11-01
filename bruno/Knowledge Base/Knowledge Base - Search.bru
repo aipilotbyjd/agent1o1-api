@@ -1,0 +1,40 @@
+meta {
+  name: Knowledge Base - Search
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/knowledge-base/search
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "query": "how long do I have to return something?",
+    "collection": "support",
+    "limit": 5
+  }
+}
+
+docs {
+  Runs the exact retrieval an agent's `search_knowledge` tool would, so you
+  can see what your agents will find for a question without starting a
+  conversation. Requires `agent.view`.
+
+  - `query` — required.
+  - `collection` — optional; omit to search every collection. An actual
+    agent, at run time, is further scoped to only its attached collections
+    when it has any — see `Agents/Knowledge - List`.
+  - `limit` — optional, 1-50, defaults to 5.
+
+  Results are ordered by cosine similarity, highest first, each with its
+  `score`, `source`, and `text`.
+
+  Response is wrapped: `{ ..., data: { results } }`.
+}

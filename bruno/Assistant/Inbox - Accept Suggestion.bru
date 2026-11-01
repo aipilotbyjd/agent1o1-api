@@ -1,0 +1,28 @@
+meta {
+  name: Inbox - Accept Suggestion
+  type: http
+  seq: 68
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/inbox/messages/:message/accept
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  message: {{assistantInboxMessageId}}
+}
+
+docs {
+  Turns an email's reply suggestion into a new assistant chat, so the
+  owner can refine and send it there. Requires the `assistant.use`
+  permission. Set `assistantInboxMessageId` from `Inbox - Get`.
+
+  `404` when the message isn't in the caller's inbox or has no
+  suggestion. The assistant's first turn starts immediately.
+
+  Response is wrapped: `{ success, statusCode, message, data: { session_id
+  } }`.
+}

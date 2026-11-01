@@ -1,0 +1,53 @@
+meta {
+  name: Workflow Templates - Save From Workflow
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/save-as-template
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+body:json {
+  {
+    "name": "Lead intake starter",
+    "description": "Snapshot of the lead intake workflow.",
+    "category": "sales",
+    "visibility": "private"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const template = res.body.data?.workflow_template;
+    if (template && template.id) {
+      bru.setVar("workflowTemplateId", template.id);
+    }
+  }
+}
+
+docs {
+  Snapshots an existing workflow's current draft graph into a new
+  workspace-owned template. Requires the `template.manage` permission.
+  Stores the new ID in `workflowTemplateId`.
+
+  Any `credential_id` embedded in node config is stripped from the
+  snapshot, so a template can never carry one workspace's connector
+  credential into another. Whoever uses the template re-picks credentials.
+
+  Edges are stored by node `key` rather than by ID so the graph stays
+  portable.
+
+  - `name` — required, max 255. `description`, `category`, `icon`,
+    `color`, `visibility` — optional, same rules as `Create`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { workflow_template } }`.
+}

@@ -1,0 +1,31 @@
+meta {
+  name: Assistant Slack OAuth Callback
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/hooks/assistant/slack/oauth?code={{slackOAuthCode}}&state={{slackOAuthState}}
+  body: none
+  auth: none
+}
+
+params:query {
+  code: {{slackOAuthCode}}
+  state: {{slackOAuthState}}
+}
+
+docs {
+  Where Slack redirects the admin's browser after "Add to Slack" (the
+  app's OAuth redirect URL). Not called by clients — start from
+  `Assistant/Channels - Slack Install`.
+
+  **Auth.** No session; `state` is the encrypted value from the install
+  URL (workspace, user, 15-minute expiry). Invalid state answers `400
+  Invalid install link.`, expired `400`. `code` is exchanged with Slack
+  (`oauth.v2.access`) for the bot token, saved per Slack team.
+
+  Response is a `302` to `{frontend_url}/{workspace}/assistant?slack=`
+  `connected` | `cancelled` (error or no code) | `failed` (Slack refused
+  the code). Not reproducible by hand without a real Slack `code`.
+}

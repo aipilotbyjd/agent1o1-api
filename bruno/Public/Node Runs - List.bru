@@ -1,0 +1,27 @@
+meta {
+  name: Node Runs - List
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseUrl}}/public/v1/runs/:run/node-runs
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  run: {{runId}}
+}
+
+docs {
+  Lists a run's steps, oldest first. Requires the `runs:read` ability on
+  the key. A run outside the key's workspace answers `404`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { node_runs } }`.
+}

@@ -1,0 +1,43 @@
+meta {
+  name: Referrals - Record Visit
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/v1/referrals/visit
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "code": "{{referralCode}}",
+    "landing_url": "https://app.example.com/?ref=code",
+    "utm": {
+      "source": "twitter"
+    }
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const id = res.body.data?.visitor_id;
+    if (id) {
+      bru.setVar("referralVisitorId", id);
+    }
+  }
+}
+
+docs {
+  Public (no auth). Called when someone lands on a `?ref=` link. Returns
+  `visitor_id` for the frontend to keep and send back at signup; 404 for an
+  unknown or switched-off code. Rate limited to 30/min per IP.
+
+  Optional: `visitor_id` (UUID, to reuse a known visitor), `landing_url`,
+  `referrer_url`, `utm` (`source`, `medium`, `campaign`, `term`, `content`).
+
+  Stores `referralVisitorId`.
+
+  `201`, wrapped: `{ success, statusCode, message, data: { visitor_id, code } }`.
+}

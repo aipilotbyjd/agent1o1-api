@@ -1,0 +1,29 @@
+meta {
+  name: Skill Sources - Get Upstream
+  type: http
+  seq: 28
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skill-sources/:skillSource/upstream
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skillSource: {{skillSourceId}}
+}
+
+docs {
+  Compares a forked source with its original repository. Requires the
+  `agent-skill.manage` permission.
+
+  Returns `repo` (the original), `fork_sha`, `upstream_sha`,
+  `commits_ahead` and the changed `files` (`path`, `status`, `patch`);
+  `files_truncated` is `true` at 300 files. Pass the two SHAs to
+  `Skill Sources - Apply Upstream`. `422` when GitHub can't be read or the
+  source isn't a fork.
+
+  Response is wrapped: `{ success, statusCode, message, data: { upstream } }`.
+}

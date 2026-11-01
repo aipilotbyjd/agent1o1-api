@@ -1,0 +1,28 @@
+meta {
+  name: Refresh
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/auth/refresh
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "refresh_token": "{{superAdminRefreshToken}}"
+  }
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setVar("superAdminToken", res.body.data.tokens.access_token);
+    bru.setVar("superAdminRefreshToken", res.body.data.tokens.refresh_token);
+  }
+}
+
+docs {
+  Rotates both tokens. Presenting an already-used refresh token ends the whole session.
+}

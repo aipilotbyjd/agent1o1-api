@@ -1,0 +1,30 @@
+meta {
+  name: Builder Assist - Suggest Nodes
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-builder-sessions/:session/assist/suggest-nodes
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{builderSessionId}}
+}
+
+body:json {
+  {
+    "note": "It should tell the sales team."
+  }
+}
+
+docs {
+  Suggests 3-5 node types to add next, each with a reason and the existing
+  node it should follow. Doesn't change the draft. Charged in credits.
+  `note` is optional.
+
+  Response is wrapped: `{ success, statusCode, message, data: { suggestions } }`.
+}

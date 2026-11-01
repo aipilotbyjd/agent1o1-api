@@ -1,0 +1,31 @@
+meta {
+  name: Members - Update Role
+  type: http
+  seq: 8
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/members/:member
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  member: replace-with-user-id
+}
+
+body:json {
+  {
+    "role": "member"
+  }
+}
+
+docs {
+  Changes a member's role. `member` is the target user's ID. Requires
+  the `member.update-role` permission. `role` must be one of the
+  assignable roles: `admin`, `editor`, `member` or `viewer` (not
+  `owner`). 404 if the user isn't a member.
+
+  Responds `204 No Content` with no envelope.
+}

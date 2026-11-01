@@ -1,0 +1,19 @@
+meta {
+  name: Referrals - Stats
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/v1/referrals/stats
+  body: none
+  auth: inherit
+}
+
+docs {
+  Visits, signups, verified/activated/converted counts, credits, free days
+  and invoice credit earned, rewards on the way, and any free plan time the
+  reward workspace currently has.
+
+  Response is wrapped: `{ success, statusCode, message, data }`.
+}

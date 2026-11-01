@@ -1,0 +1,67 @@
+meta {
+  name: Workflow Templates - Create
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-templates
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "name": "Lead intake starter",
+    "description": "Routes inbound leads to the sales queue.",
+    "category": "sales",
+    "icon": "inbox",
+    "color": "#4F46E5",
+    "visibility": "private",
+    "graph": {
+      "nodes": [
+        {
+          "key": "trigger",
+          "type": "manual_trigger",
+          "config": {},
+          "position": { "x": 0, "y": 0 }
+        }
+      ],
+      "edges": []
+    }
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const template = res.body.data?.workflow_template;
+    if (template && template.id) {
+      bru.setVar("workflowTemplateId", template.id);
+    }
+  }
+}
+
+docs {
+  Creates a workflow template from a graph you supply. Requires the
+  `template.manage` permission. Stores the new ID in the
+  `workflowTemplateId` collection variable.
+
+  To snapshot an existing workflow instead of hand-writing a graph, use
+  `Workflow Templates - Save From Workflow`.
+
+  - `name` — required, max 255.
+  - `slug` — optional `alpha_dash`; derived from `name` plus a random
+    suffix when omitted.
+  - `graph` — required array with optional `nodes` and `edges` keys, in the
+    same shape the builder canvas saves.
+  - `visibility` — `private` or `public`.
+  - `category`, `icon` — optional, max 255. `color` — optional, max 7
+    characters (a hex code).
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { workflow_template } }`.
+}

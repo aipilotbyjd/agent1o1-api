@@ -1,0 +1,26 @@
+meta {
+  name: Sessions - List
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/auth/sessions
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+script:post-response {
+  if (res.status === 200 || res.status === 201) {
+    const v = res.body.data?.find(s => !s.current)?.id;
+    if (v) bru.setVar("saSessionId", v);
+  }
+}
+
+docs {
+  Live sessions of the signed-in account. Stores another session's id as `saSessionId`.
+}

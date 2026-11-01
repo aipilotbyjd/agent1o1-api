@@ -1,0 +1,40 @@
+meta {
+  name: Agents - Improve Instructions
+  type: http
+  seq: 66
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/instructions/improve
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+body:json {
+  {
+    "instructions": "You triage inbound support tickets.",
+    "request": "Make it ask for an order number before suggesting a refund."
+  }
+}
+
+docs {
+  Rewrites the agent's instructions with its own model, using its name,
+  purpose, current instructions and the tools it can call. Requires the
+  `agent.manage` permission. Nothing is saved — the result is for the
+  builder's instructions editor.
+
+  - `instructions` — optional, nullable. When sent it replaces the saved
+    instructions as the text to rewrite (unsaved edits).
+  - `request` — optional, nullable, max 2000. The change to make.
+
+  Calls the model and deducts credits; returns `402` when the workspace
+  is out of credits.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { instructions } }`.
+}

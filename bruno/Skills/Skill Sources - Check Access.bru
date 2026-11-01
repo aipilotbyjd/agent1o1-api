@@ -1,0 +1,39 @@
+meta {
+  name: Skill Sources - Check Access
+  type: http
+  seq: 19
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skill-sources/access
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "repo": "acme/agent-skills",
+    "branch": "main",
+    "credential_id": "{{connectorCredentialId}}"
+  }
+}
+
+docs {
+  Checks whether a GitHub account can publish to a repository branch,
+  before `Skills - Publish` or turning on two-way sync. Requires the
+  `agent-skill.manage` permission.
+
+  `repo` and `credential_id` are required; `branch` defaults to the
+  repository's default branch.
+
+  `can_push` is `false` with a `reason` when the account is read-only, the
+  repo is archived/disabled, or the branch is protected. `parent_repo` is
+  set when the repo is itself a fork. `422` when GitHub can't be read.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { access: { repo, branch, private, can_push, reason, parent_repo } } }`.
+}

@@ -1,0 +1,30 @@
+meta {
+  name: Reflections - Apply
+  type: http
+  seq: 54
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/reflections/:reflection/apply
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  reflection: {{reflectionId}}
+}
+
+docs {
+  Applies a pending proposal: creates/updates a skill or updates the
+  agent's instructions, per the reflection's `type`. Requires the
+  `agent.manage` permission.
+
+  Only a `pending` reflection can be applied. Applying it snapshots a new
+  `AgentVersion`, same as any other behavioral edit.
+
+  Takes no body.
+
+  Response is wrapped: `{ success, statusCode, message, data: { reflection } }`.
+}

@@ -1,0 +1,22 @@
+meta {
+  name: Models
+  seq: 11
+}
+
+docs {
+  Managing the AI models: the catalog and its routes, what each backend model
+  costs, the operator's own endpoints, retirement, and the read-only views.
+
+  Reading needs `models.view` (every role). Changing the catalog, routes,
+  endpoints and retirement needs `models.manage` (owner, operator). Prices need
+  `models.prices` (owner, finance). Every change takes a `reason`; changes to an
+  internal model (the workflow builder, the personal assistant), and anything
+  that stores a secret, also take a fresh `totp_code`.
+
+  Start with `Health`: it lists everything wrong (a model with no price, a
+  route nobody can run, a retirement with no replacement). The same report is
+  `php artisan model-catalog:doctor`.
+
+  List requests store the first row's id (`saModelId`, `saRouteId`,
+  `saPriceId`, `saEndpointId`) so the rest of the folder works.
+}

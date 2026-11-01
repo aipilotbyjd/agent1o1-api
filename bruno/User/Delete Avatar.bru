@@ -1,0 +1,18 @@
+meta {
+  name: Delete Avatar
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrl}}/v1/user/avatar
+  body: none
+  auth: inherit
+}
+
+docs {
+  Removes the authenticated user's avatar. Safe to call when there is
+  none.
+
+  Response is wrapped: `{ success, statusCode, message, data: { user } }`.
+}

@@ -1,0 +1,27 @@
+meta {
+  name: Collection Items - Remove
+  type: http
+  seq: 23
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/template-collections/:templateCollection/items/:item
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  templateCollection: {{templateCollectionId}}
+  item: {{templateCollectionItemId}}
+}
+
+docs {
+  Removes one item from the collection. Requires the `template.manage`
+  permission.
+
+  Only the membership row is deleted — the workflow or agent template it
+  pointed at survives.
+
+  Answers `204 No Content` with no envelope.
+}

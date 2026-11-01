@@ -1,0 +1,26 @@
+meta {
+  name: Artifacts - Remove Share
+  type: http
+  seq: 9
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/artifacts/:artifact/shares/:user
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  artifact: {{artifactId}}
+  user: {{shareUserId}}
+}
+
+docs {
+  Revokes one member's explicit access, granted earlier by
+  `Artifacts - Add Share`. Requires `artifact.view`, and only the
+  artifact's creator or someone with `artifact.manage` may call it.
+
+  Removing a grant that doesn't exist is a no-op, not an error. Returns
+  204.
+}

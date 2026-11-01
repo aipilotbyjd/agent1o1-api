@@ -1,0 +1,11 @@
+meta {
+  name: Billing
+  seq: 7
+}
+
+docs {
+  Billing exceptions. Reading needs `billing.view`; credits need `billing.grant-credits`;
+  plan time needs `billing.extend-plan`; refunds need `billing.refund` (owner, finance).
+  Money-moving requests need a reason and a fresh code, are rate limited, and are safe
+  to retry: send an `Idempotency-Key` header and a repeat replays the first answer.
+}

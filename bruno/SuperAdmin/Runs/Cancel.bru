@@ -1,0 +1,29 @@
+meta {
+  name: Cancel
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/runs/:run/cancel
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  run: {{saRunId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request, ticket 1234"
+  }
+}
+
+docs {
+  Cancels the run and its whole tree.
+}

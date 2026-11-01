@@ -1,0 +1,21 @@
+meta {
+  name: Referrals - List
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/v1/referrals?page=1&per_page=25
+  body: none
+  auth: inherit
+}
+
+params:query {
+  page: 1
+  per_page: 25
+}
+
+docs {
+  People the user referred, newest first, emails masked (`j***@acme.com`).
+  Paginated: `data` is the page, `meta` sits alongside it.
+}

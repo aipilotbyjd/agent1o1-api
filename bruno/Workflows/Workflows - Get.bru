@@ -1,0 +1,23 @@
+meta {
+  name: Workflows - Get
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+docs {
+  Fetches a single workflow with its draft graph (`nodes` and `edges`
+  are eager-loaded). Requires the `workflow.view` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { workflow } }`.
+}

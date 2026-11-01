@@ -1,0 +1,30 @@
+meta {
+  name: Coupons - Activate
+  type: http
+  seq: 28
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/pricing/coupons/:coupon/activate
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  coupon: {{saCouponId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456"
+  }
+}
+
+docs {
+  Switches the promotion code on.
+}

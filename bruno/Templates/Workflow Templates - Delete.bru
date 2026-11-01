@@ -1,0 +1,25 @@
+meta {
+  name: Workflow Templates - Delete
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-templates/:workflowTemplate
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflowTemplate: {{workflowTemplateId}}
+}
+
+docs {
+  Deletes a workflow template owned by the workspace. Requires the
+  `template.manage` permission. A global public template answers `404`.
+
+  Workflows already created from the template are unaffected.
+
+  Answers `204 No Content` with no envelope.
+}

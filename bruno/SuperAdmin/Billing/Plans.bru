@@ -1,0 +1,26 @@
+meta {
+  name: Plans
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/billing/plans
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+script:post-response {
+  if (res.status === 200 || res.status === 201) {
+    const v = res.body.data?.[0]?.id;
+    if (v) bru.setVar("saPlanId", v);
+  }
+}
+
+docs {
+  Active plans, for choosing one to comp. Stores the first as `saPlanId`.
+}

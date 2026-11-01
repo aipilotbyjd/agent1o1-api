@@ -1,0 +1,19 @@
+meta {
+  name: App Config
+  type: http
+  seq: 24
+}
+
+get {
+  url: {{baseUrl}}/v1/app-config
+  body: none
+  auth: none
+}
+
+docs {
+  Public: the frontend reads the brand before anyone signs in, so no
+  token is needed. Throttled to 60/minute and cacheable for 5 minutes
+  (`Cache-Control: public, max-age=300`).
+
+  Response is wrapped: `{ success, statusCode, message, data: { brand } }`.
+}

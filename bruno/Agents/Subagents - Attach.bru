@@ -1,0 +1,29 @@
+meta {
+  name: Subagents - Attach
+  type: http
+  seq: 79
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/subagents/:subagent
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  subagent: {{subagentId}}
+}
+
+docs {
+  Lets the agent delegate to another agent in the same workspace.
+  Idempotent. Requires the `agent.manage` permission.
+
+  Set `subagentId` by hand to another agent's ID (from `Agents - List`, or
+  the copy `Agents - Duplicate` returns). An agent can't be its own
+  subagent — that answers `422` (use `allow_self_clone` instead).
+
+  Takes no body. Returns the agent's full subagent list after the change,
+  wrapped: `{ success, statusCode, message, data: { subagents } }`.
+}

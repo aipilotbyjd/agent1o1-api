@@ -1,0 +1,26 @@
+meta {
+  name: Briefing Runs - Get
+  type: http
+  seq: 55
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/briefing-runs/:run
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  run: {{assistantBriefingRunId}}
+}
+
+docs {
+  Returns one report run, including its full `document`. Requires the
+  `assistant.use` permission. A run belonging to another member's
+  assistant answers `404`. Poll this after `Briefings - Run Now`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { run } }` —
+  `run` has `id`, `status`, `trigger`, `summary`, `document`, `sources`,
+  `error`, `situations_count`, `created_at`, `delivered_at`.
+}

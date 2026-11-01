@@ -1,0 +1,34 @@
+meta {
+  name: Template Collections - Use
+  type: http
+  seq: 20
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/template-collections/:templateCollection/use
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  templateCollection: {{templateCollectionId}}
+}
+
+docs {
+  Instantiates every item in the collection at once: each workflow
+  template becomes a new draft workflow, each agent template becomes a new
+  agent, and every template used has its `usage_count` bumped. Requires
+  the `template.manage` permission.
+
+  Works for any visible collection, global public ones included. Takes no
+  body — names come from the templates themselves rather than being
+  supplied per item, unlike the single-template `Use` endpoints.
+
+  The whole pack is checked against the plan's workflow and agent limits
+  first; `402` if it wouldn't fit, and nothing is created.
+
+  `201`, wrapped:
+  `{ success, statusCode, message, data: { workflows, agents } }`, each a
+  list of what was created.
+}

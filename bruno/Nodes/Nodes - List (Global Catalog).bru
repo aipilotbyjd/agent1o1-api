@@ -1,0 +1,30 @@
+meta {
+  name: Nodes - List (Global Catalog)
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/v1/nodes
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~category: slack
+  ~search: post_message
+}
+
+docs {
+  The global built-in catalog only — no workspace needed, no custom
+  nodes merged in (those are inherently workspace-scoped). Use this to
+  browse "what nodes exist" before a workspace is picked; once one is,
+  `Nodes - List (Workspace)` is the one to call instead, since it also
+  merges in that workspace's custom nodes.
+
+  Each entry now also carries `icon`/`color` (inherited from the node's
+  category) and `requires_connector` (whether the node needs a
+  workspace `ConnectorCredential` to run).
+
+  Response is wrapped: `{ success, statusCode, message, data: { nodes } }`.
+}

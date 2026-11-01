@@ -1,0 +1,31 @@
+meta {
+  name: Reflections - List
+  type: http
+  seq: 52
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/reflections
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+params:query {
+  ~status: pending
+}
+
+docs {
+  Lists proposed improvements for the agent, newest first. Requires the
+  `agent.view` permission.
+
+  - `status` — optional filter: `pending`, `applied`, `dismissed`, or
+    `superseded` (a newer proposal for the same recurring pattern replaced
+    it).
+
+  Response is wrapped: `{ success, statusCode, message, data: { reflections } }`.
+}

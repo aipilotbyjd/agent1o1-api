@@ -1,0 +1,31 @@
+meta {
+  name: Credits - Grant
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/billing/workspaces/:workspace/credits/grant
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  workspace: {{saWorkspaceId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456",
+    "credits": 500
+  }
+}
+
+docs {
+  Adds to the non-expiring top-up pool. Capped per request (`SUPER_ADMIN_CREDIT_GRANT_MAX`). Add an `Idempotency-Key` header to make retries safe.
+}

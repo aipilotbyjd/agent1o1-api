@@ -1,0 +1,39 @@
+meta {
+  name: Workflows - Update
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/public/v1/workflows/:workflow
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  workflow: {{workflowId}}
+}
+
+body:json {
+  {
+    "name": "Lead intake v2",
+    "description": "Routes inbound leads to the sales queue."
+  }
+}
+
+docs {
+  Renames a workflow or edits its description. Requires the
+  `workflows:write` ability on the key. Both fields are `sometimes` — send
+  only what changes.
+
+  `slug` is not updatable here. The graph is edited through
+  `Workflows - Replace Graph` instead.
+
+  A workflow outside the key's workspace answers `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { workflow } }`.
+}

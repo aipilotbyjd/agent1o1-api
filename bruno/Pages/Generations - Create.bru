@@ -1,0 +1,51 @@
+meta {
+  name: Generations - Create
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/generations
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+body:json {
+  {
+    "prompt": "A clean lead form with a short intro and a friendly thank-you result.",
+    "variant": "a",
+    "keep_theme": true
+  }
+}
+
+script:post-response {
+  if (res.status === 202) {
+    const generation = res.body.data?.generation;
+    if (generation && generation.id) {
+      bru.setVar("pageGenerationId", generation.id);
+    }
+  }
+}
+
+docs {
+  Queues an AI design (or rework) of the page. Requires the `page.manage`
+  permission and available credits (402 otherwise). Stores the ID in
+  `pageGenerationId`.
+
+  - `prompt` — required, 3–4000 chars.
+  - `variant` — `a` (default) or `b`; `b` answers 409 without a version B.
+  - `keep_theme` — optional boolean, default true.
+
+  Returns immediately with `status: pending`; the builder hears
+  `page.generation` on the page's channel, or poll `Generations - Get`.
+  The result is in the generation's `content` — it is not written to the
+  draft until the client saves it via `Pages - Update`.
+
+  Response is wrapped (202):
+  `{ success, statusCode, message, data: { generation } }`.
+}

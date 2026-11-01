@@ -1,0 +1,19 @@
+meta {
+  name: Changes
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/pricing/changes
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+docs {
+  Every pricing change across plans, packs, intervals and coupons. Filter with `?subject_type=plan|pack|interval|coupon`.
+}

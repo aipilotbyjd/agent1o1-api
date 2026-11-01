@@ -1,0 +1,37 @@
+meta {
+  name: Skills - Update
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skills/:skill
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skill: {{skillId}}
+}
+
+body:json {
+  {
+    "instructions": "Refunds are allowed within 60 days of purchase. Always confirm the order ID first."
+  }
+}
+
+docs {
+  Updates a skill. All fields are optional. Requires the
+  `agent-skill.manage` permission.
+
+  Sending `instructions` bumps the skill's `version`, signalling to
+  callers that an in-flight agent session's context may have changed.
+  Cosmetic fields (`icon`, `color`) don't bump it.
+
+  A skill synced one-way from GitHub only accepts `category`, `icon`,
+  `color`, `tags` and `is_shared`; anything else answers `422` (copy it
+  with `Skills - Copy` instead). `409` while its repository is syncing.
+
+  Response is wrapped: `{ success, statusCode, message, data: { skill } }`.
+}

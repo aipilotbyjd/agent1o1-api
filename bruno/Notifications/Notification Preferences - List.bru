@@ -1,0 +1,24 @@
+meta {
+  name: Notification Preferences - List
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/notification-preferences
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  The caller's own saved notification preferences in this workspace — one
+  row per `event_key` they have changed. Events with no row use the
+  defaults from `Notifications - Events`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { preferences } }`,
+  each `{ event_key, in_app, email, channel_ids, ... }`.
+}

@@ -1,0 +1,46 @@
+meta {
+  name: Runs - Start
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/runs
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+body:json {
+  {
+    "input": {
+      "email": "jane.doe@example.com"
+    }
+  }
+}
+
+script:post-response {
+  if (res.status === 202) {
+    const run = res.body.data?.run;
+    if (run && run.id) {
+      bru.setVar("runId", run.id);
+    }
+  }
+}
+
+docs {
+  Starts a run of the workflow's published version. Requires the
+  `run.trigger` permission. Stores the run ID as `runId`.
+
+  `input` is an optional object handed to the graph's entry node.
+
+  Answers `202 Accepted` — the run is queued, not finished, so poll
+  `Runs - Get` for its status. Returns `402` when the workspace is out
+  of credits.
+
+  Response is wrapped: `{ success, statusCode, message, data: { run } }`.
+}

@@ -1,0 +1,23 @@
+meta {
+  name: Sections - Delete
+  type: http
+  seq: 11
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/page-sections/:section
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  section: {{pageSectionId}}
+}
+
+docs {
+  Deletes a saved section. Requires the `page.manage` permission. Pages
+  that already used it keep their copy of the block.
+
+  Answers `204 No Content` with no envelope.
+}

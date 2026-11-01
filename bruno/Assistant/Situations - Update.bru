@@ -1,0 +1,32 @@
+meta {
+  name: Situations - Update
+  type: http
+  seq: 25
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/situations/:situation
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  situation: {{assistantSituationId}}
+}
+
+body:json {
+  {
+    "status": "done"
+  }
+}
+
+docs {
+  Marks a situation done, dismissed or open again. Requires the
+  `assistant.use` permission.
+
+  `status` is required: `done`, `dismissed` or `open` (`sent` is only set
+  by `Situations - Send`).
+
+  Response is wrapped: `{ success, statusCode, message, data: { situation } }`.
+}

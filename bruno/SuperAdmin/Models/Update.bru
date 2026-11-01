@@ -1,0 +1,32 @@
+meta {
+  name: Update
+  type: http
+  seq: 9
+}
+
+patch {
+  url: {{baseUrl}}/super-admin/v1/models/:model
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  model: {{saModelId}}
+}
+
+body:json {
+  {
+    "reason": "Routing around a provider outage",
+    "display_name": "New Name",
+    "is_active": true,
+    "min_plan_id": null
+  }
+}
+
+docs {
+  Edits what the picker shows, and switches the model on or off. The slug never changes. Cannot be switched on without an enabled route; an internal model cannot be switched off. `min_plan_id` limits the model to that plan and above (null for every plan).
+}

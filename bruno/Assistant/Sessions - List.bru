@@ -1,0 +1,33 @@
+meta {
+  name: Sessions - List
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/sessions?status=active
+  body: none
+  auth: inherit
+}
+
+params:query {
+  status: active
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Lists the caller's assistant sessions, most recently active first.
+  Requires the `assistant.use` permission. Expired incognito sessions are
+  left out.
+
+  Optional `status` filter: `active` or `archived` (omit for both). Not
+  paginated.
+
+  Response is wrapped: `{ success, statusCode, message, data: { sessions } }`.
+  Each session has `id`, `assistant_id`, `title`, `status`, `origin`
+  (`web`, `slack`, `email`, `sms`, `task`, `trigger`), `incognito`,
+  `expires_at`, `last_activity_at`, `messages_count`, timestamps.
+}

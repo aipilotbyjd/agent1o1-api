@@ -1,0 +1,35 @@
+meta {
+  name: Assistant - Update
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "instructions": "Keep replies short. I work in UTC and prefer bullet points.",
+    "model_catalog_id": null
+  }
+}
+
+docs {
+  Updates the caller's own assistant. Requires the `assistant.use`
+  permission.
+
+  Both fields are optional and nullable:
+  - `instructions` — standing instructions, max 4000 chars
+    (`assistant.limits.instructions_max_chars`).
+  - `model_catalog_id` — a UUID from `Ai/Model Catalog - List` that the
+    workspace is allowed to use; `null` falls back to the default model.
+
+  Response is wrapped: `{ success, statusCode, message, data: { assistant } }`.
+}

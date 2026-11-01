@@ -1,0 +1,40 @@
+meta {
+  name: Plan Grants - Create
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/billing/workspaces/:workspace/plan-grants
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  workspace: {{saWorkspaceId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456",
+    "plan_id": "{{saPlanId}}",
+    "expires_at": "2027-01-01T00:00:00Z",
+    "source": "manual"
+  }
+}
+
+script:post-response {
+  if (res.status === 200 || res.status === 201) {
+    const v = res.body.data?.id;
+    if (v) bru.setVar("saPlanGrantId", v);
+  }
+}
+
+docs {
+  Comps a plan until `expires_at`. `source`: manual (default) or promo.
+}

@@ -1,0 +1,40 @@
+meta {
+  name: Public Page - Get
+  type: http
+  seq: 32
+}
+
+get {
+  url: {{baseUrl}}/v1/p/:token
+  body: none
+  auth: none
+}
+
+params:path {
+  token: {{pageToken}}
+}
+
+headers {
+  ~X-Page-Access: {{pageAccessToken}}
+  ~X-Page-Visitor: bruno-visitor-0001
+}
+
+docs {
+  The published page at its public link, as an anonymous visitor gets it.
+  No auth. Throttled to 120/min per IP.
+
+  `:token` is the page's `public_token` (not its ID or a slug). Answers
+  404 unless the page is published, `is_enabled`, has `access` `link` or
+  `password`, and its workflow still exists.
+
+  - `X-Page-Visitor` — optional stable visitor ID (8–64 of
+    `A-Za-z0-9-`) so the visitor stays in the same A/B bucket and is
+    counted once; falls back to IP + user agent.
+  - `X-Page-Access` — for a password page, the token from
+    `Public Page - Unlock`. Without it a password page comes back with
+    `locked: true`.
+
+  Counted as a view. Response is wrapped:
+  `{ success, statusCode, message, data: { page } }` — same render shape
+  as `Pages - View`.
+}

@@ -1,0 +1,93 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.gumloop.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# List teams
+
+> List teams the authenticated caller belongs to.
+
+
+
+## OpenAPI
+
+````yaml get /teams
+openapi: 3.0.0
+info:
+  title: Public API
+  version: 1.0.0
+servers:
+  - url: https://api.gumloop.com/api/v1
+security: []
+paths:
+  /teams:
+    get:
+      tags:
+        - Teams
+      summary: List teams
+      description: List teams the authenticated caller belongs to.
+      operationId: listTeams
+      responses:
+        '200':
+          description: Teams the caller belongs to.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  teams:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: Unique team identifier.
+                          example: team_4f8c92ab
+                        name:
+                          type: string
+                          example: Acme Sales
+                      required:
+                        - id
+                        - name
+              examples:
+                multiple:
+                  summary: Multiple teams
+                  value:
+                    teams:
+                      - id: team_4f8c92ab
+                        name: Acme Sales
+                      - id: team_91ab73cd
+                        name: Acme Support
+        '401':
+          description: Unauthorized — missing or invalid API key.
+        '500':
+          description: Internal server error.
+      security:
+        - bearerAuth: []
+      x-codeSamples:
+        - lang: bash
+          label: cURL
+          source: |
+            curl 'https://api.gumloop.com/api/v1/teams' \
+              -H 'Authorization: Bearer YOUR_ACCESS_TOKEN'
+        - lang: python
+          label: Python
+          source: |
+            from gumloop import Gumloop
+
+            client = Gumloop(access_token="YOUR_ACCESS_TOKEN")
+
+            response = client.teams.list()
+            for team in response.teams:
+                print(team.id, team.name)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: >-
+        A personal API key or an [OAuth 2.0](/api-reference/oauth) access token.
+        Personal API keys also require the `x-auth-key` header with your user
+        ID.
+
+````

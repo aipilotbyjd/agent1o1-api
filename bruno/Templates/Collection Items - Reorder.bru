@@ -1,0 +1,39 @@
+meta {
+  name: Collection Items - Reorder
+  type: http
+  seq: 22
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/template-collections/:templateCollection/items/reorder
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  templateCollection: {{templateCollectionId}}
+}
+
+body:json {
+  {
+    "items": [
+      { "id": "{{templateCollectionItemId}}", "position": 0 }
+    ]
+  }
+}
+
+docs {
+  Rewrites the `position` of several items in one call. Requires the
+  `template.manage` permission, and the collection must be owned by the
+  workspace.
+
+  - `items` — required, at least one entry. Each needs an `id` (the
+    collection item's UUID, not the template's) and a `position` integer
+    from 0.
+
+  Only the listed items move; anything omitted keeps its current position,
+  so it's on the caller to pass a complete, consistent ordering.
+
+  Response is wrapped: `{ success, statusCode, message, data: { items } }`.
+}

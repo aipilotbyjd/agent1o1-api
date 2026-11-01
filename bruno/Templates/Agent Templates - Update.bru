@@ -1,0 +1,39 @@
+meta {
+  name: Agent Templates - Update
+  type: http
+  seq: 11
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agent-templates/:agentTemplate
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agentTemplate: {{agentTemplateId}}
+}
+
+body:json {
+  {
+    "name": "Support triage starter v2",
+    "category": "support",
+    "visibility": "public"
+  }
+}
+
+docs {
+  Updates an agent template's metadata. Requires the `template.manage`
+  permission. Every field is `sometimes` — send only what changes.
+
+  Unlike `Get`, this one requires the template to be *owned* by the
+  workspace, not merely visible to it: a global public template answers
+  `404` here.
+
+  `config` and `slug` are not updatable through this endpoint — create a
+  new template to change the config.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { agent_template } }`.
+}

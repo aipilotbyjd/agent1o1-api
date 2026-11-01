@@ -1,0 +1,37 @@
+meta {
+  name: Tool Rules - Update
+  type: http
+  seq: 22
+}
+
+put {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/tool-rules
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "rules": [
+      { "tool": "search_knowledge", "rule": "allow" },
+      { "tool": "create_trigger", "rule": "ask" },
+      { "tool": "run_code", "rule": null }
+    ]
+  }
+}
+
+docs {
+  Sets "always allow / ask / never" per tool. Requires the
+  `assistant.use` permission. Only the listed tools change.
+
+  `rules` is required. Each entry: `tool` (required, distinct, max 100, a
+  name from `Tool Rules - List`) and `rule` (`allow`, `ask`, `deny`, or
+  `null` to go back to the default). An unknown tool, or `allow` on a
+  tool whose `can_auto_allow` is false, is a `422`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { tools } }`.
+}

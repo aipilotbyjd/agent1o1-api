@@ -1,0 +1,35 @@
+meta {
+  name: Workflows - Get Interface
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/public/v1/workflows/:workflow/interface
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  workflow: {{workflowId}}
+}
+
+docs {
+  The input contract a caller must satisfy to start this workflow — the
+  same description the editor shows, so an external form or a generated
+  client can be built from it without anyone hand-documenting the payload.
+  Requires the `workflows:read` ability on the key.
+
+  Use it to shape the `input` you send to `Runs - Start`. Also carries
+  `workflow_id` and `published`.
+
+  Read-only on the Public API: declaring an interface is authoring, which
+  belongs to the Internal API.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { interface } }`.
+}

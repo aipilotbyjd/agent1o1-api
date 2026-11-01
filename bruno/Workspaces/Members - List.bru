@@ -1,0 +1,22 @@
+meta {
+  name: Members - List
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/members
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Lists members of the workspace with their user. Requires the
+  `member.view` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { members } }`.
+}

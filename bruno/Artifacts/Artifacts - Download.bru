@@ -1,0 +1,25 @@
+meta {
+  name: Artifacts - Download
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/artifacts/:artifact/download
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  artifact: {{artifactId}}
+}
+
+docs {
+  Streams the artifact's bytes as an attachment. Requires `artifact.view`.
+
+  Same `restricted` access rule as `Artifacts - Get` (`403` otherwise).
+
+  The response is the raw file with `Content-Disposition: attachment`,
+  not the JSON envelope.
+}

@@ -1,0 +1,35 @@
+meta {
+  name: Confirm Email Change
+  type: http
+  seq: 22
+}
+
+get {
+  url: {{baseUrl}}/v1/auth/confirm-email-change/:id/:hash?expires={{signedExpires}}&signature={{signedSignature}}
+  body: none
+  auth: none
+}
+
+params:path {
+  id: {{userId}}
+  hash: {{emailChangeHash}}
+}
+
+params:query {
+  expires: {{signedExpires}}
+  signature: {{signedSignature}}
+}
+
+docs {
+  Applies a staged email change. This link is emailed to the *new*
+  address by `User/Update User`; it is signed rather than authenticated
+  because the mailbox receiving it is usually not the browser holding
+  the session. `id` is the user's UUID.
+
+  Do not build this URL by hand — copy it out of the email. It redirects
+  to `{APP_FRONTEND_URL}/settings/account?email_change=confirmed`
+  (or `invalid` / `expired`) rather than returning JSON.
+
+  Confirming revokes every session: the address password resets go to
+  has changed, so everything signed in has to prove itself again.
+}

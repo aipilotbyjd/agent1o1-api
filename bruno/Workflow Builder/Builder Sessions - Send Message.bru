@@ -1,0 +1,61 @@
+meta {
+  name: Builder Sessions - Send Message
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-builder-sessions/:session/messages
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{builderSessionId}}
+}
+
+body:json {
+  {
+    "message": "Add an HTTP request node that posts the lead to our CRM.",
+    "mode": "build"
+  }
+}
+
+script:post-response {
+  if (res.status === 202) {
+    const message = res.body.data?.message;
+    if (message && message.id) {
+      bru.setVar("builderMessageId", message.id);
+    }
+  }
+}
+
+docs {
+  Sends a message to the workflow builder agent. Returns 202 with the
+  pending assistant message; the reply is written by a queued job
+  (`ProcessWorkflowBuilderMessageJob`). The agent edits the session's
+  `draft_graph` through its tools, so a single message can change the
+  graph. Requires the `workflow.builder.use` permission. Stores the reply's
+  ID as `builderMessageId`.
+
+  - `message` — required, max 10000 characters.
+  - `mode` — optional: `build` (default) edits the draft; `ask` answers
+    without touching it.
+  - `attachments[]` — optional files, sent as multipart form data instead
+    of JSON. Images and plain-text files only (no PDFs); each is stored as
+    an artifact on the message.
+
+  Follow the reply live on the private channel
+  `workspaces.{workspace}.workflow-builder-sessions.{session}` (events
+  `builder.status`, `builder.delta`, `builder.tool-call`,
+  `builder.tool-result`, `builder.draft`), or poll
+  "Builder Messages - Get" until `processing_status` is `completed` or
+  `failed`. A completed reply carries `actions` (what it changed) and
+  `draft_version_id`.
+
+  409 while a previous reply is still being written, or if the session is
+  archived. 402 when the workspace is out of credits.
+
+  Response is wrapped: `{ success, statusCode, message, data: { message } }`.
+}

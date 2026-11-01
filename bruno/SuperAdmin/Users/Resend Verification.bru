@@ -1,0 +1,29 @@
+meta {
+  name: Resend Verification
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/users/:user/resend-verification
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  user: {{saUserId}}
+}
+
+body:json {
+  {
+    "reason": "User says the email never came"
+  }
+}
+
+docs {
+  Sends the verification email again. Refused (409) for an address that is already verified. Needs a `reason`.
+}

@@ -1,0 +1,33 @@
+meta {
+  name: Builder Assist - Configure Node
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-builder-sessions/:session/assist/configure-node
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{builderSessionId}}
+}
+
+body:json {
+  {
+    "type": "slack_post_message",
+    "instruction": "Post the lead's name and company to #sales"
+  }
+}
+
+docs {
+  Proposes a config for a node from a plain-language instruction — pass
+  `type` for a node about to be added, or `key` for one already in the
+  draft. Returns `config`, `explanation`, `needs_from_user` (secrets, IDs)
+  and `errors` (where the proposal breaks the node's schema). Doesn't
+  change the draft. Charged in credits.
+
+  Response is wrapped: `{ success, statusCode, message, data: { proposal } }`.
+}

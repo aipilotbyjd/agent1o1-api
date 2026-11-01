@@ -1,0 +1,27 @@
+meta {
+  name: Page Templates - Get
+  type: http
+  seq: 25
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/page-templates/:pageTemplate
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  pageTemplate: {{pageTemplateId}}
+}
+
+docs {
+  Fetches a single page template, including its stored `content` (blocks
+  and theme). Requires the `template.view` permission.
+
+  Resolves against the same visibility rule as the list — the workspace's
+  own templates plus global public ones. Anything else answers `404`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { page_template } }`.
+}

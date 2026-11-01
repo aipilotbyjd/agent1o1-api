@@ -1,0 +1,25 @@
+meta {
+  name: Inbox - Labels Delete
+  type: http
+  seq: 67
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/inbox/labels/:label
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  label: {{assistantInboxLabelId}}
+}
+
+docs {
+  Removes a custom Smart Inbox label. Requires the `assistant.use`
+  permission. Built-in labels answer `422` (turn them off instead); a
+  label from another member's inbox answers `404`. Mail already labelled
+  keeps the label.
+
+  Response is wrapped (not 204): same payload as `Inbox - Get`.
+}

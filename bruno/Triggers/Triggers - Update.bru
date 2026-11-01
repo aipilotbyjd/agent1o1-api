@@ -1,0 +1,42 @@
+meta {
+  name: Triggers - Update
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/triggers/:trigger
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  trigger: {{triggerId}}
+}
+
+body:json {
+  {
+    "is_active": false,
+    "signing_secret": "whsec_example"
+  }
+}
+
+docs {
+  Updates a trigger's `config`, `is_active` flag and `signing_secret`.
+  Requires the `trigger.manage` permission.
+
+  `config` takes the same keys as `Triggers - Create`, validated the same
+  way: `cron`, `timezone` (an IANA zone), `url`, `if_already_running`
+  (`queue` or `skip`), `max_failures` (1 to 20), `autonomy_mode` and
+  `test_mode`.
+
+  A trigger owned by a canvas node (`trigger_node_key` set) is configured on
+  the canvas: sending `config` for one is a 422. `is_active` and
+  `signing_secret` still work. Switching a trigger on clears its failure and
+  skip streaks, and must fit the plan's `active_triggers` limit.
+
+  `signing_secret`: an empty string or null removes it.
+
+  Response is wrapped: `{ success, statusCode, message, data: { trigger } }`.
+}

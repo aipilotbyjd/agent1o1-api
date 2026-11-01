@@ -1,0 +1,57 @@
+meta {
+  name: Submissions - Create
+  type: http
+  seq: 26
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/submissions
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+body:json {
+  {
+    "input": {
+      "email": "jane@example.com",
+      "message": "Interested in a demo."
+    },
+    "test": true,
+    "variant": "a"
+  }
+}
+
+script:post-response {
+  if (res.status === 202) {
+    const submission = res.body.data?.submission;
+    if (submission && submission.id) {
+      bru.setVar("pageSubmissionId", submission.id);
+    }
+  }
+}
+
+docs {
+  Runs the page's workflow as a signed-in member. Requires the
+  `run.trigger` permission. Stores the ID in `pageSubmissionId`.
+
+  - `input` — object keyed by the workflow interface's field keys;
+    validated against the interface (422). Replace the sample keys with
+    your workflow's.
+  - `test` — optional boolean. `true` is a builder preview run: needs
+    `page.manage`, works on an unpublished page, uses the draft and skips
+    the daily limit. Otherwise the page must be published and enabled
+    (409) and `max_runs_per_day` applies (429).
+  - `variant` — `a`/`b`, which draft a test run uses. Ignored otherwise
+    (the member's A/B bucket decides).
+
+  Response is wrapped (202):
+  `{ success, statusCode, message, data: { submission } }` — `id`,
+  `state` (`running|waiting|completed|failed`), `outputs`, `progress`,
+  `error`, `started_at`, `finished_at`, `run_id`, `is_test`. Poll
+  `Submissions - Get` for the result.
+}

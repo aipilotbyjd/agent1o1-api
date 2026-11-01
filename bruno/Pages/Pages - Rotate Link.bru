@@ -1,0 +1,33 @@
+meta {
+  name: Pages - Rotate Link
+  type: http
+  seq: 31
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/rotate-link
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const page = res.body.data?.page;
+    if (page && page.public_token) {
+      bru.setVar("pageToken", page.public_token);
+    }
+  }
+}
+
+docs {
+  Issues a new `public_token`; the old link (and any password access
+  tokens) stop working immediately. Requires the `page.manage`
+  permission. Writes an audit entry. Updates `pageToken`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { page } }`.
+}

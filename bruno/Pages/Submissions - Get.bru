@@ -1,0 +1,30 @@
+meta {
+  name: Submissions - Get
+  type: http
+  seq: 28
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/submissions/:submission
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+  submission: {{pageSubmissionId}}
+}
+
+docs {
+  One submission's current result — poll this after
+  `Submissions - Create`. Requires the `page.view` permission. Works for
+  any submission on the page, public ones included (no secret needed).
+
+  `outputs` holds only the run outputs the page's output blocks show,
+  once the run is `completed`. Members see the real run `error`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { submission } }` — same shape as
+  `Submissions - Create`.
+}

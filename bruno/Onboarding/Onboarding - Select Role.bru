@@ -1,0 +1,27 @@
+meta {
+  name: Onboarding - Select Role
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/v1/onboarding/role
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "job_role": "engineering"
+  }
+}
+
+docs {
+  Records the user's job role and advances onboarding to the
+  `choose_plan` step. `job_role` is one of `sales`, `marketing`,
+  `operations`, `support`, `engineering`, `product`, `security`, `hr`,
+  `legal`, `finance`.
+
+  Response is wrapped: `{ success, statusCode, message, data }` where `data`
+  is the full onboarding state (same shape as `Onboarding - Get State`).
+}

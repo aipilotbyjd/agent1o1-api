@@ -1,0 +1,50 @@
+meta {
+  name: Credit Packs - Checkout
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/credit-packs/checkout
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "pack_key": "small"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const pack = res.body.data?.credit_pack;
+    if (pack && pack.id) {
+      bru.setVar("creditPackId", pack.id);
+    }
+  }
+}
+
+docs {
+  Starts a Stripe Checkout session (mode=payment, priced straight from
+  `config('billing.packs')` — no pre-created Stripe price needed) for a
+  one-time credit top-up. `pack_key` must be one of the catalog keys
+  (`small`, `medium`, `large` by default). Requires the `billing.manage`
+  permission.
+
+  Returns `403` if the workspace's current plan lacks the `credit_packs`
+  feature — check `Credit Packs - List Catalog`'s `available` flag first.
+
+  The pack is created `pending`; it flips to `active` (crediting the
+  workspace's current usage period) once Stripe's
+  `checkout.session.completed` webhook lands — nothing more to call here.
+
+  Stores the new pack's ID in the `creditPackId` collection variable.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { credit_pack, checkout_url } }`.
+}

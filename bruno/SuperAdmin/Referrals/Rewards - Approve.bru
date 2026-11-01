@@ -1,0 +1,26 @@
+meta {
+  name: Rewards - Approve
+  type: http
+  seq: 22
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/referrals/rewards/:reward/approve
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  reward: {{referralRewardId}}
+}
+
+docs {
+  Approves a reward held for manual review. Granted now if its hold has
+  passed, otherwise by the hourly `referrals:grant-pending` when it does.
+
+  Response is wrapped: `{ success, statusCode, message, data: { reward } }`.
+}

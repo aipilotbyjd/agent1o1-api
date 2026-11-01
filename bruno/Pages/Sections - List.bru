@@ -1,0 +1,24 @@
+meta {
+  name: Sections - List
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/page-sections
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Lists the workspace's saved page sections (reusable blocks), most
+  recently updated first. Requires the `page.manage` permission.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { sections } }`, each with
+  `id`, `name`, `block`, `created_by`.
+}

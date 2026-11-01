@@ -1,0 +1,26 @@
+meta {
+  name: 2FA - Confirm
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrl}}/v1/auth/2fa/confirm
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "code": "123456"
+  }
+}
+
+docs {
+  Confirms two-factor setup with a code from the authenticator app
+  (from the secret returned by `2FA - Enable`). Returns 8 one-time
+  recovery codes — shown only here, store them somewhere safe. After
+  this, future logins require a 2FA code.
+
+  Response is wrapped: `{ success, statusCode, message, data: { recovery_codes } }`.
+}

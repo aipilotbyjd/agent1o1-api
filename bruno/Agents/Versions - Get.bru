@@ -1,0 +1,28 @@
+meta {
+  name: Versions - Get
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/versions/:version
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  version: 1
+}
+
+docs {
+  Fetches one snapshot of the agent's configuration. Requires the
+  `agent.view` permission.
+
+  `version` is the per-agent version *number* — the 1, 2, 3 the UI shows —
+  not the row ID. That's deliberate: a snapshot is remembered by its
+  number. An unknown number answers `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { version } }`.
+}

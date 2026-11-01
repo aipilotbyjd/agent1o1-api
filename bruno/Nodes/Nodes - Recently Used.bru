@@ -1,0 +1,25 @@
+meta {
+  name: Nodes - Recently Used
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/nodes/recently-used
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  The nodes this workspace has actually run, most-used first, from real
+  `NodeRun` history (top 6). Falls back to the first 6 built-ins,
+  `is_default: true`, when the workspace has no run history yet. Requires
+  the `node.view` permission.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { nodes, is_default } }`.
+}

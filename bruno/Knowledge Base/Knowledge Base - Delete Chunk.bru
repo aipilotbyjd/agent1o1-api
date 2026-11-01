@@ -1,0 +1,23 @@
+meta {
+  name: Knowledge Base - Delete Chunk
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/knowledge-base/:chunk
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  chunk: {{knowledgeChunkId}}
+}
+
+docs {
+  Deletes one chunk. A shared chunk requires `agent.manage`; a private
+  chunk can only be deleted by its owner (anyone else gets 404).
+
+  Responds `204 No Content` with no envelope.
+}

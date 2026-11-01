@@ -1,0 +1,23 @@
+meta {
+  name: Versions - List
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/versions
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+docs {
+  Lists the workflow's published versions, highest version number first.
+  Requires the `workflow.version` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { versions } }`.
+}

@@ -1,0 +1,24 @@
+meta {
+  name: Eval Runs - List
+  type: http
+  seq: 27
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/eval-suites/:suite/runs
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  suite: {{evalSuiteId}}
+}
+
+docs {
+  Lists past executions of the suite, newest first. Requires the
+  `agent.view` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { runs } }`.
+}

@@ -1,0 +1,24 @@
+meta {
+  name: Knowledge Sources - Sync
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/knowledge-base/sources/:knowledgeSource/sync
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  knowledgeSource: {{knowledgeSourceId}}
+}
+
+docs {
+  Queues a sync now; the source's `status` becomes `pending`. Same
+  permission rules as `Knowledge Sources - Update`. Throttled to
+  10/minute.
+
+  Response is wrapped: `{ success, statusCode, message, data: { source } }`.
+}

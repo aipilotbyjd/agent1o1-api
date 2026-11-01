@@ -1,0 +1,33 @@
+meta {
+  name: Dashboard - Overview
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/dashboard?days=30
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  days: 30
+}
+
+docs {
+  The whole home screen in one request. Requires `run.view`.
+
+  - `days` — optional, 1-365, default 30.
+
+  `runs` and `credits.window_credits` cover the window; `in_flight`,
+  `pending_approvals`, `pending_agent_actions` and `counts` are current
+  state. `credits` is `null` without `billing.view`. `recent_runs` holds
+  the last 5 top-level runs (node tests excluded).
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { window, runs, in_flight, pending_approvals, pending_agent_actions, credits, counts: { workflows, agents, active_triggers, members }, recent_runs } }`.
+}

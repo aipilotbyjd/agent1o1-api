@@ -1,0 +1,25 @@
+meta {
+  name: Agents - Trash
+  type: http
+  seq: 67
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/trash
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Lists the workspace's soft-deleted agents, most recently trashed first,
+  each with its `tags`. Requires the `agent.view` permission.
+
+  Bring one back with `Agents - Restore`, or remove it for good with
+  `Agents - Force Delete`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { agents } }`.
+}

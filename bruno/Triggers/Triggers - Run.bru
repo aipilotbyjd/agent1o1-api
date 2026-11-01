@@ -1,0 +1,27 @@
+meta {
+  name: Triggers - Run
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/triggers/:trigger/run
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  trigger: {{triggerId}}
+}
+
+docs {
+  Fires a trigger by hand, recording a `manual` trigger event. Requires
+  the `run.trigger` permission.
+
+  Answers `202 Accepted` with the queued event. Returns `409` if the
+  trigger already has a run in flight, or if its target can't be run
+  right now (for example an unpublished workflow).
+
+  Response is wrapped: `{ success, statusCode, message, data: { event } }`.
+}

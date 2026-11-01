@@ -1,0 +1,23 @@
+meta {
+  name: Subscription - Get
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/subscription
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Returns the workspace's current subscription (loaded with its plan), or
+  `data.subscription` of `null` if it has never subscribed. Requires the
+  `billing.view` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { subscription } }`.
+}

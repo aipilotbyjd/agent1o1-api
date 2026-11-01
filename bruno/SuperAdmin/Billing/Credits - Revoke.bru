@@ -1,0 +1,31 @@
+meta {
+  name: Credits - Revoke
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/billing/workspaces/:workspace/credits/revoke
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  workspace: {{saWorkspaceId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456",
+    "credits": 100
+  }
+}
+
+docs {
+  Takes credits back, stopping at what is left (already-spent credits cannot be recovered).
+}

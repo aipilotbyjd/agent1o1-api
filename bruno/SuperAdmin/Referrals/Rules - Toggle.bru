@@ -1,0 +1,25 @@
+meta {
+  name: Rules - Toggle
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/referrals/rules/:rule/toggle
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  rule: {{referralRuleId}}
+}
+
+docs {
+  Switches the rule on or off.
+
+  Response is wrapped: `{ success, statusCode, message, data: { rule } }`.
+}

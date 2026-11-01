@@ -1,0 +1,23 @@
+meta {
+  name: Skills - List
+  type: http
+  seq: 36
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/skills
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+docs {
+  Lists the skills attached to this agent. Requires the `agent.view`
+  permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { skills } }`.
+}

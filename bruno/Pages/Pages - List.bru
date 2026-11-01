@@ -1,0 +1,31 @@
+meta {
+  name: Pages - List
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  ~workflow_id: {{workflowId}}
+}
+
+docs {
+  Lists the workspace's pages, most recently updated first. Requires the
+  `page.view` permission.
+
+  - `workflow_id` — optional, only pages for that workflow.
+
+  Each entry is the page without its `content` blocks, plus `runs_count`
+  (non-test submissions) and `last_run_at`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { pages } }`.
+}

@@ -1,0 +1,44 @@
+meta {
+  name: Runs - Retry
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/runs/:run/retry
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  run: {{runId}}
+}
+
+body:json {
+  {
+    "from_node_key": null
+  }
+}
+
+script:post-response {
+  if (res.status === 202) {
+    const run = res.body.data?.run;
+    if (run && run.id) {
+      bru.setVar("runId", run.id);
+    }
+  }
+}
+
+docs {
+  Re-runs a finished run. Requires the `run.trigger` permission. Overwrites
+  the `runId` collection variable with the new run.
+
+  - `from_node_key` — optional. Resumes from that node, reusing the earlier
+    run's results for the steps before it. Omit it (or send `null`) to
+    re-run the whole graph from the start.
+
+  Answers `202 Accepted`; the retry is queued, not finished. Response is
+  wrapped: `{ success, statusCode, message, data: { run } }` with
+  `nodeRuns` loaded.
+}

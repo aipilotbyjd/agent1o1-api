@@ -1,0 +1,40 @@
+meta {
+  name: Eval Cases - Update
+  type: http
+  seq: 25
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/eval-suites/:suite/cases/:case
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  suite: {{evalSuiteId}}
+  case: {{evalCaseId}}
+}
+
+body:json {
+  {
+    "assertions": [
+      { "type": "contains", "value": "30 days" }
+    ]
+  }
+}
+
+docs {
+  Updates a case. Requires the `agent.manage` permission. `name`, `input`,
+  `assertions` and `sort_order` are all `sometimes` — send only what
+  changes.
+
+  `assertions` is replaced wholesale rather than merged, and each entry
+  still needs both `type` and `value`. Assertion types are listed in
+  `Eval Cases - Create`.
+
+  A case belonging to another suite answers `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { case } }`.
+}

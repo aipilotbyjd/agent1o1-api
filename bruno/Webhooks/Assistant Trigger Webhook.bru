@@ -1,0 +1,43 @@
+meta {
+  name: Assistant Trigger Webhook
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/hooks/assistant/:token
+  body: json
+  auth: none
+}
+
+params:path {
+  token: {{assistantTriggerToken}}
+}
+
+body:json {
+  {
+    "event": "order.created",
+    "data": {
+      "order_id": "ord_0001",
+      "total": 42.5
+    }
+  }
+}
+
+docs {
+  Fires a personal assistant's `webhook` trigger; the body is handed to
+  the assistant with the trigger's prompt. This is the trigger's
+  `webhook_url`.
+
+  **Auth.** No session or signature — the `{token}` is the credential,
+  matched against the trigger's webhook token. Set
+  `assistantTriggerToken` from `Assistant/Triggers - Create` (type
+  `webhook`). Rate limited per token (`assistant-hooks`).
+
+  Responses are **not** wrapped:
+
+  - `202 { "accepted": true, "skipped": false }` — queued; `accepted:
+    false, skipped: true` when its last run is still going.
+  - `409 { "accepted": false, "reason" }` — trigger is paused/off.
+  - `404` — no webhook trigger matches the token.
+}

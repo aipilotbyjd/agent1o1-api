@@ -1,0 +1,23 @@
+meta {
+  name: Memories - Delete
+  type: http
+  seq: 17
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/memories/:memory
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  memory: {{assistantMemoryId}}
+}
+
+docs {
+  Makes the assistant forget one memory. Requires the `assistant.use`
+  permission. Another member's memory answers `404`.
+
+  Responds `204 No Content` with no envelope.
+}

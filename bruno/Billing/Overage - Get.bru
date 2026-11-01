@@ -1,0 +1,36 @@
+meta {
+  name: Overage - Get
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/overage
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  The workspace's credit overage settings — whether it keeps running once its
+  plan allowance and top-up pool are both spent, and what that is allowed to
+  cost. Requires the `billing.view` permission.
+
+  - `available` — whether the current plan sells overage (the
+    `credit_overage` feature). `false` on the Free plan.
+  - `enabled` — whether the workspace opted in.
+  - `limit` — the cap the workspace chose, or `null` for "use the default".
+  - `effective_limit` — the cap actually enforced this period. `null` means
+    uncapped, which only happens when the estate default is uncapped.
+  - `maximum_limit` — the highest cap the workspace may set
+    (`config('billing.overage.default_limit')`, 1,000,000 by default).
+  - `credits_used` / `credits_remaining` — overage spent and still available
+    in the current billing period. `credits_remaining` is `0` whenever
+    overage is unavailable or switched off, and `null` when uncapped.
+  - `credit_value_usd` — what each overage credit will be billed at.
+
+  Response is wrapped: `{ success, statusCode, message, data: { overage } }`.
+}

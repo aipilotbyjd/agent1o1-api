@@ -1,0 +1,33 @@
+meta {
+  name: Provider Callback
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/v1/auth/social/:provider/callback?code={{socialCode}}&state={{socialState}}
+  body: none
+  auth: none
+}
+
+params:path {
+  provider: google
+}
+
+params:query {
+  code: {{socialCode}}
+  state: {{socialState}}
+}
+
+docs {
+  Completes the OAuth flow for `provider` using the `code` (and optional
+  `state`) returned by the provider's redirect. Normally called by the
+  browser, not directly — included for manual/CI verification. Accepts
+  POST as well as GET, for popup flows that post the code back.
+
+  This does **not** return tokens. It redirects to
+  `{APP_FRONTEND_URL}/oauth/callback?code=<one-time code>` (or
+  `?error=<message>`), and the frontend trades that code via
+  `Social Exchange`. The code is valid for 60 seconds and single-use, so
+  a token never travels in a URL the browser keeps in history.
+}

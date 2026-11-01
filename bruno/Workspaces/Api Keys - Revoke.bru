@@ -1,0 +1,23 @@
+meta {
+  name: Api Keys - Revoke
+  type: http
+  seq: 16
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/api-keys/:apiKey
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  apiKey: {{apiKeyId}}
+}
+
+docs {
+  Revokes (deletes) a workspace API key by ID. Requires the
+  `api-key.manage` permission.
+
+  Responds `204 No Content` with no envelope.
+}

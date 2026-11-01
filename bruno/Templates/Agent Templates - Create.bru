@@ -1,0 +1,67 @@
+meta {
+  name: Agent Templates - Create
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agent-templates
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "name": "Support triage starter",
+    "description": "Triages inbound support tickets.",
+    "category": "support",
+    "icon": "life-buoy",
+    "color": "#0EA5E9",
+    "visibility": "private",
+    "config": {
+      "instructions": "You triage inbound support tickets. Be concise.",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-5",
+      "temperature": 0.2,
+      "settings": {},
+      "tool_bindings": [],
+      "workflow_ids": [],
+      "skill_ids": []
+    }
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const template = res.body.data?.agent_template;
+    if (template && template.id) {
+      bru.setVar("agentTemplateId", template.id);
+    }
+  }
+}
+
+docs {
+  Creates an agent template from a config you supply. Requires the
+  `template.manage` permission. Stores the new ID in the
+  `agentTemplateId` collection variable.
+
+  To snapshot an existing agent instead, use
+  `Agent Templates - Save From Agent`.
+
+  - `name` — required, max 255.
+  - `slug` — optional `alpha_dash`; derived from `name` plus a random
+    suffix when omitted.
+  - `config` — required array. `config.instructions` is the only required
+    key inside it. `config.temperature` must be between 0 and 1;
+    `config.provider` and `config.model` are strings; `config.settings`,
+    `config.tool_bindings`, `config.workflow_ids` and `config.skill_ids`
+    are optional arrays.
+  - `visibility` — `private` or `public`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { agent_template } }`.
+}

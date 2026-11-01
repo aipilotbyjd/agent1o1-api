@@ -1,0 +1,46 @@
+meta {
+  name: Session Actions - List
+  type: http
+  seq: 72
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/sessions/:session/actions
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+}
+
+params:query {
+  ~status: pending
+  ~tool_name: call_api
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const actions = res.body.data?.actions;
+    if (Array.isArray(actions) && actions.length > 0) {
+      const pending = actions.find((action) => action.status === "pending") || actions[0];
+      bru.setVar("agentActionId", pending.id);
+    }
+  }
+}
+
+docs {
+  One conversation's actions, oldest first — what a chat renders its
+  approval cards from. Includes the actions of subagents that
+  conversation started. Requires the `agent.view` permission. A session
+  belonging to a different agent answers `404`.
+
+  - `status` / `tool_name` — optional filters, as in `Actions - List`.
+
+  Stores the first pending action's ID (else the first one) in
+  `agentActionId`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { actions } }`.
+}

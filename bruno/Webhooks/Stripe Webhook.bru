@@ -1,0 +1,56 @@
+meta {
+  name: Stripe Webhook
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/stripe/webhook
+  body: json
+  auth: none
+}
+
+headers {
+  Stripe-Signature: {{stripeSignature}}
+}
+
+body:json {
+  {
+    "id": "evt_00000000000000",
+    "type": "invoice.payment_failed",
+    "data": {
+      "object": {}
+    }
+  }
+}
+
+docs {
+  Stripe's billing callback. This is the URL configured in the Stripe
+  dashboard, not something a client calls — it's here so the endpoint is
+  documented and reachable when replaying an event locally.
+
+  **Signature verification.** Cashier verifies `Stripe-Signature` against
+  the webhook signing secret, so a hand-written body is rejected with
+  `403` unless the signature matches. The practical way to exercise this is
+  the Stripe CLI (`stripe listen --forward-to <host>/api/stripe/webhook`,
+  then `stripe trigger <event>`), which signs the payload for you. Leave
+  `stripeSignature` empty otherwise. With no signing secret configured the
+  endpoint answers `503` outside `local`/`testing` (locally it then skips
+  verification).
+
+  Cashier's auto-registration is disabled, so this resolves to the
+  application's own controller. It guards every event with an idempotency
+  check before anything is processed: Stripe retries delivery, and without
+  it a redelivered event could sync plan or usage-period state twice. An
+  event whose `id` has already been seen answers
+  `200 Webhook already processed` without re-running the handler.
+
+  Events with app-specific handling: `customer.subscription.created`,
+  `customer.subscription.updated`, `customer.subscription.deleted`,
+  `checkout.session.completed`, `charge.refunded`, `charge.dispute.created`,
+  `invoice.payment_succeeded`, `invoice.payment_failed`, plus Cashier's
+  built-in handlers. Anything else is accepted and ignored. A body with no
+  `id` is also answered `200` and ignored.
+
+  Responses are **not** wrapped in the standard envelope.
+}

@@ -1,0 +1,47 @@
+meta {
+  name: Eval Suites - Create
+  type: http
+  seq: 19
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/eval-suites
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+body:json {
+  {
+    "name": "Refund policy regressions",
+    "description": "Answers we don't want to drift when the prompt changes."
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const suite = res.body.data?.suite;
+    if (suite && suite.id) {
+      bru.setVar("evalSuiteId", suite.id);
+    }
+  }
+}
+
+docs {
+  Creates an empty eval suite for the agent. Requires the `agent.manage`
+  permission. Stores the new ID in the `evalSuiteId` collection variable.
+
+  Add the actual expectations afterwards with `Eval Cases - Create`.
+
+  - `name` — required, max 255.
+  - `description` — optional, nullable.
+  - `run_on_change` — optional bool, default true; re-run this suite
+    automatically (simulated, after a short delay) whenever the agent's
+    behavior changes.
+
+  Response is wrapped: `{ success, statusCode, message, data: { suite } }`.
+}

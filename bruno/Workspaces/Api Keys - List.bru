@@ -1,0 +1,23 @@
+meta {
+  name: Api Keys - List
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/api-keys
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Lists API keys for the workspace, newest first. The key itself is never
+  returned (only its hash is stored). Requires the `api-key.view`
+  permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { api_keys } }`.
+}

@@ -1,0 +1,25 @@
+meta {
+  name: 2FA - Confirm
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/auth/2fa/confirm
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+body:json {
+  {
+    "code": "123456"
+  }
+}
+
+docs {
+  Confirms with the first code. Returns eight recovery codes, shown once, and ends every session: sign in again.
+}

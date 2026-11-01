@@ -1,0 +1,31 @@
+meta {
+  name: Webhooks - Replay
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/billing/webhooks/:eventId/replay
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  eventId: {{saStripeEventId}}
+}
+
+body:json {
+  {
+    "reason": "Stripe retries ran out overnight"
+  }
+}
+
+docs {
+  Fetches the event from Stripe again (kept for 30 days) and runs it through the same handler a live
+  delivery uses. Refused (409) if it was already processed; answers 502 if the handler fails again,
+  leaving the failure open. Needs `billing.replay-webhooks` (owner, finance) and a `reason`.
+}

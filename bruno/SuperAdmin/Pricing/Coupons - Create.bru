@@ -1,0 +1,32 @@
+meta {
+  name: Coupons - Create
+  type: http
+  seq: 27
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/pricing/coupons
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456",
+    "name": "Launch 20",
+    "code": "LAUNCH20",
+    "percent_off": 20,
+    "duration": "repeating",
+    "duration_in_months": 3,
+    "max_redemptions": 100
+  }
+}
+
+docs {
+  Creates a Stripe coupon and promotion code. Use `amount_off_cents` instead of `percent_off` for a fixed amount; `plan_ids` limits it to plans that have a Stripe product.
+}

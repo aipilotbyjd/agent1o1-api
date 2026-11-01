@@ -1,0 +1,22 @@
+meta {
+  name: Invitations - Cancel
+  type: http
+  seq: 13
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/invitations/:invitation
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  invitation: {{invitationId}}
+}
+
+docs {
+  Revokes a pending invitation. Requires the `member.invite` permission.
+
+  Responds `204 No Content` with no envelope.
+}

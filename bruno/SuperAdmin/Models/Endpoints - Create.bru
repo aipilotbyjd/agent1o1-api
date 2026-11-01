@@ -1,0 +1,40 @@
+meta {
+  name: Endpoints - Create
+  type: http
+  seq: 23
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/models/endpoints
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456",
+    "slug": "my-vllm",
+    "name": "Our vLLM box",
+    "base_url": "https://llm.example.com/v1",
+    "api_key": "sk-...",
+    "notes": "",
+    "workspace_requests_per_minute": 30,
+    "total_requests_per_minute": 300
+  }
+}
+
+script:post-response {
+  if (res.status === 200 || res.status === 201) {
+    const v = res.body.data?.id;
+    if (v) bru.setVar("saEndpointId", v);
+  }
+}
+
+docs {
+  Adds a provider the platform can send calls to, with no deploy: use its slug as a route's provider. Needs a reason and a fresh code. `workspace_requests_per_minute` and `total_requests_per_minute` (null for none) protect a server of your own: a call over either limit skips this endpoint, so it fails over to the next provider, or answers 429 with `Retry-After` when there is none. The URL must be https and public; a private host has to be named in `SUPER_ADMIN_ENDPOINT_PRIVATE_HOSTS`.
+}

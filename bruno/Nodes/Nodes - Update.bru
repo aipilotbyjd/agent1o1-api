@@ -1,0 +1,29 @@
+meta {
+  name: Nodes - Update
+  type: http
+  seq: 8
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/nodes/:node
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  node: {{nodeId}}
+}
+
+body:json {
+  {
+    "name": "Renamed"
+  }
+}
+
+docs {
+  Updates a custom node. All fields are optional; `type` cannot be
+  changed. Requires the `node.manage` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { node } }`.
+}

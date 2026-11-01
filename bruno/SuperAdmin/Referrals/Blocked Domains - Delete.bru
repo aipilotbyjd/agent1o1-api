@@ -1,0 +1,25 @@
+meta {
+  name: Blocked Domains - Delete
+  type: http
+  seq: 28
+}
+
+delete {
+  url: {{baseUrl}}/super-admin/v1/referrals/blocked-domains/:domain
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  domain: {{blockedDomainId}}
+}
+
+docs {
+  Unblocks the domain.
+
+  Answers `200` with `data: null` (not 204).
+}

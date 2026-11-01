@@ -1,0 +1,25 @@
+meta {
+  name: Pages - Unpublish
+  type: http
+  seq: 38
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/unpublish
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+docs {
+  Takes the page offline: clears the live content (and live version B).
+  Requires the `page.manage` permission. The draft, settings and token are
+  kept; the public link and `Pages - View` answer 404 until republished.
+  Writes an audit entry.
+
+  Response is wrapped: `{ success, statusCode, message, data: { page } }`.
+}

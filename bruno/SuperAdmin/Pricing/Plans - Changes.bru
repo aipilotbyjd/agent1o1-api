@@ -1,0 +1,23 @@
+meta {
+  name: Plans - Changes
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/pricing/plans/:plan/changes
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  plan: {{saPlanId}}
+}
+
+docs {
+  The plan's before/after change history.
+}

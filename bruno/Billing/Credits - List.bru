@@ -1,0 +1,25 @@
+meta {
+  name: Credits - List
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/credits
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  The workspace's append-only credit ledger, newest first, paginated
+  (25/page) — every row `DeductCreditsAction` has written for a node run or
+  agent step. Requires the `billing.view` permission.
+
+  Response is a flat paginated envelope:
+  `{ success, statusCode, message, data: [...], meta: { current_page,
+  last_page, per_page, total } }`.
+}

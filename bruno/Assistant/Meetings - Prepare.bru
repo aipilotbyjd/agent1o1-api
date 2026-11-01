@@ -1,0 +1,28 @@
+meta {
+  name: Meetings - Prepare
+  type: http
+  seq: 70
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/meetings/:meeting/prepare
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  meeting: {{assistantMeetingId}}
+}
+
+docs {
+  Prepares a meeting brief now, whether or not automatic prep is on.
+  Requires the `assistant.use` permission. Throttled to 10 per minute. A
+  meeting of another member's assistant answers `404`.
+
+  The brief is written on the queue — poll `Meetings - List` (or
+  `Briefing Runs - Get` with `brief.run_id`).
+
+  Responds `202`, wrapped: `{ success, statusCode, message, data: { meeting
+  } }` (same meeting shape as `Meetings - List`).
+}

@@ -1,0 +1,22 @@
+meta {
+  name: Invitations - List
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/invitations
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Lists pending (not-yet-accepted) invitations for the workspace.
+  Requires the `invitation.view` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { invitations } }`.
+}

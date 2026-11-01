@@ -1,0 +1,46 @@
+meta {
+  name: Folders - Create
+  type: http
+  seq: 18
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/folders
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "name": "Marketing",
+    "type": "workflow",
+    "color": "#22c55e"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const folder = res.body.data?.folder;
+    if (folder && folder.id) {
+      bru.setVar("folderId", folder.id);
+    }
+  }
+}
+
+docs {
+  Creates a folder for organizing workflows or agents. Requires the
+  `workflow.manage` permission for `type: workflow`, `agent.manage` for
+  `type: agent`.
+
+  `name` and `type` (`workflow` or `agent`) are required; `color` is up to
+  7 characters. `parent_id` optionally nests it under another folder of the
+  same type; `position` controls sort order among siblings (defaults to `0`).
+
+  Stores the new ID in the `folderId` collection variable.
+
+  Response is wrapped: `{ success, statusCode, message, data: { folder } }`.
+}

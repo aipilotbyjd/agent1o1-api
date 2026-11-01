@@ -1,0 +1,33 @@
+meta {
+  name: Verify Email
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/v1/auth/verify-email/:id/:hash
+  body: none
+  auth: none
+}
+
+params:path {
+  id: {{userId}}
+  hash: replace-with-signed-hash
+}
+
+params:query {
+  ~expires: 
+  ~signature: 
+}
+
+docs {
+  Verifies a user's email address. This is a Laravel signed URL — `id`
+  (the user's UUID), `hash`, and the `expires`/`signature` query
+  parameters must be copied from the verification email link exactly;
+  it cannot be constructed by hand.
+
+  Answers with a redirect to
+  `{APP_FRONTEND_URL}/verify-email?status=verified` (or `invalid`,
+  `expired`, `already-verified`) rather than JSON, since a person follows
+  this from their email client.
+}

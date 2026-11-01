@@ -1,0 +1,500 @@
+# Gumloop Documentation Sitemap
+
+## api-reference
+
+- [Authentication](https://docs.gumloop.com/api-reference/authentication.md) — `ok`
+- [OAuth 2.0](https://docs.gumloop.com/api-reference/oauth.md) — `ok`
+- [Getting Started](https://docs.gumloop.com/api-reference/getting-started.md) — `ok`
+- [Python SDK](https://docs.gumloop.com/api-reference/sdk/python.md) — `ok`
+- [JavaScript SDK](https://docs.gumloop.com/api-reference/sdk/javascript.md) — `ok`
+- [List agents](https://docs.gumloop.com/api-reference/agents/list-agents.md) — `ok`
+- [Create agent](https://docs.gumloop.com/api-reference/agents/create-agent.md) — `ok`
+- [Retrieve agent](https://docs.gumloop.com/api-reference/agents/retrieve-agent.md) — `ok`
+- [Update agent](https://docs.gumloop.com/api-reference/agents/update-agent.md) — `ok`
+- [List agent versions](https://docs.gumloop.com/api-reference/agents/list-agent-versions.md) — `ok`
+- [Retrieve agent version](https://docs.gumloop.com/api-reference/agents/retrieve-agent-version.md) — `ok`
+- [Attach or detach agent skills](https://docs.gumloop.com/api-reference/agents/update-agent-skills.md) — `ok`
+- [List agent MCP servers](https://docs.gumloop.com/api-reference/agents/list-agent-mcp-servers.md) — `ok`
+- [Attach or update an agent MCP server](https://docs.gumloop.com/api-reference/agents/attach-agent-mcp-server.md) — `ok`
+- [Detach an agent MCP server](https://docs.gumloop.com/api-reference/agents/detach-agent-mcp-server.md) — `ok`
+- [List sessions](https://docs.gumloop.com/api-reference/sessions/list-sessions.md) — `ok`
+- [Create session](https://docs.gumloop.com/api-reference/sessions/create-session.md) — `ok`
+- [Retrieve session](https://docs.gumloop.com/api-reference/sessions/retrieve-session.md) — `ok`
+- [Send message](https://docs.gumloop.com/api-reference/sessions/send-message.md) — `ok`
+- [Upload session file](https://docs.gumloop.com/api-reference/sessions/upload-session-file.md) — `ok`
+- [Resolve approvals](https://docs.gumloop.com/api-reference/sessions/resolve-approvals.md) — `ok`
+- [Queue message](https://docs.gumloop.com/api-reference/sessions/queue-message.md) — `ok`
+- [List queued messages](https://docs.gumloop.com/api-reference/sessions/list-queued-messages.md) — `ok`
+- [Update queued message](https://docs.gumloop.com/api-reference/sessions/update-queued-message.md) — `ok`
+- [Delete queued message](https://docs.gumloop.com/api-reference/sessions/delete-queued-message.md) — `ok`
+- [Send queued message now](https://docs.gumloop.com/api-reference/sessions/send-queued-message.md) — `ok`
+- [Cancel session](https://docs.gumloop.com/api-reference/sessions/cancel-session.md) — `ok`
+- [List skills](https://docs.gumloop.com/api-reference/skills/list-skills.md) — `ok`
+- [Create skill](https://docs.gumloop.com/api-reference/skills/create-skill.md) — `ok`
+- [Update skill](https://docs.gumloop.com/api-reference/skills/update-skill.md) — `ok`
+- [Delete skill](https://docs.gumloop.com/api-reference/skills/delete-skill.md) — `ok`
+- [Download skill](https://docs.gumloop.com/api-reference/skills/download-skill.md) — `ok`
+- [List artifacts](https://docs.gumloop.com/api-reference/artifacts/list-artifacts.md) — `ok`
+- [Download artifact](https://docs.gumloop.com/api-reference/artifacts/download-artifact.md) — `ok`
+- [List MCP servers](https://docs.gumloop.com/api-reference/mcp/list-servers.md) — `ok`
+- [Retrieve an MCP server](https://docs.gumloop.com/api-reference/mcp/retrieve-server.md) — `ok`
+- [List MCP server tools](https://docs.gumloop.com/api-reference/mcp/list-tools.md) — `ok`
+- [Call MCP tools](https://docs.gumloop.com/api-reference/mcp/call-tool.md) — `ok`
+- [List evaluations](https://docs.gumloop.com/api-reference/evaluations/list-evaluations.md) — `ok`
+- [Retrieve evaluation](https://docs.gumloop.com/api-reference/evaluations/retrieve-evaluation.md) — `ok`
+- [Get evaluation metrics](https://docs.gumloop.com/api-reference/evaluations/get-metrics.md) — `ok`
+- [Get evaluation config](https://docs.gumloop.com/api-reference/evaluations/get-config.md) — `ok`
+- [Update evaluation config](https://docs.gumloop.com/api-reference/evaluations/update-config.md) — `ok`
+- [Search Company Brain](https://docs.gumloop.com/api-reference/brain/search.md) — `ok`
+- [List teams](https://docs.gumloop.com/api-reference/teams/list-teams.md) — `ok`
+- [Create chat completion](https://docs.gumloop.com/api-reference/chat-completions/create-completion.md) — `ok`
+- [List models](https://docs.gumloop.com/api-reference/models/list-models.md) — `ok`
+- [List saved flows](https://docs.gumloop.com/api-reference/getting-automation-details/list-saved-automations.md) — `ok`
+- [List workbooks and their saved flows](https://docs.gumloop.com/api-reference/getting-automation-details/list-workbooks.md) — `ok`
+- [Retrieve input schema](https://docs.gumloop.com/api-reference/getting-automation-details/retrieve-input-schema.md) — `ok`
+- [Retrieve automation run history](https://docs.gumloop.com/api-reference/getting-automation-details/retrieve-run-history.md) — `ok`
+- [Upload file](https://docs.gumloop.com/api-reference/file-operations/upload-file.md) — `ok`
+- [Upload multiple files](https://docs.gumloop.com/api-reference/file-operations/upload-files.md) — `ok`
+- [Download file](https://docs.gumloop.com/api-reference/file-operations/download-file.md) — `ok`
+- [Download multiple files](https://docs.gumloop.com/api-reference/file-operations/download-files.md) — `ok`
+- [Retrieve audit logs](https://docs.gumloop.com/api-reference/organization/get-audit-logs.md) — `ok`
+- [Manage workspace users](https://docs.gumloop.com/api-reference/organization/manage-workspace-users.md) — `ok`
+- [Manage custom role users](https://docs.gumloop.com/api-reference/organization/manage-permission-group-users.md) — `ok`
+- [List custom role credit limits](https://docs.gumloop.com/api-reference/organization/list-role-credit-limits.md) — `ok`
+- [Get custom role credit limit](https://docs.gumloop.com/api-reference/organization/get-role-credit-limit.md) — `ok`
+- [Set custom role credit limit](https://docs.gumloop.com/api-reference/organization/set-role-credit-limit.md) — `ok`
+- [Export data](https://docs.gumloop.com/api-reference/organization/export-data.md) — `ok`
+- [Get data export status](https://docs.gumloop.com/api-reference/organization/export-status.md) — `ok`
+- [Start flow run](https://docs.gumloop.com/api-reference/running-an-automation/start-automation.md) — `ok`
+- [Kill flow run](https://docs.gumloop.com/api-reference/running-an-automation/kill-automation.md) — `ok`
+- [Retrieve run details](https://docs.gumloop.com/api-reference/running-an-automation/retrieve-run-details.md) — `ok`
+- [openapi](https://docs.gumloop.com/api-reference/openapi.yaml) — `ok`
+
+## cli
+
+- [Gumloop for Terminal](https://docs.gumloop.com/cli/overview.md) — `ok`
+- [Authentication](https://docs.gumloop.com/cli/authentication.md) — `ok`
+- [Agents](https://docs.gumloop.com/cli/agents.md) — `ok`
+- [Sessions](https://docs.gumloop.com/cli/sessions.md) — `ok`
+- [Chat](https://docs.gumloop.com/cli/chat.md) — `ok`
+- [MCP Servers](https://docs.gumloop.com/cli/mcp.md) — `ok`
+- [Brain](https://docs.gumloop.com/cli/brain.md) — `ok`
+- [Skills](https://docs.gumloop.com/cli/skills.md) — `ok`
+- [Artifacts](https://docs.gumloop.com/cli/artifacts.md) — `ok`
+
+## common_errors
+
+- [Type Mismatch Errors](https://docs.gumloop.com/common_errors/type_mismatch.md) — `ok`
+- [List Size Mismatch Errors](https://docs.gumloop.com/common_errors/list_size_mismatch.md) — `ok`
+- [Join List Items vs Loop Mode](https://docs.gumloop.com/common_errors/join_list_vs_loop_mode.md) — `ok`
+- [Flow Terminated Due to Excess Memory Consumption](https://docs.gumloop.com/common_errors/memory_limit.md) — `ok`
+
+## core-concepts
+
+- [Agents](https://docs.gumloop.com/core-concepts/agents.md) — `ok`
+- [Gumball](https://docs.gumloop.com/core-concepts/gumball.md) — `ok`
+- [Human in the Loop](https://docs.gumloop.com/core-concepts/human_in_the_loop.md) — `ok`
+- [Code Sandbox & Secrets](https://docs.gumloop.com/core-concepts/agent_sandbox_and_secrets.md) — `ok`
+- [Evaluations](https://docs.gumloop.com/core-concepts/evaluations.md) — `ok`
+- [Reflections](https://docs.gumloop.com/core-concepts/reflections.md) — `ok`
+- [Agent Skills](https://docs.gumloop.com/core-concepts/skills.md) — `ok`
+- [Brain](https://docs.gumloop.com/core-concepts/brain.md) — `ok`
+- [Agent Artifacts (Files)](https://docs.gumloop.com/core-concepts/agent_artifacts.md) — `ok`
+- [Using Agents in Slack](https://docs.gumloop.com/core-concepts/agents_slack.md) — `ok`
+- [Using Agents in Microsoft Teams](https://docs.gumloop.com/core-concepts/agents_teams.md) — `ok`
+- [Agent Email Inbox](https://docs.gumloop.com/core-concepts/agents_email.md) — `ok`
+- [Hosted Pages](https://docs.gumloop.com/core-concepts/hosted_pages.md) — `ok`
+- [Agent Node](https://docs.gumloop.com/core-concepts/agent_node.md) — `ok`
+- [Custom Slack App Integration](https://docs.gumloop.com/core-concepts/custom_slack_app.md) — `ok`
+- [Workflows](https://docs.gumloop.com/core-concepts/workbooks.md) — `ok`
+- [Run Log](https://docs.gumloop.com/core-concepts/run_log.md) — `ok`
+- [Subflows](https://docs.gumloop.com/core-concepts/subflows.md) — `ok`
+- [Loop Mode](https://docs.gumloop.com/core-concepts/loop_mode.md) — `ok`
+- [Node and Workflow Library](https://docs.gumloop.com/core-concepts/node_and_flow_library.md) — `ok`
+- [Node Versioning](https://docs.gumloop.com/core-concepts/node_versions.md) — `ok`
+- [Workflow Checkpoints](https://docs.gumloop.com/core-concepts/checkpoint_history.md) — `ok`
+- [Tips & Tricks](https://docs.gumloop.com/core-concepts/tips_and_tricks.md) — `ok`
+- [Connectors](https://docs.gumloop.com/core-concepts/credentials.md) — `ok`
+- [Okta Integration](https://docs.gumloop.com/core-concepts/okta-integration.md) — `ok`
+- [Agent Triggers](https://docs.gumloop.com/core-concepts/agent_triggers.md) — `ok`
+- [Create Triggers With AI](https://docs.gumloop.com/core-concepts/ai_trigger_creation.md) — `ok`
+- [Workflow Triggers](https://docs.gumloop.com/core-concepts/workflow_triggers.md) — `ok`
+- [Organization and Teams](https://docs.gumloop.com/core-concepts/teams.md) — `ok`
+- [User Roles](https://docs.gumloop.com/core-concepts/organization_user_roles.md) — `ok`
+- [Share Permissions](https://docs.gumloop.com/core-concepts/share_permissions.md) — `ok`
+- [Organization Skills](https://docs.gumloop.com/core-concepts/organization_skills.md) — `ok`
+- [Credits](https://docs.gumloop.com/core-concepts/credits.md) — `ok`
+- [Rate Limits](https://docs.gumloop.com/core-concepts/rate_limits.md) — `ok`
+- [Alerts](https://docs.gumloop.com/core-concepts/alerts.md) — `ok`
+- [Working With Files](https://docs.gumloop.com/core-concepts/files.md) — `ok`
+- [Types](https://docs.gumloop.com/core-concepts/types.md) — `ok`
+- [AI Models](https://docs.gumloop.com/core-concepts/ai_models.md) — `ok`
+- [Gumloop Interfaces](https://docs.gumloop.com/core-concepts/interfaces.md) — `ok`
+- [Community Template Submission Guidelines](https://docs.gumloop.com/core-concepts/template-submission-guidelines.md) — `ok`
+
+## enterprise-features
+
+- [SSO, SAML & SCIM](https://docs.gumloop.com/enterprise-features/sso_saml_scim.md) — `ok`
+- [Custom Roles](https://docs.gumloop.com/enterprise-features/user_groups.md) — `ok`
+- [Organization Service Accounts for Slack Agents](https://docs.gumloop.com/enterprise-features/slack_agent_access.md) — `ok`
+- [Usage Data Export](https://docs.gumloop.com/enterprise-features/organization_data_export.md) — `ok`
+- [Audit Logging](https://docs.gumloop.com/enterprise-features/audit_logging.md) — `ok`
+- [AI Model Governance & Configuration](https://docs.gumloop.com/enterprise-features/ai_model_control.md) — `ok`
+- [Organization Insights](https://docs.gumloop.com/enterprise-features/organization_insights.md) — `ok`
+- [App Activity](https://docs.gumloop.com/enterprise-features/app_activity.md) — `ok`
+- [Hosted MCPs](https://docs.gumloop.com/enterprise-features/hosted_mcps.md) — `ok`
+- [Proxied MCPs](https://docs.gumloop.com/enterprise-features/proxied_mcps.md) — `ok`
+- [Managed Tunnels](https://docs.gumloop.com/enterprise-features/managed_tunnels.md) — `ok`
+- [Static Egress IPs](https://docs.gumloop.com/enterprise-features/static_egress_ips.md) — `ok`
+- [App Policies](https://docs.gumloop.com/enterprise-features/app-policies/overview.md) — `ok`
+- [App Rules](https://docs.gumloop.com/enterprise-features/app-policies/app-rules.md) — `ok`
+- [Domain Restrictions](https://docs.gumloop.com/enterprise-features/app-policies/domain-restrictions.md) — `ok`
+- [App Claims](https://docs.gumloop.com/enterprise-features/app-policies/app-claims.md) — `ok`
+
+## help
+
+- [Help Center](https://docs.gumloop.com/help/index.md) — `ok`
+- [Using Agents](https://docs.gumloop.com/help/using-agents/index.md) — `ok`
+- [Give an Agent a Connector](https://docs.gumloop.com/help/using-agents/give-agent-access-to-a-connector.md) — `ok`
+- [Choose the Right AI Model](https://docs.gumloop.com/help/using-agents/choose-the-right-ai-model.md) — `ok`
+- [Does My Agent Remember Conversations?](https://docs.gumloop.com/help/using-agents/does-my-agent-remember-conversations.md) — `ok`
+- [Sharing and Teams](https://docs.gumloop.com/help/sharing/index.md) — `ok`
+- [Roll Out an Agent](https://docs.gumloop.com/help/sharing/roll-out-an-agent.md) — `ok`
+- [Create a Team](https://docs.gumloop.com/help/sharing/create-a-team.md) — `ok`
+- [Add Someone to Your Org or Team](https://docs.gumloop.com/help/sharing/add-someone-to-org-or-team.md) — `ok`
+- [Sharing Roles](https://docs.gumloop.com/help/sharing/sharing-roles.md) — `ok`
+- [Enable Agent-Owned Credentials](https://docs.gumloop.com/help/sharing/enable-agent-owned-credentials.md) — `ok`
+- [Who Can See Chats?](https://docs.gumloop.com/help/sharing/who-can-see-chats.md) — `ok`
+- [Let Someone Edit Your Agent](https://docs.gumloop.com/help/sharing/let-someone-edit-an-agent.md) — `ok`
+- [Credits](https://docs.gumloop.com/help/credits/index.md) — `ok`
+- [Who Pays for a Shared Agent?](https://docs.gumloop.com/help/credits/who-gets-charged-shared-agent.md) — `ok`
+- [Who Pays for an Interactive Artifact?](https://docs.gumloop.com/help/credits/who-pays-interactive-artifact.md) — `ok`
+- [Connectors](https://docs.gumloop.com/help/connectors/index.md) — `ok`
+- [Add Team Connectors](https://docs.gumloop.com/help/connectors/add-team-connectors.md) — `ok`
+- [Use Team Connectors](https://docs.gumloop.com/help/connectors/use-team-connectors.md) — `ok`
+- [Revoke and Reconnect a Connector](https://docs.gumloop.com/help/connectors/revoke-and-reconnect.md) — `ok`
+- [Use Your Own LLM Key](https://docs.gumloop.com/help/connectors/use-your-own-llm-key.md) — `ok`
+- [Find Your Gumloop API Key](https://docs.gumloop.com/help/connectors/find-your-api-key.md) — `ok`
+- [Skills, Triggers, and MCP](https://docs.gumloop.com/help/skills-triggers-mcp/index.md) — `ok`
+- [Skills vs Subagents](https://docs.gumloop.com/help/skills-triggers-mcp/skills-vs-subagents.md) — `ok`
+- [Skills vs App Rules](https://docs.gumloop.com/help/skills-triggers-mcp/skills-vs-app-rules.md) — `ok`
+- [Stop a Scheduled Trigger](https://docs.gumloop.com/help/skills-triggers-mcp/stop-a-scheduled-trigger.md) — `ok`
+- [Custom, Proxied, and Hosted MCP](https://docs.gumloop.com/help/skills-triggers-mcp/custom-proxied-hosted-mcp.md) — `ok`
+- [Call Integrations from a Skill](https://docs.gumloop.com/help/skills-triggers-mcp/skill-script-integrations.md) — `ok`
+
+## mcp-server
+
+- [MCP Server](https://docs.gumloop.com/mcp-server/overview.md) — `ok`
+
+## nodes
+
+- [Custom Node Builder](https://docs.gumloop.com/nodes/custom_node_details.md) — `ok`
+- [Input](https://docs.gumloop.com/nodes/flow_basics/input_operator.md) — `ok`
+- [Output](https://docs.gumloop.com/nodes/flow_basics/output_operator.md) — `ok`
+- [Current Automation Info](https://docs.gumloop.com/nodes/flow_basics/current_automation_info.md) — `ok`
+- [Current Datetime](https://docs.gumloop.com/nodes/flow_basics/current_datetime.md) — `ok`
+- [Filter](https://docs.gumloop.com/nodes/flow_basics/filter.md) — `ok`
+- [Router](https://docs.gumloop.com/nodes/flow_basics/router.md) — `ok`
+- [Error Shield](https://docs.gumloop.com/nodes/flow_basics/error_shield.md) — `ok`
+- [Join Paths](https://docs.gumloop.com/nodes/flow_basics/join_paths.md) — `ok`
+- [Choosing the Right AI Node](https://docs.gumloop.com/nodes/using_ai/choosing_ai_node.md) — `ok`
+- [Ask AI](https://docs.gumloop.com/nodes/using_ai/ask_ai.md) — `ok`
+- [Extract Data](https://docs.gumloop.com/nodes/using_ai/extract_data.md) — `ok`
+- [Categorizer](https://docs.gumloop.com/nodes/using_ai/categorizer.md) — `ok`
+- [AI Web Research](https://docs.gumloop.com/nodes/using_ai/ai_web_research.md) — `ok`
+- [Scorer](https://docs.gumloop.com/nodes/using_ai/scorer.md) — `ok`
+- [Generate Report](https://docs.gumloop.com/nodes/using_ai/generate_report.md) — `ok`
+- [AI List Sorter](https://docs.gumloop.com/nodes/using_ai/ai_list_sorter.md) — `ok`
+- [OpenAI Assistant](https://docs.gumloop.com/nodes/using_ai/openai_assistant.md) — `ok`
+- [Analyze Image](https://docs.gumloop.com/nodes/using_ai/analyze_image.md) — `ok`
+- [Analyze Video](https://docs.gumloop.com/nodes/using_ai/analyze_video.md) — `ok`
+- [Generate Image](https://docs.gumloop.com/nodes/using_ai/generate_image.md) — `ok`
+- [AI Content Detector](https://docs.gumloop.com/nodes/using_ai/ai_content_detector.md) — `ok`
+- [AI Filter](https://docs.gumloop.com/nodes/using_ai/ai_filter.md) — `ok`
+- [Define AI Function](https://docs.gumloop.com/nodes/using_ai/define_ai_function.md) — `ok`
+- [Custom MCP Servers](https://docs.gumloop.com/nodes/mcp/custom_mcp_servers.md) — `ok`
+- [Affinity](https://docs.gumloop.com/nodes/mcp/affinity.md) — `ok`
+- [Ahrefs](https://docs.gumloop.com/nodes/mcp/ahrefs.md) — `ok`
+- [Airtable](https://docs.gumloop.com/nodes/mcp/airtable.md) — `ok`
+- [Apify](https://docs.gumloop.com/nodes/mcp/apify.md) — `ok`
+- [Apollo](https://docs.gumloop.com/nodes/mcp/apollo.md) — `ok`
+- [AppSheet](https://docs.gumloop.com/nodes/mcp/appsheet.md) — `ok`
+- [Asana](https://docs.gumloop.com/nodes/mcp/asana.md) — `ok`
+- [Ashby](https://docs.gumloop.com/nodes/mcp/ashby.md) — `ok`
+- [Attio](https://docs.gumloop.com/nodes/mcp/attio.md) — `ok`
+- [Azure](https://docs.gumloop.com/nodes/mcp/azure.md) — `ok`
+- [Basedash](https://docs.gumloop.com/nodes/mcp/basedash.md) — `ok`
+- [Beehiiv](https://docs.gumloop.com/nodes/mcp/beehiiv.md) — `ok`
+- [Bing Webmaster](https://docs.gumloop.com/nodes/mcp/bing_webmaster.md) — `ok`
+- [Box](https://docs.gumloop.com/nodes/mcp/box.md) — `ok`
+- [Brandfetch](https://docs.gumloop.com/nodes/mcp/brandfetch.md) — `ok`
+- [Cal.com](https://docs.gumloop.com/nodes/mcp/cal.md) — `ok`
+- [Canva](https://docs.gumloop.com/nodes/mcp/canva.md) — `ok`
+- [Carta](https://docs.gumloop.com/nodes/mcp/carta.md) — `ok`
+- [Chorus](https://docs.gumloop.com/nodes/mcp/chorus.md) — `ok`
+- [Circleback](https://docs.gumloop.com/nodes/mcp/circleback.md) — `ok`
+- [ClickHouse](https://docs.gumloop.com/nodes/mcp/clickhouse.md) — `ok`
+- [ClickUp](https://docs.gumloop.com/nodes/mcp/clickup.md) — `ok`
+- [Cloudflare](https://docs.gumloop.com/nodes/mcp/cloudflare.md) — `ok`
+- [Confluence](https://docs.gumloop.com/nodes/mcp/confluence.md) — `ok`
+- [Cursor](https://docs.gumloop.com/nodes/mcp/cursor.md) — `ok`
+- [Databricks](https://docs.gumloop.com/nodes/mcp/databricks.md) — `ok`
+- [DataForSEO](https://docs.gumloop.com/nodes/mcp/dataforseo.md) — `ok`
+- [Datadog](https://docs.gumloop.com/nodes/mcp/datadog.md) — `ok`
+- [Devin](https://docs.gumloop.com/nodes/mcp/devin.md) — `ok`
+- [Dropbox](https://docs.gumloop.com/nodes/mcp/dropbox.md) — `ok`
+- [Excel](https://docs.gumloop.com/nodes/mcp/excel.md) — `ok`
+- [Exa](https://docs.gumloop.com/nodes/mcp/exa.md) — `ok`
+- [Expensify](https://docs.gumloop.com/nodes/mcp/expensify.md) — `ok`
+- [Extend](https://docs.gumloop.com/nodes/mcp/extend.md) — `ok`
+- [Fal](https://docs.gumloop.com/nodes/mcp/fal.md) — `ok`
+- [Fathom](https://docs.gumloop.com/nodes/mcp/fathom.md) — `ok`
+- [Fellow](https://docs.gumloop.com/nodes/mcp/fellow.md) — `ok`
+- [Findymail](https://docs.gumloop.com/nodes/mcp/findymail.md) — `ok`
+- [Firecrawl](https://docs.gumloop.com/nodes/mcp/firecrawl.md) — `ok`
+- [Foreplay](https://docs.gumloop.com/nodes/mcp/foreplay.md) — `ok`
+- [Freshdesk](https://docs.gumloop.com/nodes/mcp/freshdesk.md) — `ok`
+- [Freshsales](https://docs.gumloop.com/nodes/mcp/freshsales.md) — `ok`
+- [Gamma](https://docs.gumloop.com/nodes/mcp/gamma.md) — `ok`
+- [GitHub](https://docs.gumloop.com/nodes/mcp/github.md) — `ok`
+- [Gmail](https://docs.gumloop.com/nodes/mcp/gmail.md) — `ok`
+- [Gong](https://docs.gumloop.com/nodes/mcp/gong.md) — `ok`
+- [Google Ads](https://docs.gumloop.com/nodes/mcp/google_ads.md) — `ok`
+- [Google Analytics](https://docs.gumloop.com/nodes/mcp/google_analytics.md) — `ok`
+- [BigQuery](https://docs.gumloop.com/nodes/mcp/google_bigquery.md) — `ok`
+- [Google Calendar](https://docs.gumloop.com/nodes/mcp/google_calendar.md) — `ok`
+- [Google Cloud Storage](https://docs.gumloop.com/nodes/mcp/google_cloud_storage.md) — `ok`
+- [Google Docs](https://docs.gumloop.com/nodes/mcp/google_docs.md) — `ok`
+- [Google Drive](https://docs.gumloop.com/nodes/mcp/google_drive.md) — `ok`
+- [Google DV360](https://docs.gumloop.com/nodes/mcp/google_dv360.md) — `ok`
+- [Google Maps](https://docs.gumloop.com/nodes/mcp/google_maps.md) — `ok`
+- [Google Meet](https://docs.gumloop.com/nodes/mcp/google_meet.md) — `ok`
+- [Google NotebookLM](https://docs.gumloop.com/nodes/mcp/google_notebooklm.md) — `ok`
+- [Google PageSpeed](https://docs.gumloop.com/nodes/mcp/google_pagespeed.md) — `ok`
+- [Google Search Console](https://docs.gumloop.com/nodes/mcp/google_search_console.md) — `ok`
+- [Google Sheets](https://docs.gumloop.com/nodes/mcp/google_sheet.md) — `ok`
+- [Google Slides](https://docs.gumloop.com/nodes/mcp/google_slides.md) — `ok`
+- [Google Tasks](https://docs.gumloop.com/nodes/mcp/google_tasks.md) — `ok`
+- [Granola](https://docs.gumloop.com/nodes/mcp/granola.md) — `ok`
+- [Greenhouse](https://docs.gumloop.com/nodes/mcp/greenhouse.md) — `ok`
+- [Gumloop](https://docs.gumloop.com/nodes/mcp/gumloop.md) — `ok`
+- [Hex](https://docs.gumloop.com/nodes/mcp/hex.md) — `ok`
+- [HubSpot](https://docs.gumloop.com/nodes/mcp/hubspot.md) — `ok`
+- [Incident.io](https://docs.gumloop.com/nodes/mcp/incident_io.md) — `ok`
+- [Instagram](https://docs.gumloop.com/nodes/mcp/instagram.md) — `ok`
+- [Intercom](https://docs.gumloop.com/nodes/mcp/intercom.md) — `ok`
+- [Ironclad](https://docs.gumloop.com/nodes/mcp/ironclad.md) — `ok`
+- [Jam](https://docs.gumloop.com/nodes/mcp/jam.md) — `ok`
+- [Jira](https://docs.gumloop.com/nodes/mcp/jira.md) — `ok`
+- [Klaviyo](https://docs.gumloop.com/nodes/mcp/klaviyo.md) — `ok`
+- [LaunchDarkly](https://docs.gumloop.com/nodes/mcp/launchdarkly.md) — `ok`
+- [Linear](https://docs.gumloop.com/nodes/mcp/linear.md) — `ok`
+- [Looker](https://docs.gumloop.com/nodes/mcp/looker.md) — `ok`
+- [Loops](https://docs.gumloop.com/nodes/mcp/loops.md) — `ok`
+- [Luma](https://docs.gumloop.com/nodes/mcp/luma.md) — `ok`
+- [Meta Ads](https://docs.gumloop.com/nodes/mcp/meta_ads.md) — `ok`
+- [Microsoft Teams](https://docs.gumloop.com/nodes/mcp/microsoft_teams.md) — `ok`
+- [Microsoft Word](https://docs.gumloop.com/nodes/mcp/microsoft_word.md) — `ok`
+- [Monday](https://docs.gumloop.com/nodes/mcp/monday.md) — `ok`
+- [NetSuite](https://docs.gumloop.com/nodes/mcp/netsuite.md) — `ok`
+- [Notion](https://docs.gumloop.com/nodes/mcp/notion.md) — `ok`
+- [Outlook](https://docs.gumloop.com/nodes/mcp/outlook.md) — `ok`
+- [Outlook Calendar](https://docs.gumloop.com/nodes/mcp/outlook_calendar.md) — `ok`
+- [Outreach](https://docs.gumloop.com/nodes/mcp/outreach.md) — `ok`
+- [PagerDuty](https://docs.gumloop.com/nodes/mcp/pagerduty.md) — `ok`
+- [Parallel](https://docs.gumloop.com/nodes/mcp/parallel.md) — `ok`
+- [Pipedrive](https://docs.gumloop.com/nodes/mcp/pipedrive.md) — `ok`
+- [PostgreSQL](https://docs.gumloop.com/nodes/mcp/postgresql.md) — `ok`
+- [Pylon](https://docs.gumloop.com/nodes/mcp/pylon.md) — `ok`
+- [QuickBooks](https://docs.gumloop.com/nodes/mcp/quickbooks.md) — `ok`
+- [Ramp](https://docs.gumloop.com/nodes/mcp/ramp.md) — `ok`
+- [Reddit](https://docs.gumloop.com/nodes/mcp/reddit.md) — `ok`
+- [Reducto](https://docs.gumloop.com/nodes/mcp/reducto.md) — `ok`
+- [Rocketlane](https://docs.gumloop.com/nodes/mcp/rocketlane.md) — `ok`
+- [Robinhood](https://docs.gumloop.com/nodes/mcp/robinhood.md) — `ok`
+- [Salesforce](https://docs.gumloop.com/nodes/mcp/salesforce.md) — `ok`
+- [Salesloft](https://docs.gumloop.com/nodes/mcp/salesloft.md) — `ok`
+- [Seismic](https://docs.gumloop.com/nodes/mcp/seismic.md) — `ok`
+- [Semrush](https://docs.gumloop.com/nodes/mcp/semrush.md) — `ok`
+- [Sentry](https://docs.gumloop.com/nodes/mcp/sentry.md) — `ok`
+- [SharePoint](https://docs.gumloop.com/nodes/mcp/sharepoint.md) — `ok`
+- [Shopify](https://docs.gumloop.com/nodes/mcp/shopify.md) — `ok`
+- [Sigma Computing](https://docs.gumloop.com/nodes/mcp/sigma_computing.md) — `ok`
+- [Similarweb](https://docs.gumloop.com/nodes/mcp/similarweb.md) — `ok`
+- [Slack](https://docs.gumloop.com/nodes/mcp/slack.md) — `ok`
+- [Snapchat Ads](https://docs.gumloop.com/nodes/mcp/snapchat_ads.md) — `ok`
+- [Snowflake](https://docs.gumloop.com/nodes/mcp/snowflake.md) — `ok`
+- [Sprig](https://docs.gumloop.com/nodes/mcp/sprig.md) — `ok`
+- [Sprout Social](https://docs.gumloop.com/nodes/mcp/sprout_social.md) — `ok`
+- [Stripe](https://docs.gumloop.com/nodes/mcp/stripe.md) — `ok`
+- [Supabase](https://docs.gumloop.com/nodes/mcp/supabase.md) — `ok`
+- [Tableau](https://docs.gumloop.com/nodes/mcp/tableau.md) — `ok`
+- [TikTok](https://docs.gumloop.com/nodes/mcp/tiktok.md) — `ok`
+- [Trello](https://docs.gumloop.com/nodes/mcp/trello.md) — `ok`
+- [Vercel](https://docs.gumloop.com/nodes/mcp/vercel.md) — `ok`
+- [Webflow](https://docs.gumloop.com/nodes/mcp/webflow.md) — `ok`
+- [Workday](https://docs.gumloop.com/nodes/mcp/workday.md) — `ok`
+- [X (Twitter)](https://docs.gumloop.com/nodes/mcp/x.md) — `ok`
+- [YouTube](https://docs.gumloop.com/nodes/mcp/youtube.md) — `ok`
+- [Zendesk](https://docs.gumloop.com/nodes/mcp/zendesk.md) — `ok`
+- [Zoom](https://docs.gumloop.com/nodes/mcp/zoom.md) — `ok`
+- [Website Scraper](https://docs.gumloop.com/nodes/web_scraping/website_scraper.md) — `ok`
+- [Website Crawler](https://docs.gumloop.com/nodes/web_scraping/website_crawler.md) — `ok`
+- [Job Posting Scraper](https://docs.gumloop.com/nodes/web_scraping/job_posting_scraper.md) — `ok`
+- [Combine Text](https://docs.gumloop.com/nodes/text_manipulation/combine_text.md) — `ok`
+- [Text Formatter](https://docs.gumloop.com/nodes/text_manipulation/text_formatter.md) — `ok`
+- [Find And Replace](https://docs.gumloop.com/nodes/text_manipulation/find_and_replace.md) — `ok`
+- [Split Text](https://docs.gumloop.com/nodes/text_manipulation/split_text.md) — `ok`
+- [Chunk Text](https://docs.gumloop.com/nodes/text_manipulation/chunk_text.md) — `ok`
+- [Browser Extension Input](https://docs.gumloop.com/nodes/browser_extension/browser_extension_input.md) — `ok`
+- [Browser Replay](https://docs.gumloop.com/nodes/browser_extension/browser_replay.md) — `ok`
+- [File Reader](https://docs.gumloop.com/nodes/file_operations/file_reader.md) — `ok`
+- [Zip File Reader](https://docs.gumloop.com/nodes/file_operations/zip_file_reader.md) — `ok`
+- [Generate File](https://docs.gumloop.com/nodes/file_operations/generate_file.md) — `ok`
+- [Sort CSV](https://docs.gumloop.com/nodes/file_operations/sort_csv.md) — `ok`
+- [CSV Reader](https://docs.gumloop.com/nodes/file_operations/csv_reader.md) — `ok`
+- [CSV Writer](https://docs.gumloop.com/nodes/file_operations/csv_writer.md) — `ok`
+- [CSV to XLSX Converter](https://docs.gumloop.com/nodes/file_operations/csv_to_xlsx.md) — `ok`
+- [Run Code](https://docs.gumloop.com/nodes/advanced/run_code.md) — `ok`
+- [Call API](https://docs.gumloop.com/nodes/advanced/call_api.md) — `ok`
+- [Similarity Search](https://docs.gumloop.com/nodes/advanced/similarity_search.md) — `ok`
+- [Search Companies](https://docs.gumloop.com/nodes/data_enrichment/search_companies.md) — `ok`
+- [Enrich Company Information](https://docs.gumloop.com/nodes/data_enrichment/enrich_company_information.md) — `ok`
+- [Enrich Contact Information](https://docs.gumloop.com/nodes/data_enrichment/enrich_contact_information.md) — `ok`
+- [Email Validator](https://docs.gumloop.com/nodes/data_enrichment/email_validator.md) — `ok`
+- [JSON Reader](https://docs.gumloop.com/nodes/json/read_json_values.md) — `ok`
+- [JSON Writer](https://docs.gumloop.com/nodes/json/write_json_value.md) — `ok`
+- [PDF Reader](https://docs.gumloop.com/nodes/pdf/pdf_reader.md) — `ok`
+- [AI Fill PDF](https://docs.gumloop.com/nodes/pdf/ai_fill_pdf.md) — `ok`
+- [Combine Lists](https://docs.gumloop.com/nodes/list_operations/combine_lists.md) — `ok`
+- [Create List](https://docs.gumloop.com/nodes/list_operations/create_list.md) — `ok`
+- [Get List Item](https://docs.gumloop.com/nodes/list_operations/get_list_item.md) — `ok`
+- [Flatten List of Lists](https://docs.gumloop.com/nodes/list_operations/flatten_list.md) — `ok`
+- [Join List Items](https://docs.gumloop.com/nodes/list_operations/join_list_items.md) — `ok`
+- [List Trimmer](https://docs.gumloop.com/nodes/list_operations/list_trimmer.md) — `ok`
+- [Duplicate](https://docs.gumloop.com/nodes/list_operations/duplicate.md) — `ok`
+- [Custom SMTP Email Sender](https://docs.gumloop.com/nodes/notification/custom_smtp_email_sender.md) — `ok`
+- [Send Email Notification](https://docs.gumloop.com/nodes/notification/send_email_notification.md) — `ok`
+- [Send SMS Notification](https://docs.gumloop.com/nodes/notification/send_sms_notification.md) — `ok`
+- [SendGrid Email Sender](https://docs.gumloop.com/nodes/notification/sendgrid_email_sender.md) — `ok`
+- [Text to Speech](https://docs.gumloop.com/nodes/audio_processing/text_to_speech.md) — `ok`
+- [Speech to Text](https://docs.gumloop.com/nodes/audio_processing/speech_to_text.md) — `ok`
+- [Gmail Reader](https://docs.gumloop.com/nodes/integrations/gmail_reader.md) — `ok`
+- [Gmail Sender](https://docs.gumloop.com/nodes/integrations/gmail_sender.md) — `ok`
+- [Gmail Updater](https://docs.gumloop.com/nodes/integrations/gmail_updater.md) — `ok`
+- [Google Sheets Reader](https://docs.gumloop.com/nodes/integrations/gsheets_reader.md) — `ok`
+- [Google Sheets Writer](https://docs.gumloop.com/nodes/integrations/gsheets_writer.md) — `ok`
+- [Google Sheets Updater](https://docs.gumloop.com/nodes/integrations/gsheets_updater.md) — `ok`
+- [Google Drive File Reader](https://docs.gumloop.com/nodes/integrations/gdrive_file_reader.md) — `ok`
+- [Google Drive Folder Reader](https://docs.gumloop.com/nodes/integrations/gdrive_folder_reader.md) — `ok`
+- [Google Drive File Writer](https://docs.gumloop.com/nodes/integrations/gdrive_file_writer.md) — `ok`
+- [Google Drive Folder Creator](https://docs.gumloop.com/nodes/integrations/gdrive_folder_creator.md) — `ok`
+- [Google Calendar Event Creator](https://docs.gumloop.com/nodes/integrations/calendar_event_creator.md) — `ok`
+- [Google Calendar Event Reader](https://docs.gumloop.com/nodes/integrations/calendar_event_reader.md) — `ok`
+- [Google Calendar Event Updater](https://docs.gumloop.com/nodes/integrations/calendar_event_updater.md) — `ok`
+- [Google Docs Reader](https://docs.gumloop.com/nodes/integrations/gdocs_reader.md) — `ok`
+- [Google Docs Writer](https://docs.gumloop.com/nodes/integrations/gdocs_writer.md) — `ok`
+- [Google Docs Template Writer](https://docs.gumloop.com/nodes/integrations/google_doc_template_writer.md) — `ok`
+- [Google Slides Reader](https://docs.gumloop.com/nodes/integrations/google_slide_reader.md) — `ok`
+- [Google Slides Writer](https://docs.gumloop.com/nodes/integrations/google_slide_writer.md) — `ok`
+- [Web Search](https://docs.gumloop.com/nodes/integrations/web_search.md) — `ok`
+- [Call Serp API](https://docs.gumloop.com/nodes/integrations/call_serp_api.md) — `ok`
+- [Google Ads Campaign Reader](https://docs.gumloop.com/nodes/integrations/google_ads_campaign_reader.md) — `ok`
+- [Google Ads Search Term Reader](https://docs.gumloop.com/nodes/integrations/google_ads_search_term_reader.md) — `ok`
+- [BigQuery Reader](https://docs.gumloop.com/nodes/integrations/bigquery_reader.md) — `ok`
+- [BigQuery Workload Identity Federation](https://docs.gumloop.com/nodes/integrations/bigquery-workload-identity-federation.md) — `ok`
+- [Google Analytics Reader](https://docs.gumloop.com/nodes/integrations/google_analytics_reader.md) — `ok`
+- [Google Alerts RSS Reader](https://docs.gumloop.com/nodes/integrations/google_alerts_rss_reader.md) — `ok`
+- [Translate](https://docs.gumloop.com/nodes/integrations/translate.md) — `ok`
+- [Slack Message Reader](https://docs.gumloop.com/nodes/integrations/slack_message_reader.md) — `ok`
+- [Slack Message Sender](https://docs.gumloop.com/nodes/integrations/slack_message_sender.md) — `ok`
+- [Slack Canvas Writer](https://docs.gumloop.com/nodes/integrations/slack_canvas_writer.md) — `ok`
+- [Slack Block Kit Sender](https://docs.gumloop.com/nodes/integrations/slack_block_kit_sender.md) — `ok`
+- [Discord Message Reader](https://docs.gumloop.com/nodes/integrations/discord_message_reader.md) — `ok`
+- [Discord Message Sender](https://docs.gumloop.com/nodes/integrations/discord_message_sender.md) — `ok`
+- [Linear Issue Reader](https://docs.gumloop.com/nodes/integrations/linear_issue_reader.md) — `ok`
+- [Linear Issue Writer](https://docs.gumloop.com/nodes/integrations/linear_issue_writer.md) — `ok`
+- [Jira Issue Reader](https://docs.gumloop.com/nodes/integrations/jira_issue_reader.md) — `ok`
+- [Jira Issue Writer](https://docs.gumloop.com/nodes/integrations/jira_issue_writer.md) — `ok`
+- [Jira Issue Updater](https://docs.gumloop.com/nodes/integrations/jira_issue_updater.md) — `ok`
+- [Monday.com Board Reader](https://docs.gumloop.com/nodes/integrations/monday_board_reader.md) — `ok`
+- [Monday.com Board Writer](https://docs.gumloop.com/nodes/integrations/monday_board_writer.md) — `ok`
+- [Monday.com Board Updater](https://docs.gumloop.com/nodes/integrations/monday_board_updater.md) — `ok`
+- [ClickUp Task Reader](https://docs.gumloop.com/nodes/integrations/clickup_task_reader.md) — `ok`
+- [ClickUp Task Writer](https://docs.gumloop.com/nodes/integrations/clickup_task_writer.md) — `ok`
+- [ClickUp Task Updater](https://docs.gumloop.com/nodes/integrations/clickup_task_updater.md) — `ok`
+- [Notion Database Reader](https://docs.gumloop.com/nodes/integrations/notion_database_reader.md) — `ok`
+- [Notion Database Writer](https://docs.gumloop.com/nodes/integrations/notion_database_writer.md) — `ok`
+- [Notion Database Updater](https://docs.gumloop.com/nodes/integrations/notion_database_updater.md) — `ok`
+- [Notion Page Reader](https://docs.gumloop.com/nodes/integrations/notion_page_reader.md) — `ok`
+- [Notion Page Writer](https://docs.gumloop.com/nodes/integrations/notion_page_writer.md) — `ok`
+- [HubSpot Company Reader](https://docs.gumloop.com/nodes/integrations/hubspot_company_reader.md) — `ok`
+- [HubSpot Company Updater](https://docs.gumloop.com/nodes/integrations/hubspot_company_updater.md) — `ok`
+- [HubSpot Contact Reader](https://docs.gumloop.com/nodes/integrations/hubspot_contact_reader.md) — `ok`
+- [HubSpot Contact Updater](https://docs.gumloop.com/nodes/integrations/hubspot_contact_updater.md) — `ok`
+- [HubSpot Deal Reader](https://docs.gumloop.com/nodes/integrations/hubspot_deal_reader.md) — `ok`
+- [HubSpot Engagement Reader](https://docs.gumloop.com/nodes/integrations/hubspot_engagement_reader.md) — `ok`
+- [HubSpot Email Sender](https://docs.gumloop.com/nodes/integrations/hubspot_email_sender.md) — `ok`
+- [Salesforce Record Reader](https://docs.gumloop.com/nodes/integrations/salesforce_record_reader.md) — `ok`
+- [Attio List Reader](https://docs.gumloop.com/nodes/integrations/attio_list_reader.md) — `ok`
+- [Attio List Writer](https://docs.gumloop.com/nodes/integrations/attio_list_writer.md) — `ok`
+- [Attio Company Reader](https://docs.gumloop.com/nodes/integrations/attio_company_reader.md) — `ok`
+- [Attio Company Writer](https://docs.gumloop.com/nodes/integrations/attio_company_writer.md) — `ok`
+- [Attio Contact Reader](https://docs.gumloop.com/nodes/integrations/attio_contact_reader.md) — `ok`
+- [Attio Contact Writer](https://docs.gumloop.com/nodes/integrations/attio_contact_writer.md) — `ok`
+- [Outlook Sender](https://docs.gumloop.com/nodes/integrations/outlook_sender.md) — `ok`
+- [Outlook Reader](https://docs.gumloop.com/nodes/integrations/outlook_reader.md) — `ok`
+- [Teams Message Reader](https://docs.gumloop.com/nodes/integrations/teams_message_reader.md) — `ok`
+- [Teams Message Sender](https://docs.gumloop.com/nodes/integrations/teams_message_sender.md) — `ok`
+- [Microsoft OneLake File Writer](https://docs.gumloop.com/nodes/integrations/onelake_file_writer.md) — `ok`
+- [LinkedIn Post Writer](https://docs.gumloop.com/nodes/integrations/linkedin_post_writer.md) — `ok`
+- [LinkedIn Profile Scraper](https://docs.gumloop.com/nodes/integrations/linkedin_profile_scraper.md) — `ok`
+- [LinkedIn Company Profile Scraper](https://docs.gumloop.com/nodes/integrations/linkedin_company_profile_scraper.md) — `ok`
+- [LinkedIn Job Scraper](https://docs.gumloop.com/nodes/integrations/linkedin_job_scraper.md) — `ok`
+- [Tweet](https://docs.gumloop.com/nodes/integrations/tweet.md) — `ok`
+- [Create Twitter Thread](https://docs.gumloop.com/nodes/integrations/create_twitter_thread.md) — `ok`
+- [Twitter Scraper](https://docs.gumloop.com/nodes/integrations/twitter_scraper.md) — `ok`
+- [Facebook Ad Library Scraper](https://docs.gumloop.com/nodes/integrations/facebook_ad_scraper.md) — `ok`
+- [Reddit Scraper](https://docs.gumloop.com/nodes/integrations/reddit_scraper.md) — `ok`
+- [Bluesky Scraper](https://docs.gumloop.com/nodes/integrations/bluesky_scraper.md) — `ok`
+- [GitHub PR Commenter](https://docs.gumloop.com/nodes/integrations/github_pr_commenter.md) — `ok`
+- [GitHub PR Description Inserter](https://docs.gumloop.com/nodes/integrations/github_pr_description_inserter.md) — `ok`
+- [Read GitHub Pull Request](https://docs.gumloop.com/nodes/integrations/github_pr_reader.md) — `ok`
+- [Confluence Page Reader](https://docs.gumloop.com/nodes/integrations/confluence_page_reader.md) — `ok`
+- [Airtable Reader](https://docs.gumloop.com/nodes/integrations/airtable_reader.md) — `ok`
+- [Airtable Writer](https://docs.gumloop.com/nodes/integrations/airtable_writer.md) — `ok`
+- [Airtable Updater](https://docs.gumloop.com/nodes/integrations/airtable_updater.md) — `ok`
+- [Snowflake Reader](https://docs.gumloop.com/nodes/integrations/snowflake_reader.md) — `ok`
+- [Snowflake OAuth Configuration](https://docs.gumloop.com/nodes/integrations/snowflake-oauth-config.md) — `ok`
+- [Snowflake PAT Configuration](https://docs.gumloop.com/nodes/integrations/snowflake-pat-config.md) — `ok`
+- [Snowflake Key-Pair Configuration](https://docs.gumloop.com/nodes/integrations/snowflake-keypair-config.md) — `ok`
+- [NetSuite OAuth Configuration](https://docs.gumloop.com/nodes/integrations/netsuite-oauth-config.md) — `ok`
+- [Supabase Table Reader](https://docs.gumloop.com/nodes/integrations/supabase_table_reader.md) — `ok`
+- [Supabase Table Writer](https://docs.gumloop.com/nodes/integrations/supabase_table_writer.md) — `ok`
+- [Supabase SQL Writer](https://docs.gumloop.com/nodes/integrations/supabase_sql_writer.md) — `ok`
+- [Firestore Writer](https://docs.gumloop.com/nodes/integrations/firestore_writer.md) — `ok`
+- [Semrush Domain Overview](https://docs.gumloop.com/nodes/integrations/semrush_domain_overview.md) — `ok`
+- [Semrush Domain Keywords](https://docs.gumloop.com/nodes/integrations/semrush_domain_keywords.md) — `ok`
+- [Semrush Keyword Overview](https://docs.gumloop.com/nodes/integrations/semrush_keyword_overview.md) — `ok`
+- [Semrush URL Keywords](https://docs.gumloop.com/nodes/integrations/semrush_url_keywords.md) — `ok`
+- [Perplexity Web Search](https://docs.gumloop.com/nodes/integrations/perplexity_web_search.md) — `ok`
+- [Post to WordPress](https://docs.gumloop.com/nodes/integrations/wordpress_poster.md) — `ok`
+- [Ghost Blog Writer](https://docs.gumloop.com/nodes/integrations/ghost_blog_writer.md) — `ok`
+- [Get Youtube Transcript](https://docs.gumloop.com/nodes/integrations/get_youtube_transcript.md) — `ok`
+- [RSS Feed Reader](https://docs.gumloop.com/nodes/integrations/rss_feed_reader.md) — `ok`
+- [Mailgun Sender](https://docs.gumloop.com/nodes/integrations/mailgun_sender.md) — `ok`
+- [Zendesk Ticket Reader](https://docs.gumloop.com/nodes/integrations/zendesk_ticket_reader.md) — `ok`
+- [Store in S3](https://docs.gumloop.com/nodes/integrations/amazon_s3.md) — `ok`
+- [Apify Task Runner](https://docs.gumloop.com/nodes/integrations/apify_task_runner.md) — `ok`
+- [Canva Autofill](https://docs.gumloop.com/nodes/integrations/canva_autofill.md) — `ok`
+- [Scrape Hacker News](https://docs.gumloop.com/nodes/integrations/hacker_news.md) — `ok`
+- [Incident.io Incidents Reader](https://docs.gumloop.com/nodes/integrations/incident_io.md) — `ok`
+- [Launch Phantom](https://docs.gumloop.com/nodes/integrations/launch_phantom.md) — `ok`
+- [Typeform Submission Reader](https://docs.gumloop.com/nodes/integrations/get_typeform_responses.md) — `ok`
+- [Arcads Video Creator](https://docs.gumloop.com/nodes/integrations/arcads_video_creator.md) — `ok`
+- [Discourse Reader](https://docs.gumloop.com/nodes/integrations/discourse_reader.md) — `ok`
+- [Run Zap](https://docs.gumloop.com/nodes/integrations/run_zap.md) — `ok`
+
+## root
+
+- [Welcome to Gumloop](https://docs.gumloop.com/index.md) — `ok`

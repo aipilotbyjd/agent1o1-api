@@ -1,0 +1,25 @@
+meta {
+  name: Skill Sources - Cancel Fork
+  type: http
+  seq: 27
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skill-sources/:skillSource/fork
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skillSource: {{skillSourceId}}
+}
+
+docs {
+  Abandons a pending fork connection and keeps the original repository
+  connection. Requires the `agent-skill.manage` permission.
+
+  Answers `200` with the source (not `204`).
+
+  Response is wrapped: `{ success, statusCode, message, data: { source } }`.
+}

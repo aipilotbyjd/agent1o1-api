@@ -1,0 +1,26 @@
+meta {
+  name: Knowledge Sources - Apps
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/knowledge-base/sources/apps
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Which apps can be synced and with which of the caller's accounts — what
+  the Add panel needs before any picking. Requires `agent.view`.
+
+  One entry per app type: `type`, `accounts: [{ id, name, shared }]`
+  (usable as `credential_id`) and `expired` (connected, but every
+  connection lapsed — reconnect rather than connect).
+
+  Response is wrapped: `{ success, statusCode, message, data: { apps } }`.
+}

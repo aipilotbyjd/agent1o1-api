@@ -1,0 +1,52 @@
+meta {
+  name: Page Templates - Save From Page
+  type: http
+  seq: 28
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/save-as-template
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+body:json {
+  {
+    "name": "Lead intake page",
+    "description": "Snapshot of the lead intake form layout.",
+    "category": "sales",
+    "icon": "layout",
+    "color": "#4F46E5",
+    "visibility": "private"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const template = res.body.data?.page_template;
+    if (template && template.id) {
+      bru.setVar("pageTemplateId", template.id);
+    }
+  }
+}
+
+docs {
+  Snapshots a page's current *draft* layout and theme into a new
+  workspace-owned page template. Requires the `template.manage`
+  permission. Stores the new ID in `pageTemplateId`.
+
+  The page's access, password and share settings are not copied. The slug
+  is derived from `name` plus a random suffix.
+
+  - `name` — required, max 255.
+  - `description`, `category` (max 255), `icon` (max 255), `color`
+    (max 7), `visibility` (`private` or `public`) — optional.
+
+  Response is wrapped (201):
+  `{ success, statusCode, message, data: { page_template } }`.
+}

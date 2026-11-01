@@ -1,0 +1,41 @@
+meta {
+  name: Tags - Create
+  type: http
+  seq: 23
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/tags
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "name": "urgent",
+    "color": "#ef4444"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const tag = res.body.data?.tag;
+    if (tag && tag.id) {
+      bru.setVar("tagId", tag.id);
+    }
+  }
+}
+
+docs {
+  Creates a tag. Requires the `workflow.manage` permission.
+
+  `name` must be unique within the workspace — a duplicate responds `422`.
+
+  Stores the new ID in the `tagId` collection variable.
+
+  Response is wrapped: `{ success, statusCode, message, data: { tag } }`.
+}

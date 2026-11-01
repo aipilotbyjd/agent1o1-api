@@ -1,0 +1,24 @@
+meta {
+  name: 2FA - Disable
+  type: http
+  seq: 18
+}
+
+post {
+  url: {{baseUrl}}/v1/auth/2fa/disable
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "current_password": "Password123!"
+  }
+}
+
+docs {
+  Disables two-factor authentication for the authenticated user.
+  Requires the current password as confirmation (422 if wrong).
+
+  Responds `204 No Content` with no envelope.
+}

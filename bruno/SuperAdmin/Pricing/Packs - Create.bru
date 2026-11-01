@@ -1,0 +1,31 @@
+meta {
+  name: Packs - Create
+  type: http
+  seq: 20
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/pricing/packs
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456",
+    "key": "jumbo",
+    "label": "100,000 credits",
+    "credits": 100000,
+    "price_cents": 49900,
+    "badge": "Best value"
+  }
+}
+
+docs {
+  The first write copies the config packs into the table so adding one does not hide the others.
+}

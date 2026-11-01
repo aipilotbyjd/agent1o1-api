@@ -1,0 +1,30 @@
+meta {
+  name: Key Policy - Get
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/ai-key-policy
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  The workspace's rules for its own AI provider keys. Requires
+  `ai-credential.view` — anyone who can see the keys can see why a model
+  is unavailable or their personal key isn't used.
+
+  - `platform_usage` — `fallback` (own key first, platform key as
+    backup), `when_no_key` (platform key only for models no own key
+    covers) or `never`.
+  - `allow_personal_keys` — whether members may add personal keys.
+  - `can_manage` — whether the caller may change it.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { policy: { platform_usage, allow_personal_keys, can_manage, updated_at } } }`.
+}

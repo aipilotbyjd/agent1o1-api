@@ -1,0 +1,25 @@
+meta {
+  name: Builder Messages - Get
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-builder-sessions/:session/messages/:message
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{builderSessionId}}
+  message: {{builderMessageId}}
+}
+
+docs {
+  One message — poll this after "Builder Sessions - Send Message" until
+  `processing_status` is `completed` or `failed` if you aren't listening on
+  the session's channel.
+
+  Response is wrapped: `{ success, statusCode, message, data: { message } }`.
+}

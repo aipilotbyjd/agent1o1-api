@@ -1,0 +1,95 @@
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+vars:pre-request {
+}
+
+docs {
+  # agent-1o1-ai API
+
+  Internal V1 API (bearer/Passport auth) plus the Public V1 API (API-key auth).
+
+  ## Response envelope
+
+  Every Internal V1 response is wrapped: `{ success, statusCode, message, data }`
+  on success, `{ success, statusCode, message, errors? }` on failure (`errors`
+  present for 422 validation failures). Actual payloads always live under
+  `data` — e.g. login's tokens are at `data.tokens`, not top-level. Endpoints
+  that return no body (delete, logout, revoke) still respond `204 No Content`
+  with no envelope at all.
+
+  ## Auth flow
+
+  1. Run `auth/Register` or `auth/Login`. Their post-response script stores
+     `accessToken` as a collection variable. The refresh token is set as an
+     httpOnly `refresh_token` cookie, so keep Bruno's cookie jar on for
+     `Auth/Refresh Token`.
+  2. Every other Internal V1 request inherits collection-level bearer auth
+     and automatically uses `{{accessToken}}`.
+  3. Requests under `workspaces/{workspace}/...` also need a `workspaceId`
+     variable set (see the `local` environment) — set it after creating or
+     listing a workspace.
+  4. Public V1 requests (`public/...`) use a workspace API key instead —
+     set `{{apiKey}}` from `workspaces/api-keys/Create Api Key`.
+  5. The webhook endpoints under `Webhooks` use neither: the token in the
+     URL is the whole auth story. See that folder's requests.
+
+  ## Resource ID variables
+
+  Most folders' `Create` requests store the new record's ID in a collection
+  variable, so the rest of that folder works without hand-editing paths:
+  `workflowId`, `versionId`, `runId`, `triggerId`, `triggerToken`,
+  `builderSessionId`, `agentId`, `agentSessionId`, `toolBindingId`,
+  `skillId`, `skillReferenceId`, `skillScriptId`, `folderId`, `tagId`,
+  `creditPackId`, `secretId`, `workflowTemplateId`, `agentTemplateId`,
+  `templateCollectionId`, `templateCollectionItemId`, `evalSuiteId`,
+  `evalCaseId`, `evalRunId`, and `planId` (set by `Billing/Plans - List`).
+  The `Referrals` and `Admin` folders store `referralCode`,
+  `referralVisitorId`, `referralProgramId`, `referralRuleId`,
+  `referralCodeId`, `referralId`, `referralRewardId` and `blockedDomainId`
+  from their `Get`/`List`/`Create` requests.
+  `Assistant`, `Pages`, `Ai`, `Knowledge Base`, `Library` and the newer
+  `Agents`/`Skills`/`Workflows` requests do the same with their own
+  prefixed variables (`assistantSessionId`, `pageId`, `pageToken`,
+  `aiProviderCredentialId`, `modelCatalogId`, `knowledgeSourceId`,
+  `skillSourceId`, `publishRequestId`, `agentActionId`, `agentPlanId`, …).
+  Every variable used anywhere in the collection is listed, empty, in the
+  environments.
+  Running a folder top to bottom fills them in as it goes.
+
+  A few have no `Create` to populate them and must be set by hand from a
+  response body: `approvalId` (from a run parked on an approval node),
+  `waitToken` (from the callback URL a Wait node hands out),
+  `workflowNodeId` (a node's ID from a workflow's graph — not the same
+  thing as `nodeId`, which is a node *catalog* entry), and the `nodeRun`
+  path params under `Runs` and `Public`.
+
+  `Artifacts - Preview` and `Webhooks/Stripe Webhook` can't be run by
+  filling in a variable at all — the first needs a signed URL taken whole
+  from an artifact response, the second a Stripe-signed payload. Both say
+  so in their own docs.
+
+  ## Suggested order
+
+  `Auth` → `Workspaces` (create one, then an API key) → `Workflows` →
+  `Workflow Builder` (draft a graph) → `Workflows/Versions - Publish` →
+  `Runs`. `Agents`, `Skills`, `Secrets`, and `Triggers` are independent of
+  that chain apart from needing `workspaceId` — though attaching a workflow
+  tool or pointing a trigger at a workflow needs `workflowId` too.
+
+  `SuperAdmin` is a separate API with its own accounts and token
+  (`superAdminToken`): see that folder's docs for how to sign in. It needs
+  `SUPER_ADMIN_ENABLED=true`.
+
+  `Templates` needs an existing workflow or agent before its
+  `Save From ...` requests do anything useful; its `Create` requests don't.
+
+  `Pages` needs a `workflowId`; publish a page before running its
+  `Public Page - ...` requests (they use `pageToken`, no bearer auth).
+  `Assistant`, `Dashboard`, `Library` and `Ai` only need `workspaceId`.
+}

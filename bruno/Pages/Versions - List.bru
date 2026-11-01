@@ -1,0 +1,27 @@
+meta {
+  name: Versions - List
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/versions
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+docs {
+  Lists the page's version history, newest number first, without content.
+  Requires the `page.manage` permission.
+
+  Each entry has `number`, `kind` (`published`, `saved`, `before_restore`,
+  `before_generation`), `label`, `has_variant`, `created_by`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { versions } }`.
+}

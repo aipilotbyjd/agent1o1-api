@@ -1,0 +1,29 @@
+meta {
+  name: Providers - Resume
+  type: http
+  seq: 30
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/models/providers/:provider/resume
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  provider: openai
+}
+
+body:json {
+  {
+    "reason": "New key is in place"
+  }
+}
+
+docs {
+  Starts using the provider again. Raises an alert.
+}

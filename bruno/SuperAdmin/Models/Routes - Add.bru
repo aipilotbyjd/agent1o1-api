@@ -1,0 +1,40 @@
+meta {
+  name: Routes - Add
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/models/:model/routes
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  model: {{saModelId}}
+}
+
+body:json {
+  {
+    "reason": "Routing around a provider outage",
+    "execution_provider": "openai",
+    "execution_model_id": "gpt-5.6-terra",
+    "priority": 1,
+    "is_enabled": false
+  }
+}
+
+script:post-response {
+  if (res.status === 200 || res.status === 201) {
+    const v = res.body.data?.id;
+    if (v) bru.setVar("saRouteId", v);
+  }
+}
+
+docs {
+  A new route, switched off unless `is_enabled: true`. The provider must be one the platform knows (`config/ai.php`, one of your endpoints, or a BYOK provider). A route can only be enabled for a provider the platform can run, or one a workspace can bring a key for.
+}

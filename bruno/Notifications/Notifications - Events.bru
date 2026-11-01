@@ -1,0 +1,19 @@
+meta {
+  name: Notifications - Events
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/v1/notifications/events
+  body: none
+  auth: inherit
+}
+
+docs {
+  The catalog of notification event keys a preference can be set for
+  (`Notification Preferences - Update`'s `event_key`).
+
+  Response is wrapped: `{ success, statusCode, message, data: [...] }` where
+  each entry is `{ key, label, description, defaults: { in_app, email } }`.
+}

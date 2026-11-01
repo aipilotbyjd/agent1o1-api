@@ -1,0 +1,25 @@
+meta {
+  name: Variant - Remove
+  type: http
+  seq: 22
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/variant
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+docs {
+  Ends the test and discards version B (draft and live). Requires the
+  `page.manage` permission. Everyone gets the published main page
+  immediately. Safe to call when there is no B.
+
+  Response is wrapped: `{ success, statusCode, message, data: { page } }`
+  (200, not 204).
+}

@@ -1,0 +1,16 @@
+meta {
+  name: Pricing
+  seq: 10
+}
+
+docs {
+  Plan and pricing manager. Reading needs `pricing.view` (every role). Editing plans, packs'
+  display and ordering needs `pricing.manage`; anything that changes what customers pay or
+  creates Stripe objects (prices, packs, intervals, coupons) needs `pricing.prices` (owner,
+  finance). Sensitive requests need a reason and a fresh code, are rate limited, and are safe
+  to retry with an `Idempotency-Key` header.
+
+  Prices are immutable in Stripe: a new amount makes a new Stripe price, the old one is
+  archived and kept in `plan_price_history`, and existing subscribers keep paying the old
+  amount.
+}

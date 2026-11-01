@@ -1,0 +1,30 @@
+meta {
+  name: Plans - Activate
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/pricing/plans/:plan/activate
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  plan: {{saPlanId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456"
+  }
+}
+
+docs {
+  Puts the plan on sale.
+}

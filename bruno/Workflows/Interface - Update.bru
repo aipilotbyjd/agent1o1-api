@@ -1,0 +1,63 @@
+meta {
+  name: Interface - Update
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/interface
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+body:json {
+  {
+    "fields": [
+      {
+        "key": "customer_email",
+        "label": "Customer email",
+        "type": "string",
+        "required": true,
+        "help": "Where the confirmation goes."
+      },
+      {
+        "key": "priority",
+        "label": "Priority",
+        "type": "select",
+        "required": false,
+        "default": "normal",
+        "options": [
+          { "value": "normal", "label": "Normal" },
+          { "value": "urgent", "label": "Urgent" }
+        ]
+      }
+    ]
+  }
+}
+
+docs {
+  Declares the workflow's input contract. Requires the `workflow.manage`
+  permission.
+
+  - `fields` — required (`present`), an array. Each field needs a `key` and
+    a `type`; `label`, `required`, `help`, `default` and `options` are
+    optional.
+  - `key` — must match `^[A-Za-z_][A-Za-z0-9_-]*$`. No dots: keys become
+    top-level entries of the run's `input`, so `{{ input.a.b }}` addresses
+    *inside* the value of field `a` rather than naming a field `a.b`.
+  - `type` — one of `string`, `text`, `number`, `boolean`, `select`,
+    `json`.
+  - `options` — for `select`; each entry needs a `value`, `label` optional.
+
+  Sending an empty `fields` array clears the declaration, which puts the
+  workflow back on the interface derived from its graph rather than leaving
+  it with none.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { interface } }`.
+}

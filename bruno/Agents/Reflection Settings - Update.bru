@@ -1,0 +1,42 @@
+meta {
+  name: Reflection Settings - Update
+  type: http
+  seq: 48
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/reflection-settings
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+body:json {
+  {
+    "is_enabled": true,
+    "apply_behavior": "review_queue",
+    "schedule_cron": "0 22 * * *",
+    "min_chats_threshold": 5,
+    "extra_instructions": "Pay extra attention to refund and cancellation questions.",
+    "notify_on_skip": false
+  }
+}
+
+docs {
+  Enables/configures periodic reflection for this agent. Requires the
+  `agent.manage` permission. Every field is `sometimes` — send only what
+  changes.
+
+  - `apply_behavior` — `review_queue` (default, proposals wait for a human)
+    or `auto_apply` (high-confidence, well-supported proposals apply
+    themselves; `tool_access` proposals never auto-apply regardless).
+  - `schedule_cron` — must be a valid cron expression.
+  - `min_chats_threshold` — a run with fewer new sessions than this since
+    the last run is skipped rather than run on too little evidence.
+
+  Response is wrapped: `{ success, statusCode, message, data: { settings } }`.
+}

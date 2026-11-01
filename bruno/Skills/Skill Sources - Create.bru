@@ -1,0 +1,54 @@
+meta {
+  name: Skill Sources - Create
+  type: http
+  seq: 20
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skill-sources
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "repo": "acme/agent-skills",
+    "branch": "main",
+    "path": "skills",
+    "credential_id": "{{connectorCredentialId}}",
+    "is_shared": true,
+    "two_way": false
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const source = res.body.data?.source;
+    if (source && source.id) {
+      bru.setVar("skillSourceId", source.id);
+    }
+  }
+}
+
+docs {
+  Connects a GitHub repository folder as a skill source and starts syncing
+  its skills in. Requires the `agent-skill.manage` permission. Stores the
+  new ID as `skillSourceId`.
+
+  - `repo` — required: `owner/name` or a github.com link.
+  - `branch`, `path` — optional (default branch / repo root).
+  - `credential_id` — optional GitHub connector credential.
+  - `is_shared` — optional, defaults to `true`.
+  - `two_way` — optional; `true` needs a credential with write access and
+    publishes local edits back to the repo.
+
+  `422` when the workspace's skill-repository limit is reached or this
+  repo folder is already connected.
+
+  Response is wrapped: `{ success, statusCode, message, data: { source } }`
+  (`201`).
+}

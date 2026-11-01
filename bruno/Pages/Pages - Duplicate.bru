@@ -1,0 +1,28 @@
+meta {
+  name: Pages - Duplicate
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/duplicate
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+docs {
+  Copies a page's draft into a new unpublished page named
+  `"<original> (copy)"` on the same workflow. Requires the `page.manage`
+  permission; counts against the page limit (402).
+
+  Access settings, password and version B are not copied — the copy starts
+  as a `workspace` page with a fresh token. Does *not* overwrite `pageId`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { page } }`
+  (201).
+}

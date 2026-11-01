@@ -1,0 +1,49 @@
+meta {
+  name: Library - List
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/library?per_page=48
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  per_page: 48
+  ~type: image
+  ~agent_id: {{agentId}}
+  ~search: report
+  ~page: 1
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const item = res.body.data?.[0];
+    if (item && item.id) {
+      bru.setVar("libraryArtifactId", item.id);
+    }
+  }
+}
+
+docs {
+  Lists chat and workflow-builder files, newest first, latest version per
+  file, limited to those the caller may access. Requires `agent.view`.
+
+  - `type` — optional, `image` or `file`.
+  - `agent_id` — optional UUID.
+  - `search` — optional, matched against the filename (max 255).
+  - `per_page` — optional, 1-100, default 48.
+
+  Each item: `id`, `filename`, `mime_type`, `kind` (`image`/`file`),
+  `size`, `source` (`uploaded`/`generated`), `agent`, `chat`,
+  `view_url` (a 30-minute signed URL for previewable files, else `null`)
+  and `created_at`. Stores the first id as `libraryArtifactId`.
+
+  Paginated: `{ success, statusCode, message, data: [...], meta }`.
+}

@@ -1,0 +1,35 @@
+meta {
+  name: Notification Preferences - Update
+  type: http
+  seq: 13
+}
+
+put {
+  url: {{baseUrl}}/v1/workspaces/:workspace/notification-preferences
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "event_key": "run.approval_requested",
+    "in_app": true,
+    "email": false
+  }
+}
+
+docs {
+  Creates or updates the caller's preference for one event. Only the keys
+  sent change; a new row starts from the event defaults.
+
+  - `event_key` — required, a key from `Notifications - Events`.
+  - `in_app`, `email` — optional booleans (`null` resets to the default).
+  - `channel_ids` — optional array of this workspace's notification channel
+    ids to also deliver to (`null` clears).
+
+  Response is wrapped: `{ success, statusCode, message, data: { preference } }`.
+}

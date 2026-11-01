@@ -1,0 +1,26 @@
+meta {
+  name: Knowledge Sources - Documents
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/knowledge-base/sources/:knowledgeSource/documents
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  knowledgeSource: {{knowledgeSourceId}}
+}
+
+docs {
+  The documents a source brought in, one row per synced document, newest
+  first (max 500). Requires `agent.view`; another member's private source
+  is a 404.
+
+  Each row: `external_id`, `title`, `url`, `chunks_count`, `synced_at`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { documents } }`.
+}

@@ -1,0 +1,32 @@
+meta {
+  name: Agent Templates - List
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agent-templates
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  ~category: support
+}
+
+docs {
+  Lists agent templates visible to the workspace, newest first. Requires
+  the `template.view` permission.
+
+  "Visible" means the workspace's own templates plus the global public
+  ones (those with no owning workspace and `visibility: public`).
+
+  - `category` — optional, filters to one category.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { agent_templates } }`.
+}

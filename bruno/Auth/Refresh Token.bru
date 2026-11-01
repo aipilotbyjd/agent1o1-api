@@ -1,0 +1,30 @@
+meta {
+  name: Refresh Token
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/v1/auth/refresh
+  body: none
+  auth: none
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setVar("accessToken", res.body.data?.tokens?.access_token);
+  }
+}
+
+docs {
+  Exchanges the refresh token for a new access token. The refresh token
+  is read from the httpOnly `refresh_token` cookie set by `Login`,
+  `Register`, `2FA - Verify` or `Social Exchange` — not from the body —
+  and is rotated (a new cookie is set). 401 `Missing refresh token.`
+  when the cookie is not sent.
+
+  Stores the new `accessToken`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { tokens: { token_type, expires_in, access_token } } }`.
+}

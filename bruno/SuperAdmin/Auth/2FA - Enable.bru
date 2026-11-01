@@ -1,0 +1,19 @@
+meta {
+  name: 2FA - Enable
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/auth/2fa/enable
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+docs {
+  Returns the `secret` and `otpauth_url` to add to an authenticator app. Works with a setup token.
+}

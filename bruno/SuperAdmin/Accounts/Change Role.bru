@@ -1,0 +1,31 @@
+meta {
+  name: Change Role
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/accounts/:account/role
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  account: {{saAccountId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456",
+    "role": "operator"
+  }
+}
+
+docs {
+  Any demotion ends the account's ability to refresh; leaving owner ends every session.
+}

@@ -1,0 +1,43 @@
+meta {
+  name: Workflows - Create
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "name": "Lead intake",
+    "description": "Routes inbound leads to the sales queue."
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const workflow = res.body.data?.workflow;
+    if (workflow && workflow.id) {
+      bru.setVar("workflowId", workflow.id);
+    }
+  }
+}
+
+docs {
+  Creates an empty workflow (its graph is filled in later via the
+  `Workflow Builder` folder). Requires the `workflow.manage` permission.
+  Stores the new ID in the `workflowId` collection variable.
+
+  `slug` is optional — when omitted it's derived from `name` plus a random
+  suffix. `folder_id` optionally files the workflow under a workflow-type
+  folder. Refused when the workspace is at its plan's workflow limit.
+
+  Response is wrapped: `{ success, statusCode, message, data: { workflow } }`.
+}

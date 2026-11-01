@@ -1,0 +1,60 @@
+meta {
+  name: Knowledge Sources - Create
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/knowledge-base/sources
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "type": "url",
+    "name": "Pricing page",
+    "collection": "support",
+    "private": false,
+    "config": {
+      "url": "https://example.com/pricing"
+    }
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const source = res.body.data?.source;
+    if (source && source.id) {
+      bru.setVar("knowledgeSourceId", source.id);
+    }
+  }
+}
+
+docs {
+  Adds a source and queues its first sync. A shared source needs
+  `agent.manage`; `private: true` (the member's own Brain) needs only
+  `agent.view`. Throttled to 30/minute.
+
+  - `type` — required: `url`, `google_drive`, `gmail`, `outlook`,
+    `github` or `slack`.
+  - `name` — required, max 120. `collection` — optional, max 100
+    (defaults to `default`, or `personal` when private).
+  - `credential_id` — optional for app types; defaults to the caller's
+    own default account, then the workspace's shared one (422 when none
+    is connected). See `Knowledge Sources - Apps`.
+  - `config` — per type: `url` → `url` (required); `google_drive` →
+    `folder_id`, `name_contains`; `gmail` → `label` or `query`;
+    `outlook` → `folder_id` (+ `folder_name`) or `query`; `github` →
+    `repo` (`owner/name`, required); `slack` → `channel` (ID, required),
+    `channel_name`.
+
+  422 when the workspace hits its source limit. Stores the new id as
+  `knowledgeSourceId`.
+
+  Response is wrapped (201): `{ success, statusCode, message, data: { source } }`.
+}

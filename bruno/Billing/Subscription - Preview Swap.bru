@@ -1,0 +1,36 @@
+meta {
+  name: Subscription - Preview Swap
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/subscription/preview?plan_id={{planId}}&interval=monthly
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  plan_id: {{planId}}
+  interval: monthly
+}
+
+docs {
+  Previews the invoice that swapping to `plan_id`/`interval` would
+  produce (proration included), without actually changing the
+  subscription. Requires the `billing.view` permission. Both query params
+  are required (`plan_id` is a plan UUID).
+
+  `interval` is one of `monthly`, `quarterly`, `yearly`, `lifetime` — see
+  `Billing/Plans - List`'s `available_intervals` for what's actually on
+  sale for a given plan.
+
+  `data.invoice` is `null` when there's no active subscription to
+  project a swap against.
+
+  Response is wrapped: `{ success, statusCode, message, data: { invoice } }`.
+}

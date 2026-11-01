@@ -1,0 +1,23 @@
+meta {
+  name: Failure Summary
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/runs/failures/summary?days=7
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:query {
+  days: 7
+}
+
+docs {
+  The most common failure messages over the last N days.
+}

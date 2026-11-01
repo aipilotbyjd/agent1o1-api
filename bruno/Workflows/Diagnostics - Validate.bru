@@ -1,0 +1,48 @@
+meta {
+  name: Diagnostics - Validate
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/validate
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+body:json {
+  {
+    "graph": {
+      "nodes": [
+        { "key": "customer_email", "type": "workflow_input", "config": { "name": "customer_email", "input_type": "string", "required": true } },
+        { "key": "notify", "type": "call_api", "config": { "method": "POST", "url": "https://example.com/hooks/notify" } }
+      ],
+      "edges": [
+        { "from": "customer_email", "to": "notify", "condition": null }
+      ]
+    }
+  }
+}
+
+docs {
+  Checks a graph for structural problems before publishing. Requires the
+  `workflow.manage` permission.
+
+  - `graph` — optional. Supply it to check the unsaved canvas; omit it (or
+    send `null`) to check the saved draft, through the same accessor
+    publishing uses, so what's validated is what would be published.
+  - Each node needs `key` and `type`, `config` optional. Each edge needs
+    `from` and `to` (node keys), `condition` optional.
+
+  Answers `200` with the findings even when the graph is invalid — an
+  invalid graph is the *expected* result of asking "is this valid yet?",
+  not a rejected request. Publishing is where invalidity becomes an error.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { valid, issues } }`.
+}

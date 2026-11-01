@@ -1,0 +1,29 @@
+meta {
+  name: Channels - List
+  type: http
+  seq: 56
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/channels
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Where else the caller can reach their assistant. Requires the
+  `assistant.use` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { email,
+  slack, sms } }`:
+
+  - `email` — `{ address, enabled }` (enabled when the inbound token is
+    configured on the server).
+  - `slack` — `{ available, installed, team_name, team_id }`.
+  - `sms` — `{ available, plan, number, phone }`; `phone` is the caller's
+    verified number or `null`.
+}

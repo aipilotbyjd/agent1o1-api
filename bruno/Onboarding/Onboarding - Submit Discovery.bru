@@ -1,0 +1,27 @@
+meta {
+  name: Onboarding - Submit Discovery
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/v1/onboarding/discovery
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "discovery_source": "google_search"
+  }
+}
+
+docs {
+  Records how the user found the product (the last step,
+  `discovery_survey`). `discovery_source` is one of `google_search`,
+  `ai_search`, `youtube`, `x_twitter`, `linkedin`, `tiktok_instagram`,
+  `community`, `referral`, `newsletter`, `podcast`, `other`.
+
+  Response is wrapped: `{ success, statusCode, message, data }` where `data`
+  is the full onboarding state (same shape as `Onboarding - Get State`).
+}

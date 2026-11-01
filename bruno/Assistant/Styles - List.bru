@@ -1,0 +1,39 @@
+meta {
+  name: Styles - List
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/styles
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const styles = res.body.data?.styles || [];
+    const tone = styles.find((style) => style.kind === "tone");
+    const revision = tone?.revisions?.[0];
+    if (revision && revision.id) {
+      bru.setVar("assistantStyleRevisionId", revision.id);
+    }
+  }
+}
+
+docs {
+  The caller's personalization notes — one entry per kind (`tone`,
+  `design`) — with the latest 20 revisions of each. Requires the
+  `assistant.use` permission. Stores the newest `tone` revision's ID in
+  `assistantStyleRevisionId`.
+
+  Each style: `kind`, `notes`, `version`, `revisions: [{ id, version,
+  notes, source, reason, created_at }]`. `source` is `owner`, `assistant`,
+  `feedback` or `restore`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { styles } }`.
+}

@@ -1,0 +1,29 @@
+meta {
+  name: Skills - Attach
+  type: http
+  seq: 37
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/skills/:skill
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  skill: {{skillId}}
+}
+
+docs {
+  Attaches a skill to the agent, folding its instructions into the
+  agent's context. Idempotent — attaching twice is a no-op. Requires the
+  `agent.skill.manage` permission. Both the agent and the skill must
+  belong to this workspace.
+
+  Create the skill first via `Skills/Skills - Create`.
+
+  Returns the agent's full skill list after the change, wrapped:
+  `{ success, statusCode, message, data: { skills } }`.
+}

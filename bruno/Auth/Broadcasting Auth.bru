@@ -1,0 +1,36 @@
+meta {
+  name: Broadcasting Auth
+  type: http
+  seq: 26
+}
+
+post {
+  url: {{baseUrl}}/broadcasting/auth
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  socket_id: 123456.7890123
+  channel_name: private-workspaces.{{workspaceId}}.runs
+}
+
+docs {
+  Authorizes a Reverb/Echo subscription to a private channel. Lives at
+  `/api/broadcasting/auth` (no `/v1`) behind `auth:api`, so it takes the
+  bearer token — Echo's `authorizer` should send it. GET is accepted too.
+
+  - `socket_id` — the connection's socket id from Reverb.
+  - `channel_name` — `private-` plus a channel from `routes/channels.php`:
+    `App.Models.User.{userId}`, `workspaces.{workspaceId}.runs`,
+    `workspaces.{workspaceId}.runs.{runId}`,
+    `workspaces.{workspaceId}.agent-sessions.{sessionId}`,
+    `workspaces.{workspaceId}.workflow-builder-sessions.{sessionId}`,
+    `workspaces.{workspaceId}.assistant-sessions.{sessionId}`,
+    `workspaces.{workspaceId}.assistants.{assistantId}`,
+    `workspaces.{workspaceId}.pages.{pageId}`.
+
+  403 when the caller may not join. On success the response is the
+  broadcaster's raw payload, not the JSON envelope: `{ auth }` (plus
+  `channel_data` for presence channels).
+}

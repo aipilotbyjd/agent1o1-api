@@ -1,0 +1,52 @@
+meta {
+  name: Pages - Create
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "workflow_id": "{{workflowId}}",
+    "name": "Lead intake form",
+    "description": "Collects inbound leads for the sales queue."
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const page = res.body.data?.page;
+    if (page && page.id) {
+      bru.setVar("pageId", page.id);
+      bru.setVar("pageToken", page.public_token);
+    }
+  }
+}
+
+docs {
+  Creates a draft page for a workflow. Requires the `page.manage`
+  permission (plus `template.view` when `template_id` is sent). Counts
+  against the plan's page limit (402 when reached). Stores the new ID in
+  `pageId` and its link token in `pageToken`.
+
+  - `workflow_id` — required UUID of a workflow in this workspace.
+  - `name` — optional, max 120; defaults to the workflow's name.
+  - `description` — optional, max 1000.
+  - `template_id` — optional UUID of a visible page template
+    (`Templates/Page Templates - List`); without it the page starts from a
+    starter layout built from the workflow's interface.
+
+  New pages start with `access: workspace`, unpublished.
+
+  Response is wrapped: `{ success, statusCode, message, data: { page } }`
+  with `content`, `issues`, `variant` and `share_preview` included.
+}

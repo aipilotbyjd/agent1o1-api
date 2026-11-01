@@ -1,0 +1,23 @@
+meta {
+  name: Login Events
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/accounts/:account/login-events
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  account: {{saAccountId}}
+}
+
+docs {
+  That account's sign-in history (latest 100).
+}

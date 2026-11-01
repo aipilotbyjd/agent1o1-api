@@ -1,0 +1,40 @@
+meta {
+  name: Submissions - List
+  type: http
+  seq: 27
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/submissions
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+params:query {
+  ~status: completed
+  ~variant: a
+  ~include_tests: 0
+  ~from: 2026-01-01
+  ~to: 2026-12-31
+  ~per_page: 50
+  ~page: 1
+}
+
+docs {
+  The page's run history, newest first, paginated. Requires the
+  `page.view` permission.
+
+  - `status` — `completed`, `failed`, `running` or `waiting`.
+  - `variant` — `a` or `b`.
+  - `include_tests` — boolean, default true.
+  - `from` / `to` — dates.
+  - `per_page` — 1–100, default 50; `page` — page number.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { submissions, meta: { total, page, per_page, last_page } } }`.
+}

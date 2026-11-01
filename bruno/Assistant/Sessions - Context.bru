@@ -1,0 +1,26 @@
+meta {
+  name: Sessions - Context
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/sessions/:session/context
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{assistantSessionId}}
+}
+
+docs {
+  How full the model's context window is for this session — the meter in
+  the chat header. Requires the `assistant.use` permission. Token counts
+  are estimates.
+
+  Response is wrapped: `{ success, statusCode, message, data: { context:
+  { window_tokens, used_tokens, percent, compacted_messages, parts: {
+  instructions, tools, summary, conversation } } } }`.
+}

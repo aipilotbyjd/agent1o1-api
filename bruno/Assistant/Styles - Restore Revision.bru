@@ -1,0 +1,27 @@
+meta {
+  name: Styles - Restore Revision
+  type: http
+  seq: 20
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/styles/:kind/revisions/:revision/restore
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  kind: tone
+  revision: {{assistantStyleRevisionId}}
+}
+
+docs {
+  Restores an earlier revision of one style kind, as a new revision.
+  Requires the `assistant.use` permission. No body.
+
+  The revision must belong to the caller's own profile of that `kind`
+  (`tone` or `design`), else `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { style } }`.
+}

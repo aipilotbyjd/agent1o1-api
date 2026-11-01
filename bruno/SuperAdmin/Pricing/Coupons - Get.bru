@@ -1,0 +1,23 @@
+meta {
+  name: Coupons - Get
+  type: http
+  seq: 26
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/pricing/coupons/:coupon
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  coupon: {{saCouponId}}
+}
+
+docs {
+  One coupon, with its redemption count refreshed from Stripe.
+}

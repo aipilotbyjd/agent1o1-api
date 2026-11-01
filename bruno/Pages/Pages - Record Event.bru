@@ -1,0 +1,32 @@
+meta {
+  name: Pages - Record Event
+  type: http
+  seq: 25
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/events
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+body:json {
+  {
+    "type": "start"
+  }
+}
+
+docs {
+  Records that a member started filling in the page, for `Insights`.
+  Requires the `page.view` permission.
+
+  - `type` — required, must be `start` (views are recorded by
+    `Pages - View`). Counted once per visitor per day.
+
+  Answers `204 No Content` with no envelope.
+}

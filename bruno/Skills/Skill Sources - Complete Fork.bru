@@ -1,0 +1,28 @@
+meta {
+  name: Skill Sources - Complete Fork
+  type: http
+  seq: 26
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skill-sources/:skillSource/fork/complete
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skillSource: {{skillSourceId}}
+}
+
+docs {
+  Points the source at its fork once GitHub has finished creating it and
+  turns on two-way sync, keeping the original as `upstream_repo`.
+  Requires the `agent-skill.manage` permission. Takes no body.
+
+  While GitHub is still copying, the source stays `forking`; call again
+  later. `422` (and `status: failed`) when the fork's GitHub account needs
+  reconnecting.
+
+  Response is wrapped: `{ success, statusCode, message, data: { source } }`.
+}

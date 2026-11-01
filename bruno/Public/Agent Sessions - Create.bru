@@ -1,0 +1,40 @@
+meta {
+  name: Agent Sessions - Create
+  type: http
+  seq: 21
+}
+
+post {
+  url: {{baseUrl}}/public/v1/agents/:agent/sessions
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  agent: {{agentId}}
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const session = res.body.data?.session;
+    if (session && session.id) {
+      bru.setVar("agentSessionId", session.id);
+    }
+  }
+}
+
+docs {
+  Opens a chat session with an agent. Requires the `agents:invoke`
+  ability on the key. Stores the session ID as `agentSessionId`.
+
+  The Public API is invoke-only — external callers run agents, they
+  don't build them, so there's no agent CRUD here. Unlike the Internal
+  equivalent this takes no body (sessions opened this way are untitled
+  and have no owning user).
+
+  Response is wrapped: `{ success, statusCode, message, data: { session } }`.
+}

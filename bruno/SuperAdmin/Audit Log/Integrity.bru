@@ -1,0 +1,23 @@
+meta {
+  name: Integrity
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/audit-log/integrity?expected_head=
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:query {
+  expected_head: 
+}
+
+docs {
+  Checks the whole audit log is still the log that was written: no entry removed, changed or slipped in. `data.head_hash` is the newest entry's hash: keep it somewhere the database's writers cannot reach and pass it back as `expected_head` to also catch entries cut off the end. The daily `super-admin:audit-verify` runs the same check and alerts if it fails.
+}

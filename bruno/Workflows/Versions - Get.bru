@@ -1,0 +1,24 @@
+meta {
+  name: Versions - Get
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/versions/:version
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+  version: {{versionId}}
+}
+
+docs {
+  Fetches a single published version's snapshot. `version` is the
+  version record's ID. Requires the `workflow.version` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { version } }`.
+}

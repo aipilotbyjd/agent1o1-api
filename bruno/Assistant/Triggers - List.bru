@@ -1,0 +1,27 @@
+meta {
+  name: Triggers - List
+  type: http
+  seq: 71
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/triggers
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  The caller's assistant triggers, newest first. Requires the
+  `assistant.use` permission. These are the personal assistant's triggers,
+  separate from the workspace `Triggers` folder.
+
+  Response is wrapped: `{ success, statusCode, message, data: { triggers }
+  }` — each has `id`, `type`, `name`, `prompt`, `cron`, `timezone`,
+  `run_at`, `next_run_at` (null unless active), `last_run_at`, `status`,
+  `created_by` (`owner` or the assistant), `consecutive_failures`,
+  `webhook_url` (webhook type only).
+}

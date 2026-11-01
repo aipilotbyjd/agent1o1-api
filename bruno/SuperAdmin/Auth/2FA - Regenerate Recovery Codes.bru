@@ -1,0 +1,26 @@
+meta {
+  name: 2FA - Regenerate Recovery Codes
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/auth/2fa/recovery-codes/regenerate
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456"
+  }
+}
+
+docs {
+  Needs a reason and a fresh authenticator code.
+}

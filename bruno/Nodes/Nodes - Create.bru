@@ -1,0 +1,51 @@
+meta {
+  name: Nodes - Create
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/nodes
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "category_id": "{{nodeCategoryId}}",
+    "name": "My Node",
+    "description": "A custom node.",
+    "icon": null,
+    "color": null,
+    "config_schema": {
+      "type": "object",
+      "properties": {}
+    },
+    "input_schema": null,
+    "output_schema": null,
+    "credential_type": null,
+    "is_active": true
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const node = res.body.data?.node;
+    if (node && node.id) {
+      bru.setVar("nodeId", node.id);
+    }
+  }
+}
+
+docs {
+  Creates a workspace custom node. `type` is auto-derived from `name`
+  (slugified, deduped with a numeric suffix on collision) — it isn't
+  accepted as input. Requires the `node.manage` permission. Stores the
+  new id as `nodeId`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { node } }`.
+}

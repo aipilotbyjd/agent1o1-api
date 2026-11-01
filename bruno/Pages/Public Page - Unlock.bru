@@ -1,0 +1,48 @@
+meta {
+  name: Public Page - Unlock
+  type: http
+  seq: 34
+}
+
+post {
+  url: {{baseUrl}}/v1/p/:token/unlock
+  body: json
+  auth: none
+}
+
+params:path {
+  token: {{pageToken}}
+}
+
+body:json {
+  {
+    "password": "correct-horse-42"
+  }
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const accessToken = res.body.data?.access_token;
+    if (accessToken) {
+      bru.setVar("pageAccessToken", accessToken);
+    }
+  }
+}
+
+docs {
+  Exchanges a password page's password for an access token. No auth.
+  Throttled to 5/min per page and IP. 404 unless the page is publicly
+  available and `access` is `password`. Stores the token in
+  `pageAccessToken`.
+
+  - `password` — required, max 200. Wrong password answers 422 with
+    `errors.password`.
+
+  Send the token as `X-Page-Access` on `Public Page - Get` and
+  `Public Page - Submit`. It lasts 12 hours, and dies early if the
+  password or link changes.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { access_token, page } }` (`page`
+  unlocked, same shape as `Public Page - Get`).
+}

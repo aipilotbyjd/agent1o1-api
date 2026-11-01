@@ -1,0 +1,32 @@
+meta {
+  name: Channels - SMS Verify Confirm
+  type: http
+  seq: 59
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/channels/sms/verify-confirm
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "code": "123456"
+  }
+}
+
+docs {
+  Confirms the code sent by `Channels - SMS Verify Start`, linking the
+  number to the caller. Requires the `assistant.use` permission. Throttled
+  to 10 per minute.
+
+  `code` is required (string, max 10). A wrong or expired code answers
+  `422` on `code`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { phone } }`.
+}

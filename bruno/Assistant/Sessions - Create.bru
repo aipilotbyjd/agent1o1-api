@@ -1,0 +1,43 @@
+meta {
+  name: Sessions - Create
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/sessions
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "title": "Plan next week",
+    "incognito": false
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const session = res.body.data?.session;
+    if (session && session.id) {
+      bru.setVar("assistantSessionId", session.id);
+    }
+  }
+}
+
+docs {
+  Starts a new conversation with the caller's assistant. Requires the
+  `assistant.use` permission. Stores the new ID in the
+  `assistantSessionId` collection variable.
+
+  Both fields are optional: `title` (nullable, max 120 chars) and
+  `incognito` (boolean). An incognito session expires 24 hours after
+  creation and then answers `404` everywhere.
+
+  Responds `201`, wrapped: `{ success, statusCode, message, data: { session } }`.
+}

@@ -1,0 +1,27 @@
+meta {
+  name: Skill Scripts - Delete
+  type: http
+  seq: 13
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skills/:skill/scripts/:script
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skill: {{skillId}}
+  script: {{skillScriptId}}
+}
+
+docs {
+  Deletes a skill script. Requires the `agent-skill.manage` permission.
+
+  404s if `:script` does not belong to `:skill`.
+
+  `422` when the skill is synced one-way from GitHub.
+
+  Responds `204 No Content` with no envelope.
+}

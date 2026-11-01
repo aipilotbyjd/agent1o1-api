@@ -1,0 +1,31 @@
+meta {
+  name: Dashboard - Pending Approvals
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/dashboard/pending-approvals
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  ~page: 1
+}
+
+docs {
+  Every human-approval node in the workspace still waiting on someone,
+  oldest first (a work queue). Requires `run.view` — deciding still goes
+  through `Runs/Approvals - Decide`. 25 per page.
+
+  Each row: `id` (use as `approvalId`), `run_id` (as `runId`), `node_run_id`,
+  `requested_at`, `waiting_seconds`, `node: { key, type }` and
+  `run: { id, status, trigger_type, started_at, workflow: { id, name } }`.
+
+  Paginated: `{ success, statusCode, message, data: [...], meta }`.
+}

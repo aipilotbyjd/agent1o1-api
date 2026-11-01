@@ -1,0 +1,4722 @@
+[
+  {
+    "title": "Welcome to Gumloop",
+    "url": "https://docs.gumloop.com/index.md",
+    "description": "Gumloop is an AI agent platform. Build AI agents that use your tools and data to do real work, then automate them with triggers, schedules, and the API.",
+    "path": "/index.md",
+    "id": "gumloop:0001:/index.md",
+    "category": "root",
+    "local_path": "raw\\index.md",
+    "status": "ok"
+  },
+  {
+    "title": "Agents",
+    "url": "https://docs.gumloop.com/core-concepts/agents.md",
+    "description": "",
+    "path": "/core-concepts/agents.md",
+    "id": "gumloop:0002:/core-concepts/agents.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\agents.md",
+    "status": "ok"
+  },
+  {
+    "title": "Gumball",
+    "url": "https://docs.gumloop.com/core-concepts/gumball.md",
+    "description": "Your personal Gumloop agent — chat, a labeled inbox, a morning report, and a brief before every meeting.",
+    "path": "/core-concepts/gumball.md",
+    "id": "gumloop:0003:/core-concepts/gumball.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\gumball.md",
+    "status": "ok"
+  },
+  {
+    "title": "Human in the Loop",
+    "url": "https://docs.gumloop.com/core-concepts/human_in_the_loop.md",
+    "description": "Keep humans in control of your AI agents with tool approval settings, app rules, and the Ask Question ability.",
+    "path": "/core-concepts/human_in_the_loop.md",
+    "id": "gumloop:0004:/core-concepts/human_in_the_loop.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\human_in_the_loop.md",
+    "status": "ok"
+  },
+  {
+    "title": "Code Sandbox & Secrets",
+    "url": "https://docs.gumloop.com/core-concepts/agent_sandbox_and_secrets.md",
+    "description": "Secure code execution and credential management for your AI agents.",
+    "path": "/core-concepts/agent_sandbox_and_secrets.md",
+    "id": "gumloop:0005:/core-concepts/agent_sandbox_and_secrets.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\agent_sandbox_and_secrets.md",
+    "status": "ok"
+  },
+  {
+    "title": "Evaluations",
+    "url": "https://docs.gumloop.com/core-concepts/evaluations.md",
+    "description": "Automatically grade every agent interaction against your criteria, collect structured data, and tag conversations for reporting.",
+    "path": "/core-concepts/evaluations.md",
+    "id": "gumloop:0006:/core-concepts/evaluations.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\evaluations.md",
+    "status": "ok"
+  },
+  {
+    "title": "Reflections",
+    "url": "https://docs.gumloop.com/core-concepts/reflections.md",
+    "description": "Let your agents periodically review their own work, find patterns, and propose improvements automatically.",
+    "path": "/core-concepts/reflections.md",
+    "id": "gumloop:0007:/core-concepts/reflections.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\reflections.md",
+    "status": "ok"
+  },
+  {
+    "title": "Agent Skills",
+    "url": "https://docs.gumloop.com/core-concepts/skills.md",
+    "description": "Skills are reusable knowledge packs that teach your agents how to do specific work, and get better over time.",
+    "path": "/core-concepts/skills.md",
+    "id": "gumloop:0008:/core-concepts/skills.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\skills.md",
+    "status": "ok"
+  },
+  {
+    "title": "Brain",
+    "url": "https://docs.gumloop.com/core-concepts/brain.md",
+    "description": "Brain is your company knowledge base for agents. Connect your tools once, and your agents can search everything your team knows.",
+    "path": "/core-concepts/brain.md",
+    "id": "gumloop:0009:/core-concepts/brain.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\brain.md",
+    "status": "ok"
+  },
+  {
+    "title": "Agent Artifacts (Files)",
+    "url": "https://docs.gumloop.com/core-concepts/agent_artifacts.md",
+    "description": "",
+    "path": "/core-concepts/agent_artifacts.md",
+    "id": "gumloop:0010:/core-concepts/agent_artifacts.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\agent_artifacts.md",
+    "status": "ok"
+  },
+  {
+    "title": "Using Agents in Slack",
+    "url": "https://docs.gumloop.com/core-concepts/agents_slack.md",
+    "description": "",
+    "path": "/core-concepts/agents_slack.md",
+    "id": "gumloop:0011:/core-concepts/agents_slack.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\agents_slack.md",
+    "status": "ok"
+  },
+  {
+    "title": "Using Agents in Microsoft Teams",
+    "url": "https://docs.gumloop.com/core-concepts/agents_teams.md",
+    "description": "Connect your Gumloop agents to Microsoft Teams channels so your team can chat with AI-powered assistants where they already work.",
+    "path": "/core-concepts/agents_teams.md",
+    "id": "gumloop:0012:/core-concepts/agents_teams.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\agents_teams.md",
+    "status": "ok"
+  },
+  {
+    "title": "Agent Email Inbox",
+    "url": "https://docs.gumloop.com/core-concepts/agents_email.md",
+    "description": "Give your agent a dedicated email address so anyone can interact with it by sending an email.",
+    "path": "/core-concepts/agents_email.md",
+    "id": "gumloop:0013:/core-concepts/agents_email.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\agents_email.md",
+    "status": "ok"
+  },
+  {
+    "title": "Hosted Pages",
+    "url": "https://docs.gumloop.com/core-concepts/hosted_pages.md",
+    "description": "Give your agent a standalone page on gumloopagents.com that anyone can open directly.",
+    "path": "/core-concepts/hosted_pages.md",
+    "id": "gumloop:0014:/core-concepts/hosted_pages.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\hosted_pages.md",
+    "status": "ok"
+  },
+  {
+    "title": "Agent Node",
+    "url": "https://docs.gumloop.com/core-concepts/agent_node.md",
+    "description": "",
+    "path": "/core-concepts/agent_node.md",
+    "id": "gumloop:0015:/core-concepts/agent_node.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\agent_node.md",
+    "status": "ok"
+  },
+  {
+    "title": "Custom Slack App Integration",
+    "url": "https://docs.gumloop.com/core-concepts/custom_slack_app.md",
+    "description": "",
+    "path": "/core-concepts/custom_slack_app.md",
+    "id": "gumloop:0016:/core-concepts/custom_slack_app.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\custom_slack_app.md",
+    "status": "ok"
+  },
+  {
+    "title": "Workflows",
+    "url": "https://docs.gumloop.com/core-concepts/workbooks.md",
+    "description": "",
+    "path": "/core-concepts/workbooks.md",
+    "id": "gumloop:0017:/core-concepts/workbooks.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\workbooks.md",
+    "status": "ok"
+  },
+  {
+    "title": "Run Log",
+    "url": "https://docs.gumloop.com/core-concepts/run_log.md",
+    "description": "",
+    "path": "/core-concepts/run_log.md",
+    "id": "gumloop:0018:/core-concepts/run_log.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\run_log.md",
+    "status": "ok"
+  },
+  {
+    "title": "Subflows",
+    "url": "https://docs.gumloop.com/core-concepts/subflows.md",
+    "description": "",
+    "path": "/core-concepts/subflows.md",
+    "id": "gumloop:0019:/core-concepts/subflows.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\subflows.md",
+    "status": "ok"
+  },
+  {
+    "title": "Loop Mode",
+    "url": "https://docs.gumloop.com/core-concepts/loop_mode.md",
+    "description": "",
+    "path": "/core-concepts/loop_mode.md",
+    "id": "gumloop:0020:/core-concepts/loop_mode.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\loop_mode.md",
+    "status": "ok"
+  },
+  {
+    "title": "Node and Workflow Library",
+    "url": "https://docs.gumloop.com/core-concepts/node_and_flow_library.md",
+    "description": "",
+    "path": "/core-concepts/node_and_flow_library.md",
+    "id": "gumloop:0021:/core-concepts/node_and_flow_library.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\node_and_flow_library.md",
+    "status": "ok"
+  },
+  {
+    "title": "Node Versioning",
+    "url": "https://docs.gumloop.com/core-concepts/node_versions.md",
+    "description": "",
+    "path": "/core-concepts/node_versions.md",
+    "id": "gumloop:0022:/core-concepts/node_versions.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\node_versions.md",
+    "status": "ok"
+  },
+  {
+    "title": "Workflow Checkpoints",
+    "url": "https://docs.gumloop.com/core-concepts/checkpoint_history.md",
+    "description": "",
+    "path": "/core-concepts/checkpoint_history.md",
+    "id": "gumloop:0023:/core-concepts/checkpoint_history.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\checkpoint_history.md",
+    "status": "ok"
+  },
+  {
+    "title": "Tips & Tricks",
+    "url": "https://docs.gumloop.com/core-concepts/tips_and_tricks.md",
+    "description": "Boost your productivity with these workflow building techniques and keyboard shortcuts",
+    "path": "/core-concepts/tips_and_tricks.md",
+    "id": "gumloop:0024:/core-concepts/tips_and_tricks.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\tips_and_tricks.md",
+    "status": "ok"
+  },
+  {
+    "title": "Connectors",
+    "url": "https://docs.gumloop.com/core-concepts/credentials.md",
+    "description": "",
+    "path": "/core-concepts/credentials.md",
+    "id": "gumloop:0025:/core-concepts/credentials.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\credentials.md",
+    "status": "ok"
+  },
+  {
+    "title": "Okta Integration",
+    "url": "https://docs.gumloop.com/core-concepts/okta-integration.md",
+    "description": "",
+    "path": "/core-concepts/okta-integration.md",
+    "id": "gumloop:0026:/core-concepts/okta-integration.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\okta-integration.md",
+    "status": "ok"
+  },
+  {
+    "title": "Agent Triggers",
+    "url": "https://docs.gumloop.com/core-concepts/agent_triggers.md",
+    "description": "Run your agents automatically on a schedule or in response to external events like emails, Slack messages, and more.",
+    "path": "/core-concepts/agent_triggers.md",
+    "id": "gumloop:0027:/core-concepts/agent_triggers.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\agent_triggers.md",
+    "status": "ok"
+  },
+  {
+    "title": "Create Triggers With AI",
+    "url": "https://docs.gumloop.com/core-concepts/ai_trigger_creation.md",
+    "description": "Let AI build custom polling triggers that monitor any combination of apps and fire your agent when conditions are met.",
+    "path": "/core-concepts/ai_trigger_creation.md",
+    "id": "gumloop:0028:/core-concepts/ai_trigger_creation.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\ai_trigger_creation.md",
+    "status": "ok"
+  },
+  {
+    "title": "Workflow Triggers",
+    "url": "https://docs.gumloop.com/core-concepts/workflow_triggers.md",
+    "description": "Automatically start your workflows based on schedules, webhooks, and external events.",
+    "path": "/core-concepts/workflow_triggers.md",
+    "id": "gumloop:0029:/core-concepts/workflow_triggers.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\workflow_triggers.md",
+    "status": "ok"
+  },
+  {
+    "title": "Organization and Teams",
+    "url": "https://docs.gumloop.com/core-concepts/teams.md",
+    "description": "",
+    "path": "/core-concepts/teams.md",
+    "id": "gumloop:0030:/core-concepts/teams.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\teams.md",
+    "status": "ok"
+  },
+  {
+    "title": "User Roles",
+    "url": "https://docs.gumloop.com/core-concepts/organization_user_roles.md",
+    "description": "Composable organization and team roles that determine what each member can do in Gumloop.",
+    "path": "/core-concepts/organization_user_roles.md",
+    "id": "gumloop:0031:/core-concepts/organization_user_roles.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\organization_user_roles.md",
+    "status": "ok"
+  },
+  {
+    "title": "Share Permissions",
+    "url": "https://docs.gumloop.com/core-concepts/share_permissions.md",
+    "description": "",
+    "path": "/core-concepts/share_permissions.md",
+    "id": "gumloop:0032:/core-concepts/share_permissions.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\share_permissions.md",
+    "status": "ok"
+  },
+  {
+    "title": "Organization Skills",
+    "url": "https://docs.gumloop.com/core-concepts/organization_skills.md",
+    "description": "Centrally manage skills for your whole organization, and keep them in sync with a GitHub repository.",
+    "path": "/core-concepts/organization_skills.md",
+    "id": "gumloop:0033:/core-concepts/organization_skills.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\organization_skills.md",
+    "status": "ok"
+  },
+  {
+    "title": "Credits",
+    "url": "https://docs.gumloop.com/core-concepts/credits.md",
+    "description": "How Gumloop bills agent chats and workflow runs",
+    "path": "/core-concepts/credits.md",
+    "id": "gumloop:0034:/core-concepts/credits.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\credits.md",
+    "status": "ok"
+  },
+  {
+    "title": "Rate Limits",
+    "url": "https://docs.gumloop.com/core-concepts/rate_limits.md",
+    "description": "Understand concurrency limits for workflows and agents, how they are calculated, and what happens when you hit them.",
+    "path": "/core-concepts/rate_limits.md",
+    "id": "gumloop:0035:/core-concepts/rate_limits.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\rate_limits.md",
+    "status": "ok"
+  },
+  {
+    "title": "Custom Node Builder",
+    "url": "https://docs.gumloop.com/nodes/custom_node_details.md",
+    "description": "",
+    "path": "/nodes/custom_node_details.md",
+    "id": "gumloop:0036:/nodes/custom_node_details.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\custom_node_details.md",
+    "status": "ok"
+  },
+  {
+    "title": "Alerts",
+    "url": "https://docs.gumloop.com/core-concepts/alerts.md",
+    "description": "",
+    "path": "/core-concepts/alerts.md",
+    "id": "gumloop:0037:/core-concepts/alerts.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\alerts.md",
+    "status": "ok"
+  },
+  {
+    "title": "Working With Files",
+    "url": "https://docs.gumloop.com/core-concepts/files.md",
+    "description": "",
+    "path": "/core-concepts/files.md",
+    "id": "gumloop:0038:/core-concepts/files.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\files.md",
+    "status": "ok"
+  },
+  {
+    "title": "Types",
+    "url": "https://docs.gumloop.com/core-concepts/types.md",
+    "description": "",
+    "path": "/core-concepts/types.md",
+    "id": "gumloop:0039:/core-concepts/types.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\types.md",
+    "status": "ok"
+  },
+  {
+    "title": "AI Models",
+    "url": "https://docs.gumloop.com/core-concepts/ai_models.md",
+    "description": "",
+    "path": "/core-concepts/ai_models.md",
+    "id": "gumloop:0040:/core-concepts/ai_models.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\ai_models.md",
+    "status": "ok"
+  },
+  {
+    "title": "Gumloop Interfaces",
+    "url": "https://docs.gumloop.com/core-concepts/interfaces.md",
+    "description": "",
+    "path": "/core-concepts/interfaces.md",
+    "id": "gumloop:0041:/core-concepts/interfaces.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\interfaces.md",
+    "status": "ok"
+  },
+  {
+    "title": "Community Template Submission Guidelines",
+    "url": "https://docs.gumloop.com/core-concepts/template-submission-guidelines.md",
+    "description": "",
+    "path": "/core-concepts/template-submission-guidelines.md",
+    "id": "gumloop:0042:/core-concepts/template-submission-guidelines.md",
+    "category": "core-concepts",
+    "local_path": "raw\\core-concepts\\template-submission-guidelines.md",
+    "status": "ok"
+  },
+  {
+    "title": "SSO, SAML & SCIM",
+    "url": "https://docs.gumloop.com/enterprise-features/sso_saml_scim.md",
+    "description": "",
+    "path": "/enterprise-features/sso_saml_scim.md",
+    "id": "gumloop:0043:/enterprise-features/sso_saml_scim.md",
+    "category": "enterprise-features",
+    "local_path": "raw\\enterprise-features\\sso_saml_scim.md",
+    "status": "ok"
+  },
+  {
+    "title": "Custom Roles",
+    "url": "https://docs.gumloop.com/enterprise-features/user_groups.md",
+    "description": "",
+    "path": "/enterprise-features/user_groups.md",
+    "id": "gumloop:0044:/enterprise-features/user_groups.md",
+    "category": "enterprise-features",
+    "local_path": "raw\\enterprise-features\\user_groups.md",
+    "status": "ok"
+  },
+  {
+    "title": "Organization Service Accounts for Slack Agents",
+    "url": "https://docs.gumloop.com/enterprise-features/slack_agent_access.md",
+    "description": "",
+    "path": "/enterprise-features/slack_agent_access.md",
+    "id": "gumloop:0045:/enterprise-features/slack_agent_access.md",
+    "category": "enterprise-features",
+    "local_path": "raw\\enterprise-features\\slack_agent_access.md",
+    "status": "ok"
+  },
+  {
+    "title": "Usage Data Export",
+    "url": "https://docs.gumloop.com/enterprise-features/organization_data_export.md",
+    "description": "",
+    "path": "/enterprise-features/organization_data_export.md",
+    "id": "gumloop:0046:/enterprise-features/organization_data_export.md",
+    "category": "enterprise-features",
+    "local_path": "raw\\enterprise-features\\organization_data_export.md",
+    "status": "ok"
+  },
+  {
+    "title": "Audit Logging",
+    "url": "https://docs.gumloop.com/enterprise-features/audit_logging.md",
+    "description": "",
+    "path": "/enterprise-features/audit_logging.md",
+    "id": "gumloop:0047:/enterprise-features/audit_logging.md",
+    "category": "enterprise-features",
+    "local_path": "raw\\enterprise-features\\audit_logging.md",
+    "status": "ok"
+  },
+  {
+    "title": "AI Model Governance & Configuration",
+    "url": "https://docs.gumloop.com/enterprise-features/ai_model_control.md",
+    "description": "",
+    "path": "/enterprise-features/ai_model_control.md",
+    "id": "gumloop:0048:/enterprise-features/ai_model_control.md",
+    "category": "enterprise-features",
+    "local_path": "raw\\enterprise-features\\ai_model_control.md",
+    "status": "ok"
+  },
+  {
+    "title": "Organization Insights",
+    "url": "https://docs.gumloop.com/enterprise-features/organization_insights.md",
+    "description": "Dashboards and an analytics agent for adoption, credit spend, and outcomes across your organization",
+    "path": "/enterprise-features/organization_insights.md",
+    "id": "gumloop:0049:/enterprise-features/organization_insights.md",
+    "category": "enterprise-features",
+    "local_path": "raw\\enterprise-features\\organization_insights.md",
+    "status": "ok"
+  },
+  {
+    "title": "App Activity",
+    "url": "https://docs.gumloop.com/enterprise-features/app_activity.md",
+    "description": "Monitor tool calls, MCP interactions, and integration usage across your organization with real-time activity logs.",
+    "path": "/enterprise-features/app_activity.md",
+    "id": "gumloop:0050:/enterprise-features/app_activity.md",
+    "category": "enterprise-features",
+    "local_path": "raw\\enterprise-features\\app_activity.md",
+    "status": "ok"
+  },
+  {
+    "title": "Hosted MCPs",
+    "url": "https://docs.gumloop.com/enterprise-features/hosted_mcps.md",
+    "description": "Deploy, manage, and monitor custom MCP servers directly from GitHub repositories with full lifecycle management.",
+    "path": "/enterprise-features/hosted_mcps.md",
+    "id": "gumloop:0051:/enterprise-features/hosted_mcps.md",
+    "category": "enterprise-features",
+    "local_path": "raw\\enterprise-features\\hosted_mcps.md",
+    "status": "ok"
+  },
+  {
+    "title": "Proxied MCPs",
+    "url": "https://docs.gumloop.com/enterprise-features/proxied_mcps.md",
+    "description": "Connect external MCP servers through a managed proxy for centralized monitoring, access control, and security.",
+    "path": "/enterprise-features/proxied_mcps.md",
+    "id": "gumloop:0052:/enterprise-features/proxied_mcps.md",
+    "category": "enterprise-features",
+    "local_path": "raw\\enterprise-features\\proxied_mcps.md",
+    "status": "ok"
+  },
+  {
+    "title": "Managed Tunnels",
+    "url": "https://docs.gumloop.com/enterprise-features/managed_tunnels.md",
+    "description": "Securely connect MCP servers running inside your private network to Gumloop, without opening any inbound ports.",
+    "path": "/enterprise-features/managed_tunnels.md",
+    "id": "gumloop:0053:/enterprise-features/managed_tunnels.md",
+    "category": "enterprise-features",
+    "local_path": "raw\\enterprise-features\\managed_tunnels.md",
+    "status": "ok"
+  },
+  {
+    "title": "Static Egress IPs",
+    "url": "https://docs.gumloop.com/enterprise-features/static_egress_ips.md",
+    "description": "Fixed outbound IP addresses for firewall and allowlist configuration.",
+    "path": "/enterprise-features/static_egress_ips.md",
+    "id": "gumloop:0054:/enterprise-features/static_egress_ips.md",
+    "category": "enterprise-features",
+    "local_path": "raw\\enterprise-features\\static_egress_ips.md",
+    "status": "ok"
+  },
+  {
+    "title": "App Policies",
+    "url": "https://docs.gumloop.com/enterprise-features/app-policies/overview.md",
+    "description": "Govern how your organization uses third-party apps inside Gumloop: block risky tool calls, require corporate email domains, and claim provider workspaces.",
+    "path": "/enterprise-features/app-policies/overview.md",
+    "id": "gumloop:0055:/enterprise-features/app-policies/overview.md",
+    "category": "enterprise-features",
+    "local_path": "raw\\enterprise-features\\app-policies\\overview.md",
+    "status": "ok"
+  },
+  {
+    "title": "App Rules",
+    "url": "https://docs.gumloop.com/enterprise-features/app-policies/app-rules.md",
+    "description": "Block or tag specific tool calls for third-party apps at the organization or agent level.",
+    "path": "/enterprise-features/app-policies/app-rules.md",
+    "id": "gumloop:0056:/enterprise-features/app-policies/app-rules.md",
+    "category": "enterprise-features",
+    "local_path": "raw\\enterprise-features\\app-policies\\app-rules.md",
+    "status": "ok"
+  },
+  {
+    "title": "Domain Restrictions",
+    "url": "https://docs.gumloop.com/enterprise-features/app-policies/domain-restrictions.md",
+    "description": "Require OAuth connections to a given app to use an email address from a domain your organization controls.",
+    "path": "/enterprise-features/app-policies/domain-restrictions.md",
+    "id": "gumloop:0057:/enterprise-features/app-policies/domain-restrictions.md",
+    "category": "enterprise-features",
+    "local_path": "raw\\enterprise-features\\app-policies\\domain-restrictions.md",
+    "status": "ok"
+  },
+  {
+    "title": "App Claims",
+    "url": "https://docs.gumloop.com/enterprise-features/app-policies/app-claims.md",
+    "description": "Claim a provider workspace (a specific Slack workspace, Salesforce org, Notion workspace, etc.) for your organization so only your members can connect to it from Gumloop.",
+    "path": "/enterprise-features/app-policies/app-claims.md",
+    "id": "gumloop:0058:/enterprise-features/app-policies/app-claims.md",
+    "category": "enterprise-features",
+    "local_path": "raw\\enterprise-features\\app-policies\\app-claims.md",
+    "status": "ok"
+  },
+  {
+    "title": "Input",
+    "url": "https://docs.gumloop.com/nodes/flow_basics/input_operator.md",
+    "description": "",
+    "path": "/nodes/flow_basics/input_operator.md",
+    "id": "gumloop:0059:/nodes/flow_basics/input_operator.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\flow_basics\\input_operator.md",
+    "status": "ok"
+  },
+  {
+    "title": "Output",
+    "url": "https://docs.gumloop.com/nodes/flow_basics/output_operator.md",
+    "description": "",
+    "path": "/nodes/flow_basics/output_operator.md",
+    "id": "gumloop:0060:/nodes/flow_basics/output_operator.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\flow_basics\\output_operator.md",
+    "status": "ok"
+  },
+  {
+    "title": "Current Automation Info",
+    "url": "https://docs.gumloop.com/nodes/flow_basics/current_automation_info.md",
+    "description": "",
+    "path": "/nodes/flow_basics/current_automation_info.md",
+    "id": "gumloop:0061:/nodes/flow_basics/current_automation_info.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\flow_basics\\current_automation_info.md",
+    "status": "ok"
+  },
+  {
+    "title": "Current Datetime",
+    "url": "https://docs.gumloop.com/nodes/flow_basics/current_datetime.md",
+    "description": "",
+    "path": "/nodes/flow_basics/current_datetime.md",
+    "id": "gumloop:0062:/nodes/flow_basics/current_datetime.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\flow_basics\\current_datetime.md",
+    "status": "ok"
+  },
+  {
+    "title": "Filter",
+    "url": "https://docs.gumloop.com/nodes/flow_basics/filter.md",
+    "description": "",
+    "path": "/nodes/flow_basics/filter.md",
+    "id": "gumloop:0063:/nodes/flow_basics/filter.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\flow_basics\\filter.md",
+    "status": "ok"
+  },
+  {
+    "title": "Router",
+    "url": "https://docs.gumloop.com/nodes/flow_basics/router.md",
+    "description": "",
+    "path": "/nodes/flow_basics/router.md",
+    "id": "gumloop:0064:/nodes/flow_basics/router.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\flow_basics\\router.md",
+    "status": "ok"
+  },
+  {
+    "title": "Error Shield",
+    "url": "https://docs.gumloop.com/nodes/flow_basics/error_shield.md",
+    "description": "",
+    "path": "/nodes/flow_basics/error_shield.md",
+    "id": "gumloop:0065:/nodes/flow_basics/error_shield.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\flow_basics\\error_shield.md",
+    "status": "ok"
+  },
+  {
+    "title": "Join Paths",
+    "url": "https://docs.gumloop.com/nodes/flow_basics/join_paths.md",
+    "description": "",
+    "path": "/nodes/flow_basics/join_paths.md",
+    "id": "gumloop:0066:/nodes/flow_basics/join_paths.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\flow_basics\\join_paths.md",
+    "status": "ok"
+  },
+  {
+    "title": "Choosing the Right AI Node",
+    "url": "https://docs.gumloop.com/nodes/using_ai/choosing_ai_node.md",
+    "description": "Select the optimal AI node for your workflow needs",
+    "path": "/nodes/using_ai/choosing_ai_node.md",
+    "id": "gumloop:0067:/nodes/using_ai/choosing_ai_node.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\using_ai\\choosing_ai_node.md",
+    "status": "ok"
+  },
+  {
+    "title": "Ask AI",
+    "url": "https://docs.gumloop.com/nodes/using_ai/ask_ai.md",
+    "description": "",
+    "path": "/nodes/using_ai/ask_ai.md",
+    "id": "gumloop:0068:/nodes/using_ai/ask_ai.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\using_ai\\ask_ai.md",
+    "status": "ok"
+  },
+  {
+    "title": "Extract Data",
+    "url": "https://docs.gumloop.com/nodes/using_ai/extract_data.md",
+    "description": "",
+    "path": "/nodes/using_ai/extract_data.md",
+    "id": "gumloop:0069:/nodes/using_ai/extract_data.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\using_ai\\extract_data.md",
+    "status": "ok"
+  },
+  {
+    "title": "Categorizer",
+    "url": "https://docs.gumloop.com/nodes/using_ai/categorizer.md",
+    "description": "",
+    "path": "/nodes/using_ai/categorizer.md",
+    "id": "gumloop:0070:/nodes/using_ai/categorizer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\using_ai\\categorizer.md",
+    "status": "ok"
+  },
+  {
+    "title": "AI Web Research",
+    "url": "https://docs.gumloop.com/nodes/using_ai/ai_web_research.md",
+    "description": "",
+    "path": "/nodes/using_ai/ai_web_research.md",
+    "id": "gumloop:0071:/nodes/using_ai/ai_web_research.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\using_ai\\ai_web_research.md",
+    "status": "ok"
+  },
+  {
+    "title": "Scorer",
+    "url": "https://docs.gumloop.com/nodes/using_ai/scorer.md",
+    "description": "",
+    "path": "/nodes/using_ai/scorer.md",
+    "id": "gumloop:0072:/nodes/using_ai/scorer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\using_ai\\scorer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Generate Report",
+    "url": "https://docs.gumloop.com/nodes/using_ai/generate_report.md",
+    "description": "",
+    "path": "/nodes/using_ai/generate_report.md",
+    "id": "gumloop:0073:/nodes/using_ai/generate_report.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\using_ai\\generate_report.md",
+    "status": "ok"
+  },
+  {
+    "title": "AI List Sorter",
+    "url": "https://docs.gumloop.com/nodes/using_ai/ai_list_sorter.md",
+    "description": "",
+    "path": "/nodes/using_ai/ai_list_sorter.md",
+    "id": "gumloop:0074:/nodes/using_ai/ai_list_sorter.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\using_ai\\ai_list_sorter.md",
+    "status": "ok"
+  },
+  {
+    "title": "OpenAI Assistant",
+    "url": "https://docs.gumloop.com/nodes/using_ai/openai_assistant.md",
+    "description": "",
+    "path": "/nodes/using_ai/openai_assistant.md",
+    "id": "gumloop:0075:/nodes/using_ai/openai_assistant.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\using_ai\\openai_assistant.md",
+    "status": "ok"
+  },
+  {
+    "title": "Analyze Image",
+    "url": "https://docs.gumloop.com/nodes/using_ai/analyze_image.md",
+    "description": "",
+    "path": "/nodes/using_ai/analyze_image.md",
+    "id": "gumloop:0076:/nodes/using_ai/analyze_image.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\using_ai\\analyze_image.md",
+    "status": "ok"
+  },
+  {
+    "title": "Analyze Video",
+    "url": "https://docs.gumloop.com/nodes/using_ai/analyze_video.md",
+    "description": "",
+    "path": "/nodes/using_ai/analyze_video.md",
+    "id": "gumloop:0077:/nodes/using_ai/analyze_video.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\using_ai\\analyze_video.md",
+    "status": "ok"
+  },
+  {
+    "title": "Generate Image",
+    "url": "https://docs.gumloop.com/nodes/using_ai/generate_image.md",
+    "description": "",
+    "path": "/nodes/using_ai/generate_image.md",
+    "id": "gumloop:0078:/nodes/using_ai/generate_image.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\using_ai\\generate_image.md",
+    "status": "ok"
+  },
+  {
+    "title": "AI Content Detector",
+    "url": "https://docs.gumloop.com/nodes/using_ai/ai_content_detector.md",
+    "description": "",
+    "path": "/nodes/using_ai/ai_content_detector.md",
+    "id": "gumloop:0079:/nodes/using_ai/ai_content_detector.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\using_ai\\ai_content_detector.md",
+    "status": "ok"
+  },
+  {
+    "title": "AI Filter",
+    "url": "https://docs.gumloop.com/nodes/using_ai/ai_filter.md",
+    "description": "",
+    "path": "/nodes/using_ai/ai_filter.md",
+    "id": "gumloop:0080:/nodes/using_ai/ai_filter.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\using_ai\\ai_filter.md",
+    "status": "ok"
+  },
+  {
+    "title": "Define AI Function",
+    "url": "https://docs.gumloop.com/nodes/using_ai/define_ai_function.md",
+    "description": "",
+    "path": "/nodes/using_ai/define_ai_function.md",
+    "id": "gumloop:0081:/nodes/using_ai/define_ai_function.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\using_ai\\define_ai_function.md",
+    "status": "ok"
+  },
+  {
+    "title": "Custom MCP Servers",
+    "url": "https://docs.gumloop.com/nodes/mcp/custom_mcp_servers.md",
+    "description": "Connect your own MCP servers to Gumloop for extended AI capabilities.",
+    "path": "/nodes/mcp/custom_mcp_servers.md",
+    "id": "gumloop:0082:/nodes/mcp/custom_mcp_servers.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\custom_mcp_servers.md",
+    "status": "ok"
+  },
+  {
+    "title": "Affinity",
+    "url": "https://docs.gumloop.com/nodes/mcp/affinity.md",
+    "description": "Manage your CRM relationships, deals, and notes with AI-powered automation.",
+    "path": "/nodes/mcp/affinity.md",
+    "id": "gumloop:0083:/nodes/mcp/affinity.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\affinity.md",
+    "status": "ok"
+  },
+  {
+    "title": "Ahrefs",
+    "url": "https://docs.gumloop.com/nodes/mcp/ahrefs.md",
+    "description": "Analyze backlinks, keywords, and SEO performance with AI-powered search marketing automation.",
+    "path": "/nodes/mcp/ahrefs.md",
+    "id": "gumloop:0084:/nodes/mcp/ahrefs.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\ahrefs.md",
+    "status": "ok"
+  },
+  {
+    "title": "Airtable",
+    "url": "https://docs.gumloop.com/nodes/mcp/airtable.md",
+    "description": "Search, create, and manage Airtable records with AI-powered automation.",
+    "path": "/nodes/mcp/airtable.md",
+    "id": "gumloop:0085:/nodes/mcp/airtable.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\airtable.md",
+    "status": "ok"
+  },
+  {
+    "title": "Apify",
+    "url": "https://docs.gumloop.com/nodes/mcp/apify.md",
+    "description": "Discover and run web scraping Actors with AI-powered automation.",
+    "path": "/nodes/mcp/apify.md",
+    "id": "gumloop:0086:/nodes/mcp/apify.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\apify.md",
+    "status": "ok"
+  },
+  {
+    "title": "Apollo",
+    "url": "https://docs.gumloop.com/nodes/mcp/apollo.md",
+    "description": "Find, enrich, and track B2B contacts and companies with AI-powered prospecting.",
+    "path": "/nodes/mcp/apollo.md",
+    "id": "gumloop:0087:/nodes/mcp/apollo.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\apollo.md",
+    "status": "ok"
+  },
+  {
+    "title": "AppSheet",
+    "url": "https://docs.gumloop.com/nodes/mcp/appsheet.md",
+    "description": "Manage your AppSheet tables with AI-powered data operations.",
+    "path": "/nodes/mcp/appsheet.md",
+    "id": "gumloop:0088:/nodes/mcp/appsheet.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\appsheet.md",
+    "status": "ok"
+  },
+  {
+    "title": "Asana",
+    "url": "https://docs.gumloop.com/nodes/mcp/asana.md",
+    "description": "Manage projects, tasks, and teams with AI-powered work management.",
+    "path": "/nodes/mcp/asana.md",
+    "id": "gumloop:0089:/nodes/mcp/asana.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\asana.md",
+    "status": "ok"
+  },
+  {
+    "title": "Ashby",
+    "url": "https://docs.gumloop.com/nodes/mcp/ashby.md",
+    "description": "Streamline recruiting with AI-powered applicant tracking and scheduling.",
+    "path": "/nodes/mcp/ashby.md",
+    "id": "gumloop:0090:/nodes/mcp/ashby.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\ashby.md",
+    "status": "ok"
+  },
+  {
+    "title": "Attio",
+    "url": "https://docs.gumloop.com/nodes/mcp/attio.md",
+    "description": "Manage contacts, companies, and relationships with AI-powered CRM automation.",
+    "path": "/nodes/mcp/attio.md",
+    "id": "gumloop:0091:/nodes/mcp/attio.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\attio.md",
+    "status": "ok"
+  },
+  {
+    "title": "Azure",
+    "url": "https://docs.gumloop.com/nodes/mcp/azure.md",
+    "description": "Manage Azure subscriptions, resources, and cloud infrastructure with AI-powered automation.",
+    "path": "/nodes/mcp/azure.md",
+    "id": "gumloop:0092:/nodes/mcp/azure.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\azure.md",
+    "status": "ok"
+  },
+  {
+    "title": "Basedash",
+    "url": "https://docs.gumloop.com/nodes/mcp/basedash.md",
+    "description": "Create and manage Basedash charts, dashboards, and database insights.",
+    "path": "/nodes/mcp/basedash.md",
+    "id": "gumloop:0093:/nodes/mcp/basedash.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\basedash.md",
+    "status": "ok"
+  },
+  {
+    "title": "Beehiiv",
+    "url": "https://docs.gumloop.com/nodes/mcp/beehiiv.md",
+    "description": "Manage your newsletter with AI-powered publishing and subscriber automation.",
+    "path": "/nodes/mcp/beehiiv.md",
+    "id": "gumloop:0094:/nodes/mcp/beehiiv.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\beehiiv.md",
+    "status": "ok"
+  },
+  {
+    "title": "Bing Webmaster",
+    "url": "https://docs.gumloop.com/nodes/mcp/bing_webmaster.md",
+    "description": "Manage your Bing Webmaster Tools with AI-powered SEO automation.",
+    "path": "/nodes/mcp/bing_webmaster.md",
+    "id": "gumloop:0095:/nodes/mcp/bing_webmaster.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\bing_webmaster.md",
+    "status": "ok"
+  },
+  {
+    "title": "Box",
+    "url": "https://docs.gumloop.com/nodes/mcp/box.md",
+    "description": "Manage your cloud storage with AI-powered file and folder automation.",
+    "path": "/nodes/mcp/box.md",
+    "id": "gumloop:0096:/nodes/mcp/box.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\box.md",
+    "status": "ok"
+  },
+  {
+    "title": "Brandfetch",
+    "url": "https://docs.gumloop.com/nodes/mcp/brandfetch.md",
+    "description": "Look up brand assets, logos, colors, fonts, and company details for any company.",
+    "path": "/nodes/mcp/brandfetch.md",
+    "id": "gumloop:0097:/nodes/mcp/brandfetch.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\brandfetch.md",
+    "status": "ok"
+  },
+  {
+    "title": "Cal.com",
+    "url": "https://docs.gumloop.com/nodes/mcp/cal.md",
+    "description": "Manage scheduling and bookings with AI-powered calendar automation.",
+    "path": "/nodes/mcp/cal.md",
+    "id": "gumloop:0098:/nodes/mcp/cal.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\cal.md",
+    "status": "ok"
+  },
+  {
+    "title": "Canva",
+    "url": "https://docs.gumloop.com/nodes/mcp/canva.md",
+    "description": "Design and manage Canva assets, designs, and brand content.",
+    "path": "/nodes/mcp/canva.md",
+    "id": "gumloop:0099:/nodes/mcp/canva.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\canva.md",
+    "status": "ok"
+  },
+  {
+    "title": "Carta",
+    "url": "https://docs.gumloop.com/nodes/mcp/carta.md",
+    "description": "Manage your Carta cap table, equity, and stakeholders.",
+    "path": "/nodes/mcp/carta.md",
+    "id": "gumloop:0100:/nodes/mcp/carta.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\carta.md",
+    "status": "ok"
+  },
+  {
+    "title": "Chorus",
+    "url": "https://docs.gumloop.com/nodes/mcp/chorus.md",
+    "description": "Access conversation intelligence and meeting insights with AI-powered automation.",
+    "path": "/nodes/mcp/chorus.md",
+    "id": "gumloop:0101:/nodes/mcp/chorus.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\chorus.md",
+    "status": "ok"
+  },
+  {
+    "title": "Circleback",
+    "url": "https://docs.gumloop.com/nodes/mcp/circleback.md",
+    "description": "Search and access your Circleback meeting notes and action items.",
+    "path": "/nodes/mcp/circleback.md",
+    "id": "gumloop:0102:/nodes/mcp/circleback.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\circleback.md",
+    "status": "ok"
+  },
+  {
+    "title": "ClickHouse",
+    "url": "https://docs.gumloop.com/nodes/mcp/clickhouse.md",
+    "description": "Query ClickHouse Cloud and manage services, ClickPipes, and ClickStack observability with natural language.",
+    "path": "/nodes/mcp/clickhouse.md",
+    "id": "gumloop:0103:/nodes/mcp/clickhouse.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\clickhouse.md",
+    "status": "ok"
+  },
+  {
+    "title": "ClickUp",
+    "url": "https://docs.gumloop.com/nodes/mcp/clickup.md",
+    "description": "Manage tasks, projects, and team collaboration with AI-powered automation.",
+    "path": "/nodes/mcp/clickup.md",
+    "id": "gumloop:0104:/nodes/mcp/clickup.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\clickup.md",
+    "status": "ok"
+  },
+  {
+    "title": "Cloudflare",
+    "url": "https://docs.gumloop.com/nodes/mcp/cloudflare.md",
+    "description": "Manage your Cloudflare account, DNS, and Workers.",
+    "path": "/nodes/mcp/cloudflare.md",
+    "id": "gumloop:0105:/nodes/mcp/cloudflare.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\cloudflare.md",
+    "status": "ok"
+  },
+  {
+    "title": "Confluence",
+    "url": "https://docs.gumloop.com/nodes/mcp/confluence.md",
+    "description": "Manage documentation and knowledge bases with AI-powered content automation.",
+    "path": "/nodes/mcp/confluence.md",
+    "id": "gumloop:0106:/nodes/mcp/confluence.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\confluence.md",
+    "status": "ok"
+  },
+  {
+    "title": "Cursor",
+    "url": "https://docs.gumloop.com/nodes/mcp/cursor.md",
+    "description": "Manage Cursor cloud agents to launch, monitor, and control AI coding agents on your repositories.",
+    "path": "/nodes/mcp/cursor.md",
+    "id": "gumloop:0107:/nodes/mcp/cursor.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\cursor.md",
+    "status": "ok"
+  },
+  {
+    "title": "Databricks",
+    "url": "https://docs.gumloop.com/nodes/mcp/databricks.md",
+    "description": "Manage data engineering and ML operations with AI-powered workspace automation.",
+    "path": "/nodes/mcp/databricks.md",
+    "id": "gumloop:0108:/nodes/mcp/databricks.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\databricks.md",
+    "status": "ok"
+  },
+  {
+    "title": "DataForSEO",
+    "url": "https://docs.gumloop.com/nodes/mcp/dataforseo.md",
+    "description": "Run keyword research, competitor analysis, backlink audits, and AI mention tracking with AI-powered SEO automation.",
+    "path": "/nodes/mcp/dataforseo.md",
+    "id": "gumloop:0109:/nodes/mcp/dataforseo.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\dataforseo.md",
+    "status": "ok"
+  },
+  {
+    "title": "Datadog",
+    "url": "https://docs.gumloop.com/nodes/mcp/datadog.md",
+    "description": "Monitor your infrastructure with AI-powered observability and incident management.",
+    "path": "/nodes/mcp/datadog.md",
+    "id": "gumloop:0110:/nodes/mcp/datadog.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\datadog.md",
+    "status": "ok"
+  },
+  {
+    "title": "Devin",
+    "url": "https://docs.gumloop.com/nodes/mcp/devin.md",
+    "description": "Manage AI coding sessions and engineering automation with natural language.",
+    "path": "/nodes/mcp/devin.md",
+    "id": "gumloop:0111:/nodes/mcp/devin.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\devin.md",
+    "status": "ok"
+  },
+  {
+    "title": "Dropbox",
+    "url": "https://docs.gumloop.com/nodes/mcp/dropbox.md",
+    "description": "Manage files, folders, sharing, and file requests with AI-powered cloud storage automation.",
+    "path": "/nodes/mcp/dropbox.md",
+    "id": "gumloop:0112:/nodes/mcp/dropbox.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\dropbox.md",
+    "status": "ok"
+  },
+  {
+    "title": "Excel",
+    "url": "https://docs.gumloop.com/nodes/mcp/excel.md",
+    "description": "Manage Microsoft 365 Excel workbooks with AI-powered spreadsheet automation.",
+    "path": "/nodes/mcp/excel.md",
+    "id": "gumloop:0113:/nodes/mcp/excel.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\excel.md",
+    "status": "ok"
+  },
+  {
+    "title": "Exa",
+    "url": "https://docs.gumloop.com/nodes/mcp/exa.md",
+    "description": "Search the web intelligently with AI-powered research and content extraction.",
+    "path": "/nodes/mcp/exa.md",
+    "id": "gumloop:0114:/nodes/mcp/exa.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\exa.md",
+    "status": "ok"
+  },
+  {
+    "title": "Expensify",
+    "url": "https://docs.gumloop.com/nodes/mcp/expensify.md",
+    "description": "Automate expense management with AI-powered report exports and bulk expense creation.",
+    "path": "/nodes/mcp/expensify.md",
+    "id": "gumloop:0115:/nodes/mcp/expensify.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\expensify.md",
+    "status": "ok"
+  },
+  {
+    "title": "Extend",
+    "url": "https://docs.gumloop.com/nodes/mcp/extend.md",
+    "description": "Process documents with AI-powered extraction, classification, and parsing.",
+    "path": "/nodes/mcp/extend.md",
+    "id": "gumloop:0116:/nodes/mcp/extend.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\extend.md",
+    "status": "ok"
+  },
+  {
+    "title": "Fal",
+    "url": "https://docs.gumloop.com/nodes/mcp/fal.md",
+    "description": "Run AI models for image, video, audio, speech, and 3D generation using fal.ai.",
+    "path": "/nodes/mcp/fal.md",
+    "id": "gumloop:0117:/nodes/mcp/fal.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\fal.md",
+    "status": "ok"
+  },
+  {
+    "title": "Fathom",
+    "url": "https://docs.gumloop.com/nodes/mcp/fathom.md",
+    "description": "Access meeting recordings, transcripts, and AI-generated summaries with automated notetaking.",
+    "path": "/nodes/mcp/fathom.md",
+    "id": "gumloop:0118:/nodes/mcp/fathom.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\fathom.md",
+    "status": "ok"
+  },
+  {
+    "title": "Fellow",
+    "url": "https://docs.gumloop.com/nodes/mcp/fellow.md",
+    "description": "Access meeting recordings, notes, and transcripts with AI-powered automation.",
+    "path": "/nodes/mcp/fellow.md",
+    "id": "gumloop:0119:/nodes/mcp/fellow.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\fellow.md",
+    "status": "ok"
+  },
+  {
+    "title": "Findymail",
+    "url": "https://docs.gumloop.com/nodes/mcp/findymail.md",
+    "description": "Find and verify professional emails with AI-powered lead discovery and enrichment.",
+    "path": "/nodes/mcp/findymail.md",
+    "id": "gumloop:0120:/nodes/mcp/findymail.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\findymail.md",
+    "status": "ok"
+  },
+  {
+    "title": "Firecrawl",
+    "url": "https://docs.gumloop.com/nodes/mcp/firecrawl.md",
+    "description": "Search, scrape, and map websites using Firecrawl's web data API.",
+    "path": "/nodes/mcp/firecrawl.md",
+    "id": "gumloop:0121:/nodes/mcp/firecrawl.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\firecrawl.md",
+    "status": "ok"
+  },
+  {
+    "title": "Foreplay",
+    "url": "https://docs.gumloop.com/nodes/mcp/foreplay.md",
+    "description": "Research ads and competitor strategies with AI-powered creative intelligence.",
+    "path": "/nodes/mcp/foreplay.md",
+    "id": "gumloop:0122:/nodes/mcp/foreplay.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\foreplay.md",
+    "status": "ok"
+  },
+  {
+    "title": "Freshdesk",
+    "url": "https://docs.gumloop.com/nodes/mcp/freshdesk.md",
+    "description": "Manage support tickets, contacts, and knowledge base with AI-powered helpdesk automation.",
+    "path": "/nodes/mcp/freshdesk.md",
+    "id": "gumloop:0123:/nodes/mcp/freshdesk.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\freshdesk.md",
+    "status": "ok"
+  },
+  {
+    "title": "Freshsales",
+    "url": "https://docs.gumloop.com/nodes/mcp/freshsales.md",
+    "description": "Manage your CRM with AI-powered sales automation for contacts, accounts, deals, and more.",
+    "path": "/nodes/mcp/freshsales.md",
+    "id": "gumloop:0124:/nodes/mcp/freshsales.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\freshsales.md",
+    "status": "ok"
+  },
+  {
+    "title": "Gamma",
+    "url": "https://docs.gumloop.com/nodes/mcp/gamma.md",
+    "description": "Create presentations, documents, and carousels with AI-powered content generation.",
+    "path": "/nodes/mcp/gamma.md",
+    "id": "gumloop:0125:/nodes/mcp/gamma.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\gamma.md",
+    "status": "ok"
+  },
+  {
+    "title": "GitHub",
+    "url": "https://docs.gumloop.com/nodes/mcp/github.md",
+    "description": "Automate repositories, issues, PRs, and projects with AI-powered development workflows.",
+    "path": "/nodes/mcp/github.md",
+    "id": "gumloop:0126:/nodes/mcp/github.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\github.md",
+    "status": "ok"
+  },
+  {
+    "title": "Gmail",
+    "url": "https://docs.gumloop.com/nodes/mcp/gmail.md",
+    "description": "Read, send, and organize emails with AI-powered inbox automation.",
+    "path": "/nodes/mcp/gmail.md",
+    "id": "gumloop:0127:/nodes/mcp/gmail.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\gmail.md",
+    "status": "ok"
+  },
+  {
+    "title": "Gong",
+    "url": "https://docs.gumloop.com/nodes/mcp/gong.md",
+    "description": "Access sales call recordings, transcripts, and analytics with AI-powered automation.",
+    "path": "/nodes/mcp/gong.md",
+    "id": "gumloop:0128:/nodes/mcp/gong.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\gong.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Ads",
+    "url": "https://docs.gumloop.com/nodes/mcp/google_ads.md",
+    "description": "Manage campaigns, keywords, and performance with AI-powered advertising automation.",
+    "path": "/nodes/mcp/google_ads.md",
+    "id": "gumloop:0129:/nodes/mcp/google_ads.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\google_ads.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Analytics",
+    "url": "https://docs.gumloop.com/nodes/mcp/google_analytics.md",
+    "description": "Run reports, manage GA4 properties, and send server-side events with AI-powered analytics automation.",
+    "path": "/nodes/mcp/google_analytics.md",
+    "id": "gumloop:0130:/nodes/mcp/google_analytics.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\google_analytics.md",
+    "status": "ok"
+  },
+  {
+    "title": "BigQuery",
+    "url": "https://docs.gumloop.com/nodes/mcp/google_bigquery.md",
+    "description": "Query and explore your data warehouse with AI-powered SQL automation.",
+    "path": "/nodes/mcp/google_bigquery.md",
+    "id": "gumloop:0131:/nodes/mcp/google_bigquery.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\google_bigquery.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Calendar",
+    "url": "https://docs.gumloop.com/nodes/mcp/google_calendar.md",
+    "description": "Manage events and scheduling with AI-powered calendar automation.",
+    "path": "/nodes/mcp/google_calendar.md",
+    "id": "gumloop:0132:/nodes/mcp/google_calendar.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\google_calendar.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Cloud Storage",
+    "url": "https://docs.gumloop.com/nodes/mcp/google_cloud_storage.md",
+    "description": "Manage buckets, files, and storage operations with AI-powered cloud storage automation.",
+    "path": "/nodes/mcp/google_cloud_storage.md",
+    "id": "gumloop:0133:/nodes/mcp/google_cloud_storage.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\google_cloud_storage.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Docs",
+    "url": "https://docs.gumloop.com/nodes/mcp/google_docs.md",
+    "description": "Create, read, comment on, and update Google Docs with AI-powered document automation.",
+    "path": "/nodes/mcp/google_docs.md",
+    "id": "gumloop:0134:/nodes/mcp/google_docs.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\google_docs.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Drive",
+    "url": "https://docs.gumloop.com/nodes/mcp/google_drive.md",
+    "description": "Search, organize, and share files with AI-powered cloud storage automation.",
+    "path": "/nodes/mcp/google_drive.md",
+    "id": "gumloop:0135:/nodes/mcp/google_drive.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\google_drive.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google DV360",
+    "url": "https://docs.gumloop.com/nodes/mcp/google_dv360.md",
+    "description": "Manage campaigns, line items, and targeting with AI-powered programmatic advertising automation.",
+    "path": "/nodes/mcp/google_dv360.md",
+    "id": "gumloop:0136:/nodes/mcp/google_dv360.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\google_dv360.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Maps",
+    "url": "https://docs.gumloop.com/nodes/mcp/google_maps.md",
+    "description": "Find and enrich location data with AI-powered place discovery.",
+    "path": "/nodes/mcp/google_maps.md",
+    "id": "gumloop:0137:/nodes/mcp/google_maps.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\google_maps.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Meet",
+    "url": "https://docs.gumloop.com/nodes/mcp/google_meet.md",
+    "description": "Manage video meetings and transcripts with AI-powered automation.",
+    "path": "/nodes/mcp/google_meet.md",
+    "id": "gumloop:0138:/nodes/mcp/google_meet.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\google_meet.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google NotebookLM",
+    "url": "https://docs.gumloop.com/nodes/mcp/google_notebooklm.md",
+    "description": "Create notebooks, add sources, and generate AI audio overviews in NotebookLM Enterprise.",
+    "path": "/nodes/mcp/google_notebooklm.md",
+    "id": "gumloop:0139:/nodes/mcp/google_notebooklm.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\google_notebooklm.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google PageSpeed",
+    "url": "https://docs.gumloop.com/nodes/mcp/google_pagespeed.md",
+    "description": "Analyze website performance, accessibility, SEO, and Core Web Vitals using Google PageSpeed Insights.",
+    "path": "/nodes/mcp/google_pagespeed.md",
+    "id": "gumloop:0140:/nodes/mcp/google_pagespeed.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\google_pagespeed.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Search Console",
+    "url": "https://docs.gumloop.com/nodes/mcp/google_search_console.md",
+    "description": "Query search performance, inspect URLs, and manage sitemaps with AI-powered SEO automation.",
+    "path": "/nodes/mcp/google_search_console.md",
+    "id": "gumloop:0141:/nodes/mcp/google_search_console.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\google_search_console.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Sheets",
+    "url": "https://docs.gumloop.com/nodes/mcp/google_sheet.md",
+    "description": "Read and write spreadsheet data with AI-powered automation.",
+    "path": "/nodes/mcp/google_sheet.md",
+    "id": "gumloop:0142:/nodes/mcp/google_sheet.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\google_sheet.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Slides",
+    "url": "https://docs.gumloop.com/nodes/mcp/google_slides.md",
+    "description": "Create, read, and manage Google Slides presentations with AI-powered automation.",
+    "path": "/nodes/mcp/google_slides.md",
+    "id": "gumloop:0143:/nodes/mcp/google_slides.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\google_slides.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Tasks",
+    "url": "https://docs.gumloop.com/nodes/mcp/google_tasks.md",
+    "description": "Manage to-dos and task lists with AI-powered automation.",
+    "path": "/nodes/mcp/google_tasks.md",
+    "id": "gumloop:0144:/nodes/mcp/google_tasks.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\google_tasks.md",
+    "status": "ok"
+  },
+  {
+    "title": "Granola",
+    "url": "https://docs.gumloop.com/nodes/mcp/granola.md",
+    "description": "Search and access your Granola meeting notes.",
+    "path": "/nodes/mcp/granola.md",
+    "id": "gumloop:0145:/nodes/mcp/granola.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\granola.md",
+    "status": "ok"
+  },
+  {
+    "title": "Greenhouse",
+    "url": "https://docs.gumloop.com/nodes/mcp/greenhouse.md",
+    "description": "Manage recruiting workflows with AI-powered applicant tracking and candidate management.",
+    "path": "/nodes/mcp/greenhouse.md",
+    "id": "gumloop:0146:/nodes/mcp/greenhouse.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\greenhouse.md",
+    "status": "ok"
+  },
+  {
+    "title": "Gumloop",
+    "url": "https://docs.gumloop.com/nodes/mcp/gumloop.md",
+    "description": "Manage workflows and agents programmatically with AI-powered automation control.",
+    "path": "/nodes/mcp/gumloop.md",
+    "id": "gumloop:0147:/nodes/mcp/gumloop.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\gumloop.md",
+    "status": "ok"
+  },
+  {
+    "title": "Hex",
+    "url": "https://docs.gumloop.com/nodes/mcp/hex.md",
+    "description": "Manage data projects and analytics workflows with AI-powered Hex automation.",
+    "path": "/nodes/mcp/hex.md",
+    "id": "gumloop:0148:/nodes/mcp/hex.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\hex.md",
+    "status": "ok"
+  },
+  {
+    "title": "HubSpot",
+    "url": "https://docs.gumloop.com/nodes/mcp/hubspot.md",
+    "description": "Manage your CRM with AI-powered contact, deal, and ticket automation.",
+    "path": "/nodes/mcp/hubspot.md",
+    "id": "gumloop:0149:/nodes/mcp/hubspot.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\hubspot.md",
+    "status": "ok"
+  },
+  {
+    "title": "Incident.io",
+    "url": "https://docs.gumloop.com/nodes/mcp/incident_io.md",
+    "description": "Streamline incident response with AI-powered incident and alert management.",
+    "path": "/nodes/mcp/incident_io.md",
+    "id": "gumloop:0150:/nodes/mcp/incident_io.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\incident_io.md",
+    "status": "ok"
+  },
+  {
+    "title": "Instagram",
+    "url": "https://docs.gumloop.com/nodes/mcp/instagram.md",
+    "description": "Scrape public Instagram data with AI-powered social media automation.",
+    "path": "/nodes/mcp/instagram.md",
+    "id": "gumloop:0151:/nodes/mcp/instagram.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\instagram.md",
+    "status": "ok"
+  },
+  {
+    "title": "Intercom",
+    "url": "https://docs.gumloop.com/nodes/mcp/intercom.md",
+    "description": "Manage customer conversations and support with AI-powered automation.",
+    "path": "/nodes/mcp/intercom.md",
+    "id": "gumloop:0152:/nodes/mcp/intercom.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\intercom.md",
+    "status": "ok"
+  },
+  {
+    "title": "Ironclad",
+    "url": "https://docs.gumloop.com/nodes/mcp/ironclad.md",
+    "description": "Manage contracts and workflows with AI-powered CLM automation.",
+    "path": "/nodes/mcp/ironclad.md",
+    "id": "gumloop:0153:/nodes/mcp/ironclad.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\ironclad.md",
+    "status": "ok"
+  },
+  {
+    "title": "Jam",
+    "url": "https://docs.gumloop.com/nodes/mcp/jam.md",
+    "description": "Access your Jam bug reports and debug logs.",
+    "path": "/nodes/mcp/jam.md",
+    "id": "gumloop:0154:/nodes/mcp/jam.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\jam.md",
+    "status": "ok"
+  },
+  {
+    "title": "Jira",
+    "url": "https://docs.gumloop.com/nodes/mcp/jira.md",
+    "description": "Manage projects and issues with AI-powered development workflow automation.",
+    "path": "/nodes/mcp/jira.md",
+    "id": "gumloop:0155:/nodes/mcp/jira.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\jira.md",
+    "status": "ok"
+  },
+  {
+    "title": "Klaviyo",
+    "url": "https://docs.gumloop.com/nodes/mcp/klaviyo.md",
+    "description": "Manage Klaviyo profiles, campaigns, lists, and marketing data.",
+    "path": "/nodes/mcp/klaviyo.md",
+    "id": "gumloop:0156:/nodes/mcp/klaviyo.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\klaviyo.md",
+    "status": "ok"
+  },
+  {
+    "title": "LaunchDarkly",
+    "url": "https://docs.gumloop.com/nodes/mcp/launchdarkly.md",
+    "description": "Manage feature flags, segments, and environments with AI-powered release automation.",
+    "path": "/nodes/mcp/launchdarkly.md",
+    "id": "gumloop:0157:/nodes/mcp/launchdarkly.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\launchdarkly.md",
+    "status": "ok"
+  },
+  {
+    "title": "Linear",
+    "url": "https://docs.gumloop.com/nodes/mcp/linear.md",
+    "description": "Manage issues and projects with AI-powered product development automation.",
+    "path": "/nodes/mcp/linear.md",
+    "id": "gumloop:0158:/nodes/mcp/linear.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\linear.md",
+    "status": "ok"
+  },
+  {
+    "title": "Looker",
+    "url": "https://docs.gumloop.com/nodes/mcp/looker.md",
+    "description": "Access enterprise dashboards and analytics with AI-powered business intelligence automation.",
+    "path": "/nodes/mcp/looker.md",
+    "id": "gumloop:0159:/nodes/mcp/looker.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\looker.md",
+    "status": "ok"
+  },
+  {
+    "title": "Loops",
+    "url": "https://docs.gumloop.com/nodes/mcp/loops.md",
+    "description": "Manage mailing lists, contacts, and email automation with AI-powered workflows.",
+    "path": "/nodes/mcp/loops.md",
+    "id": "gumloop:0160:/nodes/mcp/loops.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\loops.md",
+    "status": "ok"
+  },
+  {
+    "title": "Luma",
+    "url": "https://docs.gumloop.com/nodes/mcp/luma.md",
+    "description": "Manage events, guests, tickets, and calendars on Lu.ma with AI-powered event management.",
+    "path": "/nodes/mcp/luma.md",
+    "id": "gumloop:0161:/nodes/mcp/luma.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\luma.md",
+    "status": "ok"
+  },
+  {
+    "title": "Meta Ads",
+    "url": "https://docs.gumloop.com/nodes/mcp/meta_ads.md",
+    "description": "Manage Meta (Facebook) advertising and Pages with AI-powered automation.",
+    "path": "/nodes/mcp/meta_ads.md",
+    "id": "gumloop:0162:/nodes/mcp/meta_ads.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\meta_ads.md",
+    "status": "ok"
+  },
+  {
+    "title": "Microsoft Teams",
+    "url": "https://docs.gumloop.com/nodes/mcp/microsoft_teams.md",
+    "description": "Manage teams, channels, and meetings with AI-powered collaboration automation.",
+    "path": "/nodes/mcp/microsoft_teams.md",
+    "id": "gumloop:0163:/nodes/mcp/microsoft_teams.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\microsoft_teams.md",
+    "status": "ok"
+  },
+  {
+    "title": "Microsoft Word",
+    "url": "https://docs.gumloop.com/nodes/mcp/microsoft_word.md",
+    "description": "Manage Word documents with AI-powered document automation.",
+    "path": "/nodes/mcp/microsoft_word.md",
+    "id": "gumloop:0164:/nodes/mcp/microsoft_word.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\microsoft_word.md",
+    "status": "ok"
+  },
+  {
+    "title": "Monday",
+    "url": "https://docs.gumloop.com/nodes/mcp/monday.md",
+    "description": "Manage boards, items, and projects with AI-powered work management automation.",
+    "path": "/nodes/mcp/monday.md",
+    "id": "gumloop:0165:/nodes/mcp/monday.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\monday.md",
+    "status": "ok"
+  },
+  {
+    "title": "NetSuite",
+    "url": "https://docs.gumloop.com/nodes/mcp/netsuite.md",
+    "description": "Manage ERP data with AI-powered business automation.",
+    "path": "/nodes/mcp/netsuite.md",
+    "id": "gumloop:0166:/nodes/mcp/netsuite.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\netsuite.md",
+    "status": "ok"
+  },
+  {
+    "title": "Notion",
+    "url": "https://docs.gumloop.com/nodes/mcp/notion.md",
+    "description": "Search and query your workspace with AI-powered knowledge management automation.",
+    "path": "/nodes/mcp/notion.md",
+    "id": "gumloop:0167:/nodes/mcp/notion.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\notion.md",
+    "status": "ok"
+  },
+  {
+    "title": "Outlook",
+    "url": "https://docs.gumloop.com/nodes/mcp/outlook.md",
+    "description": "Manage email with AI-powered inbox automation.",
+    "path": "/nodes/mcp/outlook.md",
+    "id": "gumloop:0168:/nodes/mcp/outlook.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\outlook.md",
+    "status": "ok"
+  },
+  {
+    "title": "Outlook Calendar",
+    "url": "https://docs.gumloop.com/nodes/mcp/outlook_calendar.md",
+    "description": "Manage calendar events and check availability with AI-powered scheduling automation.",
+    "path": "/nodes/mcp/outlook_calendar.md",
+    "id": "gumloop:0169:/nodes/mcp/outlook_calendar.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\outlook_calendar.md",
+    "status": "ok"
+  },
+  {
+    "title": "Outreach",
+    "url": "https://docs.gumloop.com/nodes/mcp/outreach.md",
+    "description": "Manage sales engagement with AI-powered outreach automation.",
+    "path": "/nodes/mcp/outreach.md",
+    "id": "gumloop:0170:/nodes/mcp/outreach.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\outreach.md",
+    "status": "ok"
+  },
+  {
+    "title": "PagerDuty",
+    "url": "https://docs.gumloop.com/nodes/mcp/pagerduty.md",
+    "description": "Manage incidents and on-call schedules with AI-powered response automation.",
+    "path": "/nodes/mcp/pagerduty.md",
+    "id": "gumloop:0171:/nodes/mcp/pagerduty.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\pagerduty.md",
+    "status": "ok"
+  },
+  {
+    "title": "Parallel",
+    "url": "https://docs.gumloop.com/nodes/mcp/parallel.md",
+    "description": "Search the web and extract content with AI-powered research automation.",
+    "path": "/nodes/mcp/parallel.md",
+    "id": "gumloop:0172:/nodes/mcp/parallel.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\parallel.md",
+    "status": "ok"
+  },
+  {
+    "title": "Pipedrive",
+    "url": "https://docs.gumloop.com/nodes/mcp/pipedrive.md",
+    "description": "Manage your sales pipeline with AI-powered CRM automation.",
+    "path": "/nodes/mcp/pipedrive.md",
+    "id": "gumloop:0173:/nodes/mcp/pipedrive.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\pipedrive.md",
+    "status": "ok"
+  },
+  {
+    "title": "PostgreSQL",
+    "url": "https://docs.gumloop.com/nodes/mcp/postgresql.md",
+    "description": "Query and manage PostgreSQL databases with AI-powered schema exploration and SQL execution.",
+    "path": "/nodes/mcp/postgresql.md",
+    "id": "gumloop:0174:/nodes/mcp/postgresql.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\postgresql.md",
+    "status": "ok"
+  },
+  {
+    "title": "Pylon",
+    "url": "https://docs.gumloop.com/nodes/mcp/pylon.md",
+    "description": "Manage your Pylon support issues, accounts, and contacts.",
+    "path": "/nodes/mcp/pylon.md",
+    "id": "gumloop:0175:/nodes/mcp/pylon.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\pylon.md",
+    "status": "ok"
+  },
+  {
+    "title": "QuickBooks",
+    "url": "https://docs.gumloop.com/nodes/mcp/quickbooks.md",
+    "description": "Manage accounting, invoices, customers, and financial reports with AI-powered automation.",
+    "path": "/nodes/mcp/quickbooks.md",
+    "id": "gumloop:0176:/nodes/mcp/quickbooks.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\quickbooks.md",
+    "status": "ok"
+  },
+  {
+    "title": "Ramp",
+    "url": "https://docs.gumloop.com/nodes/mcp/ramp.md",
+    "description": "Manage your Ramp cards, spend, bills, and transactions.",
+    "path": "/nodes/mcp/ramp.md",
+    "id": "gumloop:0177:/nodes/mcp/ramp.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\ramp.md",
+    "status": "ok"
+  },
+  {
+    "title": "Reddit",
+    "url": "https://docs.gumloop.com/nodes/mcp/reddit.md",
+    "description": "Search and engage with Reddit communities using AI-powered automation.",
+    "path": "/nodes/mcp/reddit.md",
+    "id": "gumloop:0178:/nodes/mcp/reddit.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\reddit.md",
+    "status": "ok"
+  },
+  {
+    "title": "Reducto",
+    "url": "https://docs.gumloop.com/nodes/mcp/reducto.md",
+    "description": "Parse, extract, split, and edit documents with AI-powered document processing automation.",
+    "path": "/nodes/mcp/reducto.md",
+    "id": "gumloop:0179:/nodes/mcp/reducto.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\reducto.md",
+    "status": "ok"
+  },
+  {
+    "title": "Rocketlane",
+    "url": "https://docs.gumloop.com/nodes/mcp/rocketlane.md",
+    "description": "Manage your Rocketlane projects, tasks, and customer onboarding.",
+    "path": "/nodes/mcp/rocketlane.md",
+    "id": "gumloop:0180:/nodes/mcp/rocketlane.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\rocketlane.md",
+    "status": "ok"
+  },
+  {
+    "title": "Robinhood",
+    "url": "https://docs.gumloop.com/nodes/mcp/robinhood.md",
+    "description": "Trade and manage your Robinhood portfolio.",
+    "path": "/nodes/mcp/robinhood.md",
+    "id": "gumloop:0181:/nodes/mcp/robinhood.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\robinhood.md",
+    "status": "ok"
+  },
+  {
+    "title": "Salesforce",
+    "url": "https://docs.gumloop.com/nodes/mcp/salesforce.md",
+    "description": "Manage your CRM with AI-powered Salesforce automation.",
+    "path": "/nodes/mcp/salesforce.md",
+    "id": "gumloop:0182:/nodes/mcp/salesforce.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\salesforce.md",
+    "status": "ok"
+  },
+  {
+    "title": "Salesloft",
+    "url": "https://docs.gumloop.com/nodes/mcp/salesloft.md",
+    "description": "Manage sales engagement with AI-powered outreach automation.",
+    "path": "/nodes/mcp/salesloft.md",
+    "id": "gumloop:0183:/nodes/mcp/salesloft.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\salesloft.md",
+    "status": "ok"
+  },
+  {
+    "title": "Seismic",
+    "url": "https://docs.gumloop.com/nodes/mcp/seismic.md",
+    "description": "Manage your sales enablement content with AI-powered Seismic automation.",
+    "path": "/nodes/mcp/seismic.md",
+    "id": "gumloop:0184:/nodes/mcp/seismic.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\seismic.md",
+    "status": "ok"
+  },
+  {
+    "title": "Semrush",
+    "url": "https://docs.gumloop.com/nodes/mcp/semrush.md",
+    "description": "Pull SEO and marketing analytics with AI-powered competitive research automation.",
+    "path": "/nodes/mcp/semrush.md",
+    "id": "gumloop:0185:/nodes/mcp/semrush.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\semrush.md",
+    "status": "ok"
+  },
+  {
+    "title": "Sentry",
+    "url": "https://docs.gumloop.com/nodes/mcp/sentry.md",
+    "description": "Investigate Sentry issues, errors, releases, and performance data.",
+    "path": "/nodes/mcp/sentry.md",
+    "id": "gumloop:0186:/nodes/mcp/sentry.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\sentry.md",
+    "status": "ok"
+  },
+  {
+    "title": "SharePoint",
+    "url": "https://docs.gumloop.com/nodes/mcp/sharepoint.md",
+    "description": "Manage SharePoint sites, lists, and documents with AI-powered automation.",
+    "path": "/nodes/mcp/sharepoint.md",
+    "id": "gumloop:0187:/nodes/mcp/sharepoint.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\sharepoint.md",
+    "status": "ok"
+  },
+  {
+    "title": "Shopify",
+    "url": "https://docs.gumloop.com/nodes/mcp/shopify.md",
+    "description": "Manage your Shopify store, blog posts, and e-commerce operations with AI-powered automation.",
+    "path": "/nodes/mcp/shopify.md",
+    "id": "gumloop:0188:/nodes/mcp/shopify.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\shopify.md",
+    "status": "ok"
+  },
+  {
+    "title": "Sigma Computing",
+    "url": "https://docs.gumloop.com/nodes/mcp/sigma_computing.md",
+    "description": "Manage workbooks, members, teams, and data connections with AI-powered analytics automation.",
+    "path": "/nodes/mcp/sigma_computing.md",
+    "id": "gumloop:0189:/nodes/mcp/sigma_computing.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\sigma_computing.md",
+    "status": "ok"
+  },
+  {
+    "title": "Similarweb",
+    "url": "https://docs.gumloop.com/nodes/mcp/similarweb.md",
+    "description": "Analyze website traffic, audiences, and competitor insights with Similarweb.",
+    "path": "/nodes/mcp/similarweb.md",
+    "id": "gumloop:0190:/nodes/mcp/similarweb.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\similarweb.md",
+    "status": "ok"
+  },
+  {
+    "title": "Slack",
+    "url": "https://docs.gumloop.com/nodes/mcp/slack.md",
+    "description": "Manage your workspace with AI-powered team communication automation.",
+    "path": "/nodes/mcp/slack.md",
+    "id": "gumloop:0191:/nodes/mcp/slack.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\slack.md",
+    "status": "ok"
+  },
+  {
+    "title": "Snapchat Ads",
+    "url": "https://docs.gumloop.com/nodes/mcp/snapchat_ads.md",
+    "description": "Manage Snapchat advertising, audiences, and measurement with AI-powered automation.",
+    "path": "/nodes/mcp/snapchat_ads.md",
+    "id": "gumloop:0192:/nodes/mcp/snapchat_ads.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\snapchat_ads.md",
+    "status": "ok"
+  },
+  {
+    "title": "Snowflake",
+    "url": "https://docs.gumloop.com/nodes/mcp/snowflake.md",
+    "description": "Query your data warehouse with AI-powered SQL automation.",
+    "path": "/nodes/mcp/snowflake.md",
+    "id": "gumloop:0193:/nodes/mcp/snowflake.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\snowflake.md",
+    "status": "ok"
+  },
+  {
+    "title": "Sprig",
+    "url": "https://docs.gumloop.com/nodes/mcp/sprig.md",
+    "description": "Pull survey data and AI insights with AI-powered research automation.",
+    "path": "/nodes/mcp/sprig.md",
+    "id": "gumloop:0194:/nodes/mcp/sprig.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\sprig.md",
+    "status": "ok"
+  },
+  {
+    "title": "Sprout Social",
+    "url": "https://docs.gumloop.com/nodes/mcp/sprout_social.md",
+    "description": "Pull social analytics, inbox messages, and Listening data, and draft posts across your social profiles.",
+    "path": "/nodes/mcp/sprout_social.md",
+    "id": "gumloop:0195:/nodes/mcp/sprout_social.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\sprout_social.md",
+    "status": "ok"
+  },
+  {
+    "title": "Stripe",
+    "url": "https://docs.gumloop.com/nodes/mcp/stripe.md",
+    "description": "Manage customers, subscriptions, and payments with AI-powered billing automation.",
+    "path": "/nodes/mcp/stripe.md",
+    "id": "gumloop:0196:/nodes/mcp/stripe.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\stripe.md",
+    "status": "ok"
+  },
+  {
+    "title": "Supabase",
+    "url": "https://docs.gumloop.com/nodes/mcp/supabase.md",
+    "description": "Manage Supabase projects, databases, branches, and logs.",
+    "path": "/nodes/mcp/supabase.md",
+    "id": "gumloop:0197:/nodes/mcp/supabase.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\supabase.md",
+    "status": "ok"
+  },
+  {
+    "title": "Tableau",
+    "url": "https://docs.gumloop.com/nodes/mcp/tableau.md",
+    "description": "Access dashboards and analytics with AI-powered business intelligence automation.",
+    "path": "/nodes/mcp/tableau.md",
+    "id": "gumloop:0198:/nodes/mcp/tableau.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\tableau.md",
+    "status": "ok"
+  },
+  {
+    "title": "TikTok",
+    "url": "https://docs.gumloop.com/nodes/mcp/tiktok.md",
+    "description": "Scrape TikTok data with AI-powered social media automation.",
+    "path": "/nodes/mcp/tiktok.md",
+    "id": "gumloop:0199:/nodes/mcp/tiktok.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\tiktok.md",
+    "status": "ok"
+  },
+  {
+    "title": "Trello",
+    "url": "https://docs.gumloop.com/nodes/mcp/trello.md",
+    "description": "Manage boards, lists, and cards with AI-powered project management automation.",
+    "path": "/nodes/mcp/trello.md",
+    "id": "gumloop:0200:/nodes/mcp/trello.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\trello.md",
+    "status": "ok"
+  },
+  {
+    "title": "Vercel",
+    "url": "https://docs.gumloop.com/nodes/mcp/vercel.md",
+    "description": "Manage your Vercel projects, deployments, and logs.",
+    "path": "/nodes/mcp/vercel.md",
+    "id": "gumloop:0201:/nodes/mcp/vercel.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\vercel.md",
+    "status": "ok"
+  },
+  {
+    "title": "Webflow",
+    "url": "https://docs.gumloop.com/nodes/mcp/webflow.md",
+    "description": "Manage sites, collections, forms, and pages with AI-powered web design automation.",
+    "path": "/nodes/mcp/webflow.md",
+    "id": "gumloop:0202:/nodes/mcp/webflow.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\webflow.md",
+    "status": "ok"
+  },
+  {
+    "title": "Workday",
+    "url": "https://docs.gumloop.com/nodes/mcp/workday.md",
+    "description": "Download custom reports from Workday and access employee data with AI-powered automation.",
+    "path": "/nodes/mcp/workday.md",
+    "id": "gumloop:0203:/nodes/mcp/workday.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\workday.md",
+    "status": "ok"
+  },
+  {
+    "title": "X (Twitter)",
+    "url": "https://docs.gumloop.com/nodes/mcp/x.md",
+    "description": "Manage your X presence with AI-powered social media automation.",
+    "path": "/nodes/mcp/x.md",
+    "id": "gumloop:0204:/nodes/mcp/x.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\x.md",
+    "status": "ok"
+  },
+  {
+    "title": "YouTube",
+    "url": "https://docs.gumloop.com/nodes/mcp/youtube.md",
+    "description": "Search and analyze YouTube content with AI-powered video automation.",
+    "path": "/nodes/mcp/youtube.md",
+    "id": "gumloop:0205:/nodes/mcp/youtube.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\youtube.md",
+    "status": "ok"
+  },
+  {
+    "title": "Zendesk",
+    "url": "https://docs.gumloop.com/nodes/mcp/zendesk.md",
+    "description": "Manage support tickets and customers with AI-powered helpdesk automation.",
+    "path": "/nodes/mcp/zendesk.md",
+    "id": "gumloop:0206:/nodes/mcp/zendesk.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\zendesk.md",
+    "status": "ok"
+  },
+  {
+    "title": "Zoom",
+    "url": "https://docs.gumloop.com/nodes/mcp/zoom.md",
+    "description": "Manage meetings, webinars, registrants, polls, surveys, and recordings with AI-powered video conferencing automation.",
+    "path": "/nodes/mcp/zoom.md",
+    "id": "gumloop:0207:/nodes/mcp/zoom.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\mcp\\zoom.md",
+    "status": "ok"
+  },
+  {
+    "title": "Website Scraper",
+    "url": "https://docs.gumloop.com/nodes/web_scraping/website_scraper.md",
+    "description": "",
+    "path": "/nodes/web_scraping/website_scraper.md",
+    "id": "gumloop:0208:/nodes/web_scraping/website_scraper.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\web_scraping\\website_scraper.md",
+    "status": "ok"
+  },
+  {
+    "title": "Website Crawler",
+    "url": "https://docs.gumloop.com/nodes/web_scraping/website_crawler.md",
+    "description": "",
+    "path": "/nodes/web_scraping/website_crawler.md",
+    "id": "gumloop:0209:/nodes/web_scraping/website_crawler.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\web_scraping\\website_crawler.md",
+    "status": "ok"
+  },
+  {
+    "title": "Job Posting Scraper",
+    "url": "https://docs.gumloop.com/nodes/web_scraping/job_posting_scraper.md",
+    "description": "",
+    "path": "/nodes/web_scraping/job_posting_scraper.md",
+    "id": "gumloop:0210:/nodes/web_scraping/job_posting_scraper.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\web_scraping\\job_posting_scraper.md",
+    "status": "ok"
+  },
+  {
+    "title": "Combine Text",
+    "url": "https://docs.gumloop.com/nodes/text_manipulation/combine_text.md",
+    "description": "",
+    "path": "/nodes/text_manipulation/combine_text.md",
+    "id": "gumloop:0211:/nodes/text_manipulation/combine_text.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\text_manipulation\\combine_text.md",
+    "status": "ok"
+  },
+  {
+    "title": "Text Formatter",
+    "url": "https://docs.gumloop.com/nodes/text_manipulation/text_formatter.md",
+    "description": "",
+    "path": "/nodes/text_manipulation/text_formatter.md",
+    "id": "gumloop:0212:/nodes/text_manipulation/text_formatter.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\text_manipulation\\text_formatter.md",
+    "status": "ok"
+  },
+  {
+    "title": "Find And Replace",
+    "url": "https://docs.gumloop.com/nodes/text_manipulation/find_and_replace.md",
+    "description": "",
+    "path": "/nodes/text_manipulation/find_and_replace.md",
+    "id": "gumloop:0213:/nodes/text_manipulation/find_and_replace.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\text_manipulation\\find_and_replace.md",
+    "status": "ok"
+  },
+  {
+    "title": "Split Text",
+    "url": "https://docs.gumloop.com/nodes/text_manipulation/split_text.md",
+    "description": "",
+    "path": "/nodes/text_manipulation/split_text.md",
+    "id": "gumloop:0214:/nodes/text_manipulation/split_text.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\text_manipulation\\split_text.md",
+    "status": "ok"
+  },
+  {
+    "title": "Chunk Text",
+    "url": "https://docs.gumloop.com/nodes/text_manipulation/chunk_text.md",
+    "description": "",
+    "path": "/nodes/text_manipulation/chunk_text.md",
+    "id": "gumloop:0215:/nodes/text_manipulation/chunk_text.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\text_manipulation\\chunk_text.md",
+    "status": "ok"
+  },
+  {
+    "title": "Browser Extension Input",
+    "url": "https://docs.gumloop.com/nodes/browser_extension/browser_extension_input.md",
+    "description": "",
+    "path": "/nodes/browser_extension/browser_extension_input.md",
+    "id": "gumloop:0216:/nodes/browser_extension/browser_extension_input.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\browser_extension\\browser_extension_input.md",
+    "status": "ok"
+  },
+  {
+    "title": "Browser Replay",
+    "url": "https://docs.gumloop.com/nodes/browser_extension/browser_replay.md",
+    "description": "",
+    "path": "/nodes/browser_extension/browser_replay.md",
+    "id": "gumloop:0217:/nodes/browser_extension/browser_replay.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\browser_extension\\browser_replay.md",
+    "status": "ok"
+  },
+  {
+    "title": "File Reader",
+    "url": "https://docs.gumloop.com/nodes/file_operations/file_reader.md",
+    "description": "",
+    "path": "/nodes/file_operations/file_reader.md",
+    "id": "gumloop:0218:/nodes/file_operations/file_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\file_operations\\file_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Zip File Reader",
+    "url": "https://docs.gumloop.com/nodes/file_operations/zip_file_reader.md",
+    "description": "",
+    "path": "/nodes/file_operations/zip_file_reader.md",
+    "id": "gumloop:0219:/nodes/file_operations/zip_file_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\file_operations\\zip_file_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Generate File",
+    "url": "https://docs.gumloop.com/nodes/file_operations/generate_file.md",
+    "description": "",
+    "path": "/nodes/file_operations/generate_file.md",
+    "id": "gumloop:0220:/nodes/file_operations/generate_file.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\file_operations\\generate_file.md",
+    "status": "ok"
+  },
+  {
+    "title": "Sort CSV",
+    "url": "https://docs.gumloop.com/nodes/file_operations/sort_csv.md",
+    "description": "",
+    "path": "/nodes/file_operations/sort_csv.md",
+    "id": "gumloop:0221:/nodes/file_operations/sort_csv.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\file_operations\\sort_csv.md",
+    "status": "ok"
+  },
+  {
+    "title": "CSV Reader",
+    "url": "https://docs.gumloop.com/nodes/file_operations/csv_reader.md",
+    "description": "",
+    "path": "/nodes/file_operations/csv_reader.md",
+    "id": "gumloop:0222:/nodes/file_operations/csv_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\file_operations\\csv_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "CSV Writer",
+    "url": "https://docs.gumloop.com/nodes/file_operations/csv_writer.md",
+    "description": "",
+    "path": "/nodes/file_operations/csv_writer.md",
+    "id": "gumloop:0223:/nodes/file_operations/csv_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\file_operations\\csv_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "CSV to XLSX Converter",
+    "url": "https://docs.gumloop.com/nodes/file_operations/csv_to_xlsx.md",
+    "description": "",
+    "path": "/nodes/file_operations/csv_to_xlsx.md",
+    "id": "gumloop:0224:/nodes/file_operations/csv_to_xlsx.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\file_operations\\csv_to_xlsx.md",
+    "status": "ok"
+  },
+  {
+    "title": "Run Code",
+    "url": "https://docs.gumloop.com/nodes/advanced/run_code.md",
+    "description": "",
+    "path": "/nodes/advanced/run_code.md",
+    "id": "gumloop:0225:/nodes/advanced/run_code.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\advanced\\run_code.md",
+    "status": "ok"
+  },
+  {
+    "title": "Call API",
+    "url": "https://docs.gumloop.com/nodes/advanced/call_api.md",
+    "description": "",
+    "path": "/nodes/advanced/call_api.md",
+    "id": "gumloop:0226:/nodes/advanced/call_api.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\advanced\\call_api.md",
+    "status": "ok"
+  },
+  {
+    "title": "Similarity Search",
+    "url": "https://docs.gumloop.com/nodes/advanced/similarity_search.md",
+    "description": "",
+    "path": "/nodes/advanced/similarity_search.md",
+    "id": "gumloop:0227:/nodes/advanced/similarity_search.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\advanced\\similarity_search.md",
+    "status": "ok"
+  },
+  {
+    "title": "Search Companies",
+    "url": "https://docs.gumloop.com/nodes/data_enrichment/search_companies.md",
+    "description": "",
+    "path": "/nodes/data_enrichment/search_companies.md",
+    "id": "gumloop:0228:/nodes/data_enrichment/search_companies.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\data_enrichment\\search_companies.md",
+    "status": "ok"
+  },
+  {
+    "title": "Enrich Company Information",
+    "url": "https://docs.gumloop.com/nodes/data_enrichment/enrich_company_information.md",
+    "description": "",
+    "path": "/nodes/data_enrichment/enrich_company_information.md",
+    "id": "gumloop:0229:/nodes/data_enrichment/enrich_company_information.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\data_enrichment\\enrich_company_information.md",
+    "status": "ok"
+  },
+  {
+    "title": "Enrich Contact Information",
+    "url": "https://docs.gumloop.com/nodes/data_enrichment/enrich_contact_information.md",
+    "description": "",
+    "path": "/nodes/data_enrichment/enrich_contact_information.md",
+    "id": "gumloop:0230:/nodes/data_enrichment/enrich_contact_information.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\data_enrichment\\enrich_contact_information.md",
+    "status": "ok"
+  },
+  {
+    "title": "Email Validator",
+    "url": "https://docs.gumloop.com/nodes/data_enrichment/email_validator.md",
+    "description": "",
+    "path": "/nodes/data_enrichment/email_validator.md",
+    "id": "gumloop:0231:/nodes/data_enrichment/email_validator.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\data_enrichment\\email_validator.md",
+    "status": "ok"
+  },
+  {
+    "title": "JSON Reader",
+    "url": "https://docs.gumloop.com/nodes/json/read_json_values.md",
+    "description": "",
+    "path": "/nodes/json/read_json_values.md",
+    "id": "gumloop:0232:/nodes/json/read_json_values.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\json\\read_json_values.md",
+    "status": "ok"
+  },
+  {
+    "title": "JSON Writer",
+    "url": "https://docs.gumloop.com/nodes/json/write_json_value.md",
+    "description": "",
+    "path": "/nodes/json/write_json_value.md",
+    "id": "gumloop:0233:/nodes/json/write_json_value.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\json\\write_json_value.md",
+    "status": "ok"
+  },
+  {
+    "title": "PDF Reader",
+    "url": "https://docs.gumloop.com/nodes/pdf/pdf_reader.md",
+    "description": "",
+    "path": "/nodes/pdf/pdf_reader.md",
+    "id": "gumloop:0234:/nodes/pdf/pdf_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\pdf\\pdf_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "AI Fill PDF",
+    "url": "https://docs.gumloop.com/nodes/pdf/ai_fill_pdf.md",
+    "description": "",
+    "path": "/nodes/pdf/ai_fill_pdf.md",
+    "id": "gumloop:0235:/nodes/pdf/ai_fill_pdf.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\pdf\\ai_fill_pdf.md",
+    "status": "ok"
+  },
+  {
+    "title": "Combine Lists",
+    "url": "https://docs.gumloop.com/nodes/list_operations/combine_lists.md",
+    "description": "",
+    "path": "/nodes/list_operations/combine_lists.md",
+    "id": "gumloop:0236:/nodes/list_operations/combine_lists.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\list_operations\\combine_lists.md",
+    "status": "ok"
+  },
+  {
+    "title": "Create List",
+    "url": "https://docs.gumloop.com/nodes/list_operations/create_list.md",
+    "description": "",
+    "path": "/nodes/list_operations/create_list.md",
+    "id": "gumloop:0237:/nodes/list_operations/create_list.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\list_operations\\create_list.md",
+    "status": "ok"
+  },
+  {
+    "title": "Get List Item",
+    "url": "https://docs.gumloop.com/nodes/list_operations/get_list_item.md",
+    "description": "",
+    "path": "/nodes/list_operations/get_list_item.md",
+    "id": "gumloop:0238:/nodes/list_operations/get_list_item.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\list_operations\\get_list_item.md",
+    "status": "ok"
+  },
+  {
+    "title": "Flatten List of Lists",
+    "url": "https://docs.gumloop.com/nodes/list_operations/flatten_list.md",
+    "description": "",
+    "path": "/nodes/list_operations/flatten_list.md",
+    "id": "gumloop:0239:/nodes/list_operations/flatten_list.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\list_operations\\flatten_list.md",
+    "status": "ok"
+  },
+  {
+    "title": "Join List Items",
+    "url": "https://docs.gumloop.com/nodes/list_operations/join_list_items.md",
+    "description": "",
+    "path": "/nodes/list_operations/join_list_items.md",
+    "id": "gumloop:0240:/nodes/list_operations/join_list_items.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\list_operations\\join_list_items.md",
+    "status": "ok"
+  },
+  {
+    "title": "List Trimmer",
+    "url": "https://docs.gumloop.com/nodes/list_operations/list_trimmer.md",
+    "description": "",
+    "path": "/nodes/list_operations/list_trimmer.md",
+    "id": "gumloop:0241:/nodes/list_operations/list_trimmer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\list_operations\\list_trimmer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Duplicate",
+    "url": "https://docs.gumloop.com/nodes/list_operations/duplicate.md",
+    "description": "",
+    "path": "/nodes/list_operations/duplicate.md",
+    "id": "gumloop:0242:/nodes/list_operations/duplicate.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\list_operations\\duplicate.md",
+    "status": "ok"
+  },
+  {
+    "title": "Custom SMTP Email Sender",
+    "url": "https://docs.gumloop.com/nodes/notification/custom_smtp_email_sender.md",
+    "description": "",
+    "path": "/nodes/notification/custom_smtp_email_sender.md",
+    "id": "gumloop:0243:/nodes/notification/custom_smtp_email_sender.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\notification\\custom_smtp_email_sender.md",
+    "status": "ok"
+  },
+  {
+    "title": "Send Email Notification",
+    "url": "https://docs.gumloop.com/nodes/notification/send_email_notification.md",
+    "description": "",
+    "path": "/nodes/notification/send_email_notification.md",
+    "id": "gumloop:0244:/nodes/notification/send_email_notification.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\notification\\send_email_notification.md",
+    "status": "ok"
+  },
+  {
+    "title": "Send SMS Notification",
+    "url": "https://docs.gumloop.com/nodes/notification/send_sms_notification.md",
+    "description": "",
+    "path": "/nodes/notification/send_sms_notification.md",
+    "id": "gumloop:0245:/nodes/notification/send_sms_notification.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\notification\\send_sms_notification.md",
+    "status": "ok"
+  },
+  {
+    "title": "SendGrid Email Sender",
+    "url": "https://docs.gumloop.com/nodes/notification/sendgrid_email_sender.md",
+    "description": "",
+    "path": "/nodes/notification/sendgrid_email_sender.md",
+    "id": "gumloop:0246:/nodes/notification/sendgrid_email_sender.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\notification\\sendgrid_email_sender.md",
+    "status": "ok"
+  },
+  {
+    "title": "Text to Speech",
+    "url": "https://docs.gumloop.com/nodes/audio_processing/text_to_speech.md",
+    "description": "",
+    "path": "/nodes/audio_processing/text_to_speech.md",
+    "id": "gumloop:0247:/nodes/audio_processing/text_to_speech.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\audio_processing\\text_to_speech.md",
+    "status": "ok"
+  },
+  {
+    "title": "Speech to Text",
+    "url": "https://docs.gumloop.com/nodes/audio_processing/speech_to_text.md",
+    "description": "",
+    "path": "/nodes/audio_processing/speech_to_text.md",
+    "id": "gumloop:0248:/nodes/audio_processing/speech_to_text.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\audio_processing\\speech_to_text.md",
+    "status": "ok"
+  },
+  {
+    "title": "Gmail Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/gmail_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/gmail_reader.md",
+    "id": "gumloop:0249:/nodes/integrations/gmail_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\gmail_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Gmail Sender",
+    "url": "https://docs.gumloop.com/nodes/integrations/gmail_sender.md",
+    "description": "",
+    "path": "/nodes/integrations/gmail_sender.md",
+    "id": "gumloop:0250:/nodes/integrations/gmail_sender.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\gmail_sender.md",
+    "status": "ok"
+  },
+  {
+    "title": "Gmail Updater",
+    "url": "https://docs.gumloop.com/nodes/integrations/gmail_updater.md",
+    "description": "",
+    "path": "/nodes/integrations/gmail_updater.md",
+    "id": "gumloop:0251:/nodes/integrations/gmail_updater.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\gmail_updater.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Sheets Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/gsheets_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/gsheets_reader.md",
+    "id": "gumloop:0252:/nodes/integrations/gsheets_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\gsheets_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Sheets Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/gsheets_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/gsheets_writer.md",
+    "id": "gumloop:0253:/nodes/integrations/gsheets_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\gsheets_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Sheets Updater",
+    "url": "https://docs.gumloop.com/nodes/integrations/gsheets_updater.md",
+    "description": "",
+    "path": "/nodes/integrations/gsheets_updater.md",
+    "id": "gumloop:0254:/nodes/integrations/gsheets_updater.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\gsheets_updater.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Drive File Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/gdrive_file_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/gdrive_file_reader.md",
+    "id": "gumloop:0255:/nodes/integrations/gdrive_file_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\gdrive_file_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Drive Folder Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/gdrive_folder_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/gdrive_folder_reader.md",
+    "id": "gumloop:0256:/nodes/integrations/gdrive_folder_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\gdrive_folder_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Drive File Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/gdrive_file_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/gdrive_file_writer.md",
+    "id": "gumloop:0257:/nodes/integrations/gdrive_file_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\gdrive_file_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Drive Folder Creator",
+    "url": "https://docs.gumloop.com/nodes/integrations/gdrive_folder_creator.md",
+    "description": "",
+    "path": "/nodes/integrations/gdrive_folder_creator.md",
+    "id": "gumloop:0258:/nodes/integrations/gdrive_folder_creator.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\gdrive_folder_creator.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Calendar Event Creator",
+    "url": "https://docs.gumloop.com/nodes/integrations/calendar_event_creator.md",
+    "description": "",
+    "path": "/nodes/integrations/calendar_event_creator.md",
+    "id": "gumloop:0259:/nodes/integrations/calendar_event_creator.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\calendar_event_creator.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Calendar Event Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/calendar_event_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/calendar_event_reader.md",
+    "id": "gumloop:0260:/nodes/integrations/calendar_event_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\calendar_event_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Calendar Event Updater",
+    "url": "https://docs.gumloop.com/nodes/integrations/calendar_event_updater.md",
+    "description": "",
+    "path": "/nodes/integrations/calendar_event_updater.md",
+    "id": "gumloop:0261:/nodes/integrations/calendar_event_updater.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\calendar_event_updater.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Docs Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/gdocs_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/gdocs_reader.md",
+    "id": "gumloop:0262:/nodes/integrations/gdocs_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\gdocs_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Docs Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/gdocs_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/gdocs_writer.md",
+    "id": "gumloop:0263:/nodes/integrations/gdocs_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\gdocs_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Docs Template Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/google_doc_template_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/google_doc_template_writer.md",
+    "id": "gumloop:0264:/nodes/integrations/google_doc_template_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\google_doc_template_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Slides Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/google_slide_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/google_slide_reader.md",
+    "id": "gumloop:0265:/nodes/integrations/google_slide_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\google_slide_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Slides Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/google_slide_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/google_slide_writer.md",
+    "id": "gumloop:0266:/nodes/integrations/google_slide_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\google_slide_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Web Search",
+    "url": "https://docs.gumloop.com/nodes/integrations/web_search.md",
+    "description": "",
+    "path": "/nodes/integrations/web_search.md",
+    "id": "gumloop:0267:/nodes/integrations/web_search.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\web_search.md",
+    "status": "ok"
+  },
+  {
+    "title": "Call Serp API",
+    "url": "https://docs.gumloop.com/nodes/integrations/call_serp_api.md",
+    "description": "",
+    "path": "/nodes/integrations/call_serp_api.md",
+    "id": "gumloop:0268:/nodes/integrations/call_serp_api.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\call_serp_api.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Ads Campaign Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/google_ads_campaign_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/google_ads_campaign_reader.md",
+    "id": "gumloop:0269:/nodes/integrations/google_ads_campaign_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\google_ads_campaign_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Ads Search Term Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/google_ads_search_term_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/google_ads_search_term_reader.md",
+    "id": "gumloop:0270:/nodes/integrations/google_ads_search_term_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\google_ads_search_term_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "BigQuery Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/bigquery_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/bigquery_reader.md",
+    "id": "gumloop:0271:/nodes/integrations/bigquery_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\bigquery_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "BigQuery Workload Identity Federation",
+    "url": "https://docs.gumloop.com/nodes/integrations/bigquery-workload-identity-federation.md",
+    "description": "Connect BigQuery to Gumloop without OAuth or static service-account keys using GCP Workload Identity Federation.",
+    "path": "/nodes/integrations/bigquery-workload-identity-federation.md",
+    "id": "gumloop:0272:/nodes/integrations/bigquery-workload-identity-federation.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\bigquery-workload-identity-federation.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Analytics Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/google_analytics_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/google_analytics_reader.md",
+    "id": "gumloop:0273:/nodes/integrations/google_analytics_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\google_analytics_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Google Alerts RSS Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/google_alerts_rss_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/google_alerts_rss_reader.md",
+    "id": "gumloop:0274:/nodes/integrations/google_alerts_rss_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\google_alerts_rss_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Translate",
+    "url": "https://docs.gumloop.com/nodes/integrations/translate.md",
+    "description": "",
+    "path": "/nodes/integrations/translate.md",
+    "id": "gumloop:0275:/nodes/integrations/translate.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\translate.md",
+    "status": "ok"
+  },
+  {
+    "title": "Slack Message Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/slack_message_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/slack_message_reader.md",
+    "id": "gumloop:0276:/nodes/integrations/slack_message_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\slack_message_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Slack Message Sender",
+    "url": "https://docs.gumloop.com/nodes/integrations/slack_message_sender.md",
+    "description": "",
+    "path": "/nodes/integrations/slack_message_sender.md",
+    "id": "gumloop:0277:/nodes/integrations/slack_message_sender.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\slack_message_sender.md",
+    "status": "ok"
+  },
+  {
+    "title": "Slack Canvas Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/slack_canvas_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/slack_canvas_writer.md",
+    "id": "gumloop:0278:/nodes/integrations/slack_canvas_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\slack_canvas_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Slack Block Kit Sender",
+    "url": "https://docs.gumloop.com/nodes/integrations/slack_block_kit_sender.md",
+    "description": "",
+    "path": "/nodes/integrations/slack_block_kit_sender.md",
+    "id": "gumloop:0279:/nodes/integrations/slack_block_kit_sender.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\slack_block_kit_sender.md",
+    "status": "ok"
+  },
+  {
+    "title": "Discord Message Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/discord_message_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/discord_message_reader.md",
+    "id": "gumloop:0280:/nodes/integrations/discord_message_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\discord_message_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Discord Message Sender",
+    "url": "https://docs.gumloop.com/nodes/integrations/discord_message_sender.md",
+    "description": "",
+    "path": "/nodes/integrations/discord_message_sender.md",
+    "id": "gumloop:0281:/nodes/integrations/discord_message_sender.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\discord_message_sender.md",
+    "status": "ok"
+  },
+  {
+    "title": "Linear Issue Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/linear_issue_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/linear_issue_reader.md",
+    "id": "gumloop:0282:/nodes/integrations/linear_issue_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\linear_issue_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Linear Issue Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/linear_issue_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/linear_issue_writer.md",
+    "id": "gumloop:0283:/nodes/integrations/linear_issue_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\linear_issue_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Jira Issue Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/jira_issue_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/jira_issue_reader.md",
+    "id": "gumloop:0284:/nodes/integrations/jira_issue_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\jira_issue_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Jira Issue Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/jira_issue_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/jira_issue_writer.md",
+    "id": "gumloop:0285:/nodes/integrations/jira_issue_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\jira_issue_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Jira Issue Updater",
+    "url": "https://docs.gumloop.com/nodes/integrations/jira_issue_updater.md",
+    "description": "",
+    "path": "/nodes/integrations/jira_issue_updater.md",
+    "id": "gumloop:0286:/nodes/integrations/jira_issue_updater.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\jira_issue_updater.md",
+    "status": "ok"
+  },
+  {
+    "title": "Monday.com Board Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/monday_board_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/monday_board_reader.md",
+    "id": "gumloop:0287:/nodes/integrations/monday_board_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\monday_board_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Monday.com Board Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/monday_board_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/monday_board_writer.md",
+    "id": "gumloop:0288:/nodes/integrations/monday_board_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\monday_board_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Monday.com Board Updater",
+    "url": "https://docs.gumloop.com/nodes/integrations/monday_board_updater.md",
+    "description": "",
+    "path": "/nodes/integrations/monday_board_updater.md",
+    "id": "gumloop:0289:/nodes/integrations/monday_board_updater.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\monday_board_updater.md",
+    "status": "ok"
+  },
+  {
+    "title": "ClickUp Task Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/clickup_task_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/clickup_task_reader.md",
+    "id": "gumloop:0290:/nodes/integrations/clickup_task_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\clickup_task_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "ClickUp Task Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/clickup_task_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/clickup_task_writer.md",
+    "id": "gumloop:0291:/nodes/integrations/clickup_task_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\clickup_task_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "ClickUp Task Updater",
+    "url": "https://docs.gumloop.com/nodes/integrations/clickup_task_updater.md",
+    "description": "",
+    "path": "/nodes/integrations/clickup_task_updater.md",
+    "id": "gumloop:0292:/nodes/integrations/clickup_task_updater.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\clickup_task_updater.md",
+    "status": "ok"
+  },
+  {
+    "title": "Notion Database Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/notion_database_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/notion_database_reader.md",
+    "id": "gumloop:0293:/nodes/integrations/notion_database_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\notion_database_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Notion Database Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/notion_database_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/notion_database_writer.md",
+    "id": "gumloop:0294:/nodes/integrations/notion_database_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\notion_database_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Notion Database Updater",
+    "url": "https://docs.gumloop.com/nodes/integrations/notion_database_updater.md",
+    "description": "",
+    "path": "/nodes/integrations/notion_database_updater.md",
+    "id": "gumloop:0295:/nodes/integrations/notion_database_updater.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\notion_database_updater.md",
+    "status": "ok"
+  },
+  {
+    "title": "Notion Page Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/notion_page_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/notion_page_reader.md",
+    "id": "gumloop:0296:/nodes/integrations/notion_page_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\notion_page_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Notion Page Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/notion_page_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/notion_page_writer.md",
+    "id": "gumloop:0297:/nodes/integrations/notion_page_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\notion_page_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "HubSpot Company Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/hubspot_company_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/hubspot_company_reader.md",
+    "id": "gumloop:0298:/nodes/integrations/hubspot_company_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\hubspot_company_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "HubSpot Company Updater",
+    "url": "https://docs.gumloop.com/nodes/integrations/hubspot_company_updater.md",
+    "description": "",
+    "path": "/nodes/integrations/hubspot_company_updater.md",
+    "id": "gumloop:0299:/nodes/integrations/hubspot_company_updater.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\hubspot_company_updater.md",
+    "status": "ok"
+  },
+  {
+    "title": "HubSpot Contact Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/hubspot_contact_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/hubspot_contact_reader.md",
+    "id": "gumloop:0300:/nodes/integrations/hubspot_contact_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\hubspot_contact_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "HubSpot Contact Updater",
+    "url": "https://docs.gumloop.com/nodes/integrations/hubspot_contact_updater.md",
+    "description": "",
+    "path": "/nodes/integrations/hubspot_contact_updater.md",
+    "id": "gumloop:0301:/nodes/integrations/hubspot_contact_updater.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\hubspot_contact_updater.md",
+    "status": "ok"
+  },
+  {
+    "title": "HubSpot Deal Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/hubspot_deal_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/hubspot_deal_reader.md",
+    "id": "gumloop:0302:/nodes/integrations/hubspot_deal_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\hubspot_deal_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "HubSpot Engagement Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/hubspot_engagement_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/hubspot_engagement_reader.md",
+    "id": "gumloop:0303:/nodes/integrations/hubspot_engagement_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\hubspot_engagement_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "HubSpot Email Sender",
+    "url": "https://docs.gumloop.com/nodes/integrations/hubspot_email_sender.md",
+    "description": "",
+    "path": "/nodes/integrations/hubspot_email_sender.md",
+    "id": "gumloop:0304:/nodes/integrations/hubspot_email_sender.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\hubspot_email_sender.md",
+    "status": "ok"
+  },
+  {
+    "title": "Salesforce Record Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/salesforce_record_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/salesforce_record_reader.md",
+    "id": "gumloop:0305:/nodes/integrations/salesforce_record_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\salesforce_record_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Attio List Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/attio_list_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/attio_list_reader.md",
+    "id": "gumloop:0306:/nodes/integrations/attio_list_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\attio_list_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Attio List Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/attio_list_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/attio_list_writer.md",
+    "id": "gumloop:0307:/nodes/integrations/attio_list_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\attio_list_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Attio Company Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/attio_company_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/attio_company_reader.md",
+    "id": "gumloop:0308:/nodes/integrations/attio_company_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\attio_company_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Attio Company Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/attio_company_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/attio_company_writer.md",
+    "id": "gumloop:0309:/nodes/integrations/attio_company_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\attio_company_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Attio Contact Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/attio_contact_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/attio_contact_reader.md",
+    "id": "gumloop:0310:/nodes/integrations/attio_contact_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\attio_contact_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Attio Contact Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/attio_contact_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/attio_contact_writer.md",
+    "id": "gumloop:0311:/nodes/integrations/attio_contact_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\attio_contact_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Outlook Sender",
+    "url": "https://docs.gumloop.com/nodes/integrations/outlook_sender.md",
+    "description": "",
+    "path": "/nodes/integrations/outlook_sender.md",
+    "id": "gumloop:0312:/nodes/integrations/outlook_sender.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\outlook_sender.md",
+    "status": "ok"
+  },
+  {
+    "title": "Outlook Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/outlook_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/outlook_reader.md",
+    "id": "gumloop:0313:/nodes/integrations/outlook_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\outlook_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Teams Message Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/teams_message_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/teams_message_reader.md",
+    "id": "gumloop:0314:/nodes/integrations/teams_message_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\teams_message_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Teams Message Sender",
+    "url": "https://docs.gumloop.com/nodes/integrations/teams_message_sender.md",
+    "description": "",
+    "path": "/nodes/integrations/teams_message_sender.md",
+    "id": "gumloop:0315:/nodes/integrations/teams_message_sender.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\teams_message_sender.md",
+    "status": "ok"
+  },
+  {
+    "title": "Microsoft OneLake File Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/onelake_file_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/onelake_file_writer.md",
+    "id": "gumloop:0316:/nodes/integrations/onelake_file_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\onelake_file_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "LinkedIn Post Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/linkedin_post_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/linkedin_post_writer.md",
+    "id": "gumloop:0317:/nodes/integrations/linkedin_post_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\linkedin_post_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "LinkedIn Profile Scraper",
+    "url": "https://docs.gumloop.com/nodes/integrations/linkedin_profile_scraper.md",
+    "description": "",
+    "path": "/nodes/integrations/linkedin_profile_scraper.md",
+    "id": "gumloop:0318:/nodes/integrations/linkedin_profile_scraper.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\linkedin_profile_scraper.md",
+    "status": "ok"
+  },
+  {
+    "title": "LinkedIn Company Profile Scraper",
+    "url": "https://docs.gumloop.com/nodes/integrations/linkedin_company_profile_scraper.md",
+    "description": "",
+    "path": "/nodes/integrations/linkedin_company_profile_scraper.md",
+    "id": "gumloop:0319:/nodes/integrations/linkedin_company_profile_scraper.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\linkedin_company_profile_scraper.md",
+    "status": "ok"
+  },
+  {
+    "title": "LinkedIn Job Scraper",
+    "url": "https://docs.gumloop.com/nodes/integrations/linkedin_job_scraper.md",
+    "description": "",
+    "path": "/nodes/integrations/linkedin_job_scraper.md",
+    "id": "gumloop:0320:/nodes/integrations/linkedin_job_scraper.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\linkedin_job_scraper.md",
+    "status": "ok"
+  },
+  {
+    "title": "Tweet",
+    "url": "https://docs.gumloop.com/nodes/integrations/tweet.md",
+    "description": "",
+    "path": "/nodes/integrations/tweet.md",
+    "id": "gumloop:0321:/nodes/integrations/tweet.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\tweet.md",
+    "status": "ok"
+  },
+  {
+    "title": "Create Twitter Thread",
+    "url": "https://docs.gumloop.com/nodes/integrations/create_twitter_thread.md",
+    "description": "",
+    "path": "/nodes/integrations/create_twitter_thread.md",
+    "id": "gumloop:0322:/nodes/integrations/create_twitter_thread.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\create_twitter_thread.md",
+    "status": "ok"
+  },
+  {
+    "title": "Twitter Scraper",
+    "url": "https://docs.gumloop.com/nodes/integrations/twitter_scraper.md",
+    "description": "",
+    "path": "/nodes/integrations/twitter_scraper.md",
+    "id": "gumloop:0323:/nodes/integrations/twitter_scraper.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\twitter_scraper.md",
+    "status": "ok"
+  },
+  {
+    "title": "Facebook Ad Library Scraper",
+    "url": "https://docs.gumloop.com/nodes/integrations/facebook_ad_scraper.md",
+    "description": "",
+    "path": "/nodes/integrations/facebook_ad_scraper.md",
+    "id": "gumloop:0324:/nodes/integrations/facebook_ad_scraper.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\facebook_ad_scraper.md",
+    "status": "ok"
+  },
+  {
+    "title": "Reddit Scraper",
+    "url": "https://docs.gumloop.com/nodes/integrations/reddit_scraper.md",
+    "description": "",
+    "path": "/nodes/integrations/reddit_scraper.md",
+    "id": "gumloop:0325:/nodes/integrations/reddit_scraper.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\reddit_scraper.md",
+    "status": "ok"
+  },
+  {
+    "title": "Bluesky Scraper",
+    "url": "https://docs.gumloop.com/nodes/integrations/bluesky_scraper.md",
+    "description": "",
+    "path": "/nodes/integrations/bluesky_scraper.md",
+    "id": "gumloop:0326:/nodes/integrations/bluesky_scraper.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\bluesky_scraper.md",
+    "status": "ok"
+  },
+  {
+    "title": "GitHub PR Commenter",
+    "url": "https://docs.gumloop.com/nodes/integrations/github_pr_commenter.md",
+    "description": "",
+    "path": "/nodes/integrations/github_pr_commenter.md",
+    "id": "gumloop:0327:/nodes/integrations/github_pr_commenter.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\github_pr_commenter.md",
+    "status": "ok"
+  },
+  {
+    "title": "GitHub PR Description Inserter",
+    "url": "https://docs.gumloop.com/nodes/integrations/github_pr_description_inserter.md",
+    "description": "",
+    "path": "/nodes/integrations/github_pr_description_inserter.md",
+    "id": "gumloop:0328:/nodes/integrations/github_pr_description_inserter.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\github_pr_description_inserter.md",
+    "status": "ok"
+  },
+  {
+    "title": "Read GitHub Pull Request",
+    "url": "https://docs.gumloop.com/nodes/integrations/github_pr_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/github_pr_reader.md",
+    "id": "gumloop:0329:/nodes/integrations/github_pr_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\github_pr_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Confluence Page Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/confluence_page_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/confluence_page_reader.md",
+    "id": "gumloop:0330:/nodes/integrations/confluence_page_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\confluence_page_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Airtable Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/airtable_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/airtable_reader.md",
+    "id": "gumloop:0331:/nodes/integrations/airtable_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\airtable_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Airtable Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/airtable_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/airtable_writer.md",
+    "id": "gumloop:0332:/nodes/integrations/airtable_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\airtable_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Airtable Updater",
+    "url": "https://docs.gumloop.com/nodes/integrations/airtable_updater.md",
+    "description": "",
+    "path": "/nodes/integrations/airtable_updater.md",
+    "id": "gumloop:0333:/nodes/integrations/airtable_updater.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\airtable_updater.md",
+    "status": "ok"
+  },
+  {
+    "title": "Snowflake Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/snowflake_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/snowflake_reader.md",
+    "id": "gumloop:0334:/nodes/integrations/snowflake_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\snowflake_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Snowflake OAuth Configuration",
+    "url": "https://docs.gumloop.com/nodes/integrations/snowflake-oauth-config.md",
+    "description": "",
+    "path": "/nodes/integrations/snowflake-oauth-config.md",
+    "id": "gumloop:0335:/nodes/integrations/snowflake-oauth-config.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\snowflake-oauth-config.md",
+    "status": "ok"
+  },
+  {
+    "title": "Snowflake PAT Configuration",
+    "url": "https://docs.gumloop.com/nodes/integrations/snowflake-pat-config.md",
+    "description": "",
+    "path": "/nodes/integrations/snowflake-pat-config.md",
+    "id": "gumloop:0336:/nodes/integrations/snowflake-pat-config.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\snowflake-pat-config.md",
+    "status": "ok"
+  },
+  {
+    "title": "Snowflake Key-Pair Configuration",
+    "url": "https://docs.gumloop.com/nodes/integrations/snowflake-keypair-config.md",
+    "description": "",
+    "path": "/nodes/integrations/snowflake-keypair-config.md",
+    "id": "gumloop:0337:/nodes/integrations/snowflake-keypair-config.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\snowflake-keypair-config.md",
+    "status": "ok"
+  },
+  {
+    "title": "NetSuite OAuth Configuration",
+    "url": "https://docs.gumloop.com/nodes/integrations/netsuite-oauth-config.md",
+    "description": "",
+    "path": "/nodes/integrations/netsuite-oauth-config.md",
+    "id": "gumloop:0338:/nodes/integrations/netsuite-oauth-config.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\netsuite-oauth-config.md",
+    "status": "ok"
+  },
+  {
+    "title": "Supabase Table Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/supabase_table_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/supabase_table_reader.md",
+    "id": "gumloop:0339:/nodes/integrations/supabase_table_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\supabase_table_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Supabase Table Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/supabase_table_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/supabase_table_writer.md",
+    "id": "gumloop:0340:/nodes/integrations/supabase_table_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\supabase_table_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Supabase SQL Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/supabase_sql_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/supabase_sql_writer.md",
+    "id": "gumloop:0341:/nodes/integrations/supabase_sql_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\supabase_sql_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Firestore Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/firestore_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/firestore_writer.md",
+    "id": "gumloop:0342:/nodes/integrations/firestore_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\firestore_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Semrush Domain Overview",
+    "url": "https://docs.gumloop.com/nodes/integrations/semrush_domain_overview.md",
+    "description": "",
+    "path": "/nodes/integrations/semrush_domain_overview.md",
+    "id": "gumloop:0343:/nodes/integrations/semrush_domain_overview.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\semrush_domain_overview.md",
+    "status": "ok"
+  },
+  {
+    "title": "Semrush Domain Keywords",
+    "url": "https://docs.gumloop.com/nodes/integrations/semrush_domain_keywords.md",
+    "description": "",
+    "path": "/nodes/integrations/semrush_domain_keywords.md",
+    "id": "gumloop:0344:/nodes/integrations/semrush_domain_keywords.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\semrush_domain_keywords.md",
+    "status": "ok"
+  },
+  {
+    "title": "Semrush Keyword Overview",
+    "url": "https://docs.gumloop.com/nodes/integrations/semrush_keyword_overview.md",
+    "description": "",
+    "path": "/nodes/integrations/semrush_keyword_overview.md",
+    "id": "gumloop:0345:/nodes/integrations/semrush_keyword_overview.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\semrush_keyword_overview.md",
+    "status": "ok"
+  },
+  {
+    "title": "Semrush URL Keywords",
+    "url": "https://docs.gumloop.com/nodes/integrations/semrush_url_keywords.md",
+    "description": "",
+    "path": "/nodes/integrations/semrush_url_keywords.md",
+    "id": "gumloop:0346:/nodes/integrations/semrush_url_keywords.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\semrush_url_keywords.md",
+    "status": "ok"
+  },
+  {
+    "title": "Perplexity Web Search",
+    "url": "https://docs.gumloop.com/nodes/integrations/perplexity_web_search.md",
+    "description": "",
+    "path": "/nodes/integrations/perplexity_web_search.md",
+    "id": "gumloop:0347:/nodes/integrations/perplexity_web_search.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\perplexity_web_search.md",
+    "status": "ok"
+  },
+  {
+    "title": "Post to WordPress",
+    "url": "https://docs.gumloop.com/nodes/integrations/wordpress_poster.md",
+    "description": "",
+    "path": "/nodes/integrations/wordpress_poster.md",
+    "id": "gumloop:0348:/nodes/integrations/wordpress_poster.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\wordpress_poster.md",
+    "status": "ok"
+  },
+  {
+    "title": "Ghost Blog Writer",
+    "url": "https://docs.gumloop.com/nodes/integrations/ghost_blog_writer.md",
+    "description": "",
+    "path": "/nodes/integrations/ghost_blog_writer.md",
+    "id": "gumloop:0349:/nodes/integrations/ghost_blog_writer.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\ghost_blog_writer.md",
+    "status": "ok"
+  },
+  {
+    "title": "Get Youtube Transcript",
+    "url": "https://docs.gumloop.com/nodes/integrations/get_youtube_transcript.md",
+    "description": "",
+    "path": "/nodes/integrations/get_youtube_transcript.md",
+    "id": "gumloop:0350:/nodes/integrations/get_youtube_transcript.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\get_youtube_transcript.md",
+    "status": "ok"
+  },
+  {
+    "title": "RSS Feed Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/rss_feed_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/rss_feed_reader.md",
+    "id": "gumloop:0351:/nodes/integrations/rss_feed_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\rss_feed_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Mailgun Sender",
+    "url": "https://docs.gumloop.com/nodes/integrations/mailgun_sender.md",
+    "description": "",
+    "path": "/nodes/integrations/mailgun_sender.md",
+    "id": "gumloop:0352:/nodes/integrations/mailgun_sender.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\mailgun_sender.md",
+    "status": "ok"
+  },
+  {
+    "title": "Zendesk Ticket Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/zendesk_ticket_reader.md",
+    "description": "Read and monitor support tickets from Zendesk with automated triggers",
+    "path": "/nodes/integrations/zendesk_ticket_reader.md",
+    "id": "gumloop:0353:/nodes/integrations/zendesk_ticket_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\zendesk_ticket_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Store in S3",
+    "url": "https://docs.gumloop.com/nodes/integrations/amazon_s3.md",
+    "description": "",
+    "path": "/nodes/integrations/amazon_s3.md",
+    "id": "gumloop:0354:/nodes/integrations/amazon_s3.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\amazon_s3.md",
+    "status": "ok"
+  },
+  {
+    "title": "Apify Task Runner",
+    "url": "https://docs.gumloop.com/nodes/integrations/apify_task_runner.md",
+    "description": "",
+    "path": "/nodes/integrations/apify_task_runner.md",
+    "id": "gumloop:0355:/nodes/integrations/apify_task_runner.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\apify_task_runner.md",
+    "status": "ok"
+  },
+  {
+    "title": "Canva Autofill",
+    "url": "https://docs.gumloop.com/nodes/integrations/canva_autofill.md",
+    "description": "",
+    "path": "/nodes/integrations/canva_autofill.md",
+    "id": "gumloop:0356:/nodes/integrations/canva_autofill.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\canva_autofill.md",
+    "status": "ok"
+  },
+  {
+    "title": "Scrape Hacker News",
+    "url": "https://docs.gumloop.com/nodes/integrations/hacker_news.md",
+    "description": "",
+    "path": "/nodes/integrations/hacker_news.md",
+    "id": "gumloop:0357:/nodes/integrations/hacker_news.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\hacker_news.md",
+    "status": "ok"
+  },
+  {
+    "title": "Incident.io Incidents Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/incident_io.md",
+    "description": "Read and monitor incidents from incident.io with automated polling triggers",
+    "path": "/nodes/integrations/incident_io.md",
+    "id": "gumloop:0358:/nodes/integrations/incident_io.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\incident_io.md",
+    "status": "ok"
+  },
+  {
+    "title": "Launch Phantom",
+    "url": "https://docs.gumloop.com/nodes/integrations/launch_phantom.md",
+    "description": "",
+    "path": "/nodes/integrations/launch_phantom.md",
+    "id": "gumloop:0359:/nodes/integrations/launch_phantom.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\launch_phantom.md",
+    "status": "ok"
+  },
+  {
+    "title": "Typeform Submission Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/get_typeform_responses.md",
+    "description": "",
+    "path": "/nodes/integrations/get_typeform_responses.md",
+    "id": "gumloop:0360:/nodes/integrations/get_typeform_responses.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\get_typeform_responses.md",
+    "status": "ok"
+  },
+  {
+    "title": "Arcads Video Creator",
+    "url": "https://docs.gumloop.com/nodes/integrations/arcads_video_creator.md",
+    "description": "",
+    "path": "/nodes/integrations/arcads_video_creator.md",
+    "id": "gumloop:0361:/nodes/integrations/arcads_video_creator.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\arcads_video_creator.md",
+    "status": "ok"
+  },
+  {
+    "title": "Discourse Reader",
+    "url": "https://docs.gumloop.com/nodes/integrations/discourse_reader.md",
+    "description": "",
+    "path": "/nodes/integrations/discourse_reader.md",
+    "id": "gumloop:0362:/nodes/integrations/discourse_reader.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\discourse_reader.md",
+    "status": "ok"
+  },
+  {
+    "title": "Run Zap",
+    "url": "https://docs.gumloop.com/nodes/integrations/run_zap.md",
+    "description": "",
+    "path": "/nodes/integrations/run_zap.md",
+    "id": "gumloop:0363:/nodes/integrations/run_zap.md",
+    "category": "nodes",
+    "local_path": "raw\\nodes\\integrations\\run_zap.md",
+    "status": "ok"
+  },
+  {
+    "title": "Type Mismatch Errors",
+    "url": "https://docs.gumloop.com/common_errors/type_mismatch.md",
+    "description": "",
+    "path": "/common_errors/type_mismatch.md",
+    "id": "gumloop:0364:/common_errors/type_mismatch.md",
+    "category": "common_errors",
+    "local_path": "raw\\common_errors\\type_mismatch.md",
+    "status": "ok"
+  },
+  {
+    "title": "List Size Mismatch Errors",
+    "url": "https://docs.gumloop.com/common_errors/list_size_mismatch.md",
+    "description": "",
+    "path": "/common_errors/list_size_mismatch.md",
+    "id": "gumloop:0365:/common_errors/list_size_mismatch.md",
+    "category": "common_errors",
+    "local_path": "raw\\common_errors\\list_size_mismatch.md",
+    "status": "ok"
+  },
+  {
+    "title": "Join List Items vs Loop Mode",
+    "url": "https://docs.gumloop.com/common_errors/join_list_vs_loop_mode.md",
+    "description": "",
+    "path": "/common_errors/join_list_vs_loop_mode.md",
+    "id": "gumloop:0366:/common_errors/join_list_vs_loop_mode.md",
+    "category": "common_errors",
+    "local_path": "raw\\common_errors\\join_list_vs_loop_mode.md",
+    "status": "ok"
+  },
+  {
+    "title": "Flow Terminated Due to Excess Memory Consumption",
+    "url": "https://docs.gumloop.com/common_errors/memory_limit.md",
+    "description": "",
+    "path": "/common_errors/memory_limit.md",
+    "id": "gumloop:0367:/common_errors/memory_limit.md",
+    "category": "common_errors",
+    "local_path": "raw\\common_errors\\memory_limit.md",
+    "status": "ok"
+  },
+  {
+    "title": "Authentication",
+    "url": "https://docs.gumloop.com/api-reference/authentication.md",
+    "description": "",
+    "path": "/api-reference/authentication.md",
+    "id": "gumloop:0368:/api-reference/authentication.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\authentication.md",
+    "status": "ok"
+  },
+  {
+    "title": "OAuth 2.0",
+    "url": "https://docs.gumloop.com/api-reference/oauth.md",
+    "description": "",
+    "path": "/api-reference/oauth.md",
+    "id": "gumloop:0369:/api-reference/oauth.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\oauth.md",
+    "status": "ok"
+  },
+  {
+    "title": "Getting Started",
+    "url": "https://docs.gumloop.com/api-reference/getting-started.md",
+    "description": "Use the Gumloop API to create agents, start chat sessions, and trigger automations programmatically.",
+    "path": "/api-reference/getting-started.md",
+    "id": "gumloop:0370:/api-reference/getting-started.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\getting-started.md",
+    "status": "ok"
+  },
+  {
+    "title": "Python SDK",
+    "url": "https://docs.gumloop.com/api-reference/sdk/python.md",
+    "description": "",
+    "path": "/api-reference/sdk/python.md",
+    "id": "gumloop:0371:/api-reference/sdk/python.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\sdk\\python.md",
+    "status": "ok"
+  },
+  {
+    "title": "JavaScript SDK",
+    "url": "https://docs.gumloop.com/api-reference/sdk/javascript.md",
+    "description": "",
+    "path": "/api-reference/sdk/javascript.md",
+    "id": "gumloop:0372:/api-reference/sdk/javascript.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\sdk\\javascript.md",
+    "status": "ok"
+  },
+  {
+    "title": "List agents",
+    "url": "https://docs.gumloop.com/api-reference/agents/list-agents.md",
+    "description": "List agents the caller has access to. Filter by team, search by name, or narrow to agents that use a specific tool or trigger. Results can be sorted with `sort_order` and paginated by sending `page_size` and/or `cursor`.",
+    "path": "/api-reference/agents/list-agents.md",
+    "id": "gumloop:0373:/api-reference/agents/list-agents.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\agents\\list-agents.md",
+    "status": "ok"
+  },
+  {
+    "title": "Create agent",
+    "url": "https://docs.gumloop.com/api-reference/agents/create-agent.md",
+    "description": "Create a new agent. The authenticated caller must have permission to create agents on the target team.",
+    "path": "/api-reference/agents/create-agent.md",
+    "id": "gumloop:0374:/api-reference/agents/create-agent.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\agents\\create-agent.md",
+    "status": "ok"
+  },
+  {
+    "title": "Retrieve agent",
+    "url": "https://docs.gumloop.com/api-reference/agents/retrieve-agent.md",
+    "description": "Retrieve a single agent by ID.",
+    "path": "/api-reference/agents/retrieve-agent.md",
+    "id": "gumloop:0375:/api-reference/agents/retrieve-agent.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\agents\\retrieve-agent.md",
+    "status": "ok"
+  },
+  {
+    "title": "Update agent",
+    "url": "https://docs.gumloop.com/api-reference/agents/update-agent.md",
+    "description": "Update an existing agent. Only fields included in the request body are changed; omitted fields are left untouched.",
+    "path": "/api-reference/agents/update-agent.md",
+    "id": "gumloop:0376:/api-reference/agents/update-agent.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\agents\\update-agent.md",
+    "status": "ok"
+  },
+  {
+    "title": "List agent versions",
+    "url": "https://docs.gumloop.com/api-reference/agents/list-agent-versions.md",
+    "description": "List the immutable versions of an agent, newest first. Each entry is a point-in-time snapshot of the agent's configuration.",
+    "path": "/api-reference/agents/list-agent-versions.md",
+    "id": "gumloop:0377:/api-reference/agents/list-agent-versions.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\agents\\list-agent-versions.md",
+    "status": "ok"
+  },
+  {
+    "title": "Retrieve agent version",
+    "url": "https://docs.gumloop.com/api-reference/agents/retrieve-agent-version.md",
+    "description": "Retrieve one immutable agent version: its full configuration (`composition`) plus the structured `changes` relative to the version before it. Use it to export an agent's configuration or to audit what changed between versions.",
+    "path": "/api-reference/agents/retrieve-agent-version.md",
+    "id": "gumloop:0378:/api-reference/agents/retrieve-agent-version.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\agents\\retrieve-agent-version.md",
+    "status": "ok"
+  },
+  {
+    "title": "Attach or detach agent skills",
+    "url": "https://docs.gumloop.com/api-reference/agents/update-agent-skills.md",
+    "description": "Attach and/or detach skills on an agent using deltas. This is **not** a replace-list: skills you don't mention are left untouched.",
+    "path": "/api-reference/agents/update-agent-skills.md",
+    "id": "gumloop:0379:/api-reference/agents/update-agent-skills.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\agents\\update-agent-skills.md",
+    "status": "ok"
+  },
+  {
+    "title": "List agent MCP servers",
+    "url": "https://docs.gumloop.com/api-reference/agents/list-agent-mcp-servers.md",
+    "description": "List the MCP servers (connectors) attached to an agent. Sensitive fields such as `secret_id` and `mcp_server_url` are scrubbed from the response.",
+    "path": "/api-reference/agents/list-agent-mcp-servers.md",
+    "id": "gumloop:0380:/api-reference/agents/list-agent-mcp-servers.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\agents\\list-agent-mcp-servers.md",
+    "status": "ok"
+  },
+  {
+    "title": "Attach or update an agent MCP server",
+    "url": "https://docs.gumloop.com/api-reference/agents/attach-agent-mcp-server.md",
+    "description": "Attach an MCP server (connector) to an agent, or update its configuration if it's already attached (upsert).",
+    "path": "/api-reference/agents/attach-agent-mcp-server.md",
+    "id": "gumloop:0381:/api-reference/agents/attach-agent-mcp-server.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\agents\\attach-agent-mcp-server.md",
+    "status": "ok"
+  },
+  {
+    "title": "Detach an agent MCP server",
+    "url": "https://docs.gumloop.com/api-reference/agents/detach-agent-mcp-server.md",
+    "description": "Detach an MCP server (connector) from an agent. This is idempotent — detaching a server that isn't attached returns `detached: false` rather than an error.",
+    "path": "/api-reference/agents/detach-agent-mcp-server.md",
+    "id": "gumloop:0382:/api-reference/agents/detach-agent-mcp-server.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\agents\\detach-agent-mcp-server.md",
+    "status": "ok"
+  },
+  {
+    "title": "List sessions",
+    "url": "https://docs.gumloop.com/api-reference/sessions/list-sessions.md",
+    "description": "List sessions for an agent with cursor-based pagination, optional filtering, and search.",
+    "path": "/api-reference/sessions/list-sessions.md",
+    "id": "gumloop:0383:/api-reference/sessions/list-sessions.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\sessions\\list-sessions.md",
+    "status": "ok"
+  },
+  {
+    "title": "Create session",
+    "url": "https://docs.gumloop.com/api-reference/sessions/create-session.md",
+    "description": "Create a new session for an agent. When `input` is provided, the message is enqueued and the agent begins processing — the response returns `202` with the session in `processing` or `queued` state. When `input` is omitted, an idle session stub is created and the response returns `201`.",
+    "path": "/api-reference/sessions/create-session.md",
+    "id": "gumloop:0384:/api-reference/sessions/create-session.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\sessions\\create-session.md",
+    "status": "ok"
+  },
+  {
+    "title": "Retrieve session",
+    "url": "https://docs.gumloop.com/api-reference/sessions/retrieve-session.md",
+    "description": "Retrieve a session by ID, including its messages, current state, agent metadata, and participants.",
+    "path": "/api-reference/sessions/retrieve-session.md",
+    "id": "gumloop:0385:/api-reference/sessions/retrieve-session.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\sessions\\retrieve-session.md",
+    "status": "ok"
+  },
+  {
+    "title": "Send message",
+    "url": "https://docs.gumloop.com/api-reference/sessions/send-message.md",
+    "description": "Append a user message to an existing session and resume the agent. The session must be in a terminal state (`idle`, `completed`, or `failed`); sending to a session that is `processing` or `queued` returns `409 interaction_not_in_terminal_state`. To hand the agent a message while it is still busy, us…",
+    "path": "/api-reference/sessions/send-message.md",
+    "id": "gumloop:0386:/api-reference/sessions/send-message.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\sessions\\send-message.md",
+    "status": "ok"
+  },
+  {
+    "title": "Upload session file",
+    "url": "https://docs.gumloop.com/api-reference/sessions/upload-session-file.md",
+    "description": "Upload a file into a session's input namespace so it can be attached to a message. The response returns the stored path — pass it as `file_name` in the `attachments` array when sending a message on the same session.",
+    "path": "/api-reference/sessions/upload-session-file.md",
+    "id": "gumloop:0387:/api-reference/sessions/upload-session-file.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\sessions\\upload-session-file.md",
+    "status": "ok"
+  },
+  {
+    "title": "Resolve approvals",
+    "url": "https://docs.gumloop.com/api-reference/sessions/resolve-approvals.md",
+    "description": "Answer pending asks on a session that is paused in the `approval_required` state — tool approvals, human input requests, and checkpoints.",
+    "path": "/api-reference/sessions/resolve-approvals.md",
+    "id": "gumloop:0388:/api-reference/sessions/resolve-approvals.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\sessions\\resolve-approvals.md",
+    "status": "ok"
+  },
+  {
+    "title": "Queue message",
+    "url": "https://docs.gumloop.com/api-reference/sessions/queue-message.md",
+    "description": "Add a message to a session's queue instead of interrupting the agent. Queued messages are sent automatically, in order, when the agent finishes its current turn. A session's queue holds at most 20 messages.",
+    "path": "/api-reference/sessions/queue-message.md",
+    "id": "gumloop:0389:/api-reference/sessions/queue-message.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\sessions\\queue-message.md",
+    "status": "ok"
+  },
+  {
+    "title": "List queued messages",
+    "url": "https://docs.gumloop.com/api-reference/sessions/list-queued-messages.md",
+    "description": "List the messages waiting in a session's queue, in the order they will be sent. Queued messages are drained automatically when the agent finishes its current turn.",
+    "path": "/api-reference/sessions/list-queued-messages.md",
+    "id": "gumloop:0390:/api-reference/sessions/list-queued-messages.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\sessions\\list-queued-messages.md",
+    "status": "ok"
+  },
+  {
+    "title": "Update queued message",
+    "url": "https://docs.gumloop.com/api-reference/sessions/update-queued-message.md",
+    "description": "Replace the content of a message that is still waiting in the session's queue.",
+    "path": "/api-reference/sessions/update-queued-message.md",
+    "id": "gumloop:0391:/api-reference/sessions/update-queued-message.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\sessions\\update-queued-message.md",
+    "status": "ok"
+  },
+  {
+    "title": "Delete queued message",
+    "url": "https://docs.gumloop.com/api-reference/sessions/delete-queued-message.md",
+    "description": "Remove a message from the session's queue before it is sent.",
+    "path": "/api-reference/sessions/delete-queued-message.md",
+    "id": "gumloop:0392:/api-reference/sessions/delete-queued-message.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\sessions\\delete-queued-message.md",
+    "status": "ok"
+  },
+  {
+    "title": "Send queued message now",
+    "url": "https://docs.gumloop.com/api-reference/sessions/send-queued-message.md",
+    "description": "Send a queued message immediately instead of waiting for the agent to finish its current turn. Any in-progress run is aborted, the queued message is appended to the transcript, and the agent starts processing it.",
+    "path": "/api-reference/sessions/send-queued-message.md",
+    "id": "gumloop:0393:/api-reference/sessions/send-queued-message.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\sessions\\send-queued-message.md",
+    "status": "ok"
+  },
+  {
+    "title": "Cancel session",
+    "url": "https://docs.gumloop.com/api-reference/sessions/cancel-session.md",
+    "description": "Cancel an in-progress session. If the session is currently `processing` or `queued`, any running stream is aborted and the session is transitioned to `failed`. If the session is already `completed` or `failed`, its current state is returned unchanged.",
+    "path": "/api-reference/sessions/cancel-session.md",
+    "id": "gumloop:0394:/api-reference/sessions/cancel-session.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\sessions\\cancel-session.md",
+    "status": "ok"
+  },
+  {
+    "title": "List skills",
+    "url": "https://docs.gumloop.com/api-reference/skills/list-skills.md",
+    "description": "List skills the caller has access to. Filter by team, search by name, or narrow to a specific creator, related MCP server, or agent.",
+    "path": "/api-reference/skills/list-skills.md",
+    "id": "gumloop:0395:/api-reference/skills/list-skills.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\skills\\list-skills.md",
+    "status": "ok"
+  },
+  {
+    "title": "Create skill",
+    "url": "https://docs.gumloop.com/api-reference/skills/create-skill.md",
+    "description": "Upload a skill package and create a new skill. The package must include a `SKILL.md` with `name` and `description` frontmatter; uploads may be a single `.md` file (stored as `SKILL.md`), or a `.zip` / `.skill` archive containing `SKILL.md` at its root. The initial version is created automatically. M…",
+    "path": "/api-reference/skills/create-skill.md",
+    "id": "gumloop:0396:/api-reference/skills/create-skill.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\skills\\create-skill.md",
+    "status": "ok"
+  },
+  {
+    "title": "Update skill",
+    "url": "https://docs.gumloop.com/api-reference/skills/update-skill.md",
+    "description": "Replace a skill's files with a new upload. Reparses `SKILL.md` to update the skill's `name`, `description`, and `metadata`, and creates a new version. Maximum upload size is 10 MB.",
+    "path": "/api-reference/skills/update-skill.md",
+    "id": "gumloop:0397:/api-reference/skills/update-skill.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\skills\\update-skill.md",
+    "status": "ok"
+  },
+  {
+    "title": "Delete skill",
+    "url": "https://docs.gumloop.com/api-reference/skills/delete-skill.md",
+    "description": "Permanently delete a skill. This is a soft-delete — the skill will no longer appear in listings or be usable by agents.",
+    "path": "/api-reference/skills/delete-skill.md",
+    "id": "gumloop:0398:/api-reference/skills/delete-skill.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\skills\\delete-skill.md",
+    "status": "ok"
+  },
+  {
+    "title": "Download skill",
+    "url": "https://docs.gumloop.com/api-reference/skills/download-skill.md",
+    "description": "Generate a signed URL to download a skill's contents as a `.skill` archive (ZIP). When `version_id` is provided, returns that exact version; otherwise returns the current draft.",
+    "path": "/api-reference/skills/download-skill.md",
+    "id": "gumloop:0399:/api-reference/skills/download-skill.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\skills\\download-skill.md",
+    "status": "ok"
+  },
+  {
+    "title": "List artifacts",
+    "url": "https://docs.gumloop.com/api-reference/artifacts/list-artifacts.md",
+    "description": "List artifacts (files) produced by an agent. Optionally scope to a specific session, search by filename, sort, and paginate. Deleted files are excluded from the results.",
+    "path": "/api-reference/artifacts/list-artifacts.md",
+    "id": "gumloop:0400:/api-reference/artifacts/list-artifacts.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\artifacts\\list-artifacts.md",
+    "status": "ok"
+  },
+  {
+    "title": "Download artifact",
+    "url": "https://docs.gumloop.com/api-reference/artifacts/download-artifact.md",
+    "description": "Returns a signed download URL for an artifact, plus its filename, media type, and size. Follow `download_url` to fetch the file bytes.",
+    "path": "/api-reference/artifacts/download-artifact.md",
+    "id": "gumloop:0401:/api-reference/artifacts/download-artifact.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\artifacts\\download-artifact.md",
+    "status": "ok"
+  },
+  {
+    "title": "List MCP servers",
+    "url": "https://docs.gumloop.com/api-reference/mcp/list-servers.md",
+    "description": "Return the catalog of MCP servers visible to the caller — Gumloop-hosted (`gumcp_server`), user-deployed Gumstack (`gumstack_server`), and custom (`mcp_server`) — along with each server's connection state.",
+    "path": "/api-reference/mcp/list-servers.md",
+    "id": "gumloop:0402:/api-reference/mcp/list-servers.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\mcp\\list-servers.md",
+    "status": "ok"
+  },
+  {
+    "title": "Retrieve an MCP server",
+    "url": "https://docs.gumloop.com/api-reference/mcp/retrieve-server.md",
+    "description": "Return a single MCP server. The response populates `allowed_tool_call_ids` with the tool call IDs the caller is permitted to invoke on this server.",
+    "path": "/api-reference/mcp/retrieve-server.md",
+    "id": "gumloop:0403:/api-reference/mcp/retrieve-server.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\mcp\\retrieve-server.md",
+    "status": "ok"
+  },
+  {
+    "title": "List MCP server tools",
+    "url": "https://docs.gumloop.com/api-reference/mcp/list-tools.md",
+    "description": "Return the tools exposed by an MCP server. When the server is not in `connected` state, `tools` is empty and `gumloop_auth_url` is returned so the caller can prompt the user to authenticate.",
+    "path": "/api-reference/mcp/list-tools.md",
+    "id": "gumloop:0404:/api-reference/mcp/list-tools.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\mcp\\list-tools.md",
+    "status": "ok"
+  },
+  {
+    "title": "Call MCP tools",
+    "url": "https://docs.gumloop.com/api-reference/mcp/call-tool.md",
+    "description": "Execute a batch of 1–5 MCP tool calls. Calls run concurrently and each result reports its own `status`. When Gumloop accepts the request, MCP execution failures such as target server authentication, policy blocks, invalid tools, upstream HTTP errors, and connection failures are returned in `results[…",
+    "path": "/api-reference/mcp/call-tool.md",
+    "id": "gumloop:0405:/api-reference/mcp/call-tool.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\mcp\\call-tool.md",
+    "status": "ok"
+  },
+  {
+    "title": "List evaluations",
+    "url": "https://docs.gumloop.com/api-reference/evaluations/list-evaluations.md",
+    "description": "Returns a cursor-paginated list of evaluation results for a specific agent, newest first. Only completed and failed evaluations are returned (transient states like queued/in_progress are excluded).",
+    "path": "/api-reference/evaluations/list-evaluations.md",
+    "id": "gumloop:0406:/api-reference/evaluations/list-evaluations.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\evaluations\\list-evaluations.md",
+    "status": "ok"
+  },
+  {
+    "title": "Retrieve evaluation",
+    "url": "https://docs.gumloop.com/api-reference/evaluations/retrieve-evaluation.md",
+    "description": "Retrieve a single evaluation result by ID. The evaluation must belong to the specified agent.",
+    "path": "/api-reference/evaluations/retrieve-evaluation.md",
+    "id": "gumloop:0407:/api-reference/evaluations/retrieve-evaluation.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\evaluations\\retrieve-evaluation.md",
+    "status": "ok"
+  },
+  {
+    "title": "Get evaluation metrics",
+    "url": "https://docs.gumloop.com/api-reference/evaluations/get-metrics.md",
+    "description": "Returns aggregated grade and tag counts for an agent's evaluations over a time window. Useful for dashboards and reporting on agent quality trends.",
+    "path": "/api-reference/evaluations/get-metrics.md",
+    "id": "gumloop:0408:/api-reference/evaluations/get-metrics.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\evaluations\\get-metrics.md",
+    "status": "ok"
+  },
+  {
+    "title": "Get evaluation config",
+    "url": "https://docs.gumloop.com/api-reference/evaluations/get-config.md",
+    "description": "Retrieve the current evaluation configuration for an agent, including criteria, tags, data points, and sentiment settings.",
+    "path": "/api-reference/evaluations/get-config.md",
+    "id": "gumloop:0409:/api-reference/evaluations/get-config.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\evaluations\\get-config.md",
+    "status": "ok"
+  },
+  {
+    "title": "Update evaluation config",
+    "url": "https://docs.gumloop.com/api-reference/evaluations/update-config.md",
+    "description": "Partially update the evaluation configuration for an agent. Omitted fields keep their current value. Provided list fields (criteria, tags, data_points) replace that list entirely.",
+    "path": "/api-reference/evaluations/update-config.md",
+    "id": "gumloop:0410:/api-reference/evaluations/update-config.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\evaluations\\update-config.md",
+    "status": "ok"
+  },
+  {
+    "title": "Search Company Brain",
+    "url": "https://docs.gumloop.com/api-reference/brain/search.md",
+    "description": "Run a hybrid (semantic + keyword) search across the knowledge sources indexed in your [Company Brain](/core-concepts/brain) and return the most relevant, ranked snippets with citations.",
+    "path": "/api-reference/brain/search.md",
+    "id": "gumloop:0411:/api-reference/brain/search.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\brain\\search.md",
+    "status": "ok"
+  },
+  {
+    "title": "List teams",
+    "url": "https://docs.gumloop.com/api-reference/teams/list-teams.md",
+    "description": "List teams the authenticated caller belongs to.",
+    "path": "/api-reference/teams/list-teams.md",
+    "id": "gumloop:0412:/api-reference/teams/list-teams.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\teams\\list-teams.md",
+    "status": "ok"
+  },
+  {
+    "title": "Create chat completion",
+    "url": "https://docs.gumloop.com/api-reference/chat-completions/create-completion.md",
+    "description": "OpenAI-compatible chat completions endpoint, multiplexed across every model Gumloop supports (Anthropic, OpenAI, Google Gemini, OpenRouter routes). Set `stream: true` for Server-Sent Events, or omit it for a unary JSON response. Image-generation models (`gpt-image-*`, `gemini-*-image-preview`, `dall…",
+    "path": "/api-reference/chat-completions/create-completion.md",
+    "id": "gumloop:0413:/api-reference/chat-completions/create-completion.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\chat-completions\\create-completion.md",
+    "status": "ok"
+  },
+  {
+    "title": "List models",
+    "url": "https://docs.gumloop.com/api-reference/models/list-models.md",
+    "description": "List the LLMs and preset model chains available to the caller, grouped for display in a model picker.",
+    "path": "/api-reference/models/list-models.md",
+    "id": "gumloop:0414:/api-reference/models/list-models.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\models\\list-models.md",
+    "status": "ok"
+  },
+  {
+    "title": "List saved flows",
+    "url": "https://docs.gumloop.com/api-reference/getting-automation-details/list-saved-automations.md",
+    "description": "",
+    "path": "/api-reference/getting-automation-details/list-saved-automations.md",
+    "id": "gumloop:0415:/api-reference/getting-automation-details/list-saved-automations.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\getting-automation-details\\list-saved-automations.md",
+    "status": "ok"
+  },
+  {
+    "title": "List workbooks and their saved flows",
+    "url": "https://docs.gumloop.com/api-reference/getting-automation-details/list-workbooks.md",
+    "description": "",
+    "path": "/api-reference/getting-automation-details/list-workbooks.md",
+    "id": "gumloop:0416:/api-reference/getting-automation-details/list-workbooks.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\getting-automation-details\\list-workbooks.md",
+    "status": "ok"
+  },
+  {
+    "title": "Retrieve input schema",
+    "url": "https://docs.gumloop.com/api-reference/getting-automation-details/retrieve-input-schema.md",
+    "description": "",
+    "path": "/api-reference/getting-automation-details/retrieve-input-schema.md",
+    "id": "gumloop:0417:/api-reference/getting-automation-details/retrieve-input-schema.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\getting-automation-details\\retrieve-input-schema.md",
+    "status": "ok"
+  },
+  {
+    "title": "Retrieve automation run history",
+    "url": "https://docs.gumloop.com/api-reference/getting-automation-details/retrieve-run-history.md",
+    "description": "This endpoint retrieves the run history for automations, either by workbook or saved item. Returns the 10 most recent runs.",
+    "path": "/api-reference/getting-automation-details/retrieve-run-history.md",
+    "id": "gumloop:0418:/api-reference/getting-automation-details/retrieve-run-history.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\getting-automation-details\\retrieve-run-history.md",
+    "status": "ok"
+  },
+  {
+    "title": "Upload file",
+    "url": "https://docs.gumloop.com/api-reference/file-operations/upload-file.md",
+    "description": "",
+    "path": "/api-reference/file-operations/upload-file.md",
+    "id": "gumloop:0419:/api-reference/file-operations/upload-file.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\file-operations\\upload-file.md",
+    "status": "ok"
+  },
+  {
+    "title": "Upload multiple files",
+    "url": "https://docs.gumloop.com/api-reference/file-operations/upload-files.md",
+    "description": "",
+    "path": "/api-reference/file-operations/upload-files.md",
+    "id": "gumloop:0420:/api-reference/file-operations/upload-files.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\file-operations\\upload-files.md",
+    "status": "ok"
+  },
+  {
+    "title": "Download file",
+    "url": "https://docs.gumloop.com/api-reference/file-operations/download-file.md",
+    "description": "",
+    "path": "/api-reference/file-operations/download-file.md",
+    "id": "gumloop:0421:/api-reference/file-operations/download-file.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\file-operations\\download-file.md",
+    "status": "ok"
+  },
+  {
+    "title": "Download multiple files",
+    "url": "https://docs.gumloop.com/api-reference/file-operations/download-files.md",
+    "description": "",
+    "path": "/api-reference/file-operations/download-files.md",
+    "id": "gumloop:0422:/api-reference/file-operations/download-files.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\file-operations\\download-files.md",
+    "status": "ok"
+  },
+  {
+    "title": "Retrieve audit logs",
+    "url": "https://docs.gumloop.com/api-reference/organization/get-audit-logs.md",
+    "description": "This endpoint retrieves audit logs for all users in an organization for a specified time period.",
+    "path": "/api-reference/organization/get-audit-logs.md",
+    "id": "gumloop:0423:/api-reference/organization/get-audit-logs.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\organization\\get-audit-logs.md",
+    "status": "ok"
+  },
+  {
+    "title": "Manage workspace users",
+    "url": "https://docs.gumloop.com/api-reference/organization/manage-workspace-users.md",
+    "description": "This endpoint allows organization administrators to add or remove users from a workspace.",
+    "path": "/api-reference/organization/manage-workspace-users.md",
+    "id": "gumloop:0424:/api-reference/organization/manage-workspace-users.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\organization\\manage-workspace-users.md",
+    "status": "ok"
+  },
+  {
+    "title": "Manage custom role users",
+    "url": "https://docs.gumloop.com/api-reference/organization/manage-permission-group-users.md",
+    "description": "This endpoint allows organization administrators to add or remove users from a custom role (formerly \"permission group\"). Adding a user to a role does not remove them from any other role they belong to.",
+    "path": "/api-reference/organization/manage-permission-group-users.md",
+    "id": "gumloop:0425:/api-reference/organization/manage-permission-group-users.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\organization\\manage-permission-group-users.md",
+    "status": "ok"
+  },
+  {
+    "title": "List custom role credit limits",
+    "url": "https://docs.gumloop.com/api-reference/organization/list-role-credit-limits.md",
+    "description": "This endpoint lists every active custom role in an organization together with its monthly credit limit, so external systems can manage credit limits programmatically. A `monthly_credit_limit` of `null` means the role sets no limit of its own. The limit applies to each member of the role individually…",
+    "path": "/api-reference/organization/list-role-credit-limits.md",
+    "id": "gumloop:0426:/api-reference/organization/list-role-credit-limits.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\organization\\list-role-credit-limits.md",
+    "status": "ok"
+  },
+  {
+    "title": "Get custom role credit limit",
+    "url": "https://docs.gumloop.com/api-reference/organization/get-role-credit-limit.md",
+    "description": "This endpoint returns the monthly credit limit of one custom role. A `monthly_credit_limit` of `null` means the role sets no limit of its own.",
+    "path": "/api-reference/organization/get-role-credit-limit.md",
+    "id": "gumloop:0427:/api-reference/organization/get-role-credit-limit.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\organization\\get-role-credit-limit.md",
+    "status": "ok"
+  },
+  {
+    "title": "Set custom role credit limit",
+    "url": "https://docs.gumloop.com/api-reference/organization/set-role-credit-limit.md",
+    "description": "This endpoint sets or clears the monthly credit limit of a custom role. The limit applies to each member of the role individually and takes effect immediately: member allowances are recalculated while preserving credits already used in the current billing cycle. Send `\"monthly_credit_limit\": null` t…",
+    "path": "/api-reference/organization/set-role-credit-limit.md",
+    "id": "gumloop:0428:/api-reference/organization/set-role-credit-limit.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\organization\\set-role-credit-limit.md",
+    "status": "ok"
+  },
+  {
+    "title": "Export data",
+    "url": "https://docs.gumloop.com/api-reference/organization/export-data.md",
+    "description": "This endpoint allows enterprise organization administrators to create and initiate a comprehensive data export for their organization or specific workspaces.",
+    "path": "/api-reference/organization/export-data.md",
+    "id": "gumloop:0429:/api-reference/organization/export-data.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\organization\\export-data.md",
+    "status": "ok"
+  },
+  {
+    "title": "Get data export status",
+    "url": "https://docs.gumloop.com/api-reference/organization/export-status.md",
+    "description": "This endpoint retrieves the status of a data export job and optionally downloads the export file (as CSV) if the export has completed successfully.",
+    "path": "/api-reference/organization/export-status.md",
+    "id": "gumloop:0430:/api-reference/organization/export-status.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\organization\\export-status.md",
+    "status": "ok"
+  },
+  {
+    "title": "Start flow run",
+    "url": "https://docs.gumloop.com/api-reference/running-an-automation/start-automation.md",
+    "description": "This endpoint is used to trigger a flow run via API",
+    "path": "/api-reference/running-an-automation/start-automation.md",
+    "id": "gumloop:0431:/api-reference/running-an-automation/start-automation.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\running-an-automation\\start-automation.md",
+    "status": "ok"
+  },
+  {
+    "title": "Kill flow run",
+    "url": "https://docs.gumloop.com/api-reference/running-an-automation/kill-automation.md",
+    "description": "This endpoint is used to kill a flow run and all its subflow runs.",
+    "path": "/api-reference/running-an-automation/kill-automation.md",
+    "id": "gumloop:0432:/api-reference/running-an-automation/kill-automation.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\running-an-automation\\kill-automation.md",
+    "status": "ok"
+  },
+  {
+    "title": "Retrieve run details",
+    "url": "https://docs.gumloop.com/api-reference/running-an-automation/retrieve-run-details.md",
+    "description": "This endpoint can be used to poll for completion and retrieve final flow outputs. Output nodes must be used to retrieve outputs.",
+    "path": "/api-reference/running-an-automation/retrieve-run-details.md",
+    "id": "gumloop:0433:/api-reference/running-an-automation/retrieve-run-details.md",
+    "category": "api-reference",
+    "local_path": "raw\\api-reference\\running-an-automation\\retrieve-run-details.md",
+    "status": "ok"
+  },
+  {
+    "title": "Gumloop for Terminal",
+    "url": "https://docs.gumloop.com/cli/overview.md",
+    "description": "Drive Gumloop agents, sessions, chat completions, MCP servers, Company Brain, skills, and artifacts from your shell.",
+    "path": "/cli/overview.md",
+    "id": "gumloop:0434:/cli/overview.md",
+    "category": "cli",
+    "local_path": "raw\\cli\\overview.md",
+    "status": "ok"
+  },
+  {
+    "title": "Authentication",
+    "url": "https://docs.gumloop.com/cli/authentication.md",
+    "description": "Sign in with OAuth or an API key. The CLI stores credentials in your OS keychain.",
+    "path": "/cli/authentication.md",
+    "id": "gumloop:0435:/cli/authentication.md",
+    "category": "cli",
+    "local_path": "raw\\cli\\authentication.md",
+    "status": "ok"
+  },
+  {
+    "title": "Agents",
+    "url": "https://docs.gumloop.com/cli/agents.md",
+    "description": "List, inspect, create, and update agents from the terminal.",
+    "path": "/cli/agents.md",
+    "id": "gumloop:0436:/cli/agents.md",
+    "category": "cli",
+    "local_path": "raw\\cli\\agents.md",
+    "status": "ok"
+  },
+  {
+    "title": "Sessions",
+    "url": "https://docs.gumloop.com/cli/sessions.md",
+    "description": "Start agent conversations, send follow-ups, and cancel running sessions.",
+    "path": "/cli/sessions.md",
+    "id": "gumloop:0437:/cli/sessions.md",
+    "category": "cli",
+    "local_path": "raw\\cli\\sessions.md",
+    "status": "ok"
+  },
+  {
+    "title": "Chat",
+    "url": "https://docs.gumloop.com/cli/chat.md",
+    "description": "Send chat completions to any Gumloop-supported model from the terminal.",
+    "path": "/cli/chat.md",
+    "id": "gumloop:0438:/cli/chat.md",
+    "category": "cli",
+    "local_path": "raw\\cli\\chat.md",
+    "status": "ok"
+  },
+  {
+    "title": "MCP Servers",
+    "url": "https://docs.gumloop.com/cli/mcp.md",
+    "description": "Explore the MCP servers available to your account and execute their tools.",
+    "path": "/cli/mcp.md",
+    "id": "gumloop:0439:/cli/mcp.md",
+    "category": "cli",
+    "local_path": "raw\\cli\\mcp.md",
+    "status": "ok"
+  },
+  {
+    "title": "Brain",
+    "url": "https://docs.gumloop.com/cli/brain.md",
+    "description": "Search your Company Brain's indexed knowledge sources from the terminal.",
+    "path": "/cli/brain.md",
+    "id": "gumloop:0440:/cli/brain.md",
+    "category": "cli",
+    "local_path": "raw\\cli\\brain.md",
+    "status": "ok"
+  },
+  {
+    "title": "Skills",
+    "url": "https://docs.gumloop.com/cli/skills.md",
+    "description": "Upload, update, and download agent skills as files.",
+    "path": "/cli/skills.md",
+    "id": "gumloop:0441:/cli/skills.md",
+    "category": "cli",
+    "local_path": "raw\\cli\\skills.md",
+    "status": "ok"
+  },
+  {
+    "title": "Artifacts",
+    "url": "https://docs.gumloop.com/cli/artifacts.md",
+    "description": "List and download files produced by agents.",
+    "path": "/cli/artifacts.md",
+    "id": "gumloop:0442:/cli/artifacts.md",
+    "category": "cli",
+    "local_path": "raw\\cli\\artifacts.md",
+    "status": "ok"
+  },
+  {
+    "title": "MCP Server",
+    "url": "https://docs.gumloop.com/mcp-server/overview.md",
+    "description": "Connect to the Gumloop MCP server from Claude, Cursor, VS Code, and other MCP-compatible clients.",
+    "path": "/mcp-server/overview.md",
+    "id": "gumloop:0443:/mcp-server/overview.md",
+    "category": "mcp-server",
+    "local_path": "raw\\mcp-server\\overview.md",
+    "status": "ok"
+  },
+  {
+    "title": "Help Center",
+    "url": "https://docs.gumloop.com/help/index.md",
+    "description": "",
+    "path": "/help/index.md",
+    "id": "gumloop:0444:/help/index.md",
+    "category": "help",
+    "local_path": "raw\\help\\index.md",
+    "status": "ok"
+  },
+  {
+    "title": "Using Agents",
+    "url": "https://docs.gumloop.com/help/using-agents/index.md",
+    "description": "",
+    "path": "/help/using-agents/index.md",
+    "id": "gumloop:0445:/help/using-agents/index.md",
+    "category": "help",
+    "local_path": "raw\\help\\using-agents\\index.md",
+    "status": "ok"
+  },
+  {
+    "title": "Give an Agent a Connector",
+    "url": "https://docs.gumloop.com/help/using-agents/give-agent-access-to-a-connector.md",
+    "description": "",
+    "path": "/help/using-agents/give-agent-access-to-a-connector.md",
+    "id": "gumloop:0446:/help/using-agents/give-agent-access-to-a-connector.md",
+    "category": "help",
+    "local_path": "raw\\help\\using-agents\\give-agent-access-to-a-connector.md",
+    "status": "ok"
+  },
+  {
+    "title": "Choose the Right AI Model",
+    "url": "https://docs.gumloop.com/help/using-agents/choose-the-right-ai-model.md",
+    "description": "",
+    "path": "/help/using-agents/choose-the-right-ai-model.md",
+    "id": "gumloop:0447:/help/using-agents/choose-the-right-ai-model.md",
+    "category": "help",
+    "local_path": "raw\\help\\using-agents\\choose-the-right-ai-model.md",
+    "status": "ok"
+  },
+  {
+    "title": "Does My Agent Remember Conversations?",
+    "url": "https://docs.gumloop.com/help/using-agents/does-my-agent-remember-conversations.md",
+    "description": "",
+    "path": "/help/using-agents/does-my-agent-remember-conversations.md",
+    "id": "gumloop:0448:/help/using-agents/does-my-agent-remember-conversations.md",
+    "category": "help",
+    "local_path": "raw\\help\\using-agents\\does-my-agent-remember-conversations.md",
+    "status": "ok"
+  },
+  {
+    "title": "Sharing and Teams",
+    "url": "https://docs.gumloop.com/help/sharing/index.md",
+    "description": "",
+    "path": "/help/sharing/index.md",
+    "id": "gumloop:0449:/help/sharing/index.md",
+    "category": "help",
+    "local_path": "raw\\help\\sharing\\index.md",
+    "status": "ok"
+  },
+  {
+    "title": "Roll Out an Agent",
+    "url": "https://docs.gumloop.com/help/sharing/roll-out-an-agent.md",
+    "description": "",
+    "path": "/help/sharing/roll-out-an-agent.md",
+    "id": "gumloop:0450:/help/sharing/roll-out-an-agent.md",
+    "category": "help",
+    "local_path": "raw\\help\\sharing\\roll-out-an-agent.md",
+    "status": "ok"
+  },
+  {
+    "title": "Create a Team",
+    "url": "https://docs.gumloop.com/help/sharing/create-a-team.md",
+    "description": "",
+    "path": "/help/sharing/create-a-team.md",
+    "id": "gumloop:0451:/help/sharing/create-a-team.md",
+    "category": "help",
+    "local_path": "raw\\help\\sharing\\create-a-team.md",
+    "status": "ok"
+  },
+  {
+    "title": "Add Someone to Your Org or Team",
+    "url": "https://docs.gumloop.com/help/sharing/add-someone-to-org-or-team.md",
+    "description": "",
+    "path": "/help/sharing/add-someone-to-org-or-team.md",
+    "id": "gumloop:0452:/help/sharing/add-someone-to-org-or-team.md",
+    "category": "help",
+    "local_path": "raw\\help\\sharing\\add-someone-to-org-or-team.md",
+    "status": "ok"
+  },
+  {
+    "title": "Sharing Roles",
+    "url": "https://docs.gumloop.com/help/sharing/sharing-roles.md",
+    "description": "",
+    "path": "/help/sharing/sharing-roles.md",
+    "id": "gumloop:0453:/help/sharing/sharing-roles.md",
+    "category": "help",
+    "local_path": "raw\\help\\sharing\\sharing-roles.md",
+    "status": "ok"
+  },
+  {
+    "title": "Enable Agent-Owned Credentials",
+    "url": "https://docs.gumloop.com/help/sharing/enable-agent-owned-credentials.md",
+    "description": "",
+    "path": "/help/sharing/enable-agent-owned-credentials.md",
+    "id": "gumloop:0454:/help/sharing/enable-agent-owned-credentials.md",
+    "category": "help",
+    "local_path": "raw\\help\\sharing\\enable-agent-owned-credentials.md",
+    "status": "ok"
+  },
+  {
+    "title": "Who Can See Chats?",
+    "url": "https://docs.gumloop.com/help/sharing/who-can-see-chats.md",
+    "description": "",
+    "path": "/help/sharing/who-can-see-chats.md",
+    "id": "gumloop:0455:/help/sharing/who-can-see-chats.md",
+    "category": "help",
+    "local_path": "raw\\help\\sharing\\who-can-see-chats.md",
+    "status": "ok"
+  },
+  {
+    "title": "Let Someone Edit Your Agent",
+    "url": "https://docs.gumloop.com/help/sharing/let-someone-edit-an-agent.md",
+    "description": "",
+    "path": "/help/sharing/let-someone-edit-an-agent.md",
+    "id": "gumloop:0456:/help/sharing/let-someone-edit-an-agent.md",
+    "category": "help",
+    "local_path": "raw\\help\\sharing\\let-someone-edit-an-agent.md",
+    "status": "ok"
+  },
+  {
+    "title": "Credits",
+    "url": "https://docs.gumloop.com/help/credits/index.md",
+    "description": "",
+    "path": "/help/credits/index.md",
+    "id": "gumloop:0457:/help/credits/index.md",
+    "category": "help",
+    "local_path": "raw\\help\\credits\\index.md",
+    "status": "ok"
+  },
+  {
+    "title": "Who Pays for a Shared Agent?",
+    "url": "https://docs.gumloop.com/help/credits/who-gets-charged-shared-agent.md",
+    "description": "",
+    "path": "/help/credits/who-gets-charged-shared-agent.md",
+    "id": "gumloop:0458:/help/credits/who-gets-charged-shared-agent.md",
+    "category": "help",
+    "local_path": "raw\\help\\credits\\who-gets-charged-shared-agent.md",
+    "status": "ok"
+  },
+  {
+    "title": "Who Pays for an Interactive Artifact?",
+    "url": "https://docs.gumloop.com/help/credits/who-pays-interactive-artifact.md",
+    "description": "",
+    "path": "/help/credits/who-pays-interactive-artifact.md",
+    "id": "gumloop:0459:/help/credits/who-pays-interactive-artifact.md",
+    "category": "help",
+    "local_path": "raw\\help\\credits\\who-pays-interactive-artifact.md",
+    "status": "ok"
+  },
+  {
+    "title": "Connectors",
+    "url": "https://docs.gumloop.com/help/connectors/index.md",
+    "description": "",
+    "path": "/help/connectors/index.md",
+    "id": "gumloop:0460:/help/connectors/index.md",
+    "category": "help",
+    "local_path": "raw\\help\\connectors\\index.md",
+    "status": "ok"
+  },
+  {
+    "title": "Add Team Connectors",
+    "url": "https://docs.gumloop.com/help/connectors/add-team-connectors.md",
+    "description": "",
+    "path": "/help/connectors/add-team-connectors.md",
+    "id": "gumloop:0461:/help/connectors/add-team-connectors.md",
+    "category": "help",
+    "local_path": "raw\\help\\connectors\\add-team-connectors.md",
+    "status": "ok"
+  },
+  {
+    "title": "Use Team Connectors",
+    "url": "https://docs.gumloop.com/help/connectors/use-team-connectors.md",
+    "description": "",
+    "path": "/help/connectors/use-team-connectors.md",
+    "id": "gumloop:0462:/help/connectors/use-team-connectors.md",
+    "category": "help",
+    "local_path": "raw\\help\\connectors\\use-team-connectors.md",
+    "status": "ok"
+  },
+  {
+    "title": "Revoke and Reconnect a Connector",
+    "url": "https://docs.gumloop.com/help/connectors/revoke-and-reconnect.md",
+    "description": "",
+    "path": "/help/connectors/revoke-and-reconnect.md",
+    "id": "gumloop:0463:/help/connectors/revoke-and-reconnect.md",
+    "category": "help",
+    "local_path": "raw\\help\\connectors\\revoke-and-reconnect.md",
+    "status": "ok"
+  },
+  {
+    "title": "Use Your Own LLM Key",
+    "url": "https://docs.gumloop.com/help/connectors/use-your-own-llm-key.md",
+    "description": "",
+    "path": "/help/connectors/use-your-own-llm-key.md",
+    "id": "gumloop:0464:/help/connectors/use-your-own-llm-key.md",
+    "category": "help",
+    "local_path": "raw\\help\\connectors\\use-your-own-llm-key.md",
+    "status": "ok"
+  },
+  {
+    "title": "Find Your Gumloop API Key",
+    "url": "https://docs.gumloop.com/help/connectors/find-your-api-key.md",
+    "description": "",
+    "path": "/help/connectors/find-your-api-key.md",
+    "id": "gumloop:0465:/help/connectors/find-your-api-key.md",
+    "category": "help",
+    "local_path": "raw\\help\\connectors\\find-your-api-key.md",
+    "status": "ok"
+  },
+  {
+    "title": "Skills, Triggers, and MCP",
+    "url": "https://docs.gumloop.com/help/skills-triggers-mcp/index.md",
+    "description": "",
+    "path": "/help/skills-triggers-mcp/index.md",
+    "id": "gumloop:0466:/help/skills-triggers-mcp/index.md",
+    "category": "help",
+    "local_path": "raw\\help\\skills-triggers-mcp\\index.md",
+    "status": "ok"
+  },
+  {
+    "title": "Skills vs Subagents",
+    "url": "https://docs.gumloop.com/help/skills-triggers-mcp/skills-vs-subagents.md",
+    "description": "",
+    "path": "/help/skills-triggers-mcp/skills-vs-subagents.md",
+    "id": "gumloop:0467:/help/skills-triggers-mcp/skills-vs-subagents.md",
+    "category": "help",
+    "local_path": "raw\\help\\skills-triggers-mcp\\skills-vs-subagents.md",
+    "status": "ok"
+  },
+  {
+    "title": "Skills vs App Rules",
+    "url": "https://docs.gumloop.com/help/skills-triggers-mcp/skills-vs-app-rules.md",
+    "description": "",
+    "path": "/help/skills-triggers-mcp/skills-vs-app-rules.md",
+    "id": "gumloop:0468:/help/skills-triggers-mcp/skills-vs-app-rules.md",
+    "category": "help",
+    "local_path": "raw\\help\\skills-triggers-mcp\\skills-vs-app-rules.md",
+    "status": "ok"
+  },
+  {
+    "title": "Stop a Scheduled Trigger",
+    "url": "https://docs.gumloop.com/help/skills-triggers-mcp/stop-a-scheduled-trigger.md",
+    "description": "",
+    "path": "/help/skills-triggers-mcp/stop-a-scheduled-trigger.md",
+    "id": "gumloop:0469:/help/skills-triggers-mcp/stop-a-scheduled-trigger.md",
+    "category": "help",
+    "local_path": "raw\\help\\skills-triggers-mcp\\stop-a-scheduled-trigger.md",
+    "status": "ok"
+  },
+  {
+    "title": "Custom, Proxied, and Hosted MCP",
+    "url": "https://docs.gumloop.com/help/skills-triggers-mcp/custom-proxied-hosted-mcp.md",
+    "description": "",
+    "path": "/help/skills-triggers-mcp/custom-proxied-hosted-mcp.md",
+    "id": "gumloop:0470:/help/skills-triggers-mcp/custom-proxied-hosted-mcp.md",
+    "category": "help",
+    "local_path": "raw\\help\\skills-triggers-mcp\\custom-proxied-hosted-mcp.md",
+    "status": "ok"
+  },
+  {
+    "title": "Call Integrations from a Skill",
+    "url": "https://docs.gumloop.com/help/skills-triggers-mcp/skill-script-integrations.md",
+    "description": "",
+    "path": "/help/skills-triggers-mcp/skill-script-integrations.md",
+    "id": "gumloop:0471:/help/skills-triggers-mcp/skill-script-integrations.md",
+    "category": "help",
+    "local_path": "raw\\help\\skills-triggers-mcp\\skill-script-integrations.md",
+    "status": "ok"
+  },
+  {
+    "title": "openapi",
+    "url": "https://docs.gumloop.com/api-reference/openapi.yaml",
+    "description": "",
+    "path": "/api-reference/openapi.yaml",
+    "id": "gumloop:0472:/api-reference/openapi.yaml",
+    "category": "api-reference",
+    "local_path": "raw\\openapi\\openapi.yaml",
+    "status": "ok"
+  }
+]

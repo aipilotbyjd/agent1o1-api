@@ -1,0 +1,29 @@
+meta {
+  name: 2FA - Verify
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/auth/2fa/verify
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "challenge_token": "{{superAdminChallenge}}",
+    "code": "123456"
+  }
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setVar("superAdminToken", res.body.data.tokens.access_token);
+    bru.setVar("superAdminRefreshToken", res.body.data.tokens.refresh_token);
+  }
+}
+
+docs {
+  Trades the challenge plus an authenticator code (or a recovery code) for the real tokens. Stores `superAdminToken` and `superAdminRefreshToken`.
+}

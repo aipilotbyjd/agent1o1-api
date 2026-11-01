@@ -1,0 +1,19 @@
+meta {
+  name: Overview
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/pricing/overview
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+docs {
+  Plans side by side with subscribers and monthly recurring revenue, the interval switches, packs and coupon counts.
+}

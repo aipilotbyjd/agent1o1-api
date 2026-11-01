@@ -1,0 +1,77 @@
+meta {
+  name: Evaluation Settings - Update
+  type: http
+  seq: 57
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/evaluation-settings
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+body:json {
+  {
+    "is_enabled": true,
+    "sentiment_enabled": true,
+    "sentiment_affects_grade": true,
+    "sentiment_guidance": "Consider the customer's final message tone, not their initial frustration.",
+    "suggest_tags_automatically": false,
+    "criteria": [
+      {
+        "name": "Accuracy",
+        "prompt": "The agent provided factually correct information and did not hallucinate.",
+        "type": "other",
+        "priority": "notify"
+      },
+      {
+        "name": "Professional Tone",
+        "prompt": "The agent maintained a professional, friendly tone throughout.",
+        "type": "voice_tone",
+        "priority": "flag"
+      }
+    ],
+    "tags": [
+      {
+        "name": "ESCALATION_NEEDED",
+        "description": "Customer asked to speak with a human or the issue is too complex for the agent."
+      }
+    ],
+    "data_points": [
+      {
+        "name": "Resolution Status",
+        "data_type": "string",
+        "description": "Values: resolved, unresolved, partial, or unknown."
+      }
+    ]
+  }
+}
+
+docs {
+  Enables/configures automatic QA grading for this agent's live sessions.
+  Requires the `agent.manage` permission. Every field is `sometimes` —
+  send only what changes; each array (`criteria`, `tags`, `data_points`)
+  replaces the previous one wholesale when sent.
+
+  - `model` — optional, nullable; a model catalog slug the workspace may
+    use for the judge.
+  - `criteria[].type` — `prohibited_action`, `prohibited_words`,
+    `voice_tone` or `other`.
+  - `criteria[].priority` — `flag` (marks the session for review) or
+    `notify` (also pages the workspace's owners/admins the moment it
+    fires). Use `notify` for rules that must never be broken.
+  - `data_points[].data_type` — `string`, `boolean`, `integer` or
+    `number`.
+  - Limits: 30 criteria, 50 tags, 40 data points — mirrors Gumloop's
+    published caps.
+  - A criterion/data point without an `id` gets one assigned on save, so
+    the judge's results can reference it by id across edits.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { settings } }`.
+}

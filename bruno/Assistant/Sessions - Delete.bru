@@ -1,0 +1,24 @@
+meta {
+  name: Sessions - Delete
+  type: http
+  seq: 15
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/sessions/:session
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{assistantSessionId}}
+}
+
+docs {
+  Deletes one of the caller's sessions. Requires the `assistant.use`
+  permission. Run it after the session and turn requests above — they
+  use `assistantSessionId`.
+
+  Responds `204 No Content` with no envelope.
+}

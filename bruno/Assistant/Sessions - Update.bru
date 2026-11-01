@@ -1,0 +1,33 @@
+meta {
+  name: Sessions - Update
+  type: http
+  seq: 7
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/sessions/:session
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{assistantSessionId}}
+}
+
+body:json {
+  {
+    "title": "Plan next week (sprint 14)",
+    "status": "active"
+  }
+}
+
+docs {
+  Renames or archives one of the caller's sessions. Requires the
+  `assistant.use` permission.
+
+  Both fields are optional: `title` (nullable, max 120 chars) and
+  `status` (`active` or `archived`).
+
+  Response is wrapped: `{ success, statusCode, message, data: { session } }`.
+}

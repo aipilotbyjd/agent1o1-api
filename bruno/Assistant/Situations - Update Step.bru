@@ -1,0 +1,33 @@
+meta {
+  name: Situations - Update Step
+  type: http
+  seq: 27
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/situations/:situation/steps/:step
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  situation: {{assistantSituationId}}
+  step: {{assistantSituationStepId}}
+}
+
+body:json {
+  {
+    "status": "done"
+  }
+}
+
+docs {
+  Ticks off (or skips) one step of a situation. Requires the
+  `assistant.use` permission. The step must belong to the situation,
+  else `404`.
+
+  `status` is required: `todo`, `done` or `skipped`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { situation } }`.
+}

@@ -1,0 +1,31 @@
+meta {
+  name: Knowledge - Change Mode
+  type: http
+  seq: 45
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/knowledge/:collection
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  collection: {{knowledgeCollection}}
+}
+
+body:json {
+  {
+    "mode": "search"
+  }
+}
+
+docs {
+  Changes how an attached collection is used: `search` or `always`.
+  Requires `agent.manage`. 404 if the collection isn't attached; 422 for
+  `always` on a synced collection.
+
+  Response is the same as `Knowledge - List`.
+}

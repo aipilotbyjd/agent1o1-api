@@ -1,0 +1,29 @@
+meta {
+  name: Nodes - Disable
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/catalog/nodes/:node/disable
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  node: {{saNodeId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request, ticket 1234"
+  }
+}
+
+docs {
+  Needs a `reason`.
+}

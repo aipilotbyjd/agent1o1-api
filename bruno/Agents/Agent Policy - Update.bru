@@ -1,0 +1,51 @@
+meta {
+  name: Agent Policy - Update
+  type: http
+  seq: 89
+}
+
+put {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agent-policy
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "max_autonomy_mode": "smart",
+    "allow_destructive_in_autopilot": false,
+    "approval_ttl_minutes": 1440,
+    "allow_chat_approvals": true,
+    "guardrails": [
+      {
+        "name": "Ask before deleting mail",
+        "tools": ["gmail_delete_message"],
+        "effects": ["destructive"],
+        "conditions": [],
+        "then": "ask"
+      }
+    ]
+  }
+}
+
+docs {
+  Sets the workspace's guardrails over every agent. Requires the
+  `agent.policy.manage` permission. Every field is `sometimes` — send only
+  what changes.
+
+  - `max_autonomy_mode` — nullable cap: `read_only`, `ask`, `plan`,
+    `smart` or `autopilot`.
+  - `allow_destructive_in_autopilot` — bool.
+  - `approval_ttl_minutes` — 5 to 43200; how long a request waits.
+  - `allow_chat_approvals` — bool.
+  - `guardrails` — nullable, up to 50 rules, each with optional `name`,
+    `tools[]`, `effects[]` (`read`/`write`/`external`/`destructive`),
+    `conditions[]` (as on `Tool Bindings - Update`, without `then`) and a
+    required `then` (`allow`/`ask`/`deny`). Replaced wholesale.
+
+  Response is wrapped: `{ success, statusCode, message, data: { policy } }`.
+}

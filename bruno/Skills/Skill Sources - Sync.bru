@@ -1,0 +1,26 @@
+meta {
+  name: Skill Sources - Sync
+  type: http
+  seq: 22
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skill-sources/:skillSource/sync
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skillSource: {{skillSourceId}}
+}
+
+docs {
+  Queues a forced sync of the source: pulls repository changes in and,
+  for two-way sources, pushes local edits and saved resolutions out.
+  Requires the `agent-skill.manage` permission. Takes no body.
+
+  Poll `Skill Sources - List` until `status` leaves `syncing`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { source } }`.
+}

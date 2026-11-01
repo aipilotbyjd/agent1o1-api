@@ -2,24 +2,23 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Services\Setup\SetupSyncer;
 use Illuminate\Database\Seeder;
+use RuntimeException;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
-     * Seed the application's database.
+     * Runs the setup sync (the same as `php artisan setup:catalog:sync`).
+     * No fake users or workspaces: the first admin comes from
+     * `php artisan super-admin:create`.
      */
-    public function run(): void
+    public function run(SetupSyncer $syncer): void
     {
-        // User::factory(10)->create();
+        $failed = collect($syncer->sync())->filter(fn ($result): bool => $result->status->value === 'failed');
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        if ($failed->isNotEmpty()) {
+            throw new RuntimeException('Setup sync failed: '.$failed->map(fn ($result): string => "{$result->dataset} ({$result->message})")->implode('; '));
+        }
     }
 }

@@ -1,0 +1,45 @@
+meta {
+  name: Api Keys - Create
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/api-keys
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "name": "CI key",
+    "abilities": ["workflows:read", "runs:read"],
+    "expires_at": null
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const data = res.body.data ?? {};
+    bru.setVar("apiKey", data.plain_text_key);
+    const apiKeyRecord = data.api_key ?? {};
+    if (apiKeyRecord.id) {
+      bru.setVar("apiKeyId", apiKeyRecord.id);
+    }
+  }
+}
+
+docs {
+  Creates a workspace API key. Requires the `api-key.manage` permission.
+  `abilities` accepts any of: `*`, `workflows:read`, `workflows:write`,
+  `agents:invoke`, `runs:read`, `connectors:manage` (at least one).
+  `expires_at` is optional and must be in the future. The plain-text key
+  is only returned once, in this response, and is stored in the `apiKey`
+  collection variable for use by the Public V1 requests.
+
+  Response is wrapped: `{ success, statusCode, message, data: { api_key, plain_text_key } }`.
+}

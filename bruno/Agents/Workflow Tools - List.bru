@@ -1,0 +1,24 @@
+meta {
+  name: Workflow Tools - List
+  type: http
+  seq: 33
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/workflows
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+docs {
+  Lists the whole workflows attached to this agent as callable tools —
+  distinct from `Tool Bindings`, which expose a single node. Requires
+  the `agent.view` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { workflows } }`.
+}

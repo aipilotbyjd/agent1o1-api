@@ -1,0 +1,40 @@
+meta {
+  name: Model Catalog - Try
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/model-catalog/:slug/try
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  slug: {{modelCatalogSlug}}
+}
+
+body:json {
+  {
+    "prompt": "In one sentence, what is a webhook?"
+  }
+}
+
+docs {
+  "Try this model": one short prompt answered by the model exactly as an
+  agent on it would be — the workspace's own key where it has one — and
+  billed like a chat turn. Requires `agent.chat`. Throttled to 6/minute
+  (`model-trials`).
+
+  - `slug` (path) — a catalog `slug` from `Model Catalog - List`
+    (stored as `modelCatalogSlug`); 404 if inactive or internal.
+  - `prompt` — required, max 1000 chars.
+
+  422 if the model isn't allowed in the workspace, isn't available, or
+  the own key was rejected; 503 when the provider is busy; 502 when it
+  didn't answer. Out of credits is refused before the call.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { trial: { text, duration_ms, prompt_tokens, completion_tokens, credits, served_by_own_key } } }`.
+}

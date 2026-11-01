@@ -1,0 +1,28 @@
+meta {
+  name: Sessions - Get
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/sessions/:session
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{assistantSessionId}}
+}
+
+docs {
+  One of the caller's sessions, plus whatever is in flight. Requires the
+  `assistant.use` permission.
+
+  `active_turn` is the latest `queued`, `running` or `awaiting_approval`
+  turn (with its `actions`), or `null`. `queued_count` is how many sent
+  messages are waiting for that turn to finish.
+
+  Response is wrapped: `{ success, statusCode, message, data: { session,
+  active_turn, queued_count } }`.
+}

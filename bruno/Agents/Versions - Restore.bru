@@ -1,0 +1,32 @@
+meta {
+  name: Versions - Restore
+  type: http
+  seq: 17
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/versions/:version/restore
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  version: 1
+}
+
+docs {
+  Rolls the agent's configuration back to an earlier snapshot. Requires the
+  `agent.manage` permission.
+
+  Restoring moves the history *forward*: it writes a new version holding the
+  old configuration rather than deleting the versions in between, so nothing
+  is lost and the history stays append-only.
+
+  `version` is the per-agent version number, as in `Versions - Get`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { agent, version } }` — the agent
+  as it now stands, and the newly written version.
+}

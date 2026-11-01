@@ -1,0 +1,25 @@
+meta {
+  name: Rules - Delete
+  type: http
+  seq: 14
+}
+
+delete {
+  url: {{baseUrl}}/super-admin/v1/referrals/rules/:rule
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  rule: {{referralRuleId}}
+}
+
+docs {
+  Soft-deletes the rule; rewards it already gave are kept.
+
+  Answers `200` with `data: null` (not 204).
+}

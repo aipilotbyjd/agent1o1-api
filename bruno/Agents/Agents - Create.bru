@@ -1,0 +1,59 @@
+meta {
+  name: Agents - Create
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "name": "Support triage",
+    "description": "Triages inbound support tickets.",
+    "instructions": "You triage inbound support tickets. Classify each one and suggest a next action.",
+    "provider": "anthropic",
+    "model": "claude-sonnet-5",
+    "temperature": 0.2,
+    "settings": {}
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const agent = res.body.data?.agent;
+    if (agent && agent.id) {
+      bru.setVar("agentId", agent.id);
+    }
+  }
+}
+
+docs {
+  Creates an agent. Requires the `agent.manage` permission. Stores the
+  new ID in the `agentId` collection variable.
+
+  Only `name` is required; `slug` is derived from `name` when omitted.
+  `temperature` must be between 0 and 1. `provider` and `model` fall back
+  to the workspace default model (else the application default) when
+  omitted. Returns `402` when the plan's agent limit is reached.
+
+  Also optional: `icon` and `color` (from `Agent::ICONS` / `COLORS`),
+  `folder_id` (an `agent` folder), `settings.max_steps` / `max_tokens` /
+  `top_p`, `autonomy_mode` (`read_only`, `ask`, `plan`, `smart`,
+  `autopilot`; default `ask`), and the booleans `allow_self_updates`,
+  `allow_skill_editing`, `allow_self_clone`, `test_mode`, `allow_web_fetch`.
+
+  Optionally pass `model_catalog_id` (an ID from `Ai/Model Catalog -
+  List`) instead of/alongside `provider`/`model` to run this agent on
+  that catalog entry's resolved chain — see
+  `Services\Ai\ModelCatalogResolver`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { agent } }`.
+}

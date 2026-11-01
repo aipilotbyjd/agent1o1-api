@@ -1,0 +1,37 @@
+meta {
+  name: Model Settings - Update
+  type: http
+  seq: 14
+}
+
+put {
+  url: {{baseUrl}}/v1/workspaces/:workspace/model-settings
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "default_model_catalog_id": "{{modelCatalogId}}",
+    "allowed_model_catalog_ids": ["{{modelCatalogId}}"]
+  }
+}
+
+docs {
+  Sets the workspace's default model and/or which models members may
+  pick. Requires `workspace.update` (403 from the form request
+  otherwise). Both fields are optional.
+
+  - `default_model_catalog_id` — nullable UUID of an active, public
+    catalog entry (`Model Catalog - List`'s `id`).
+  - `allowed_model_catalog_ids` — nullable array (min 1) of distinct
+    such UUIDs; `null` allows every model.
+
+  `modelCatalogId` is stored by `Model Catalog - List`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { settings } }`.
+}

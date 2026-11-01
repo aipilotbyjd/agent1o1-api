@@ -1,0 +1,41 @@
+meta {
+  name: Plans - List
+  type: http
+  seq: 74
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/sessions/:session/plans
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const plans = res.body.data?.plans;
+    if (Array.isArray(plans) && plans.length > 0) {
+      const proposed = plans.find((plan) => plan.status === "proposed") || plans[0];
+      bru.setVar("agentPlanId", proposed.id);
+    }
+  }
+}
+
+docs {
+  The plans the agent proposed in this conversation (Plan autonomy mode),
+  newest first. Requires the `agent.view` permission. A session belonging
+  to a different agent answers `404`.
+
+  Each plan has `title`, `summary`, `steps` (each with an `id`) and a
+  `status`: `proposed`, `approved`, `rejected`, `superseded` or
+  `completed`.
+
+  Stores the first proposed plan's ID (else the newest) in `agentPlanId`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { plans } }`.
+}

@@ -1,0 +1,35 @@
+meta {
+  name: Notification Channels - List
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/notification-channels
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const items = res.body.data?.channels;
+    if (Array.isArray(items) && items.length > 0) {
+      bru.setVar("notificationChannelId", items[0].id);
+    }
+  }
+}
+
+docs {
+  The workspace's outbound notification channels (Slack, Discord or a
+  generic webhook), newest first. Requires `notification-channel.view`.
+  `config` (URL, headers, secrets) is never returned.
+
+  Stores the first one as `notificationChannelId`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { channels } }`,
+  each `{ id, type, name, is_active, created_at, updated_at }`.
+}

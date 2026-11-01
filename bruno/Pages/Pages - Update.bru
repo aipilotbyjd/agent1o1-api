@@ -1,0 +1,61 @@
+meta {
+  name: Pages - Update
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+body:json {
+  {
+    "name": "Lead intake form",
+    "access": "link",
+    "is_enabled": true,
+    "max_runs_per_day": 500,
+    "share_title": "Talk to our sales team",
+    "share_description": "Tell us about your project and we'll be in touch."
+  }
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const page = res.body.data?.page;
+    if (page && page.public_token) {
+      bru.setVar("pageToken", page.public_token);
+    }
+  }
+}
+
+docs {
+  Saves page settings and/or the draft. Requires the `page.manage`
+  permission. Every field is `sometimes` — send only what changes.
+
+  - `name` (max 120), `description` (max 1000), `workflow_id` (UUID of a
+    workflow in this workspace).
+  - `content` — the draft: `{ blocks: [...], theme: {...} }`, max 300
+    blocks. Each block needs `id` (max 64) and `type` (`heading`, `text`,
+    `image`, `field`, `submit`, `output`, `status`, `section`, `columns`,
+    ...), optional `width` (`full|two_thirds|half|third`), `props`,
+    `children`. It's normalized server-side. `variant_content` is the same
+    shape for version B (409 if there is no B). `variant_split` 1–99.
+  - `base_revision` — the `draft_revision` you loaded; a draft save answers
+    409 if someone saved since.
+  - `access` — `workspace`, `link` or `password`. Public access needs the
+    plan's public-pages feature (403). `password` needs `password` (min 6)
+    set now or earlier (422). Setting a password also rotates the
+    public token.
+  - `is_enabled`, `max_runs_per_day` (1–100000 or null),
+    `share_title` (120), `share_description` (300), `share_image_url`.
+
+  Refreshes `pageToken`. Response is wrapped:
+  `{ success, statusCode, message, data: { page } }`.
+}
