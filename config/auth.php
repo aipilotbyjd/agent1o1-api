@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\SuperAdmin\SuperAdmin;
 use App\Models\User;
 
 return [
@@ -42,6 +43,18 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'api' => [
+            'driver' => 'passport',
+            'provider' => 'users',
+        ],
+
+        // The Super Admin panel: its own accounts and opaque tokens, no
+        // Passport. See `SuperAdminServiceProvider`.
+        'super-admin' => [
+            'driver' => 'super-admin-token',
+            'provider' => 'super_admins',
+        ],
     ],
 
     /*
@@ -65,6 +78,11 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
+        ],
+
+        'super_admins' => [
+            'driver' => 'eloquent',
+            'model' => SuperAdmin::class,
         ],
 
         // 'users' => [
@@ -113,5 +131,28 @@ return [
     */
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Login Lockout
+    |--------------------------------------------------------------------------
+    |
+    | Consecutive failed sign-ins lock an account for a growing amount of time.
+    | This sits underneath the `auth` rate limiter: the limiter caps how fast an
+    | attacker can guess from one IP, the lockout caps how many guesses a single
+    | account will answer no matter how many IPs they spread across.
+    |
+    | "backoff" lists the lock duration in minutes for the first, second, third
+    | (and so on) lockout within "escalation_window_hours". The last entry
+    | repeats for every lockout beyond the list.
+    |
+    */
+
+    'lockout' => [
+        'max_attempts' => env('AUTH_LOCKOUT_MAX_ATTEMPTS', 5),
+        'attempt_window_minutes' => env('AUTH_LOCKOUT_ATTEMPT_WINDOW', 15),
+        'backoff' => [1, 5, 15, 30, 60],
+        'escalation_window_hours' => env('AUTH_LOCKOUT_ESCALATION_WINDOW', 24),
+    ],
 
 ];
