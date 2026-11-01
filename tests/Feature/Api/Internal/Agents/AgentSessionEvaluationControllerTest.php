@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\SessionEvalJudgeAgent;
+use App\Ai\Agents\Judges\SessionEvalJudgeAgent;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentEvaluationSettings;
 use App\Models\Agents\AgentMessage;

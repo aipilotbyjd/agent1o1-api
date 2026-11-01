@@ -1,9 +1,9 @@
 <?php
 
-use App\Ai\Tools\ForgetTool;
-use App\Ai\Tools\ReadKnowledgeDocumentTool;
-use App\Ai\Tools\RememberTool;
-use App\Ai\Tools\SearchKnowledgeTool;
+use App\Ai\Tools\Knowledge\ReadKnowledgeDocumentTool;
+use App\Ai\Tools\Knowledge\SearchKnowledgeTool;
+use App\Ai\Tools\Memory\ForgetTool;
+use App\Ai\Tools\Memory\RememberTool;
 use App\Models\Agents\Agent;
 use App\Models\Agents\DocumentEmbedding;
 use App\Models\Runs\Run;

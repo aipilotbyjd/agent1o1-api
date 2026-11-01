@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\ActionReviewerAgent;
+use App\Ai\Agents\Judges\ActionReviewerAgent;
 use App\Enums\Agents\ActionEffect;
 use App\Enums\Agents\ActionRisk;
 use App\Enums\Agents\ActionToolKind;

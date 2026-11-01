@@ -1,8 +1,8 @@
 <?php
 
 use App\Actions\Artifacts\StoreArtifactAction;
-use App\Ai\Assistant\Tools\ExportFileTool;
-use App\Ai\Assistant\Tools\RunCodeTool;
+use App\Ai\Tools\Assistant\ExportFileTool;
+use App\Ai\Tools\Assistant\RunCodeTool;
 use App\Enums\Billing\CreditTransactionType;
 use App\Http\Resources\Api\Internal\V1\Assistant\AssistantMessageResource;
 use App\Models\Artifacts\Artifact;

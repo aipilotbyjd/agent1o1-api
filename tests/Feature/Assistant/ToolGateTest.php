@@ -1,7 +1,7 @@
 <?php
 
-use App\Ai\Assistant\Tools\AssistantTool;
-use App\Ai\Assistant\Tools\RememberTool;
+use App\Ai\Tools\Assistant\AssistantTool;
+use App\Ai\Tools\Assistant\RememberTool;
 use App\Enums\Assistant\AssistantToolEffect;
 use App\Enums\Assistant\AssistantToolRule;
 use App\Models\Assistant\Assistant;

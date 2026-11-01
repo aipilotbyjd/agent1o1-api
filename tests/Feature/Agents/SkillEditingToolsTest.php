@@ -1,7 +1,7 @@
 <?php
 
-use App\Ai\Tools\CreateSkillTool;
-use App\Ai\Tools\UpdateSkillTool;
+use App\Ai\Tools\Skills\CreateSkillTool;
+use App\Ai\Tools\Skills\UpdateSkillTool;
 use App\Enums\Workspaces\Role;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentSession;

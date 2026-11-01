@@ -3,13 +3,13 @@
 namespace App\Jobs\Workflows;
 
 use App\Actions\Billing\DeductCreditsAction;
-use App\Ai\Agents\WorkflowBuilderAgent;
-use App\Ai\Agents\WorkflowBuilderTitleAgent;
-use App\Ai\BuilderMessageReferences;
-use App\Ai\InlinedAttachments;
-use App\Ai\ResponseUsage;
+use App\Ai\Agents\Builder\WorkflowBuilderAgent;
+use App\Ai\Agents\Builder\WorkflowBuilderTitleAgent;
+use App\Ai\Support\BuilderMessageReferences;
+use App\Ai\Support\InlinedAttachments;
+use App\Ai\Support\ToolSubmission;
 use App\Ai\Tools\WorkflowBuilder\SubmitWorkflowTitleTool;
-use App\Ai\ToolSubmission;
+use App\Ai\Usage\ResponseUsage;
 use App\Enums\Billing\CreditTransactionType;
 use App\Enums\Queue;
 use App\Enums\Workflows\BuilderMessageStatus;

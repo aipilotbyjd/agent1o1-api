@@ -22,7 +22,7 @@ use RuntimeException;
 /**
  * The workspace knowledge base behind `document_embeddings`: turning text
  * into stored chunks, and ranking those chunks against a query. Shared by
- * the Internal API's knowledge-base endpoints and `Ai\Tools\SearchKnowledgeTool`
+ * the Internal API's knowledge-base endpoints and `Ai\Tools\Knowledge\SearchKnowledgeTool`
  * (the agent-facing side of the same data), so ingestion and retrieval agree
  * on chunking and scoring instead of each implementing their own.
  *
@@ -377,7 +377,7 @@ class KnowledgeBase
      * same `source` exists in several collections and none was asked for, the
      * first collection alphabetically wins rather than interleaving different
      * documents. Capped at `MAX_DOCUMENT_CHARACTERS`.
-     * Backs `Ai\Tools\ReadKnowledgeDocumentTool`: a search hit's `text` is
+     * Backs `Ai\Tools\Knowledge\ReadKnowledgeDocumentTool`: a search hit's `text` is
      * a chunk-level snippet, and this is what a model calls when a snippet
      * alone isn't enough context.
      *

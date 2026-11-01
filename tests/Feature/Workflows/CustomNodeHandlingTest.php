@@ -1,7 +1,7 @@
 <?php
 
 use App\Actions\Workflows\StartWorkflowRunAction;
-use App\Ai\Tools\NodeTool;
+use App\Ai\Tools\Workspace\NodeTool;
 use App\Enums\NodeRunStatus;
 use App\Enums\RunStatus;
 use App\Models\Agents\Agent;

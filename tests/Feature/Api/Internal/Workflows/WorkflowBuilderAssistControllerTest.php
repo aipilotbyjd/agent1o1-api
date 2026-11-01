@@ -1,9 +1,9 @@
 <?php
 
-use App\Ai\Agents\WorkflowExplanationAgent;
-use App\Ai\Agents\WorkflowImprovementAgent;
-use App\Ai\Agents\WorkflowNodeConfigAgent;
-use App\Ai\Agents\WorkflowNodeSuggestionAgent;
+use App\Ai\Agents\Builder\WorkflowExplanationAgent;
+use App\Ai\Agents\Builder\WorkflowImprovementAgent;
+use App\Ai\Agents\Builder\WorkflowNodeConfigAgent;
+use App\Ai\Agents\Builder\WorkflowNodeSuggestionAgent;
 use App\Enums\Billing\CreditTransactionType;
 use App\Models\Billing\CreditTransaction;
 use App\Models\User;

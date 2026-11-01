@@ -1,7 +1,7 @@
 <?php
 
-use App\Ai\Assistant\AssistantAgent;
-use App\Ai\Assistant\ThreadRouterAgent;
+use App\Ai\Agents\Assistant\AssistantAgent;
+use App\Ai\Agents\Assistant\ThreadRouterAgent;
 use App\Enums\Assistant\AssistantSessionOrigin;
 use App\Models\Assistant\AssistantPhoneNumber;
 use App\Models\Assistant\AssistantPhoneVerification;

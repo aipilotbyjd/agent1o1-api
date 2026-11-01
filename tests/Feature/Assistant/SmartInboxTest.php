@@ -1,8 +1,8 @@
 <?php
 
-use App\Ai\Assistant\AssistantAgent;
-use App\Ai\Assistant\InboxClassifierAgent;
-use App\Ai\Assistant\ReplyDrafterAgent;
+use App\Ai\Agents\Assistant\AssistantAgent;
+use App\Ai\Agents\Assistant\InboxClassifierAgent;
+use App\Ai\Agents\Assistant\ReplyDrafterAgent;
 use App\Enums\Assistant\AssistantInboxDraftStatus;
 use App\Enums\Assistant\AssistantInboxMessageStatus;
 use App\Enums\Connectors\ConnectorCredentialScope;

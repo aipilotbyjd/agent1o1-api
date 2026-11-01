@@ -2,10 +2,10 @@
 
 namespace App\Services\Agents;
 
-use App\Ai\Agents\ReflectionReviewerAgent;
-use App\Ai\ResponseUsage;
-use App\Ai\Tools\SubmitReflectionsTool;
-use App\Ai\ToolSubmission;
+use App\Ai\Agents\Judges\ReflectionReviewerAgent;
+use App\Ai\Support\ToolSubmission;
+use App\Ai\Tools\Submissions\SubmitReflectionsTool;
+use App\Ai\Usage\ResponseUsage;
 use App\Enums\Agents\ReflectionApplyBehavior;
 use App\Enums\Agents\ReflectionRunStatus;
 use App\Enums\Agents\ReflectionStatus;

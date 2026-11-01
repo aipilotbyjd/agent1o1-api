@@ -1,7 +1,7 @@
 <?php
 
-use App\Ai\Agents\EmbeddedAgent;
-use App\Ai\Agents\EvalJudgeAgent;
+use App\Ai\Agents\Judges\EvalJudgeAgent;
+use App\Ai\Agents\Workspace\EmbeddedAgent;
 use App\Enums\Agents\EvalRunStatus;
 use App\Jobs\Agents\RunAgentEvalJob;
 use App\Models\Agents\Agent;

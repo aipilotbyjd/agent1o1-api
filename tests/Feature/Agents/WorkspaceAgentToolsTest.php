@@ -1,7 +1,7 @@
 <?php
 
-use App\Ai\Agents\WorkspaceAgent;
-use App\Ai\Tools\NodeTool;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
+use App\Ai\Tools\Workspace\NodeTool;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentToolBinding;
 use App\Models\Runs\Run;

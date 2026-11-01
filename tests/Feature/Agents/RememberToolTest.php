@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Tools\RememberTool;
+use App\Ai\Tools\Memory\RememberTool;
 use App\Models\Agents\Agent;
 use App\Models\User;
 use App\Services\Workspaces\WorkspaceService;

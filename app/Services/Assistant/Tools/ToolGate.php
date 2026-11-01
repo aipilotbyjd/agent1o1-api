@@ -2,7 +2,7 @@
 
 namespace App\Services\Assistant\Tools;
 
-use App\Ai\Assistant\Tools\AssistantTool;
+use App\Ai\Tools\Assistant\AssistantTool;
 use App\Enums\Assistant\AssistantActionStatus;
 use App\Enums\Assistant\AssistantToolRule;
 use App\Exceptions\UsageBlockedException;

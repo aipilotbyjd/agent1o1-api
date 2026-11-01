@@ -2,8 +2,8 @@
 
 use App\Actions\Agents\CreateAgentSessionAction;
 use App\Actions\Agents\SendAgentMessageAction;
-use App\Ai\Agents\WorkspaceAgent;
-use App\Ai\Tools\RememberTool;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
+use App\Ai\Tools\Memory\RememberTool;
 use App\Enums\Agents\AgentMessageRole;
 use App\Enums\RunStatus;
 use App\Exceptions\RunStateException;

@@ -2,7 +2,7 @@
 
 namespace App\Services\Agents;
 
-use App\Ai\Tools\InvokeAgentTool;
+use App\Ai\Tools\Workspace\InvokeAgentTool;
 use App\Events\Agents\AgentTurnChanged;
 use App\Events\Agents\AgentTurnDelta;
 use App\Events\Agents\AgentTurnToolActivity;

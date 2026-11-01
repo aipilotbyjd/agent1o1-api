@@ -22,7 +22,7 @@ use Throwable;
 /**
  * Writes one artifact: the single place bytes land on disk and a row is
  * written, shared by the Internal API's upload endpoint and
- * `App\Ai\Tools\ExportArtifactTool` so "what does storing an artifact
+ * `App\Ai\Tools\Workspace\ExportArtifactTool` so "what does storing an artifact
  * actually do" (versioning, path layout, filename safety) has one
  * implementation.
  *

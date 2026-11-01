@@ -4,10 +4,10 @@ namespace App\Services\Agents;
 
 use App\Actions\Agents\CreateAgentSessionAction;
 use App\Actions\Artifacts\StoreArtifactAction;
-use App\Ai\Agents\EmbeddedAgent;
-use App\Ai\Agents\WorkspaceAgent;
-use App\Ai\ResponseUsage;
+use App\Ai\Agents\Workspace\EmbeddedAgent;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
 use App\Ai\Runtime\PauseState;
+use App\Ai\Usage\ResponseUsage;
 use App\Enums\Agents\AgentActionStatus;
 use App\Enums\Agents\AgentMessageRole;
 use App\Enums\RunStatus;

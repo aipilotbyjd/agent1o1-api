@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Tools\UseSkillTool;
+use App\Ai\Tools\Skills\UseSkillTool;
 use App\Models\Agents\Agent;
 use App\Models\Agents\Skill;
 use App\Models\Runs\Run;

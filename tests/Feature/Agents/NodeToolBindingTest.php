@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Tools\NodeTool;
+use App\Ai\Tools\Workspace\NodeTool;
 use App\Models\Agents\AgentToolBinding;
 use App\Models\Runs\Run;
 use App\Nodes\DataTransform\CallApiNode;

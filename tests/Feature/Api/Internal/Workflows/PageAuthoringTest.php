@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\PageDesignerAgent;
+use App\Ai\Agents\Drafting\PageDesignerAgent;
 use App\Enums\Billing\CreditTransactionType;
 use App\Enums\Workspaces\Role;
 use App\Events\Pages\PageActivity;

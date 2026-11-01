@@ -2,9 +2,9 @@
 
 namespace App\Services\Agents;
 
-use App\Ai\Agents\EvalJudgeAgent;
-use App\Ai\Tools\SubmitVerdictTool;
-use App\Ai\ToolSubmission;
+use App\Ai\Agents\Judges\EvalJudgeAgent;
+use App\Ai\Support\ToolSubmission;
+use App\Ai\Tools\Submissions\SubmitVerdictTool;
 use App\Ai\Usage\TokenUsage;
 use App\Enums\Agents\EvalAssertionType;
 use App\Models\Agents\Agent;

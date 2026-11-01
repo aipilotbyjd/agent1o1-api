@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\SessionEvalJudgeAgent;
+use App\Ai\Agents\Judges\SessionEvalJudgeAgent;
 use App\Enums\Agents\SessionEvaluationGrade;
 use App\Enums\Agents\SessionEvaluationStatus;
 use App\Models\Agents\Agent;

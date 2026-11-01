@@ -1,7 +1,7 @@
 <?php
 
-use App\Ai\Agents\WorkspaceAgent;
-use App\Ai\Tools\SubmitPlanTool;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
+use App\Ai\Tools\Workspace\SubmitPlanTool;
 use App\Enums\Agents\AgentActionStatus;
 use App\Enums\Agents\AgentPlanStatus;
 use App\Enums\Agents\AutonomyMode;

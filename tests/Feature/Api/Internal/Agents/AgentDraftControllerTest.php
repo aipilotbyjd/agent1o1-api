@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\AgentDraftAgent;
+use App\Ai\Agents\Drafting\AgentDraftAgent;
 use App\Enums\Billing\CreditTransactionType;
 use App\Models\Ai\ModelCatalog;
 use App\Models\Billing\CreditTransaction;

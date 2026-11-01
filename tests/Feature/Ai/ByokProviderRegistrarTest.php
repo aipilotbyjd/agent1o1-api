@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\AdHocPromptAgent;
+use App\Ai\Agents\Workspace\AdHocPromptAgent;
 use App\Models\Ai\AiProviderCredential;
 use App\Models\User;
 use App\Models\Workspaces\Workspace;

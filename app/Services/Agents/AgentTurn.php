@@ -2,7 +2,7 @@
 
 namespace App\Services\Agents;
 
-use App\Ai\Agents\WorkspaceAgent;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
 use App\Models\Agents\AgentSession;
 use App\Models\Runs\Run;
 use Laravel\Ai\Files\Document;

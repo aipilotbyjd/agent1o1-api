@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\Api\Internal\V1\Agents;
 
-use App\Ai\Tools\InvokeAgentTool;
+use App\Ai\Tools\Workspace\InvokeAgentTool;
 use App\Http\Resources\Api\Internal\V1\Artifacts\ArtifactResource;
 use App\Models\Agents\AgentMessage;
 use Illuminate\Http\Request;

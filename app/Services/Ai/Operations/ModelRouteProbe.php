@@ -2,8 +2,8 @@
 
 namespace App\Services\Ai\Operations;
 
-use App\Ai\Agents\AdHocPromptAgent;
-use App\Ai\ResponseUsage;
+use App\Ai\Agents\Workspace\AdHocPromptAgent;
+use App\Ai\Usage\ResponseUsage;
 use App\Ai\Usage\TokenUsage;
 use App\Services\Ai\ModelCatalogResolver;
 use App\Services\Ai\OperatorEndpoints;

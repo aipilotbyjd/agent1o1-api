@@ -2,7 +2,7 @@
 
 namespace App\Contracts\Assistant;
 
-use App\Ai\Assistant\Tools\AssistantTool;
+use App\Ai\Tools\Assistant\AssistantTool;
 use App\Models\Assistant\Assistant;
 use App\Models\Assistant\AssistantSession;
 
