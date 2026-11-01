@@ -20,7 +20,10 @@ use App\Enums\Workflows\BuilderMessageMode;
 use App\Enums\Workflows\BuilderMessageStatus;
 use App\Models\User;
 use App\Models\Workflows\Builder\WorkflowBuilderSession;
+use Laravel\Ai\Attributes\CacheInstructions;
+use Laravel\Ai\Attributes\CacheToolDefinitions;
 use Laravel\Ai\Attributes\MaxSteps;
+use Laravel\Ai\Attributes\RepairToolCalls;
 use Laravel\Ai\Attributes\Timeout;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
@@ -55,6 +58,9 @@ use Laravel\Ai\Promptable;
  */
 #[MaxSteps(80)]
 #[Timeout(280)]
+#[CacheInstructions]
+#[CacheToolDefinitions]
+#[RepairToolCalls]
 class WorkflowBuilderAgent implements Agent, Conversational, HasTools
 {
     use Promptable;

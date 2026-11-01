@@ -9,7 +9,10 @@ use App\Models\Agents\AgentMessage;
 use App\Models\Agents\AgentSession;
 use App\Models\Artifacts\Artifact;
 use App\Services\Agents\GenerationSettings;
+use Laravel\Ai\Attributes\CacheInstructions;
+use Laravel\Ai\Attributes\CacheToolDefinitions;
 use Laravel\Ai\Attributes\MaxSteps;
+use Laravel\Ai\Attributes\RepairToolCalls;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
 use Laravel\Ai\Contracts\HasTools;
@@ -31,6 +34,9 @@ use Laravel\Ai\Responses\Data\ToolResult;
  * class has no opinion on either, only exposes what it's given.
  */
 #[MaxSteps(15)]
+#[CacheInstructions]
+#[CacheToolDefinitions]
+#[RepairToolCalls]
 class WorkspaceAgent implements Agent, Conversational, HasTools
 {
     use AppliesGenerationSettings, Promptable;

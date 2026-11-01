@@ -4,7 +4,10 @@ namespace App\Ai\Agents;
 
 use App\Ai\Agents\Concerns\AppliesGenerationSettings;
 use App\Services\Agents\GenerationSettings;
+use Laravel\Ai\Attributes\CacheInstructions;
+use Laravel\Ai\Attributes\CacheToolDefinitions;
 use Laravel\Ai\Attributes\MaxSteps;
+use Laravel\Ai\Attributes\RepairToolCalls;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Contracts\Tool;
@@ -20,6 +23,9 @@ use Laravel\Ai\Promptable;
  * `Services\Agents\SkillInjector`, same as `WorkspaceAgent`.
  */
 #[MaxSteps(15)]
+#[CacheInstructions]
+#[CacheToolDefinitions]
+#[RepairToolCalls]
 class EmbeddedAgent implements Agent, HasTools
 {
     use AppliesGenerationSettings, Promptable;
