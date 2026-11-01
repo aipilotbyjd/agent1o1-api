@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "agent1o1/api",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Agent1o1 API.",
     "keywords": [
         "laravel",
         "framework"
