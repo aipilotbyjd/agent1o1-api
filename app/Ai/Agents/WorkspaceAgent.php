@@ -4,6 +4,7 @@ namespace App\Ai\Agents;
 
 use App\Ai\Agents\Concerns\AppliesGenerationSettings;
 use App\Ai\Runtime\PauseState;
+use App\Ai\Runtime\TranscriptReplay;
 use App\Enums\Agents\AgentMessageRole;
 use App\Models\Agents\AgentMessage;
 use App\Models\Agents\AgentSession;
@@ -17,13 +18,9 @@ use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Contracts\Tool;
-use Laravel\Ai\Messages\AssistantMessage;
 use Laravel\Ai\Messages\Message;
-use Laravel\Ai\Messages\ToolResultMessage;
 use Laravel\Ai\Messages\UserMessage;
 use Laravel\Ai\Promptable;
-use Laravel\Ai\Responses\Data\ToolCall;
-use Laravel\Ai\Responses\Data\ToolResult;
 
 /**
  * Wraps an `AgentSession` as a `Laravel\Ai` agent: the standalone-chat path
@@ -118,19 +115,10 @@ class WorkspaceAgent implements Agent, Conversational, HasTools
             ->reverse()
             ->values();
 
-        $answered = $history->filter(function (AgentMessage $message, int $index) use ($history): bool {
-            return $message->role !== AgentMessageRole::User
-                || $history->get($index + 1)?->role === AgentMessageRole::Assistant;
-        });
-
-        return $answered
-            ->when(
-                $history->count() === self::HISTORY_LIMIT,
-                fn ($messages) => $messages->skipUntil(fn (AgentMessage $message): bool => $message->role === AgentMessageRole::User),
-            )
+        return TranscriptReplay::answeredWindow($history, self::HISTORY_LIMIT, fn (AgentMessage $message): bool => $message->role === AgentMessageRole::User)
             ->flatMap(fn (AgentMessage $message): array => match (true) {
                 $message->id === $this->resumingMessageId && $message->paused_state !== null => PauseState::replay($message->content, $message->tool_calls, $message->tool_results, $message->paused_state),
-                $message->role === AgentMessageRole::Assistant => $this->assistantTurn($message),
+                $message->role === AgentMessageRole::Assistant => TranscriptReplay::assistantTurn($message->content, $message->tool_calls, $message->tool_results, self::MAX_REPLAYED_RESULT_CHARS),
                 $message->attachments->isNotEmpty() => [
                     new UserMessage($message->content, $message->attachments->map(fn (Artifact $artifact) => $artifact->toPromptAttachment())),
                 ],
@@ -138,55 +126,5 @@ class WorkspaceAgent implements Agent, Conversational, HasTools
             })
             ->values()
             ->all();
-    }
-
-    /**
-     * Replays an assistant turn the way the SDK's own conversation store
-     * does: the tool calls it made and what they returned, then its reply.
-     * Without them a later turn can't see data a tool already fetched.
-     * Calls with no stored result (turns saved before results were kept)
-     * are dropped, since providers reject a call left unanswered. Long
-     * results are cut to `MAX_REPLAYED_RESULT_CHARS`.
-     *
-     * @return array<int, Message>
-     */
-    private function assistantTurn(AgentMessage $message): array
-    {
-        $results = collect($message->tool_results ?? [])->keyBy('id');
-
-        $calls = collect($message->tool_calls ?? [])
-            ->filter(fn (array $call): bool => $results->has($call['id']))
-            ->values();
-
-        $messages = [];
-
-        if ($calls->isNotEmpty()) {
-            $messages[] = new AssistantMessage('', $calls->map(ToolCall::fromArray(...)));
-            $messages[] = new ToolResultMessage(
-                $calls->map(fn (array $call): ToolResult => $this->replayedResult($results[$call['id']])),
-            );
-        }
-
-        if ($calls->isEmpty() || filled($message->content)) {
-            $messages[] = new AssistantMessage($message->content);
-        }
-
-        return $messages;
-    }
-
-    /**
-     * @param  array<string, mixed>  $stored
-     */
-    private function replayedResult(array $stored): ToolResult
-    {
-        $result = $stored['result'] ?? null;
-        $text = is_string($result) ? $result : (string) json_encode($result);
-
-        if (mb_strlen($text) > self::MAX_REPLAYED_RESULT_CHARS) {
-            $stored['result'] = mb_substr($text, 0, self::MAX_REPLAYED_RESULT_CHARS)
-                .'… [cut short in the conversation history; call the tool again if you need the rest]';
-        }
-
-        return ToolResult::fromArray($stored);
     }
 }
