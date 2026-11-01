@@ -25,6 +25,8 @@ class SetPriceRequest extends ReasonRequest
             'model_id' => ['required', 'string', 'max:200'],
             'input_per_mtok' => ['required', 'numeric', 'min:0', 'max:100000'],
             'output_per_mtok' => ['required', 'numeric', 'min:0', 'max:100000'],
+            'cache_read_per_mtok' => ['nullable', 'numeric', 'min:0', 'max:100000'],
+            'cache_write_per_mtok' => ['nullable', 'numeric', 'min:0', 'max:100000'],
             'source' => ['required', Rule::enum(ModelPriceSource::class)->except(ModelPriceSource::Config)],
             'notes' => ['nullable', 'string', 'max:500'],
         ];

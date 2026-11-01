@@ -45,6 +45,8 @@ class SuperAdminModelPriceController extends Controller
             $request->validated('model_id'),
             (float) $request->validated('input_per_mtok'),
             (float) $request->validated('output_per_mtok'),
+            $request->validated('cache_read_per_mtok') !== null ? (float) $request->validated('cache_read_per_mtok') : null,
+            $request->validated('cache_write_per_mtok') !== null ? (float) $request->validated('cache_write_per_mtok') : null,
             ModelPriceSource::from($request->validated('source')),
             $request->validated('notes'),
             $request->validated('reason'),

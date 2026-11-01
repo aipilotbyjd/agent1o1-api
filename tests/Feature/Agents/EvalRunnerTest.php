@@ -17,8 +17,8 @@ use App\Services\Workspaces\WorkspaceService;
 use Illuminate\Support\Facades\Queue;
 use Laravel\Ai\Prompts\AgentPrompt;
 use Laravel\Ai\Responses\Data\Meta;
+use Laravel\Ai\Responses\Data\TextUsage;
 use Laravel\Ai\Responses\Data\ToolCall;
-use Laravel\Ai\Responses\Data\Usage;
 use Laravel\Ai\Responses\TextResponse;
 
 /**
@@ -217,7 +217,7 @@ it('compares string assertions case-insensitively', function () {
 });
 
 it('bills the rubric judge tokens as part of the case usage', function () {
-    EmbeddedAgent::fake([new TextResponse('Refunds within 30 days.', new Usage(100, 20), new Meta('anthropic', 'agent-model'))]);
+    EmbeddedAgent::fake([new TextResponse('Refunds within 30 days.', new TextUsage(100, 20), new Meta('anthropic', 'agent-model'))]);
     $this->mock(AssertionGrader::class, fn ($mock) => $mock->shouldReceive('grade')->andReturn([
         'type' => 'llm_rubric',
         'value' => 'Mentions the window',
@@ -232,8 +232,8 @@ it('bills the rubric judge tokens as part of the case usage', function () {
 
     $result = app(EvalRunner::class)->run($suite, $owner)->results()->sole();
 
-    expect($result->usage['prompt_tokens'])->toBe(140)
-        ->and($result->usage['completion_tokens'])->toBe(21)
+    expect($result->usage['input_tokens'])->toBe(140)
+        ->and($result->usage['output_tokens'])->toBe(21)
         ->and($result->assertions[0])->not->toHaveKey('usage');
 });
 

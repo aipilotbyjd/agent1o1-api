@@ -122,3 +122,28 @@ it('runs from the command line', function () {
 
     $this->artisan('model-usage:rollup', ['--days' => 3])->expectsOutputToContain('Rebuilt 3 day(s): 1 row(s).')->assertSuccessful();
 });
+
+it('rolls up 1.x usage with its cached and reasoning tokens alongside pre-upgrade usage', function () {
+    ModelPrice::factory()->priced(10, 20)->create(['provider' => 'openai', 'model_id' => 'gpt-x', 'cache_read_per_mtok' => 1]);
+    rolledNodeRun(['provider' => 'openai', 'model' => 'gpt-x', 'prompt_tokens' => 1_000_000, 'completion_tokens' => 100_000]);
+    rolledNodeRun([
+        'provider' => 'openai', 'model' => 'gpt-x',
+        'input_tokens' => 2_000_000, 'cache_read_input_tokens' => 1_000_000,
+        'output_tokens' => 300_000, 'reasoning_tokens' => 100_000,
+    ]);
+
+    app(RollUpModelUsage::class)->run(1);
+
+    $row = ModelUsageDaily::query()->sole();
+
+    expect($row)
+        ->calls->toBe(2)
+        ->input_tokens->toBe(3_000_000)
+        ->output_tokens->toBe(400_000)
+        ->cache_read_tokens->toBe(1_000_000)
+        ->reasoning_tokens->toBe(100_000)
+        ->prompt_tokens->toBe(2_000_000)
+        ->completion_tokens->toBe(300_000)
+        // 2M uncached at $10, 1M read at $1, 0.4M out at $20.
+        ->and($row->estimated_cost_usd)->toBe(29.0);
+});

@@ -22,6 +22,8 @@ class SuperAdminModelPriceResource extends JsonResource
             'model_id' => $this->model_id,
             'input_per_mtok' => $this->input_per_mtok,
             'output_per_mtok' => $this->output_per_mtok,
+            'cache_read_per_mtok' => $this->cache_read_per_mtok,
+            'cache_write_per_mtok' => $this->cache_write_per_mtok,
             'source' => $this->source->value,
             'checked_at' => $this->checked_at,
             'notes' => $this->notes,

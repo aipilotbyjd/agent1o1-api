@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * Saving or deleting one drops `ModelPrices`' cache, so a price change is
  * live for the next call.
  */
-#[Fillable(['provider', 'model_id', 'input_per_mtok', 'output_per_mtok', 'source', 'checked_at', 'notes'])]
+#[Fillable(['provider', 'model_id', 'input_per_mtok', 'output_per_mtok', 'cache_read_per_mtok', 'cache_write_per_mtok', 'source', 'checked_at', 'notes'])]
 class ModelPrice extends Model
 {
     /** @use HasFactory<ModelPriceFactory> */
@@ -36,6 +36,8 @@ class ModelPrice extends Model
         return [
             'input_per_mtok' => 'float',
             'output_per_mtok' => 'float',
+            'cache_read_per_mtok' => 'float',
+            'cache_write_per_mtok' => 'float',
             'source' => ModelPriceSource::class,
             'checked_at' => 'datetime',
         ];

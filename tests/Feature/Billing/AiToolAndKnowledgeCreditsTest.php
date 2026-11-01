@@ -14,6 +14,7 @@ use App\Nodes\DataTransform\TransformNode;
 use App\Services\Workspaces\WorkspaceService;
 use Laravel\Ai\Embeddings;
 use Laravel\Ai\Responses\Data\Meta;
+use Laravel\Ai\Responses\Data\Usage;
 use Laravel\Ai\Responses\EmbeddingsResponse;
 use Laravel\Ai\Tools\Request;
 use Laravel\Passport\Passport;
@@ -87,7 +88,7 @@ it('charges nothing extra for a node whose only cost is its tool call', function
 
 it('charges knowledge ingestion for its embedding tokens', function () {
     Embeddings::fake([
-        new EmbeddingsResponse([[1.0, 0.0]], 500_000, new Meta('openai', 'text-embedding-3-small')),
+        new EmbeddingsResponse([[1.0, 0.0]], new Usage(500_000, 0), new Meta('openai', 'text-embedding-3-small')),
     ]);
 
     $owner = User::factory()->create();

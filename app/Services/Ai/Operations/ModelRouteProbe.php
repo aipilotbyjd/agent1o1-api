@@ -4,6 +4,7 @@ namespace App\Services\Ai\Operations;
 
 use App\Ai\Agents\AdHocPromptAgent;
 use App\Ai\ResponseUsage;
+use App\Ai\Usage\TokenUsage;
 use App\Services\Ai\ModelCatalogResolver;
 use App\Services\Ai\OperatorEndpoints;
 use App\Services\Billing\CreditMeter;
@@ -26,7 +27,7 @@ class ModelRouteProbe
     ) {}
 
     /**
-     * @return array{ok: bool, latency_ms: ?int, prompt_tokens: ?int, completion_tokens: ?int, estimated_cost_usd: ?float, message: string}
+     * @return array{ok: bool, latency_ms: ?int, input_tokens: ?int, output_tokens: ?int, prompt_tokens: ?int, completion_tokens: ?int, estimated_cost_usd: ?float, message: string}
      */
     public function probe(string $provider, string $model): array
     {
@@ -49,21 +50,22 @@ class ModelRouteProbe
         return [
             'ok' => true,
             'latency_ms' => (int) $startedAt->diffInMilliseconds(now()),
-            'prompt_tokens' => (int) ($usage['prompt_tokens'] ?? 0),
-            'completion_tokens' => (int) ($usage['completion_tokens'] ?? 0),
+            ...TokenUsage::fromArray($usage)->toArrayWithLegacyKeys(),
             'estimated_cost_usd' => $this->meter->dollarCost([...$usage, 'provider' => $provider, 'model' => $model]),
             'message' => 'The route answered.',
         ];
     }
 
     /**
-     * @return array{ok: bool, latency_ms: ?int, prompt_tokens: ?int, completion_tokens: ?int, estimated_cost_usd: ?float, message: string}
+     * @return array{ok: bool, latency_ms: ?int, input_tokens: ?int, output_tokens: ?int, prompt_tokens: ?int, completion_tokens: ?int, estimated_cost_usd: ?float, message: string}
      */
     private function failed(string $message, ?int $latencyMs = null): array
     {
         return [
             'ok' => false,
             'latency_ms' => $latencyMs,
+            'input_tokens' => null,
+            'output_tokens' => null,
             'prompt_tokens' => null,
             'completion_tokens' => null,
             'estimated_cost_usd' => null,
