@@ -140,9 +140,11 @@ class AgentRunner
 
         $response = $resumption->turn->agent->stream($resumption->decisions, provider: $resumption->turn->provider, model: $resumption->turn->model);
 
-        $response->then(function (StreamedAgentResponse $streamed) use ($resumption): void {
-            $this->settleResumedTurn($resumption, $streamed);
-        });
+        $response
+            ->then(function (StreamedAgentResponse $streamed) use ($resumption): void {
+                $this->settleResumedTurn($resumption, $streamed);
+            })
+            ->catch(fn (Throwable $e) => $this->failTurn($resumption->turn->run, $e));
 
         return new StreamedTurn($resumption->turn->run, $response);
     }
@@ -170,10 +172,10 @@ class AgentRunner
      * closed out by the `then()` callback registered here once the provider
      * finishes.
      *
-     * The caller owns failure: nothing runs until the stream is iterated, so
-     * an exception surfaces *there*, not here, and whoever iterates must call
-     * `failTurn()`, otherwise the turn's `Run` would sit in `running`
-     * forever.
+     * Nothing runs until the stream is iterated, so an exception surfaces
+     * *there*, not here. The stream fails the turn's `Run` itself
+     * (`->catch()`) before the exception reaches whoever iterates it, so a
+     * caller that forgets to call `failTurn()` cannot leave it `running`.
      */
     public function streamBegun(Run $run): StreamedTurn
     {
@@ -197,9 +199,11 @@ class AgentRunner
 
         $response = $turn->agent->stream($userMessage->content, $turn->attachments, provider: $turn->provider, model: $turn->model);
 
-        $response->then(function (StreamedAgentResponse $streamed) use ($turn): void {
-            $this->settleTurn($turn, $streamed);
-        });
+        $response
+            ->then(function (StreamedAgentResponse $streamed) use ($turn): void {
+                $this->settleTurn($turn, $streamed);
+            })
+            ->catch(fn (Throwable $e) => $this->failTurn($turn->run, $e));
 
         return new StreamedTurn($turn->run, $response);
     }

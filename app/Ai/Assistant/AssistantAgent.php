@@ -4,6 +4,9 @@ namespace App\Ai\Assistant;
 
 use App\Models\Assistant\AssistantSession;
 use App\Services\Assistant\Runtime\ConversationHistory;
+use Laravel\Ai\Attributes\CacheInstructions;
+use Laravel\Ai\Attributes\CacheToolDefinitions;
+use Laravel\Ai\Attributes\RepairToolCalls;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
 use Laravel\Ai\Contracts\HasTools;
@@ -17,6 +20,9 @@ use Laravel\Ai\Promptable;
  * class only exposes them. Separate from `App\Ai\Agents\WorkspaceAgent` by
  * design: see docs/ASSISTANT_PLAN.md.
  */
+#[CacheInstructions]
+#[CacheToolDefinitions]
+#[RepairToolCalls]
 class AssistantAgent implements Agent, Conversational, HasTools
 {
     use Promptable;
