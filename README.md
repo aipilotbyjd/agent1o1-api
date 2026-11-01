@@ -1,58 +1,70 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<p align="center"><strong>Agent1o1 API</strong></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+<p align="center">A Gumloop-style, node-based workflow & AI-agent automation platform — backend API only.</p>
 
-## About Laravel
+## About
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Agent1o1 is a SaaS backend that lets users build and run AI-powered automations. It combines two engines behind one REST API:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Workflow engine** — DAGs of typed nodes (triggers, transforms, AI, integrations) executed via queued jobs, with type checking at save time, loop/batch fan-out, human-in-the-loop checkpoints, and error-shield-based recovery.
+- **Agent layer** — conversational, tool-driven AI agents (built on [Laravel AI](https://laravel.com/docs/ai)) that can call Connectors, Workflows, and Skills as tools, with every tool call metered and logged like a node run.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Multi-tenancy is workspace-based, with two API surfaces sharing the same underlying `Actions/` business logic:
 
-## Learning Laravel
+- **`/api/internal`** — session-authenticated (Sanctum), used by the first-party React canvas/editor. Includes editor-only endpoints (node placement, autosave, etc.).
+- **`/api/v1`** — API-key-authenticated, versioned, external-developer-facing. Narrower: run/list/inspect only (Workflows, Runs, Agents, Artifacts, Skills).
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Usage is metered via a credit ledger (`CreditTransaction`), billed through [Laravel Cashier](https://laravel.com/docs/billing) + Stripe (subscriptions, credit packs, lifetime plans, dunning on failed payments).
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+See `docs/` for the full architecture and phased build plans (`PLAN.md`, `STRUCTURE.md`, `WORKFLOWS_PLAN.md`, `AGENTS_PLAN.md`, `AUTH_PLAN.md`, `TRIGGERS_PLAN.md`, `WORKSPACE_PLAN.md`, `ONBOARDING_PLAN.md`, `NODES_CATALOG.md`).
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Tech Stack
+
+- **PHP 8.5** / **Laravel 13**
+- [Laravel AI](https://laravel.com/docs/ai) — LLM orchestration & agent tool-calling
+- [Laravel Cashier](https://laravel.com/docs/billing) — Stripe subscriptions & billing
+- [Laravel Horizon](https://laravel.com/docs/horizon) — queue monitoring (Redis-backed)
+- [Laravel Passport](https://laravel.com/docs/passport) — OAuth2 API authentication
+- [Laravel Reverb](https://laravel.com/docs/reverb) — real-time WebSocket broadcasting
+- [Laravel Socialite](https://laravel.com/docs/socialite) — Google/GitHub social login
+- [Laravel Pulse](https://laravel.com/docs/pulse) — application monitoring
+- [Pest](https://pestphp.com) — testing
+
+## Getting Started
+
+Requires PHP 8.5, Composer, Node.js, and Redis. The app is served locally via [Laravel Herd](https://herd.laravel.com) at `https://agent1o1-api.test`.
+
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+npm install
+npm run build
+```
+
+Fill in `.env` with real values for Stripe (keys, webhook secret, plan/price IDs), Passport OAuth client, Google/GitHub OAuth apps, Reverb, and your AI provider key(s) (`OPENAI_API_KEY` / `ANTHROPIC_API_KEY`).
+
+### Local development
+
+```bash
+composer dev
+```
+
+Runs the app server, queue worker, log tailer (`pail`), and Vite dev server concurrently.
+
+### Testing
+
+```bash
+composer test
+# or a specific suite/filter:
+php artisan test --compact --filter=SomeTest
+```
 
 ## Agentic Development
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
-```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+This project has [Laravel Boost](https://laravel.com/docs/ai) installed, giving AI coding agents (Claude Code, Cursor, GitHub Copilot, etc.) direct tools for Artisan, database inspection, and version-aware documentation search. See `CLAUDE.md` for project-specific agent guidelines and available skills.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Proprietary — all rights reserved.
