@@ -206,7 +206,7 @@ class KnowledgeBase
 
             $vectors = [...$vectors, ...$response->embeddings];
             $usage = [
-                'prompt_tokens' => $usage['prompt_tokens'] + $response->tokens,
+                'prompt_tokens' => $usage['prompt_tokens'] + $response->usage->inputTokens,
                 'provider' => $response->meta->provider,
                 'model' => $response->meta->model,
             ];
