@@ -1,0 +1,29 @@
+meta {
+  name: Force Logout
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/users/:user/force-logout
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  user: {{saUserId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request, ticket 1234"
+  }
+}
+
+docs {
+  Ends every session without suspending.
+}

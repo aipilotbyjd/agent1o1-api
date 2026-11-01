@@ -1,0 +1,32 @@
+meta {
+  name: Builder Sessions - Update
+  type: http
+  seq: 8
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-builder-sessions/:session
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{builderSessionId}}
+}
+
+body:json {
+  {
+    "title": "Lead intake router"
+  }
+}
+
+docs {
+  Renames, archives, or unarchives a session. Both fields are optional;
+  `status` accepts `active` or `archived` (an unarchived session that was
+  already promoted goes back to `promoted`). Archived sessions are hidden
+  from "Builder Sessions - List" unless `?status=archived` is passed, and
+  refuse edits with a 409.
+
+  Response is wrapped: `{ success, statusCode, message, data: { session } }`.
+}

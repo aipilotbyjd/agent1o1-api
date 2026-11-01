@@ -1,0 +1,18 @@
+meta {
+  name: Workspaces - List
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces
+  body: none
+  auth: inherit
+}
+
+docs {
+  Lists workspaces the authenticated user belongs to, with workflow and
+  agent counts.
+
+  Response is wrapped: `{ success, statusCode, message, data: { workspaces } }`.
+}

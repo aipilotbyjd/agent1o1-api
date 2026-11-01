@@ -1,0 +1,32 @@
+meta {
+  name: Referrals - Reject
+  type: http
+  seq: 19
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/referrals/referrals/:referral/reject
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  referral: {{referralId}}
+}
+
+body:json {
+  {
+    "reason": "Same person, two accounts"
+  }
+}
+
+docs {
+  Marks the referral ineligible (fraud, duplicate account…) and withdraws
+  every reward it produced, for both people. `reason` is required.
+
+  Response is wrapped: `{ success, statusCode, message, data: { referral } }`.
+}

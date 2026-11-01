@@ -1,0 +1,23 @@
+meta {
+  name: Plans - Subscribers
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/pricing/plans/:plan/subscribers
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  plan: {{saPlanId}}
+}
+
+docs {
+  Live subscriptions on the plan, cursor-paginated.
+}

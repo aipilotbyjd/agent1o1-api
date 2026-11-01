@@ -1,0 +1,25 @@
+meta {
+  name: Invoices - Upcoming
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/invoices/upcoming
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  A preview of the workspace's next charge, read live from Stripe.
+  Requires the `billing.view` permission.
+
+  `data.invoice` is `null` when there's nothing to project forward — no
+  Stripe customer, or no active subscription.
+
+  Response is wrapped: `{ success, statusCode, message, data: { invoice } }`.
+}

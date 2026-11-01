@@ -1,0 +1,30 @@
+meta {
+  name: Retirement - Retire
+  type: http
+  seq: 17
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/models/:model/retire
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  model: {{saModelId}}
+}
+
+body:json {
+  {
+    "reason": "Routing around a provider outage",
+    "replacement_slug": "claude-sonnet-5"
+  }
+}
+
+docs {
+  Switches the model off now and moves its agents, assistants and workspace defaults and allow-lists to the replacement. Anything still holding the old slug (a workflow's Ask AI node) is served by the replacement. A model in use needs a replacement.
+}

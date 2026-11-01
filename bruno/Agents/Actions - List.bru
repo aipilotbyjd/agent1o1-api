@@ -1,0 +1,33 @@
+meta {
+  name: Actions - List
+  type: http
+  seq: 71
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/actions
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+params:query {
+  ~status: pending
+  ~tool_name: call_api
+}
+
+docs {
+  The agent's action log — every tool call it made or tried to make that
+  changes something — newest first, 50 per page, each with its `session`.
+  Requires the `agent.view` permission.
+
+  - `status` — optional: `pending`, `approved`, `rejected`, `expired`,
+    `cancelled`, `denied`, `simulated`, `running`, `executed`, `failed`.
+  - `tool_name` — optional, exact tool name.
+
+  Paginated: `{ success, statusCode, message, data: [...], meta }`.
+}

@@ -1,0 +1,27 @@
+meta {
+  name: Publish Approval Policy - Get
+  type: http
+  seq: 49
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/publish-approval-policy
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Whether workflow changes must be reviewed before they go live. Requires
+  the `workflow.view` permission.
+
+  `requires_approval` is what's in force: `require_publish_approval` is on
+  and `plan_includes_approvals` is true. Also returns `can_manage`,
+  `can_approve` (for the caller) and `approver_count`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { policy: { require_publish_approval, plan_includes_approvals, requires_approval, can_manage, can_approve, approver_count } } }`.
+}

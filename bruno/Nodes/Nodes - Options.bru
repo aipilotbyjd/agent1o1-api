@@ -1,0 +1,46 @@
+meta {
+  name: Nodes - Options
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/nodes/options
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "type": "slack_post_message",
+    "field": "channel",
+    "config": {
+      "credential_id": "{{connectorCredentialId}}"
+    },
+    "search": null,
+    "cursor": null
+  }
+}
+
+docs {
+  The live choices for one node field's dropdown in the workflow editor
+  (spreadsheets, channels, repos, labels...). Requires both `node.view`
+  and `connector.view`. Throttled to 120/minute.
+
+  - `type` — required; the node type (e.g. `slack_post_message`).
+  - `field` — required; a config field that declares `x-options` in the
+    node's config schema (422 otherwise).
+  - `config` — optional, the node's current unsaved config (max 100
+    keys); `credential_id` and any fields the list depends on are read
+    from it. Omit `credential_id` to use the same default account the
+    node would run with.
+  - `search` — optional, max 200. `cursor` — optional, max 500; pass the
+    previous page's `next_cursor`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { options: [{ value, label, description? }], next_cursor } }`.
+}

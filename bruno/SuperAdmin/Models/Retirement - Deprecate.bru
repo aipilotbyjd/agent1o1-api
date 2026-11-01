@@ -1,0 +1,31 @@
+meta {
+  name: Retirement - Deprecate
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/models/:model/deprecate
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  model: {{saModelId}}
+}
+
+body:json {
+  {
+    "reason": "Routing around a provider outage",
+    "replacement_slug": "claude-sonnet-5",
+    "retires_at": "2027-01-01T00:00:00Z"
+  }
+}
+
+docs {
+  Announces a retirement date and a replacement. Nothing changes until the date; the daily `model-catalog:retire-due` then retires it.
+}

@@ -1,0 +1,44 @@
+meta {
+  name: Skill References - Create
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skills/:skill/references
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skill: {{skillId}}
+}
+
+body:json {
+  {
+    "title": "Refund window policy",
+    "content": "Refunds are allowed within 30 days of purchase. Confirm the order ID before processing.",
+    "sort_order": 0
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const reference = res.body.data?.reference;
+    if (reference && reference.id) {
+      bru.setVar("skillReferenceId", reference.id);
+    }
+  }
+}
+
+docs {
+  Creates a reference document attached to a skill. Requires the
+  `agent-skill.manage` permission. Stores the new ID as `skillReferenceId`.
+
+  `title` and `content` are required; `sort_order` defaults to 0.
+
+  `422` when the skill is synced one-way from GitHub.
+
+  Response is wrapped: `{ success, statusCode, message, data: { reference } }`.
+}

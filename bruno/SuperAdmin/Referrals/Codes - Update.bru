@@ -1,0 +1,35 @@
+meta {
+  name: Codes - Update
+  type: http
+  seq: 16
+}
+
+patch {
+  url: {{baseUrl}}/super-admin/v1/referrals/codes/:code
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  code: {{referralCodeId}}
+}
+
+body:json {
+  {
+    "rule_multiplier": 2,
+    "max_uses": 100
+  }
+}
+
+docs {
+  Per-referrer overrides, all optional: `code` (vanity code), `program_id`
+  (pin to a program; null = follow the default), `rule_multiplier` (0–100,
+  scales the referrer's own rewards), `max_uses`, `expires_at`, `is_active`,
+  `reward_workspace_id` (a workspace the owner owns).
+
+  Response is wrapped: `{ success, statusCode, message, data: { code } }`.
+}

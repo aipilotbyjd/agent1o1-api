@@ -1,0 +1,37 @@
+meta {
+  name: Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "owner@example.com",
+    "password": "change-me-please"
+  }
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const d = res.body.data ?? {};
+    if (d.two_factor_challenge) bru.setVar("superAdminChallenge", d.two_factor_challenge);
+    if (d.tokens) {
+      bru.setVar("superAdminToken", d.tokens.access_token);
+      if (d.tokens.refresh_token) bru.setVar("superAdminRefreshToken", d.tokens.refresh_token);
+    }
+  }
+}
+
+docs {
+  Checks the password. `data.two_factor_challenge` (stored as `superAdminChallenge`)
+  means run `2FA - Verify` next. `data.setup_required: true` means the account has
+  no two-factor authentication yet: the returned token only opens
+  `Change Password` and the `2FA - Enable` / `2FA - Confirm` requests.
+  Throttled; five wrong passwords lock the account for 15 minutes.
+}

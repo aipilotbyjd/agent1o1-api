@@ -1,0 +1,25 @@
+meta {
+  name: Agent Templates - Delete
+  type: http
+  seq: 12
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agent-templates/:agentTemplate
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agentTemplate: {{agentTemplateId}}
+}
+
+docs {
+  Deletes an agent template owned by the workspace. Requires the
+  `template.manage` permission. A global public template answers `404`.
+
+  Agents already created from the template are unaffected.
+
+  Answers `204 No Content` with no envelope.
+}

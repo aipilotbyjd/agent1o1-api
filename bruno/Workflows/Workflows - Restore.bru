@@ -1,0 +1,27 @@
+meta {
+  name: Workflows - Restore
+  type: http
+  seq: 38
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/restore
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+docs {
+  Restores a workflow from the trash. Requires the `workflow.manage`
+  permission. Takes no body.
+
+  `404` if the workflow isn't in the trash. A restored workflow counts
+  toward the plan's workflow limit again, so it's refused like a create
+  would be when the workspace is at its cap.
+
+  Response is wrapped: `{ success, statusCode, message, data: { workflow } }`.
+}

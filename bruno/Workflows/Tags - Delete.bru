@@ -1,0 +1,25 @@
+meta {
+  name: Tags - Delete
+  type: http
+  seq: 26
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/tags/:tag
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  tag: {{tagId}}
+}
+
+docs {
+  Deletes a tag and detaches it from every workflow and agent. Requires the
+  `workflow.manage` permission.
+
+  404s if `:tag` doesn't belong to `:workspace`.
+
+  Responds `204 No Content` with no envelope.
+}

@@ -1,0 +1,39 @@
+meta {
+  name: Skills - Draft
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skills/draft
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "prompt": "A skill for answering refund requests: check the order date, apply our 30-day policy, and draft a polite reply.",
+    "model_catalog_id": "{{modelCatalogId}}"
+  }
+}
+
+docs {
+  Drafts a skill (name, description, category, icon, color, tags,
+  instructions, references and scripts) from a plain-language description.
+  Nothing is saved: send the draft on to `Skills - Create`, which accepts
+  `references` and `scripts` inline. Requires the `agent-skill.manage`
+  permission. Charged in credits; `402` when the workspace is out of them.
+
+  - `prompt` — required, max 4000 characters.
+  - `model_catalog_id` — required, an `id` from `Ai/Model Catalog - List` (stored as `modelCatalogId`)
+    that the workspace's plan allows.
+
+  References and scripts too incomplete to save are dropped; scripts keep
+  only `python`, `javascript`, `typescript` or `bash`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { draft } }`.
+}

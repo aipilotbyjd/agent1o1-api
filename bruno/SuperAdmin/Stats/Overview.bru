@@ -1,0 +1,23 @@
+meta {
+  name: Overview
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/stats/overview?days=30
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:query {
+  days: 30
+}
+
+docs {
+  Users, workspaces, runs by status with success rate, credits consumed and paid subscriptions over the window. Cached for a minute.
+}

@@ -1,0 +1,23 @@
+meta {
+  name: Usage - Top Spenders
+  type: http
+  seq: 27
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/models/usage/workspaces?days=7
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:query {
+  days: 7
+}
+
+docs {
+  The workspaces that cost you the most over the last N days (calls on a workspace's own key are left out). Read from the hourly rollup.
+}

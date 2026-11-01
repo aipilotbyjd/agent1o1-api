@@ -1,0 +1,41 @@
+meta {
+  name: Overage - Update
+  type: http
+  seq: 18
+}
+
+put {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/overage
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "enabled": true,
+    "limit": 50000
+  }
+}
+
+docs {
+  Turns credit overage on or off and sets its cap. Requires the
+  `billing.manage` permission.
+
+  - `enabled` — required boolean. Enabling on a plan without the
+    `credit_overage` feature 403s with `FeatureNotAvailableException` rather
+    than saving a setting that would do nothing.
+  - `limit` — optional. Overage credits this workspace may accrue per billing
+    period. May be lowered but never raised above `maximum_limit` (a 422),
+    so overage can't run away unbounded. Send `null` to clear the choice and
+    fall back to the estate default. Omit the key to leave it unchanged.
+
+  Overage credits are billed after the fact at `credit_value_usd` each by
+  `billing:invoice-overage`, not at the moment they are spent.
+
+  Response is wrapped: `{ success, statusCode, message, data: { overage } }`,
+  the same shape `Overage - Get` returns.
+}

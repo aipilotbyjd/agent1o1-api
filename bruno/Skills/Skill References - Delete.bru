@@ -1,0 +1,27 @@
+meta {
+  name: Skill References - Delete
+  type: http
+  seq: 9
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skills/:skill/references/:reference
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skill: {{skillId}}
+  reference: {{skillReferenceId}}
+}
+
+docs {
+  Deletes a skill reference. Requires the `agent-skill.manage` permission.
+
+  404s if `:reference` does not belong to `:skill`.
+
+  `422` when the skill is synced one-way from GitHub.
+
+  Responds `204 No Content` with no envelope.
+}

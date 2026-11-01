@@ -1,0 +1,39 @@
+meta {
+  name: Codes - List
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/referrals/codes?search=&page=1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:query {
+  search: 
+  page: 1
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const items = res.body.data;
+    if (Array.isArray(items) && items.length > 0) {
+      bru.setVar("referralCodeId", items[0].id);
+    }
+  }
+}
+
+docs {
+  Referral codes with owner and referral/visit counts. `search` matches the
+  code or the owner's name or email; `program_id` filters by pinned program;
+  `per_page` defaults to 25.
+
+  Stores the first code as `referralCodeId`.
+
+  Paginated: `{ success, statusCode, message, data: [...], meta }`.
+}

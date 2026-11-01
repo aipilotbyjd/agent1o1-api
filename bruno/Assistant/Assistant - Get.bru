@@ -1,0 +1,27 @@
+meta {
+  name: Assistant - Get
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Returns the caller's own assistant, creating it on first call. Requires
+  the `assistant.use` permission.
+
+  `brand` is the workspace's current assistant branding; `features.voice`
+  says whether `Transcribe` is configured.
+
+  Response is wrapped: `{ success, statusCode, message, data: { assistant,
+  brand, features: { voice } } }`. `assistant` has `id`, `workspace_id`,
+  `user_id`, `model_catalog_id`, `instructions`, `settings`, timestamps.
+}

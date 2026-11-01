@@ -1,0 +1,32 @@
+meta {
+  name: Plans - Update
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/super-admin/v1/pricing/plans/:plan
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  plan: {{saPlanId}}
+}
+
+body:json {
+  {
+    "reason": "Raising the allowance for launch",
+    "credits_monthly": 2000,
+    "limits": { "agents": 10 },
+    "badge": "Most popular"
+  }
+}
+
+docs {
+  Changes that don't alter what anyone is charged. The slug and amounts are not accepted. A reason is required.
+}

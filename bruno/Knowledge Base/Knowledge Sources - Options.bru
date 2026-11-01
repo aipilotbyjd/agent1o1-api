@@ -1,0 +1,35 @@
+meta {
+  name: Knowledge Sources - Options
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/knowledge-base/sources/options?type=github
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  type: github
+  ~credential_id: {{connectorCredentialId}}
+  ~search: docs
+}
+
+docs {
+  The folders, labels, repos or channels to pick from, read live from
+  the chosen account. Requires `agent.view`. Throttled to 60/minute.
+
+  - `type` — required; any app type (not `url`).
+  - `credential_id` — optional; same fallback as `Knowledge Sources -
+    Create`.
+  - `search` — optional, max 100.
+
+  422 with the provider's reason when the account can't be read.
+
+  Response is wrapped: `{ success, statusCode, message, data: { options } }`.
+}

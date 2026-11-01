@@ -1,0 +1,18 @@
+meta {
+  name: Referrals
+  seq: 11
+}
+
+docs {
+  The referral program: programs, reward rules, codes, referrals, the reward
+  ledger and the blocked-domain list. Needs the `referrals.manage` ability
+  (owner, operator, finance).
+
+  List requests store the first row's id so the rest of the folder works:
+  `referralProgramId`, `referralRuleId`, `referralCodeId`, `referralId`,
+  `referralRewardId`, `blockedDomainId`. `Rewards - Grant Manual` needs
+  `userId` set by hand (a user's id, e.g. from `SuperAdmin/Users/List`).
+
+  Every change is written to the audit log (`SuperAdmin/Audit Log/List`).
+  The artisan equivalents are the `referrals:*` commands.
+}

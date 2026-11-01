@@ -1,0 +1,27 @@
+meta {
+  name: Apps - List
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/apps
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  The apps (active connectors) the assistant can work in, and whether the
+  caller has an account connected for each. Requires the `assistant.use`
+  permission.
+
+  Each entry: `key`, `name`, `icon`, `color`, `connected`, `account`
+  (credential name or `null`), `shared` (true when the credential is a
+  team one rather than personal).
+
+  Response is wrapped: `{ success, statusCode, message, data: { apps: [...] } }`.
+}

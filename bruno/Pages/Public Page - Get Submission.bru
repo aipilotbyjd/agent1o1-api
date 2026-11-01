@@ -1,0 +1,34 @@
+meta {
+  name: Public Page - Get Submission
+  type: http
+  seq: 37
+}
+
+get {
+  url: {{baseUrl}}/v1/p/:token/submissions/:submission
+  body: none
+  auth: none
+}
+
+params:path {
+  token: {{pageToken}}
+  submission: {{publicPageSubmissionId}}
+}
+
+headers {
+  X-Submission-Secret: {{publicPageSubmissionSecret}}
+}
+
+docs {
+  Polls an anonymous submission's result. No auth, but the
+  `X-Submission-Secret` header must match the `secret` returned by
+  `Public Page - Submit`. Throttled to 120/min per IP.
+
+  A wrong/missing secret, a submission from another page, or an
+  unavailable page all answer 404. Failures show a generic `error`, not
+  the run's real one.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { submission } }` — same shape as
+  in `Public Page - Submit`.
+}

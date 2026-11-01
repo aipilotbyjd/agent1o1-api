@@ -1,0 +1,49 @@
+meta {
+  name: Nodes - Test
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/nodes/:node/test
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+  node: {{workflowNodeId}}
+}
+
+body:json {
+  {
+    "input": {
+      "customer_email": "buyer@example.com"
+    },
+    "nodes": {},
+    "config": null
+  }
+}
+
+docs {
+  Executes one draft node for real and returns the resulting node run.
+  Requires *both* the `workflow.manage` and `run.trigger` permissions:
+  editing rights alone shouldn't let someone fire a node's real side
+  effects, and trigger rights alone shouldn't reach into a draft.
+
+  Unlike `Diagnostics - Dry Run`, this one does actually call out — expect
+  real requests, real credits.
+
+  - `input` — optional array standing in for the run input.
+  - `nodes` — optional array of upstream node outputs, so `{{ nodes.* }}`
+    templates resolve without running the whole graph first.
+  - `config` — optional array overriding the node's saved config, for
+    trying an edit before saving it.
+
+  `node` is the workflow node's ID (not the node catalog's `nodeId`). A
+  node belonging to another workflow answers `404`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { node_run } }`.
+}

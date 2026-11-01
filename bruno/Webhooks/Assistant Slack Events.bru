@@ -1,0 +1,42 @@
+meta {
+  name: Assistant Slack Events
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/hooks/assistant/slack/events
+  body: json
+  auth: none
+}
+
+headers {
+  X-Slack-Request-Timestamp: {{slackRequestTimestamp}}
+  X-Slack-Signature: {{slackSignature}}
+}
+
+body:json {
+  {
+    "type": "url_verification",
+    "challenge": "sample-challenge-value"
+  }
+}
+
+docs {
+  Slack Events API endpoint for the platform's assistant Slack app (the
+  Event Subscriptions Request URL). Not called by clients.
+
+  **Signature.** Every request is checked against
+  `ASSISTANT_SLACK_SIGNING_SECRET`: `X-Slack-Signature` must be
+  `v0=` + HMAC-SHA256 of `v0:{timestamp}:{raw body}`, and
+  `X-Slack-Request-Timestamp` within 5 minutes. Otherwise `401 Invalid
+  Slack signature.` Set `slackRequestTimestamp`/`slackSignature` by
+  computing them for the exact body, or replay real deliveries.
+
+  Behaviour: a `url_verification` payload echoes `{ "challenge": ... }`.
+  For `event_callback`, only a person's own DM to the bot (`message`,
+  `channel_type: im`, no `bot_id`/`subtype`) is queued; each `event_id` is
+  handled once, since Slack retries.
+
+  Response is **not** wrapped: `{ "challenge" }` or `{ "ok": true }`.
+}

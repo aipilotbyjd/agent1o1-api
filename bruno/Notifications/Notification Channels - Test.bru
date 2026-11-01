@@ -1,0 +1,24 @@
+meta {
+  name: Notification Channels - Test
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/notification-channels/:notificationChannel/test
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  notificationChannel: {{notificationChannelId}}
+}
+
+docs {
+  Sends a test message through the channel. Requires
+  `notification-channel.manage`.
+
+  `200` with the delivery result as `message` and `data: null`; a failed
+  delivery answers `400` with the reason in `message`.
+}

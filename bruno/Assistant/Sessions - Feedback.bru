@@ -1,0 +1,36 @@
+meta {
+  name: Sessions - Feedback
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/sessions/:session/messages/:message/feedback
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{assistantSessionId}}
+  message: {{assistantMessageId}}
+}
+
+body:json {
+  {
+    "rating": "down",
+    "comment": "Too long, I asked for bullet points."
+  }
+}
+
+docs {
+  Thumbs up/down on one of the assistant's replies. Requires the
+  `assistant.use` permission. Throttled to 60 per minute.
+
+  `rating` is required: `up` or `down`. `comment` is optional (nullable,
+  max 1000 chars). The message must be an `assistant` message in this
+  session, else `404`. Feedback can feed into the owner's style notes.
+
+  Response is wrapped: `{ success, statusCode, message, data: { feedback:
+  { rating, comment, status } } }`.
+}

@@ -1,0 +1,29 @@
+meta {
+  name: Subagent Tasks - List
+  type: http
+  seq: 77
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/sessions/:session/subagent-tasks
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+}
+
+docs {
+  The subagent tasks this conversation started, oldest first — what the
+  chat's live status cards poll while any are still running. Requires the
+  `agent.view` permission. A session belonging to a different agent
+  answers `404`.
+
+  Each task has `agent` (`id`, `name`, `icon`, `color`), `task`, `status`,
+  `result`, `error`, `started_at` and `finished_at`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { tasks } }`.
+}

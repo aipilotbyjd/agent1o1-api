@@ -1,0 +1,36 @@
+meta {
+  name: Inbox - Enable
+  type: http
+  seq: 63
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/inbox/enable
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "provider": "gmail"
+  }
+}
+
+docs {
+  Turns Smart Inbox on for a connected mailbox. Requires the
+  `assistant.use` permission. Throttled to 10 per minute.
+
+  `provider` is optional — `gmail` | `outlook`; defaults to the first
+  connected one. Switching to a different mailbox starts over there. The
+  built-in labels are seeded and synced to the mailbox.
+
+  Errors: `402` without the Pro plan; `422` when no Gmail/Outlook is
+  connected in Apps, the provider is unknown, or the mailbox refused the
+  labels (reconnect with label permission).
+
+  Response is wrapped: same payload as `Inbox - Get`.
+}

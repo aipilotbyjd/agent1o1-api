@@ -1,0 +1,35 @@
+meta {
+  name: Skill Sources - Apply Upstream
+  type: http
+  seq: 29
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skill-sources/:skillSource/upstream
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skillSource: {{skillSourceId}}
+}
+
+body:json {
+  {
+    "fork_sha": "0123456789abcdef0123456789abcdef01234567",
+    "upstream_sha": "89abcdef0123456789abcdef0123456789abcdef"
+  }
+}
+
+docs {
+  Merges the original repository's updates into the fork. Requires the
+  `agent-skill.manage` permission. Run `Skill Sources - Sync` afterwards to
+  import them.
+
+  `fork_sha` and `upstream_sha` are required: the pair returned by
+  `Skill Sources - Get Upstream`. `422` when either repository moved since
+  that check, or local edits or conflicts are still pending.
+
+  Response is wrapped: `{ success, statusCode, message, data: { source } }`.
+}

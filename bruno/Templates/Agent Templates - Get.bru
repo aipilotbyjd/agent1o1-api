@@ -1,0 +1,27 @@
+meta {
+  name: Agent Templates - Get
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agent-templates/:agentTemplate
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agentTemplate: {{agentTemplateId}}
+}
+
+docs {
+  Fetches a single agent template, including its stored `config`. Requires
+  the `template.view` permission.
+
+  Resolves against the same visibility rule as the list — the workspace's
+  own templates plus global public ones. Anything else answers `404`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { agent_template } }`.
+}

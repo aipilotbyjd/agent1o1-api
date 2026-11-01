@@ -1,0 +1,34 @@
+meta {
+  name: Skill References - Update
+  type: http
+  seq: 8
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skills/:skill/references/:reference
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skill: {{skillId}}
+  reference: {{skillReferenceId}}
+}
+
+body:json {
+  {
+    "content": "Refunds are allowed within 60 days of purchase. Confirm the order ID before processing."
+  }
+}
+
+docs {
+  Updates a skill reference. All fields are optional. Requires the
+  `agent-skill.manage` permission.
+
+  404s if `:reference` does not belong to `:skill`.
+
+  `422` when the skill is synced one-way from GitHub.
+
+  Response is wrapped: `{ success, statusCode, message, data: { reference } }`.
+}

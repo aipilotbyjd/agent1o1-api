@@ -1,0 +1,29 @@
+meta {
+  name: Assistant
+  seq: 23
+}
+
+docs {
+  The signed-in member's personal assistant in this workspace. Each member
+  gets exactly one, provisioned on first use — there is no assistant ID in
+  any URL, and every route acts on the caller's own. All routes need the
+  `assistant.use` permission (granted to members and up). A session, turn,
+  memory or situation belonging to someone else's assistant answers `404`,
+  not `403`.
+
+  Chat is asynchronous: `Sessions - Send Message` returns `202` with a
+  turn, and the reply streams over the private Reverb channel
+  `workspaces.{workspaceId}.assistant-sessions.{sessionId}` (`turn.delta`,
+  `turn.tool`, `turn.changed`). Poll `Turns - Get` if you aren't listening.
+  Tools that need sign-off park the turn on `awaiting_approval` until
+  `Turns - Decide` is called.
+
+  Also here: personalization (`Styles`, `Memories`, `Tool Rules`), voice
+  input (`Transcribe`), connected apps, situations raised by briefings,
+  and the briefing, channel, inbox, meeting and trigger settings.
+
+  Variables set as you go: `assistantSessionId`, `assistantTurnId`,
+  `assistantMessageId`, `assistantToolCallId`, `assistantMemoryId`,
+  `assistantStyleRevisionId`, `assistantSituationId`,
+  `assistantSituationStepId`.
+}

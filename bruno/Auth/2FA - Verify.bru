@@ -1,0 +1,34 @@
+meta {
+  name: 2FA - Verify
+  type: http
+  seq: 17
+}
+
+post {
+  url: {{baseUrl}}/v1/auth/2fa/verify
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "challenge_token": "{{challengeToken}}",
+    "code": "123456"
+  }
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setVar("accessToken", res.body.data?.tokens?.access_token);
+  }
+}
+
+docs {
+  Completes a login that returned a `two_factor_challenge` from
+  `Login`. `code` accepts either a live TOTP code or one of the
+  one-time recovery codes. The challenge token is single-use and
+  expires after 5 minutes. On success, stores `accessToken` and sets the
+  `refresh_token` cookie just like a normal login.
+
+  Response is wrapped: `{ success, statusCode, message, data: { user, tokens } }`.
+}

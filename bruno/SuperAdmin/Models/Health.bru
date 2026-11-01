@@ -1,0 +1,19 @@
+meta {
+  name: Health
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/models/health
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+docs {
+  Everything wrong or about to be, errors first: models with no enabled route, routes the platform cannot run, missing or stale prices, failing routes, overdue retirements, switched-off endpoints that are still routed to. `healthy` is true when there are no errors.
+}

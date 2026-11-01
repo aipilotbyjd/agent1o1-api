@@ -1,0 +1,33 @@
+meta {
+  name: Programs - List
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/referrals/programs
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const items = res.body.data?.programs;
+    if (Array.isArray(items) && items.length > 0) {
+      bru.setVar("referralProgramId", items[0].id);
+    }
+  }
+}
+
+docs {
+  Every program with rule and referral counts, default first. Add
+  `with_trashed=1` to include deleted ones.
+
+  Stores the first (default) program as `referralProgramId`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { programs } }`.
+}

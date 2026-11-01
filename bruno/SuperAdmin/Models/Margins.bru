@@ -1,0 +1,23 @@
+meta {
+  name: Margins
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/models/margins?lifetime_months=36
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:query {
+  lifetime_months: 36
+}
+
+docs {
+  For each model the platform pays for: what a typical message costs you against what its credits earn on each plan. A lifetime price is spread over `lifetime_months`. `status`: ok, thin (under 20% of revenue), loss, unpriced, no_paid_plan, not_paid_by_platform.
+}

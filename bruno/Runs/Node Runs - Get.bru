@@ -1,0 +1,31 @@
+meta {
+  name: Node Runs - Get
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/runs/:run/node-runs/:nodeRun
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  run: {{runId}}
+  nodeRun: 1
+}
+
+docs {
+  One step of a run in full — what a run canvas opens when a node is
+  clicked. Requires the `run.view` permission.
+
+  Also loads `childRuns`, the sub-runs a loop or sub-workflow node spawned.
+
+  Set `nodeRun` by hand from a `Node Runs - List` or `Runs - Get`
+  response — there's no create step to populate it. A node run belonging to
+  another run answers `404`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { node_run } }`.
+}

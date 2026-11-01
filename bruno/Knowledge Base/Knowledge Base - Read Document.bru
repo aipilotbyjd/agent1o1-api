@@ -1,0 +1,31 @@
+meta {
+  name: Knowledge Base - Read Document
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/knowledge-base/document?source=handbook.md&collection=support
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  source: handbook.md
+  ~collection: support
+}
+
+docs {
+  Runs the exact retrieval an agent's `read_knowledge_document` tool would:
+  reassembles every chunk sharing `source` (and, when given, `collection`)
+  in storage order and returns the full text. Requires `agent.view`.
+
+  Use this when a `Knowledge Base - Search` snippet isn't enough context —
+  `source` is the value a search result reported.
+
+  404s if nothing matches. Response is wrapped: `{ ..., data: { source, text } }`.
+}

@@ -1,0 +1,39 @@
+meta {
+  name: Triggers - List
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/triggers
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~target_type: workflow
+  ~target_id: {{workflowId}}
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Lists the workspace's triggers, newest first. Requires the
+  `trigger.view` permission.
+
+  Optional `target_type` (`workflow` or `agent`) and `target_id` narrow the
+  list to one workflow's or agent's triggers; `target_type` is required
+  when `target_id` is sent.
+
+  Each trigger includes:
+  - `trigger_node_key`: the canvas node that owns it (set on publish), or
+    null for one made through this API.
+  - `has_signing_secret`, `next_run_at` (schedules), `consecutive_skip_count`
+    and `max_failures` (the breaker's limit for this trigger).
+  - `stats_24h`: `{ fired, failed, skipped }` over the last 24 hours.
+  - `target_name`: the workflow's or agent's name.
+
+  Response is wrapped: `{ success, statusCode, message, data: { triggers } }`.
+}

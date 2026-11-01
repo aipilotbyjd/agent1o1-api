@@ -1,0 +1,24 @@
+meta {
+  name: Reflection Runs - Get
+  type: http
+  seq: 51
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/reflection-runs/:run
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  run: {{reflectionRunId}}
+}
+
+docs {
+  Fetches one reflection run. Requires the `agent.view` permission. A run
+  belonging to a different agent answers `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { run } }`.
+}

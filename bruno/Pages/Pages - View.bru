@@ -1,0 +1,36 @@
+meta {
+  name: Pages - View
+  type: http
+  seq: 24
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/view
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+params:query {
+  ~draft: 1
+}
+
+docs {
+  The page as a workspace member using it sees it, ready to render.
+  Requires the `page.view` permission.
+
+  - `draft` — optional; `1` returns the draft instead (needs
+    `page.manage`) and isn't counted.
+
+  Without `draft`: the published page (version B if the member is bucketed
+  there), counted as a view. 404 if unpublished or turned off.
+
+  Response is wrapped: `{ success, statusCode, message, data: { view } }`
+  — `view` has `name`, `description`, `workspace_name`, `theme`, `locked`,
+  `requires_password` and `blocks` (field blocks carry their workflow
+  `field` definition).
+}

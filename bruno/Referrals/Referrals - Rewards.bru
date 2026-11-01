@@ -1,0 +1,22 @@
+meta {
+  name: Referrals - Rewards
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/v1/referrals/rewards?page=1&per_page=25
+  body: none
+  auth: inherit
+}
+
+params:query {
+  page: 1
+  per_page: 25
+}
+
+docs {
+  Rewards the user received — as referrer or as the referred user — with a
+  ready-to-show `summary` and `status` (`pending` = on hold until
+  `grant_after`). Paginated like `Referrals - List`.
+}

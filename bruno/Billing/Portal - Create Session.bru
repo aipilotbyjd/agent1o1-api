@@ -1,0 +1,27 @@
+meta {
+  name: Portal - Create Session
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/portal
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Creates a one-time Stripe Billing Portal session and hands back its
+  URL for the frontend to redirect to. Requires the `billing.manage`
+  permission (not `billing.view` — the portal can change the payment
+  method and cancel the subscription).
+
+  POST rather than GET: each call creates a fresh, short-lived session
+  rather than returning a stable address, so don't cache `data.portal_url`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { portal_url } }`.
+}

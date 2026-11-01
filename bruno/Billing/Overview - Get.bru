@@ -1,0 +1,39 @@
+meta {
+  name: Overview - Get
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Single aggregate read for a billing settings screen: the active
+  subscription (with its plan, or `null` if never subscribed), any
+  non-subscription entitlement, and the current usage period's credit
+  balance. Requires the `billing.view` permission.
+
+  Render `current_plan` as "the plan you are on". A workspace can be
+  entitled by a subscription, by a `plan_grant` (a lifetime purchase, which
+  has no subscription at all), or by both at once — in which case the more
+  generous of the two applies, so neither field alone is the answer.
+  `plan_grant` is `null` unless such a grant is active.
+
+  Transaction history and credit-pack purchases live on their own paginated
+  endpoints (`Billing/Credits - List`, `Billing/Credit Packs - List Purchased`).
+
+  Response is wrapped: `{ success, statusCode, message, data: {
+  subscription, plan_grant, current_plan, usage_period, topup_credits,
+  credits_available, limits, overage, dunning } }`.
+  `limits` maps each plan limit to `{ used, max }` (`max: null` = unlimited);
+  `overage` is a subset of `Overage - Get`; `dunning` is `null` unless a
+  failed payment is being retried (`{ started_at, attempts, invoice_id }`). `usage_period.credits_remaining` is `null` when
+  the plan is unlimited.
+}

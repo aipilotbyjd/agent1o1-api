@@ -1,0 +1,27 @@
+meta {
+  name: Generations - Get
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/generations/:generation
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+  generation: {{pageGenerationId}}
+}
+
+docs {
+  Polls one AI generation. Requires the `page.manage` permission.
+
+  `status` is `pending`, `running`, `completed` or `failed`; `content`
+  holds the designed page once completed, `error` the reason on failure.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { generation } }`.
+}

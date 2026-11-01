@@ -1,0 +1,18 @@
+meta {
+  name: Logout All
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/v1/auth/logout-all
+  body: none
+  auth: inherit
+}
+
+docs {
+  Revokes every active token/session for the current user and clears
+  the `refresh_token` cookie.
+
+  Responds `204 No Content` with no envelope.
+}

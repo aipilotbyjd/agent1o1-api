@@ -1,0 +1,28 @@
+meta {
+  name: Situations - Send
+  type: http
+  seq: 26
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/situations/:situation/send
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  situation: {{assistantSituationId}}
+}
+
+docs {
+  Hands a situation to the assistant to work on. Requires the
+  `assistant.use` permission. No body.
+
+  Opens a new session (origin `task`) titled after the situation, sends
+  it a brief, and marks the situation `sent` with that `session_id`. A
+  situation that already has a session is returned unchanged. `402` when
+  the workspace is out of credits.
+
+  Response is wrapped: `{ success, statusCode, message, data: { situation } }`.
+}

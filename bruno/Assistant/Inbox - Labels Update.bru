@@ -1,0 +1,34 @@
+meta {
+  name: Inbox - Labels Update
+  type: http
+  seq: 66
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/inbox/labels/:label
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  label: {{assistantInboxLabelId}}
+}
+
+body:json {
+  {
+    "name": "Bills",
+    "enabled": false
+  }
+}
+
+docs {
+  Edits a Smart Inbox label (built-in ones included). Requires the
+  `assistant.use` permission. Same fields as `Inbox - Labels Create`, all
+  optional. A label from another member's inbox answers `404`.
+
+  Renaming also renames it in the mailbox when Smart Inbox is on; `422` on
+  a duplicate name or if the mailbox refuses the rename.
+
+  Response is wrapped: same payload as `Inbox - Get`.
+}

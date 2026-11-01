@@ -1,0 +1,27 @@
+meta {
+  name: Eval Runs - Get
+  type: http
+  seq: 29
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/eval-suites/:suite/runs/:evalRun
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  suite: {{evalSuiteId}}
+  evalRun: {{evalRunId}}
+}
+
+docs {
+  Fetches one eval run with its per-case `results` and each result's
+  originating case. Requires the `agent.view` permission.
+
+  A run belonging to another suite answers `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { run } }`.
+}

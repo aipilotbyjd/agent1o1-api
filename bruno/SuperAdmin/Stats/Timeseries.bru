@@ -1,0 +1,25 @@
+meta {
+  name: Timeseries
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/stats/timeseries?metric=runs&from=&to=
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:query {
+  metric: runs
+  from: 
+  to: 
+}
+
+docs {
+  One zero-filled value per day. `metric`: signups, workspaces, runs, failed_runs, credits. At most a year.
+}

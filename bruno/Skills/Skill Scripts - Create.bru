@@ -1,0 +1,49 @@
+meta {
+  name: Skill Scripts - Create
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skills/:skill/scripts
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skill: {{skillId}}
+}
+
+body:json {
+  {
+    "name": "Format refund amount",
+    "description": "Formats a cents integer into a currency string.",
+    "language": "python",
+    "code": "def format_amount(cents):\n    return f\"${cents / 100:.2f}\"",
+    "is_enabled": true
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const script = res.body.data?.script;
+    if (script && script.id) {
+      bru.setVar("skillScriptId", script.id);
+    }
+  }
+}
+
+docs {
+  Creates a script attached to a skill. Requires the `agent-skill.manage`
+  permission. Stores the new ID as `skillScriptId`.
+
+  `name`, `language`, and `code` are required. `language` must be one of
+  `python`, `javascript`, `typescript`, `bash`.
+
+  Storage only — there is no execution path wired up yet.
+
+  `422` when the skill is synced one-way from GitHub.
+
+  Response is wrapped: `{ success, statusCode, message, data: { script } }`.
+}

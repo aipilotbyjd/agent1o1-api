@@ -1,0 +1,27 @@
+meta {
+  name: Node Categories - List
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/node-categories
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~include_nodes: 1
+}
+
+docs {
+  Lists node categories ordered by `sort_order`, each with a
+  `nodes_count` (built-in nodes only). Not workspace-scoped — any
+  authenticated user can read it. `category_id` on `Nodes - Create`
+  and `- Update` must reference one of these ids.
+
+  Pass `?include_nodes=1` to also get each category's built-in nodes
+  inline, under a `nodes` key.
+
+  Response is wrapped: `{ success, statusCode, message, data: { categories } }`.
+}

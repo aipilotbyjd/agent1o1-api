@@ -1,0 +1,32 @@
+meta {
+  name: Nodes - List (Workspace)
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/nodes
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  ~category: slack
+  ~search: post_message
+}
+
+docs {
+  Lists the built-in registry catalog plus this workspace's active custom
+  nodes, optionally filtered by `category` slug and/or a `search` term
+  matched against name/type/description. Requires the `node.view`
+  permission.
+
+  For the built-in catalog alone, with no workspace and no custom nodes
+  merged in, see `Nodes - List (Global Catalog)`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { nodes } }`.
+}

@@ -1,0 +1,18 @@
+meta {
+  name: Logout
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/v1/auth/logout
+  body: none
+  auth: inherit
+}
+
+docs {
+  Revokes the current access token and clears the `refresh_token`
+  cookie. Requires a bearer token.
+
+  Responds `204 No Content` with no envelope.
+}

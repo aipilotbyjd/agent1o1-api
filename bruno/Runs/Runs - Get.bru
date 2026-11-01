@@ -1,0 +1,27 @@
+meta {
+  name: Runs - Get
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/runs/:run
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  run: {{runId}}
+}
+
+docs {
+  Fetches a run with its per-node results (`nodeRuns` are eager-loaded).
+  Poll this after `Runs - Start` to watch a run progress. Requires the
+  `run.view` permission.
+
+  For an agent chat turn, the run also carries the agent's reply message
+  (`agent_reply`, plus `agent_context`) once it exists.
+
+  Response is wrapped: `{ success, statusCode, message, data: { run } }`.
+}

@@ -1,0 +1,33 @@
+meta {
+  name: Triggers - Rotate Token
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/triggers/:trigger/rotate-token
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  trigger: {{triggerId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const trigger = res.body.data?.trigger;
+    if (trigger && trigger.token) {
+      bru.setVar("triggerToken", trigger.token);
+    }
+  }
+}
+
+docs {
+  Issues a new public webhook token for the trigger, invalidating the old
+  one. Only meaningful for `webhook` triggers. Requires the
+  `trigger.manage` permission. Stores the new token as `triggerToken`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { trigger } }`.
+}

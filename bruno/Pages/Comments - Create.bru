@@ -1,0 +1,48 @@
+meta {
+  name: Comments - Create
+  type: http
+  seq: 17
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/comments
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+body:json {
+  {
+    "body": "Can we shorten this heading?",
+    "block_id": "intro-heading"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const comment = res.body.data?.comment;
+    if (comment && comment.id) {
+      bru.setVar("pageCommentId", comment.id);
+    }
+  }
+}
+
+docs {
+  Starts a comment thread, or replies to one. Requires the `page.view`
+  permission. Stores the ID in `pageCommentId`.
+
+  - `body` — required, max 5000.
+  - `block_id` — optional, max 64; pins a new thread to a block. Ignored
+    on replies (they inherit the thread's block).
+  - `parent_id` — optional UUID of a top-level comment on this page to
+    reply to (404 otherwise; replies can't be nested).
+
+  Broadcasts a `comments` activity event on the page's channel.
+
+  Response is wrapped (201):
+  `{ success, statusCode, message, data: { comment } }`.
+}

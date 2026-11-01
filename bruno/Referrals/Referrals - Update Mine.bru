@@ -1,0 +1,37 @@
+meta {
+  name: Referrals - Update Mine
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseUrl}}/v1/referrals/me
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "code": "my-custom-code",
+    "reward_workspace_id": "{{workspaceId}}"
+  }
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const id = res.body.data?.code;
+    if (id) {
+      bru.setVar("referralCode", id);
+    }
+  }
+}
+
+docs {
+  Sets a custom code (once; 3–32 letters, numbers and dashes) and/or which
+  workspace the user's rewards land in (`reward_workspace_id`, one they own).
+  Both fields are optional.
+
+  Stores the (possibly new) code as `referralCode`.
+
+  Response is wrapped: `{ success, statusCode, message, data }`.
+}

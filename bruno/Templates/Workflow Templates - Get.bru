@@ -1,0 +1,27 @@
+meta {
+  name: Workflow Templates - Get
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-templates/:workflowTemplate
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflowTemplate: {{workflowTemplateId}}
+}
+
+docs {
+  Fetches a single workflow template, including its stored `graph`.
+  Requires the `template.view` permission.
+
+  Resolves against the same visibility rule as the list — the workspace's
+  own templates plus global public ones. Anything else answers `404`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { workflow_template } }`.
+}

@@ -1,0 +1,35 @@
+meta {
+  name: Folders - Move Agents
+  type: http
+  seq: 28
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/folders/move-agents
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "agent_ids": ["{{agentId}}"],
+    "folder_id": "{{folderId}}"
+  }
+}
+
+docs {
+  Bulk-moves agents into a folder in one call. Requires the
+  `agent.manage` permission.
+
+  - `agent_ids` — required, at least one uuid; IDs outside `:workspace`
+    are ignored.
+  - `folder_id` — nullable; must be a folder of type `agent` in this
+    workspace (a workflow folder answers `422`). Set it to `null` to move
+    the agents back to unfiled.
+
+  Response is wrapped: `{ success, statusCode, message, data: null }`.
+}

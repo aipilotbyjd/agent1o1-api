@@ -1,0 +1,27 @@
+meta {
+  name: Variant - Create
+  type: http
+  seq: 20
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/variant
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+docs {
+  Starts an A/B test: copies the draft into version B
+  (`variant_content`). Requires the `page.manage` permission. 409 if B
+  already exists.
+
+  Edit B with `Pages - Update` (`variant_content`, `variant_split`). It
+  goes live — and the test starts — on the next `Pages - Publish`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { page } }`.
+}

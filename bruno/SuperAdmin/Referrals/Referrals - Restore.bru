@@ -1,0 +1,26 @@
+meta {
+  name: Referrals - Restore
+  type: http
+  seq: 20
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/referrals/referrals/:referral/restore
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  referral: {{referralId}}
+}
+
+docs {
+  Undoes a rejection, back to the furthest stage it reached. Rewards the
+  rejection revoked stay revoked — re-grant with `Rewards - Grant Manual`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { referral } }`.
+}

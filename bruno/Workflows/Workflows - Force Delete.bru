@@ -1,0 +1,26 @@
+meta {
+  name: Workflows - Force Delete
+  type: http
+  seq: 39
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/force
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+docs {
+  Permanently deletes a workflow that is already in the trash, along with
+  the hidden child workflows its loop-mode nodes compiled to. Requires the
+  `workflow.manage` permission. Cannot be undone.
+
+  `404` if the workflow isn't in the trash; run `Workflows - Delete` first.
+
+  Responds `204 No Content` with no envelope.
+}

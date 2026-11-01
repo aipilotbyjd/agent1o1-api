@@ -1,0 +1,24 @@
+meta {
+  name: Routes - Test
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/models/:model/routes/:route/test
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  model: {{saModelId}}
+  route: {{saRouteId}}
+}
+
+docs {
+  Sends the route one tiny real prompt (a fraction of a cent) on the platform's own key and keeps the outcome on the route: whether it answered, how fast.
+}

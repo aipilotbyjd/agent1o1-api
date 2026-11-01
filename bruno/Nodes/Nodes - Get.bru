@@ -1,0 +1,23 @@
+meta {
+  name: Nodes - Get
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/nodes/:node
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  node: {{nodeId}}
+}
+
+docs {
+  Fetches a single custom node. Requires the `node.view` permission. 404s
+  for a node belonging to another workspace.
+
+  Response is wrapped: `{ success, statusCode, message, data: { node } }`.
+}

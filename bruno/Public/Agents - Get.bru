@@ -1,0 +1,26 @@
+meta {
+  name: Agents - Get
+  type: http
+  seq: 20
+}
+
+get {
+  url: {{baseUrl}}/public/v1/agents/:agent
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  agent: {{agentId}}
+}
+
+docs {
+  Fetches a single agent. Requires the `agents:invoke` ability on the key.
+  An agent outside the key's workspace answers `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { agent } }`.
+}

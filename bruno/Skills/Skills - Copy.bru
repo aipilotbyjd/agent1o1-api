@@ -1,0 +1,31 @@
+meta {
+  name: Skills - Copy
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skills/:skill/copy
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skill: {{skillId}}
+}
+
+docs {
+  Makes an editable copy of a skill, references and scripts included —
+  the way to change a skill synced from GitHub. Requires the
+  `agent-skill.manage` permission.
+
+  Takes no body. The copy is named `"<original> (copy)"`, starts at
+  version 1, isn't linked to any repository, and keeps an `origin_url`
+  pointing back at where the original came from.
+
+  Doesn't overwrite `skillId`; the original stays selected.
+
+  Response is wrapped: `{ success, statusCode, message, data: { skill } }`
+  (`201`).
+}

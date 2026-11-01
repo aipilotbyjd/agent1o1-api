@@ -1,0 +1,32 @@
+meta {
+  name: Blocked Domains - List
+  type: http
+  seq: 26
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/referrals/blocked-domains
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const items = res.body.data?.domains;
+    if (Array.isArray(items) && items.length > 0) {
+      bru.setVar("blockedDomainId", items[0].id);
+    }
+  }
+}
+
+docs {
+  Email domains whose signups are recorded but never earn a reward.
+
+  Stores the first one as `blockedDomainId`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { domains } }`.
+}

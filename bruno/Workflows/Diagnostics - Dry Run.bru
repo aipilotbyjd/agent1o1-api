@@ -1,0 +1,40 @@
+meta {
+  name: Diagnostics - Dry Run
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/dry-run
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+body:json {
+  {
+    "input": {
+      "customer_email": "buyer@example.com"
+    }
+  }
+}
+
+docs {
+  Walks the graph without executing anything for real — no side effects, no
+  credits. Requires the `workflow.manage` permission.
+
+  Takes the same optional `graph` as `Diagnostics - Validate` (omit it to
+  dry-run the saved draft), plus:
+
+  - `input` — optional array standing in for the run input the graph would
+    receive, so `{{ input.* }}` templates resolve against something real.
+
+  Answers `200` with the trace regardless of what it finds.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { dry_run } }`.
+}

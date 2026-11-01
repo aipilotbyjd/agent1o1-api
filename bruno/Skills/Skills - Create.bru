@@ -1,0 +1,52 @@
+meta {
+  name: Skills - Create
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skills
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "name": "Refund policy",
+    "description": "How to handle refund requests.",
+    "category": "support",
+    "tags": ["billing", "support"],
+    "instructions": "Refunds are allowed within 30 days of purchase. Always confirm the order ID first.",
+    "is_shared": false
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const skill = res.body.data?.skill;
+    if (skill && skill.id) {
+      bru.setVar("skillId", skill.id);
+    }
+  }
+}
+
+docs {
+  Creates a reusable skill — a named block of instructions that can be
+  attached to agents (see `Agents/Skills - Attach`). Requires the
+  `agent-skill.manage` permission. Stores the new ID as `skillId`.
+
+  `name` (unique in the workspace) and `instructions` are required; `slug`
+  is derived from `name` plus a random suffix when omitted. `category`,
+  `icon`, `color`, and `tags` (max 50) are presentation-only.
+
+  `references` (max 50, each `title` + `content`) and `scripts` (max 20,
+  each `name`, `language`, `code`, optional `description`) may be sent
+  inline, as `Skills - Draft` returns them; the whole skill saves or
+  nothing does.
+
+  Response is wrapped: `{ success, statusCode, message, data: { skill } }`.
+}

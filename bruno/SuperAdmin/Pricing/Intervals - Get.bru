@@ -1,0 +1,19 @@
+meta {
+  name: Intervals - Get
+  type: http
+  seq: 23
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/pricing/intervals
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+docs {
+  Estate-wide on-sale state per billing interval.
+}

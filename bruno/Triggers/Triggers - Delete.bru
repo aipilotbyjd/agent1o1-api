@@ -1,0 +1,25 @@
+meta {
+  name: Triggers - Delete
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/triggers/:trigger
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  trigger: {{triggerId}}
+}
+
+docs {
+  Deletes a trigger. Requires the `trigger.manage` permission.
+
+  A trigger owned by a canvas node (`trigger_node_key` set) can't be deleted
+  here (422): remove its node from the canvas and publish instead.
+
+  Responds `204 No Content` with no envelope.
+}

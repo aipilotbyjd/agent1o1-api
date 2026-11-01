@@ -1,0 +1,22 @@
+meta {
+  name: Nodes - Delete
+  type: http
+  seq: 9
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/nodes/:node
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  node: {{nodeId}}
+}
+
+docs {
+  Deletes a custom node. Requires the `node.manage` permission.
+
+  Responds `204 No Content` with no envelope.
+}

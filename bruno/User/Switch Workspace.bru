@@ -1,0 +1,25 @@
+meta {
+  name: Switch Workspace
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/v1/user/switch-workspace
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "workspace_id": "{{workspaceId}}"
+  }
+}
+
+docs {
+  Switches the authenticated user's current workspace. `workspace_id` is
+  a required workspace UUID (422 if it doesn't exist); fails with 403 if
+  the user is not a member of it.
+
+  Response is wrapped: `{ success, statusCode, message, data: { user } }`.
+}

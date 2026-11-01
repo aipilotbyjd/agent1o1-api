@@ -1,0 +1,36 @@
+meta {
+  name: Builder Versions - List
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-builder-sessions/:session/versions
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{builderSessionId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const versions = res.body.data || [];
+    // The one before the latest — restoring the latest would be a no-op.
+    const target = versions[1] || versions[0];
+    if (target && target.id) {
+      bru.setVar("builderVersionId", target.id);
+    }
+  }
+}
+
+docs {
+  The session's undo history, newest first and paginated: one labelled
+  snapshot per edit ("Added node send_email", "Synced from canvas", ...).
+  Pass `?include_graph=1` to include each snapshot's graph. Stores the
+  second-newest version's ID as `builderVersionId`.
+
+  Response is paginated: `{ success, statusCode, message, data, meta, links }`.
+}

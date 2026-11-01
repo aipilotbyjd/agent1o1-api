@@ -1,0 +1,40 @@
+meta {
+  name: Sessions - Create
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/sessions
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+body:json {
+  {
+    "title": "Ticket #4821"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const session = res.body.data?.session;
+    if (session && session.id) {
+      bru.setVar("agentSessionId", session.id);
+    }
+  }
+}
+
+docs {
+  Opens a chat session with the agent. Requires the `agent.chat`
+  permission. Stores the session ID as `agentSessionId`.
+
+  `title` is optional.
+
+  Response is wrapped: `{ success, statusCode, message, data: { session } }`.
+}

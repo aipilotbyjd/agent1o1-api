@@ -1,0 +1,26 @@
+meta {
+  name: Workflows - Get
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/public/v1/workflows/:workflow
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  workflow: {{workflowId}}
+}
+
+docs {
+  Fetches a single workflow. Requires the `workflows:read` ability on
+  the key. A workflow outside the key's workspace answers `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { workflow } }`.
+}

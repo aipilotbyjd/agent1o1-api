@@ -1,0 +1,25 @@
+meta {
+  name: Workflows - Trash
+  type: http
+  seq: 37
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/trash
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Lists the workspace's deleted (soft-deleted) workflows, most recently
+  deleted first. Requires the `workflow.view` permission.
+
+  Each workflow carries `deleted_at`. Bring one back with
+  `Workflows - Restore` or remove it for good with `Workflows - Force Delete`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { workflows } }`.
+}

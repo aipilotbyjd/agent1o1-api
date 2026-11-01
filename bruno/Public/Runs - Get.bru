@@ -1,0 +1,26 @@
+meta {
+  name: Runs - Get
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/public/v1/runs/:run
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  run: {{runId}}
+}
+
+docs {
+  Fetches a run's current status and result. Requires the `runs:read`
+  ability on the key. A run outside the key's workspace answers `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { run } }`.
+}

@@ -1,0 +1,47 @@
+meta {
+  name: Sessions - Send Message
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/sessions/:session/messages
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{assistantSessionId}}
+}
+
+body:json {
+  {
+    "content": "Summarise what is on my plate for tomorrow."
+  }
+}
+
+script:post-response {
+  if (res.status === 202) {
+    const turn = res.body.data?.turn;
+    if (turn && turn.id) {
+      bru.setVar("assistantTurnId", turn.id);
+    }
+  }
+}
+
+docs {
+  Sends a message to the assistant. Requires the `assistant.use`
+  permission. Throttled to 30 per minute. Stores the new turn's ID in
+  `assistantTurnId`.
+
+  `content` is required, max 20000 chars.
+
+  Never waits for the reply: responds `202` and the turn runs on the
+  queue, streaming over the session's Reverb channel. If a turn is already
+  in flight the message is queued and answered next (`turn: null,
+  queued: true`). `402` when the workspace is out of credits.
+
+  Response is wrapped: `{ success, statusCode, message, data: { turn,
+  queued } }`.
+}

@@ -1,0 +1,44 @@
+meta {
+  name: Turns - Decide
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/sessions/:session/turns/:turn/decisions
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{assistantSessionId}}
+  turn: {{assistantTurnId}}
+}
+
+body:json {
+  {
+    "decisions": [
+      {
+        "tool_call_id": "{{assistantToolCallId}}",
+        "approve": true,
+        "note": "Fine, go ahead."
+      }
+    ]
+  }
+}
+
+docs {
+  Approves or rejects the tool actions a turn is waiting on. Requires the
+  `assistant.use` permission.
+
+  `decisions` is required (min 1). Each entry: `tool_call_id` (required,
+  distinct), `approve` (required boolean), `note` (optional, max 500
+  chars). Once every pending action is decided the turn resumes on the
+  queue.
+
+  `409` if the turn isn't `awaiting_approval`; `422` if a `tool_call_id`
+  isn't one of its pending actions.
+
+  Response is wrapped: `{ success, statusCode, message, data: { turn } }`.
+}

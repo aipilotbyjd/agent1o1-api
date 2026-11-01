@@ -1,0 +1,38 @@
+meta {
+  name: Template Collections - Update
+  type: http
+  seq: 18
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/template-collections/:templateCollection
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  templateCollection: {{templateCollectionId}}
+}
+
+body:json {
+  {
+    "name": "Sales starter pack v2",
+    "visibility": "public"
+  }
+}
+
+docs {
+  Updates a collection's metadata. Requires the `template.manage`
+  permission. Every field is `sometimes` — send only what changes.
+
+  Unlike `Get`, this one requires the collection to be *owned* by the
+  workspace, not merely visible to it: a global public collection answers
+  `404` here.
+
+  Membership is managed separately through the `Collection Items`
+  requests.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { template_collection } }`.
+}

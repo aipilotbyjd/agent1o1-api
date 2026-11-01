@@ -1,0 +1,26 @@
+meta {
+  name: Evaluation Settings - Get
+  type: http
+  seq: 56
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/evaluation-settings
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+docs {
+  Fetches whether/how this agent's live sessions are automatically graded
+  after each turn. Requires the `agent.view` permission. Creates the
+  settings row with defaults (disabled) on first access if it doesn't
+  exist yet.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { settings } }`.
+}

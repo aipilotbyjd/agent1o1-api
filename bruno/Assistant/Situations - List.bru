@@ -1,0 +1,48 @@
+meta {
+  name: Situations - List
+  type: http
+  seq: 24
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/situations?status=open
+  body: none
+  auth: inherit
+}
+
+params:query {
+  status: open
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const situation = res.body.data?.situations?.[0];
+    if (situation && situation.id) {
+      bru.setVar("assistantSituationId", situation.id);
+      const step = situation.steps?.[0];
+      if (step && step.id) {
+        bru.setVar("assistantSituationStepId", step.id);
+      }
+    }
+  }
+}
+
+docs {
+  Situations the assistant's briefings raised for the caller — things
+  needing attention, each with suggested steps. Requires the
+  `assistant.use` permission. Newest first, max 50. Stores the first
+  situation's ID in `assistantSituationId` and its first step's in
+  `assistantSituationStepId`.
+
+  `status`: `open` (default), `sent`, `done` or `dismissed`; anything
+  else falls back to `open`.
+
+  Each situation: `id`, `title`, `summary`, `next_step`, `sources`,
+  `status`, `session_id`, `steps: [{ id, body, status }]`, `created_at`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { situations } }`.
+}

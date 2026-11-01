@@ -1,0 +1,23 @@
+meta {
+  name: Credit Packs - List Purchased
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/credit-packs/purchased
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Lists the workspace's credit-pack purchase history (`pending`, `active`,
+  or `refunded`), newest first. Requires the `billing.view` permission.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { credit_packs } }`.
+}

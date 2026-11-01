@@ -1,0 +1,32 @@
+meta {
+  name: Styles - Update
+  type: http
+  seq: 19
+}
+
+put {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/styles/:kind
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  kind: tone
+}
+
+body:json {
+  {
+    "notes": "Friendly but direct. No exclamation marks. British spelling."
+  }
+}
+
+docs {
+  Replaces the caller's notes for one style kind, recording a new
+  revision (source `owner`). Requires the `assistant.use` permission.
+
+  `kind` path param: `tone` or `design` (anything else is `404`).
+  `notes` must be present but may be `null` to clear; max 2000 chars.
+
+  Response is wrapped: `{ success, statusCode, message, data: { style } }`.
+}

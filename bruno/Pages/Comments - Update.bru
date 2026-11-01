@@ -1,0 +1,35 @@
+meta {
+  name: Comments - Update
+  type: http
+  seq: 18
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/comments/:comment
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+  comment: {{pageCommentId}}
+}
+
+body:json {
+  {
+    "resolved": true
+  }
+}
+
+docs {
+  Edits a comment's text, or resolves/reopens a thread. Requires the
+  `page.view` permission.
+
+  - `body` — max 5000; only the author may edit (403).
+  - `resolved` — boolean; only on a top-level comment (422 on a reply).
+    Allowed for the author, or anyone with `page.manage`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { comment } }` with replies.
+}

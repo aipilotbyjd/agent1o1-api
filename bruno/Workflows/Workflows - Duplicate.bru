@@ -1,0 +1,31 @@
+meta {
+  name: Workflows - Duplicate
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/duplicate
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+docs {
+  Copies a workflow along with its draft graph. Requires the
+  `workflow.manage` permission.
+
+  Takes no body — the copy is named `"<original> (copy)"` and keeps the
+  original's folder and description. The copy starts as an unpublished
+  draft regardless of whether the original was published.
+
+  Note this does *not* overwrite the `workflowId` collection variable — the
+  original stays selected so the rest of the folder keeps working against
+  it.
+
+  Response is wrapped: `{ success, statusCode, message, data: { workflow } }`.
+}

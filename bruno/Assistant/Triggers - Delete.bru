@@ -1,0 +1,23 @@
+meta {
+  name: Triggers - Delete
+  type: http
+  seq: 74
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/triggers/:trigger
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  trigger: {{assistantTriggerId}}
+}
+
+docs {
+  Deletes an assistant trigger. Requires the `assistant.use` permission. A
+  trigger of another member's assistant answers `404`.
+
+  Responds `204 No Content` with no envelope.
+}

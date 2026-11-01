@@ -1,0 +1,24 @@
+meta {
+  name: Agents - Delete
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+docs {
+  Moves an agent to the trash (soft delete). Requires the `agent.manage`
+  permission. Its sessions and configuration are kept; see `Agents - Trash`,
+  `Agents - Restore` and `Agents - Force Delete`.
+
+  Responds `204 No Content` with no envelope.
+}

@@ -1,0 +1,38 @@
+meta {
+  name: Skill Sources - Fork
+  type: http
+  seq: 25
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skill-sources/:skillSource/fork
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skillSource: {{skillSourceId}}
+}
+
+body:json {
+  {
+    "credential_id": "{{connectorCredentialId}}",
+    "fork_repo": null
+  }
+}
+
+docs {
+  Starts moving a read-only source over to a fork the account can publish
+  to. Requires the `agent-skill.manage` permission.
+
+  - `credential_id` — required GitHub connector credential.
+  - `fork_repo` — optional existing fork as `owner/name`; omitted, a new
+    fork is created on GitHub.
+
+  The source moves to `status: forking`; finish with `Skill Sources -
+  Complete Fork` or back out with `Skill Sources - Cancel Fork`. `422` if
+  the source hasn't finished importing or is already two-way.
+
+  Response is wrapped: `{ success, statusCode, message, data: { source } }`.
+}

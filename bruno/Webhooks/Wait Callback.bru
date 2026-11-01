@@ -1,0 +1,38 @@
+meta {
+  name: Wait Callback
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/hooks/wait/:token
+  body: json
+  auth: none
+}
+
+params:path {
+  token: {{waitToken}}
+}
+
+body:json {
+  {
+    "approved": true
+  }
+}
+
+docs {
+  Resumes a run that is parked on a Wait node. The posted body becomes
+  the node's result, so whatever shape the downstream nodes expect goes
+  here.
+
+  Same auth model as `Trigger Webhook` — the one-time `{token}` in the
+  URL is the entire auth story, here matched against a Wait node's
+  callback token rather than a trigger's. Set `waitToken` from the
+  callback URL the Wait node hands out. Rate limited by the
+  `trigger-hooks` throttle.
+
+  The token is single-use: an unknown, already-used or expired token
+  answers `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { node_run_id } }`.
+}

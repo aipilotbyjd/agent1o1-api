@@ -1,0 +1,43 @@
+meta {
+  name: Credit Notifications - Update
+  type: http
+  seq: 20
+}
+
+put {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/credit-notifications
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "out_of_credits_enabled": true,
+    "thresholds": [50, 75, 90]
+  }
+}
+
+docs {
+  Changes the workspace's credit notification preferences. Requires the
+  `billing.manage` permission.
+
+  - `out_of_credits_enabled` — optional boolean. Turning it off silences the
+    "out of credits" / "overage cap reached" notification for the whole
+    workspace.
+  - `thresholds` — optional array of percentages (1-100). Replaces the whole
+    set, so a threshold is removed by omitting it. Send `null` to reset to
+    the defaults, or `[]` to disable usage warnings without disabling the
+    out-of-credits one. At most `maximum_thresholds` entries.
+
+  Omitting a key leaves that setting unchanged. Only the charge that actually
+  crosses a threshold notifies, and a charge jumping several at once sends
+  one notification for the highest.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { credit_notifications } }`, the same
+  shape `Credit Notifications - Get` returns.
+}

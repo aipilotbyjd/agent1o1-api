@@ -1,0 +1,28 @@
+meta {
+  name: Turns - Cancel
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/sessions/:session/turns/:turn/cancel
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{assistantSessionId}}
+  turn: {{assistantTurnId}}
+}
+
+docs {
+  Stops a turn. Requires the `assistant.use` permission. No body.
+
+  Also drops any messages queued behind it. A `queued` or
+  `awaiting_approval` turn is cancelled at once (pending approvals
+  expire); a `running` one stops at its next checkpoint, so the returned
+  `status` may still be `running`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { turn } }`.
+}

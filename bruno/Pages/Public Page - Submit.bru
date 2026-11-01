@@ -1,0 +1,60 @@
+meta {
+  name: Public Page - Submit
+  type: http
+  seq: 36
+}
+
+post {
+  url: {{baseUrl}}/v1/p/:token/submissions
+  body: json
+  auth: none
+}
+
+params:path {
+  token: {{pageToken}}
+}
+
+headers {
+  ~X-Page-Access: {{pageAccessToken}}
+  ~X-Page-Visitor: bruno-visitor-0001
+}
+
+body:json {
+  {
+    "input": {
+      "email": "jane@example.com",
+      "message": "Interested in a demo."
+    }
+  }
+}
+
+script:post-response {
+  if (res.status === 202) {
+    const submission = res.body.data?.submission;
+    if (submission && submission.id) {
+      bru.setVar("publicPageSubmissionId", submission.id);
+    }
+    if (res.body.data?.secret) {
+      bru.setVar("publicPageSubmissionSecret", res.body.data.secret);
+    }
+  }
+}
+
+docs {
+  Runs the page's workflow as an anonymous visitor (the run is attributed
+  to whoever published the page). No auth. Throttled to 10/min per page
+  and IP. Stores `publicPageSubmissionId` and `publicPageSubmissionSecret`.
+
+  - `input` — object keyed by the workflow interface's field keys;
+    validated against the interface (422). Replace the sample keys.
+  - `X-Page-Access` — required for a password page (403 without).
+
+  Other errors: 404 page unavailable, 429 `max_runs_per_day` reached, 503
+  when the owner is out of credits or the workflow can't run.
+
+  Response is wrapped (202):
+  `{ success, statusCode, message, data: { submission, secret } }` —
+  `submission` has `id`, `state`, `outputs`, `progress`, `error`,
+  `started_at`, `finished_at` (no run ID). Keep `secret`; it's the only
+  way to read the result.
+}

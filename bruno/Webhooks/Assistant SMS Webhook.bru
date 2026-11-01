@@ -1,0 +1,37 @@
+meta {
+  name: Assistant SMS Webhook
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/hooks/assistant/sms
+  body: formUrlEncoded
+  auth: none
+}
+
+headers {
+  X-Twilio-Signature: {{twilioSignature}}
+}
+
+body:form-urlencoded {
+  From: +15555550123
+  Body: What's on my calendar tomorrow?
+}
+
+docs {
+  Inbound texts from Twilio for the personal assistant (the number's
+  Messaging webhook). Not called by clients.
+
+  **Signature.** `X-Twilio-Signature` is verified with `TWILIO_AUTH_TOKEN`
+  against the request URL (`ASSISTANT_SMS_WEBHOOK_URL` when set, for
+  proxies) and the posted form fields; mismatch answers `403`. Throttled
+  to 300 per minute.
+
+  `From` must be a member's verified number (`Assistant/Channels - SMS
+  Verify Confirm`); `Body` is the message. The reply is texted separately
+  when the assistant's turn ends.
+
+  Response is **not** wrapped: `200` empty TwiML
+  (`<Response></Response>`, `text/xml`).
+}

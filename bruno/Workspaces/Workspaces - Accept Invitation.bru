@@ -1,0 +1,30 @@
+meta {
+  name: Workspaces - Accept Invitation
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/invitations/:invitation/accept
+  body: none
+  auth: inherit
+}
+
+params:path {
+  invitation: {{invitationId}}
+}
+
+params:query {
+  ~expires: 
+  ~signature: 
+}
+
+docs {
+  Accepts a workspace invitation as the authenticated user (bearer token
+  still required). This is a Laravel signed URL behind the `signed`
+  middleware — the `expires` and `signature` query parameters must be
+  copied from the invitation email link exactly, or it answers 403.
+
+  Response is wrapped with no payload:
+  `{ success, statusCode, message: "Invitation accepted.", data: null }`.
+}

@@ -1,0 +1,26 @@
+meta {
+  name: Workflow Tools - Attach
+  type: http
+  seq: 34
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/workflows/:workflow
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  workflow: {{workflowId}}
+}
+
+docs {
+  Attaches a workflow to the agent as a callable tool. Idempotent —
+  attaching twice is a no-op. Requires the `agent.manage` permission.
+  The workflow must belong to the same workspace, or this answers `404`.
+
+  Returns the agent's full workflow list after the change, wrapped:
+  `{ success, statusCode, message, data: { workflows } }`.
+}

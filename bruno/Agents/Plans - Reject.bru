@@ -1,0 +1,35 @@
+meta {
+  name: Plans - Reject
+  type: http
+  seq: 76
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/sessions/:session/plans/:plan/reject
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+  plan: {{agentPlanId}}
+}
+
+body:json {
+  {
+    "note": "Too many steps; start with the refund only."
+  }
+}
+
+docs {
+  Rejects a proposed plan. Requires the `agent.chat` permission, plus
+  `agent.approve` when the conversation isn't yours.
+
+  - `note` — optional, max 2000.
+
+  A plan that isn't `proposed` answers `422`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { plan } }`.
+}

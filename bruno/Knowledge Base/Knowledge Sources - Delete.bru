@@ -1,0 +1,23 @@
+meta {
+  name: Knowledge Sources - Delete
+  type: http
+  seq: 17
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/knowledge-base/sources/:knowledgeSource
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  knowledgeSource: {{knowledgeSourceId}}
+}
+
+docs {
+  Deletes a source and, by cascade, every chunk it synced. Same
+  permission rules as `Knowledge Sources - Update`.
+
+  Responds `204 No Content` with no envelope.
+}

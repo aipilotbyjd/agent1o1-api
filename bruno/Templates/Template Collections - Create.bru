@@ -1,0 +1,52 @@
+meta {
+  name: Template Collections - Create
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/template-collections
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "name": "Sales starter pack",
+    "description": "Everything a new sales workspace needs.",
+    "category": "onboarding",
+    "icon": "package",
+    "color": "#16A34A",
+    "visibility": "private"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const collection = res.body.data?.template_collection;
+    if (collection && collection.id) {
+      bru.setVar("templateCollectionId", collection.id);
+    }
+  }
+}
+
+docs {
+  Creates an empty template collection. Requires the `template.manage`
+  permission. Stores the new ID in the `templateCollectionId` collection
+  variable.
+
+  Fill it in afterwards with `Collection Items - Add`.
+
+  - `name` — required, max 255.
+  - `slug` — optional `alpha_dash`; derived from `name` plus a random
+    suffix when omitted.
+  - `visibility` — `private` or `public`.
+  - `description`, `category`, `icon`, `color` — optional.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { template_collection } }`.
+}

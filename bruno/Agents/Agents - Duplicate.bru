@@ -1,0 +1,35 @@
+meta {
+  name: Agents - Duplicate
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/duplicate
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+body:json {
+  {
+    "name": "Support triage (copy)"
+  }
+}
+
+docs {
+  Copies an agent, including its configuration and attachments. Requires
+  the `agent.manage` permission.
+
+  - `name` — optional, max 255. A default copy name is used when omitted.
+
+  Note this does *not* overwrite the `agentId` collection variable — the
+  original stays selected so the rest of the folder keeps working against
+  it.
+
+  Response is wrapped: `{ success, statusCode, message, data: { agent } }`.
+}

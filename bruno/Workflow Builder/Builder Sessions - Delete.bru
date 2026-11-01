@@ -1,0 +1,24 @@
+meta {
+  name: Builder Sessions - Delete
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-builder-sessions/:session
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{builderSessionId}}
+}
+
+docs {
+  Deletes a builder session and its draft graph. Any workflow already
+  promoted out of the session is left untouched. Requires the
+  `workflow.builder.use` permission.
+
+  Responds `204 No Content` with no envelope.
+}

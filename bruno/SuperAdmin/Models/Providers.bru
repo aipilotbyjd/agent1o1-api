@@ -1,0 +1,19 @@
+meta {
+  name: Providers
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/models/providers
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+docs {
+  Every provider a model call could go to, whether the platform can run it (a key exists), whether a workspace can bring its own key for it, and how many routes use it. Never shows a key.
+}

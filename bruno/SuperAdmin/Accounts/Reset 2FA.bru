@@ -1,0 +1,30 @@
+meta {
+  name: Reset 2FA
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/accounts/:account/reset-2fa
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  account: {{saAccountId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456"
+  }
+}
+
+docs {
+  For a lost device. Signs the account out everywhere; it enrols again at next sign-in.
+}

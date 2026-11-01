@@ -1,0 +1,26 @@
+meta {
+  name: Channels - Slack Install
+  type: http
+  seq: 57
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/channels/slack/install
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Returns the "Add to Slack" URL for the platform's Slack app. Requires the
+  `connector.manage` permission, since installing connects a whole Slack
+  workspace. `404` when Slack isn't configured on the server.
+
+  The URL carries an encrypted `state` (workspace, user, 15-minute expiry);
+  Slack sends the admin back to `Webhooks/Assistant Slack OAuth Callback`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { url } }`.
+}

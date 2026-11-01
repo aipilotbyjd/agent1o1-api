@@ -1,0 +1,19 @@
+meta {
+  name: 2FA - Recovery Codes
+  type: http
+  seq: 19
+}
+
+get {
+  url: {{baseUrl}}/v1/auth/2fa/recovery-codes
+  body: none
+  auth: inherit
+}
+
+docs {
+  Returns only the count of remaining recovery codes — codes are hashed
+  at rest, so their plaintext values are never shown again after
+  `2FA - Confirm` or `2FA - Regenerate Recovery Codes`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { recovery_codes_remaining } }`.
+}

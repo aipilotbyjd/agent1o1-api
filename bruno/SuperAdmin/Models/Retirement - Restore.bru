@@ -1,0 +1,29 @@
+meta {
+  name: Retirement - Restore
+  type: http
+  seq: 18
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/models/:model/restore
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  model: {{saModelId}}
+}
+
+body:json {
+  {
+    "reason": "Routing around a provider outage"
+  }
+}
+
+docs {
+  Brings a retired model back, if it still has an enabled route.
+}

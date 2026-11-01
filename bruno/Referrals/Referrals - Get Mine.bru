@@ -1,0 +1,30 @@
+meta {
+  name: Referrals - Get Mine
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/referrals/me
+  body: none
+  auth: inherit
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const id = res.body.data?.code;
+    if (id) {
+      bru.setVar("referralCode", id);
+    }
+  }
+}
+
+docs {
+  The signed-in user's referral code (created on first call), share link,
+  reward workspace, program and next milestone. `enabled: false` means the
+  program is off — hide the referral page.
+
+  Stores `referralCode`.
+
+  Response is wrapped: `{ success, statusCode, message, data }`.
+}

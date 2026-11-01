@@ -1,0 +1,44 @@
+meta {
+  name: Subscription - Checkout Lifetime
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/subscription/checkout
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "plan_id": "{{planId}}",
+    "interval": "lifetime"
+  }
+}
+
+docs {
+  Buys a plan outright. Same endpoint as `Billing/Subscription - Checkout`,
+  but the `lifetime` interval takes a different path: a one-time
+  `mode=payment` Stripe Checkout Session rather than a subscription.
+  Requires the `billing.manage` permission.
+
+  Nothing is written to `subscriptions` and no `customer.subscription.*`
+  webhook ever fires. Entitlement comes from the returned
+  `data.plan_grant`, which stays `pending` until Stripe confirms payment via
+  `checkout.session.completed` — only then does it flip to `active` and
+  resize the workspace's usage period. A refund or dispute on that charge
+  revokes it again.
+
+  - `422` if lifetime is not on sale for this plan — inactive plan,
+    switched off per plan or estate-wide, or no Stripe price. The `message`
+    says which. Check `available_intervals` from `Billing/Plans - List`.
+  - `422` if the workspace already holds an active grant for this plan.
+
+  Answers `200` (not 201). Response is wrapped:
+  `{ success, statusCode, message, data: { plan_grant, checkout_url } }`.
+}

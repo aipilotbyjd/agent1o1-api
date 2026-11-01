@@ -1,0 +1,64 @@
+meta {
+  name: Workflows - Replace Graph
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{baseUrl}}/public/v1/workflows/:workflow/graph
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  workflow: {{workflowId}}
+}
+
+body:json {
+  {
+    "nodes": [
+      {
+        "key": "email",
+        "type": "workflow_input",
+        "config": { "name": "email" },
+        "position": { "x": 0, "y": 0 }
+      },
+      {
+        "key": "notify",
+        "type": "call_api",
+        "config": {
+          "method": "POST",
+          "url": "https://example.com/hooks/lead"
+        },
+        "position": { "x": 240, "y": 0 }
+      }
+    ],
+    "edges": [
+      { "from": "email", "to": "notify", "condition": null }
+    ]
+  }
+}
+
+docs {
+  Replaces the workflow's draft graph wholesale. Requires the
+  `workflows:write` ability on the key.
+
+  Both `nodes` and `edges` are `present` — send them even when empty. Each
+  node needs a `key` and a `type`, with `config` and `position` optional;
+  each edge needs `from` and `to` (node keys), `condition` optional.
+  `type` is a node type from the catalog (e.g. `workflow_input`,
+  `call_api`); an unknown type is saved but fails at publish.
+
+  This accepts a mid-edit graph: only per-node config schemas are checked,
+  not the graph as a whole. That split is deliberate and mirrors the
+  editor — a draft may be half-finished, a published version may not. Run
+  `Workflows - Publish` to apply the full validation and make it runnable.
+
+  Config schema failures answer `422`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { graph } }`.
+}

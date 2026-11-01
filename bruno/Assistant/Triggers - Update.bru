@@ -1,0 +1,36 @@
+meta {
+  name: Triggers - Update
+  type: http
+  seq: 73
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/triggers/:trigger
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  trigger: {{assistantTriggerId}}
+}
+
+body:json {
+  {
+    "name": "Weekday inbox sweep",
+    "cron": "30 8 * * 1-5",
+    "status": "paused"
+  }
+}
+
+docs {
+  Edits an assistant trigger. Requires the `assistant.use` permission. A
+  trigger of another member's assistant answers `404`.
+
+  All fields optional: `name`, `prompt`, `cron`, `timezone`, `run_at`
+  (same rules as create), and `status` (`active` | `paused`). `type` can't
+  be changed (`422`).
+
+  Response is wrapped: `{ success, statusCode, message, data: { trigger }
+  }`.
+}

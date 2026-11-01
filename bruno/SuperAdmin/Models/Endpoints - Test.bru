@@ -1,0 +1,23 @@
+meta {
+  name: Endpoints - Test
+  type: http
+  seq: 25
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/models/endpoints/:endpoint/test
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  endpoint: {{saEndpointId}}
+}
+
+docs {
+  Asks the endpoint for its model list and keeps whether it answered.
+}

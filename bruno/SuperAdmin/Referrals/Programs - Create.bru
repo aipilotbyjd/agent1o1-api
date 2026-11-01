@@ -1,0 +1,44 @@
+meta {
+  name: Programs - Create
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/referrals/programs
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+body:json {
+  {
+    "name": "Launch week",
+    "is_active": false,
+    "default_hold_days": 7,
+    "ends_at": "2026-12-31"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const id = res.body.data?.program?.id;
+    if (id) {
+      bru.setVar("referralProgramId", id);
+    }
+  }
+}
+
+docs {
+  Creates a program. Only `name` is required; `slug` is generated if
+  omitted. Every other setting is optional and bounded — see `Programs -
+  Update` for the full list. Start it with `is_active: false` and add rules
+  before switching it on.
+
+  Stores `referralProgramId`.
+
+  `201`, wrapped: `{ success, statusCode, message, data: { program } }`.
+}

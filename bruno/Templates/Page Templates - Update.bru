@@ -1,0 +1,39 @@
+meta {
+  name: Page Templates - Update
+  type: http
+  seq: 26
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/page-templates/:pageTemplate
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  pageTemplate: {{pageTemplateId}}
+}
+
+body:json {
+  {
+    "name": "Lead intake page v2",
+    "category": "sales",
+    "visibility": "public"
+  }
+}
+
+docs {
+  Updates a page template's metadata. Requires the `template.manage`
+  permission. Every field is `sometimes` — send only what changes.
+
+  - `name` (max 255), `description`, `category` (max 255), `icon`
+    (max 255), `color` (max 7), `visibility` (`private` or `public`).
+
+  Unlike `Get`, this one requires the template to be *owned* by the
+  workspace: a global public template answers `404` here. `content` and
+  `slug` are not updatable — save the page as a new template instead.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { page_template } }`.
+}

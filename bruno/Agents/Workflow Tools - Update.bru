@@ -1,0 +1,38 @@
+meta {
+  name: Workflow Tools - Update
+  type: http
+  seq: 82
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/workflows/:workflow
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  workflow: {{workflowId}}
+}
+
+body:json {
+  {
+    "approval_policy": {
+      "mode": "ask",
+      "approvers": ["role:admin"]
+    }
+  }
+}
+
+docs {
+  Sets the approval rule for running this workflow as a tool. Requires the
+  `agent.manage` permission. The workflow must already be attached
+  (`Workflow Tools - Attach`), or this answers `404`.
+
+  - `approval_policy` — nullable; same shape as on
+    `Tool Bindings - Update`. `null` clears it.
+
+  Returns the agent's full workflow list, each with its `approval_policy`,
+  wrapped: `{ success, statusCode, message, data: { workflows } }`.
+}

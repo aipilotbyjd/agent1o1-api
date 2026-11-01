@@ -1,0 +1,28 @@
+meta {
+  name: Triggers - Run Now
+  type: http
+  seq: 75
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/triggers/:trigger/run-now
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  trigger: {{assistantTriggerId}}
+}
+
+docs {
+  Fires an assistant trigger immediately, outside its schedule. Requires
+  the `assistant.use` permission. Throttled to 10 per minute. A trigger of
+  another member's assistant answers `404`.
+
+  Skipped (not an error) when its last run is still going.
+
+  Response is wrapped: `{ success, statusCode, message, data: { session_id,
+  skipped } }` — `session_id` is the new assistant session, `null` when
+  skipped.
+}

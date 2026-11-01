@@ -1,0 +1,26 @@
+meta {
+  name: Model Settings - Get
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/model-settings
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  The workspace's default model and allowed-model list, as the model
+  picker shows them. Requires `agent.view`.
+
+  `allowed_model_catalog_ids` is `null` when every public model is
+  allowed. `can_manage` is true for callers with `workspace.update`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { settings: { default_model_catalog_id, allowed_model_catalog_ids, can_manage } } }`.
+}

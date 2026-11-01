@@ -1,0 +1,26 @@
+meta {
+  name: Tool Rules - List
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/tool-rules
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Every tool the caller's assistant can use, with its approval rule.
+  Requires the `assistant.use` permission.
+
+  Each entry: `name`, `effect` (`read`, `internal`, `write`, `external`,
+  `destructive`), `default_rule`, `rule` (the caller's override or
+  `null`), `can_auto_allow`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { tools } }`.
+}

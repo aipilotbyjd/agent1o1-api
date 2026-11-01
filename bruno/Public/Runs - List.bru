@@ -1,0 +1,33 @@
+meta {
+  name: Runs - List
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/public/v1/runs?per_page=25
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:query {
+  per_page: 25
+  ~status: completed
+  ~workflow_id: {{workflowId}}
+}
+
+docs {
+  Lists the runs in the API key's workspace. Requires the `runs:read`
+  ability on the key.
+
+  - `status` — optional, one of `pending`, `running`, `awaiting_approval`,
+    `awaiting_callback`, `completed`, `failed`, `cancelled`.
+  - `workflow_id` — optional, narrows to one workflow.
+  - `per_page` — optional, between 1 and 100.
+
+  Paginated: `{ success, statusCode, message, data: [...], meta }`.
+}

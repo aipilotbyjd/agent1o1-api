@@ -1,0 +1,30 @@
+meta {
+  name: Plan Grants - Revoke
+  type: http
+  seq: 8
+}
+
+delete {
+  url: {{baseUrl}}/super-admin/v1/billing/plan-grants/:grant
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  grant: {{saPlanGrantId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456"
+  }
+}
+
+docs {
+  Withdraws a grant and re-sizes the usage period.
+}

@@ -1,0 +1,55 @@
+meta {
+  name: Artifacts - Upload
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/artifacts
+  body: multipartForm
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:multipart-form {
+  file: @file()
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const artifact = res.body.data?.artifact;
+    if (artifact && artifact.id) {
+      bru.setVar("artifactId", artifact.id);
+      bru.setVar("artifactGroupId", artifact.group_id);
+    }
+  }
+}
+
+docs {
+  Uploads a file as a workspace artifact. Requires the `artifact.manage`
+  permission.
+
+  - `file` — required; max size is `config('artifacts.max_upload_kilobytes')`
+    (25MB by default). The stored MIME type is detected from the file's own
+    bytes, not the request's Content-Type.
+  - `filename` — optional; defaults to the uploaded file's name. Renaming
+    on the way in is fine, and a traversal-looking name is safe: it is kept
+    as the display name but never decides the storage path.
+  - `agent_id` — optional; files the artifact under an agent in this
+    workspace. Uploads have no agent unless one is given.
+  - `group_id` — optional; adds a new version to an existing artifact group
+    instead of matching on filename.
+  - `metadata` — optional object; in a multipart body send it as
+    `metadata[key]` fields.
+
+  Uploading the same filename again creates version 2, 3, ... of the same
+  group rather than overwriting — the same versioning an agent's own
+  exports get.
+
+  Stores `artifactId` and `artifactGroupId` for the other requests here.
+
+  Response is wrapped: `{ success, statusCode, message, data: { artifact } }`.
+}

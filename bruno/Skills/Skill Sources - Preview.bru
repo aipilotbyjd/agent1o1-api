@@ -1,0 +1,40 @@
+meta {
+  name: Skill Sources - Preview
+  type: http
+  seq: 18
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skill-sources/preview
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "repo": "acme/agent-skills",
+    "branch": "main",
+    "path": "skills",
+    "credential_id": "{{connectorCredentialId}}"
+  }
+}
+
+docs {
+  Reads the skills a repository holds without connecting it. Requires the
+  `agent-skill.manage` permission.
+
+  - `repo` — required: `owner/name`, or a github.com link (a `/tree/` link
+    also supplies branch and folder).
+  - `branch`, `path` — optional; default branch and repo root otherwise.
+  - `credential_id` — optional GitHub connector credential; without it the
+    member's first GitHub account is used.
+
+  `422` when GitHub can't be read.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { preview: { repo, branch, path, commit_sha, skills } } }`.
+}

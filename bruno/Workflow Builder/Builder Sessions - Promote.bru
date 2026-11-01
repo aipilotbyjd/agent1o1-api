@@ -1,0 +1,50 @@
+meta {
+  name: Builder Sessions - Promote
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-builder-sessions/:session/promote
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{builderSessionId}}
+}
+
+body:json {
+  {
+    "name": "Lead intake",
+    "overwrite": false
+  }
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const workflow = res.body.data?.workflow;
+    if (workflow && workflow.id) {
+      bru.setVar("workflowId", workflow.id);
+    }
+  }
+}
+
+docs {
+  Saves the session's draft graph as a real, workspace-visible
+  workflow's draft and stores its ID as `workflowId`. Publishing a
+  version of that workflow is a separate step. Requires the
+  `workflow.builder.use` permission.
+
+  Creates a new workflow unless the session was started from — or has
+  already been promoted to — one, in which case that workflow is
+  updated. `name` is optional.
+
+  409 if the assistant is still replying, or if the workflow was edited
+  outside this session since the session loaded (or last promoted to) it.
+  Send `"overwrite": true` to replace those edits with the draft. 422 if
+  the workflow refuses the draft — nothing is created in that case.
+
+  Response is wrapped: `{ success, statusCode, message, data: { workflow } }`.
+}

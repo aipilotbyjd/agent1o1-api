@@ -1,0 +1,65 @@
+meta {
+  name: Knowledge Base - Ingest
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/knowledge-base
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "text": "Refunds are accepted within 30 days of delivery.\n\nShipping takes 3-5 business days.",
+    "source": "handbook.md",
+    "collection": "support",
+    "metadata": null,
+    "private": false
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const chunk = res.body.data?.chunks?.[0];
+    if (chunk && chunk.id) {
+      bru.setVar("knowledgeChunkId", chunk.id);
+    }
+  }
+}
+
+docs {
+  Chunks the text, embeds each chunk, and stores it in the workspace
+  knowledge base. Shared knowledge requires `agent.manage`; private
+  knowledge (`private: true`, the member's own Brain — never seen by
+  agents or other members) requires only `agent.view`.
+
+  - `text` — required unless `file` is given instead (see
+    `Knowledge Base - Ingest File`), max 200,000 characters.
+  - `source` — optional, max 255; a filename, URL, or ticket id, returned
+    with every search hit. Ingesting a `source` that already exists in
+    the collection replaces it rather than duplicating it.
+  - `collection` — optional, max 255, letters/digits then `._:-`; the
+    `artifacts:` prefix is reserved. Defaults to `default` (`personal`
+    when private). Collections are the unit an agent attaches (see
+    `Agents/Knowledge - Attach`).
+  - `metadata` — optional JSON object (max 50 keys), copied onto every
+    chunk.
+  - `private` — optional boolean.
+
+  Embedding is billed, so a workspace out of credits is refused first.
+  Text over `knowledge_base.sync_ingest_max_characters` (20,000 by
+  default) is queued instead: 202 with `data: { queued: true }`.
+
+  An agent with no explicitly attached collections searches every shared
+  collection in the workspace.
+
+  Response is wrapped (201):
+  `{ success, statusCode, message, data: { chunks_count, chunks } }`.
+  Stores the first chunk's id as `knowledgeChunkId`.
+}

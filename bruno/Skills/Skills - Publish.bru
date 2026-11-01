@@ -1,0 +1,54 @@
+meta {
+  name: Skills - Publish
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skills/:skill/publish
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skill: {{skillId}}
+}
+
+body:json {
+  {
+    "repo": "acme/agent-skills",
+    "branch": "main",
+    "credential_id": "{{connectorCredentialId}}",
+    "path": "skills/refund-policy",
+    "keep_synced": true
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const source = res.body.data?.source;
+    if (source && source.id) {
+      bru.setVar("skillSourceId", source.id);
+    }
+  }
+}
+
+docs {
+  Publishes a local skill to a GitHub repository folder and queues a sync.
+  Requires the `agent-skill.manage` permission. Stores the resulting skill
+  source's ID as `skillSourceId`.
+
+  - `repo` — `owner/name` or a github.com link.
+  - `branch`, `path` (the skill's folder in the repo) — required.
+  - `credential_id` — a GitHub connector credential with push access.
+  - `keep_synced` — required boolean; `true` keeps the skill two-way
+    synced with the repository afterwards.
+
+  `422` for a skill already synced from GitHub (copy it first), an invalid
+  folder, or a repository/branch the account can't push to (protected
+  branch, archived repo, read-only access).
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { skill, source } }` (`201`).
+}

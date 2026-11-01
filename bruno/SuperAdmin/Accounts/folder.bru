@@ -1,0 +1,12 @@
+meta {
+  name: Accounts
+  seq: 3
+}
+
+docs {
+  Managing other super admins. Owners only (`accounts.manage`). Every write
+  needs `reason` and a fresh `totp_code`. Rules: at least one active owner
+  always remains; nobody changes their own role, disables themselves or resets
+  their own two-factor authentication. The command-line equivalents are the
+  `super-admin:*` artisan commands.
+}

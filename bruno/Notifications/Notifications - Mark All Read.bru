@@ -1,0 +1,17 @@
+meta {
+  name: Notifications - Mark All Read
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/v1/notifications/mark-all-read
+  body: none
+  auth: inherit
+}
+
+docs {
+  Marks every unread notification of the caller as read.
+
+  Response is wrapped with `data: null`.
+}

@@ -1,0 +1,33 @@
+meta {
+  name: Endpoints - Update
+  type: http
+  seq: 24
+}
+
+patch {
+  url: {{baseUrl}}/super-admin/v1/models/endpoints/:endpoint
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  endpoint: {{saEndpointId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456",
+    "name": "Our vLLM box",
+    "is_enabled": true,
+    "workspace_requests_per_minute": 30
+  }
+}
+
+docs {
+  Edits an endpoint. `api_key` replaces the key, `clear_api_key: true` removes it, sending neither leaves it alone. Send a request limit as null to remove it.
+}

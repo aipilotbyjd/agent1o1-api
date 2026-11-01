@@ -1,0 +1,51 @@
+meta {
+  name: Briefings - Update
+  type: http
+  seq: 51
+}
+
+put {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/briefings/:type
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  type: daily
+}
+
+body:json {
+  {
+    "enabled": true,
+    "schedule": {
+      "time": "08:00",
+      "days": [1, 2, 3, 4, 5],
+      "timezone": "Europe/London"
+    },
+    "connector_scope": "selected",
+    "connector_keys": ["gmail", "google-calendar"],
+    "instructions": "Lead with anything that needs a reply today.",
+    "delivery": {
+      "email": true
+    }
+  }
+}
+
+docs {
+  Saves a background report's settings. Requires the `assistant.use`
+  permission. Every field is optional (partial update):
+
+  - `enabled` (bool)
+  - `schedule` — `{ time: "H:i", days: [1-7, distinct, min 1], timezone }`;
+    all three are required when `schedule` is sent. Legacy zone names are
+    accepted.
+  - `connector_scope` — `all` | `selected`; `connector_keys` (nullable,
+    max 50 strings) applies to `selected`.
+  - `instructions` (nullable, max 4000 chars)
+  - `delivery.email` (bool)
+  - `settings` — Meeting Prep only: `auto` (bool), `minutes_before`
+    (5–240), `scope` (`external_only` | `all`).
+
+  Response is wrapped: same shape as `Briefings - Get`.
+}

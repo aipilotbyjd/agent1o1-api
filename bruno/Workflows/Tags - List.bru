@@ -1,0 +1,23 @@
+meta {
+  name: Tags - List
+  type: http
+  seq: 24
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/tags
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Lists the workspace's tags, alphabetically, each with a `workflow_count`
+  and an `agent_count`.
+  Requires the `workflow.view` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { tags } }`.
+}

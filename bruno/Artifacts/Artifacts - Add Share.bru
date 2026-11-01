@@ -1,0 +1,39 @@
+meta {
+  name: Artifacts - Add Share
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/artifacts/:artifact/shares
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  artifact: {{artifactId}}
+}
+
+body:json {
+  {
+    "user_id": "{{shareUserId}}"
+  }
+}
+
+docs {
+  Grants one workspace member explicit access to this artifact's group.
+  Only matters while the group's `general_access` is `restricted` — see
+  `Artifacts - Update Access` — since `organization`/`anyone` already open
+  it to every workspace member.
+
+  Requires `artifact.view`, and only the artifact's creator or someone with
+  `artifact.manage` may call it. `user_id` (UUID) must be a member of this
+  workspace.
+  Granting the same user twice is a no-op, not an error.
+
+  Set `shareUserId` to the target member's user ID before running this.
+
+  Response is wrapped: `{ success, statusCode, message, data: { artifact } }`,
+  with the artifact's `shared_with` list included.
+}

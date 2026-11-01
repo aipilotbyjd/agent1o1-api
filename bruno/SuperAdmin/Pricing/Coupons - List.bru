@@ -1,0 +1,26 @@
+meta {
+  name: Coupons - List
+  type: http
+  seq: 25
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/pricing/coupons
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+script:post-response {
+  if (res.status === 200 || res.status === 201) {
+    const v = res.body.data?.[0]?.id;
+    if (v) bru.setVar("saCouponId", v);
+  }
+}
+
+docs {
+  Discount codes. `?active=1` filters. Stores the first as `saCouponId`.
+}

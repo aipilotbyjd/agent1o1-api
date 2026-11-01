@@ -1,0 +1,23 @@
+meta {
+  name: Skill References - List
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skills/:skill/references
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skill: {{skillId}}
+}
+
+docs {
+  Lists a skill's references, ordered by `sort_order`. Requires the
+  `agent.view` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { references } }`.
+}

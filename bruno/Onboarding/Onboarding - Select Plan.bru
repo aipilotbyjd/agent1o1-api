@@ -1,0 +1,26 @@
+meta {
+  name: Onboarding - Select Plan
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/v1/onboarding/plan
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "plan_slug": "free"
+  }
+}
+
+docs {
+  Advances onboarding past the plan step to `connect_apps`. `plan_slug`
+  must be an active plan's slug (`404` otherwise); nothing is purchased —
+  paid plans go through `Billing/Subscription - Checkout`.
+
+  Response is wrapped: `{ success, statusCode, message, data }` where `data`
+  is the full onboarding state (same shape as `Onboarding - Get State`).
+}

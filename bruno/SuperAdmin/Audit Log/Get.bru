@@ -1,0 +1,23 @@
+meta {
+  name: Get
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/audit-log/:log
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  log: {{saLogId}}
+}
+
+docs {
+  One entry with its reason and before/after.
+}

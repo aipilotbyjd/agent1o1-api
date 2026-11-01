@@ -1,0 +1,25 @@
+meta {
+  name: Skills - Delete
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skills/:skill
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skill: {{skillId}}
+}
+
+docs {
+  Deletes a skill. Requires the `agent-skill.manage` permission.
+
+  A skill synced one-way from GitHub answers `422`; remove it from the
+  repository or disconnect the source instead.
+
+  Responds `204 No Content` with no envelope.
+}

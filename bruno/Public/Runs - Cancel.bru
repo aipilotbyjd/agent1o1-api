@@ -1,0 +1,31 @@
+meta {
+  name: Runs - Cancel
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUrl}}/public/v1/runs/:run/cancel
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  run: {{runId}}
+}
+
+docs {
+  Cancels an in-flight run. Requires the `workflows:write` ability on the
+  key — not a scope of its own: `workflows:write` has meant "may cause this
+  workspace's workflows to execute" since the start-run endpoint shipped,
+  and splitting it now would silently downgrade existing keys.
+
+  Takes no body. Cancelling a run that has already finished answers `409`.
+  A run outside the key's workspace answers `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { run } }`.
+}

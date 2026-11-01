@@ -1,0 +1,39 @@
+meta {
+  name: Knowledge - Attach
+  type: http
+  seq: 44
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/knowledge/:collection
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  collection: {{knowledgeCollection}}
+}
+
+body:json {
+  {
+    "mode": "always"
+  }
+}
+
+docs {
+  Attaches a workspace knowledge-base collection to this agent. Requires
+  `agent.manage`.
+
+  - `collection` — the collection name (letters, digits, `.`, `_`, `:`,
+    `-`). It may not have any documents yet: a synced source or long upload
+    is still being read when it's attached.
+  - `mode` — optional, `search` (default for a new attachment) or `always`.
+    Attaching an already attached collection without a mode keeps its mode.
+    `always` is refused (422) for synced collections.
+
+  Agents' own `artifacts:` collections can't be attached (404).
+
+  Response is the same as `Knowledge - List`.
+}

@@ -1,0 +1,44 @@
+meta {
+  name: Agent Session Actions - List
+  type: http
+  seq: 29
+}
+
+get {
+  url: {{baseUrl}}/public/v1/agents/:agent/sessions/:session/actions
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const actions = res.body.data?.actions;
+    if (Array.isArray(actions) && actions.length > 0) {
+      const pending = actions.find((action) => action.status === "pending") || actions[0];
+      bru.setVar("agentActionId", pending.id);
+    }
+  }
+}
+
+docs {
+  Lists a conversation's actions, oldest first. Requires the
+  `agents:invoke` ability on the key. A session belonging to a different
+  agent answers `404`.
+
+  A reply marked `awaiting_approval` is on hold until its `pending`
+  actions are decided with `Agent Session Actions - Decide`.
+
+  Stores the first pending action's ID (else the first one) in
+  `agentActionId`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { actions } }`.
+}

@@ -1,0 +1,45 @@
+meta {
+  name: Plans - List
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/plans
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const plans = res.body.data?.plans;
+    if (Array.isArray(plans) && plans.length > 0) {
+      bru.setVar("planId", plans[0].id);
+    }
+  }
+}
+
+docs {
+  Lists the active plans, in `sort_order`. Any workspace member can call
+  it — there is no `billing.*` permission check.
+
+  Each plan carries a price for all four billing windows
+  (`price_monthly`, `price_quarterly`, `price_yearly`, `price_lifetime`)
+  plus `available_intervals` — the subset actually on sale right now.
+  Offer only those; anything else 422s at checkout.
+
+  An interval can be priced but withdrawn, so do not infer the buy options
+  from which `price_*` fields are non-zero. An interval is absent from
+  `available_intervals` when the plan is inactive, when it is switched off
+  estate-wide (`config('billing.intervals')`), when the plan's own
+  `enabled_intervals` excludes it, or when no Stripe price is set.
+
+  Stores the first plan's ID in the `planId` collection variable so
+  `Billing/Subscription - Checkout` works without hand-editing.
+
+  Response is wrapped: `{ success, statusCode, message, data: { plans } }`.
+}

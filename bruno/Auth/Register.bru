@@ -1,0 +1,39 @@
+meta {
+  name: Register
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/v1/auth/register
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Jane Doe",
+    "email": "jane.doe@example.com",
+    "password": "Password123!",
+    "password_confirmation": "Password123!"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("accessToken", res.body.data?.tokens?.access_token);
+  }
+}
+
+docs {
+  Creates a new user account and returns the user plus an access token
+  (the refresh token is set as an httpOnly `refresh_token` cookie, as on
+  `Login`). Requires email uniqueness and a confirmed password meeting
+  the app's password policy. Stores `accessToken`.
+
+  Optional referral attribution: `referral_code` (max 64) and
+  `referral_visitor_id` (UUID, from `Referrals/Referrals - Record
+  Visit`). A referral failure never fails the registration.
+
+  Response is wrapped (201): `{ success, statusCode, message, data: { user, tokens } }`.
+}

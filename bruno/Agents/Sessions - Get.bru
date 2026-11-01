@@ -1,0 +1,25 @@
+meta {
+  name: Sessions - Get
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/sessions/:session
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+}
+
+docs {
+  Fetches a session with its full message history. Requires the
+  `agent.view` permission. A session belonging to a different agent
+  answers `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { session } }`.
+}

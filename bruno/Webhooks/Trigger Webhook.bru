@@ -1,0 +1,47 @@
+meta {
+  name: Trigger Webhook
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/hooks/:token
+  body: json
+  auth: none
+}
+
+params:path {
+  token: {{triggerToken}}
+}
+
+body:json {
+  {
+    "event": "lead.created",
+    "data": {
+      "email": "jane.doe@example.com"
+    }
+  }
+}
+
+docs {
+  Delivers a webhook to an active `webhook` trigger, firing its target
+  workflow or agent. This is the URL you hand to an external provider.
+
+  No session and no API key — the `{token}` path segment is the entire
+  auth story, matched against `triggers.token`. Set `triggerToken` from
+  `Triggers/Triggers - Create` or `Triggers - Rotate Token`. Rate
+  limited by the `trigger-hooks` throttle.
+
+  Deliberately sits outside the Internal and Public route groups, so it
+  inherits neither's middleware.
+
+  Responses are **not** wrapped in the standard envelope:
+
+  - `200 { "status": "accepted" }` — received. Also returned for
+    ignored, duplicate, and skipped events on purpose: providers fan
+    every event at one URL, and a non-2xx causes retries and eventually
+    hook disabling.
+  - `401 Invalid signature.` — the trigger has a signing secret and
+    verification failed. The rejection is still recorded.
+  - `404` — no active webhook trigger matches the token.
+}

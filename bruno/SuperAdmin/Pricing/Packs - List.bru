@@ -1,0 +1,26 @@
+meta {
+  name: Packs - List
+  type: http
+  seq: 19
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/pricing/packs
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+script:post-response {
+  if (res.status === 200 || res.status === 201) {
+    const v = res.body.data?.[0]?.id;
+    if (v) bru.setVar("saPackId", v);
+  }
+}
+
+docs {
+  Credit packs. Until one is defined here the `config/billing.php` packs are shown with `source: config`.
+}

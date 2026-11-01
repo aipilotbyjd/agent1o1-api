@@ -1,0 +1,27 @@
+meta {
+  name: Comments - List
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/comments
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+docs {
+  Lists the page's builder comment threads, oldest first, each with its
+  `replies`. Requires the `page.view` permission.
+
+  Each comment has `block_id` (the block it's pinned to, or null),
+  `body`, `author`, `is_mine`, `resolved_at`, `resolved_by`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { comments } }`.
+}

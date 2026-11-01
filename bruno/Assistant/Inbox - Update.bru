@@ -1,0 +1,36 @@
+meta {
+  name: Inbox - Update
+  type: http
+  seq: 62
+}
+
+put {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/inbox
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "draft_mode": "confident",
+    "drafting_instructions": "Keep replies short and friendly.",
+    "known_senders_only": true,
+    "skip_existing_labels": false
+  }
+}
+
+docs {
+  Saves Smart Inbox settings. Requires the `assistant.use` permission. All
+  fields optional:
+
+  - `draft_mode` — `confident` | `off`
+  - `drafting_instructions` (nullable, max 2000 chars)
+  - `known_senders_only` (bool)
+  - `skip_existing_labels` (bool)
+
+  Response is wrapped: same payload as `Inbox - Get`.
+}

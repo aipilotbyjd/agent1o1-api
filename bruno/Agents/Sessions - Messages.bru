@@ -1,0 +1,34 @@
+meta {
+  name: Sessions - Messages
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/sessions/:session/messages?per_page=50
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+}
+
+params:query {
+  per_page: 50
+}
+
+docs {
+  The session's transcript, oldest first, paginated. Requires the
+  `agent.view` permission.
+
+  Use this rather than `Sessions - Get` for a long-running session:
+  `Get` eager-loads the whole conversation, which is fine when it's fresh
+  and wrong once it isn't.
+
+  - `per_page` — defaults to 50, clamped to between 1 and 200.
+
+  Paginated: `{ success, statusCode, message, data: [...], meta }`.
+}

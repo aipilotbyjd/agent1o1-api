@@ -1,0 +1,13 @@
+meta {
+  name: Auth
+  seq: 2
+}
+
+docs {
+  Sign-in for Super Admin accounts: its own accounts and tokens, nothing shared
+  with the user API. Flow: `Login` returns either a two-factor challenge (run
+  `2FA - Verify`) or, for an account that has not enrolled yet, a restricted
+  setup token (run `2FA - Enable` then `2FA - Confirm`, then sign in again).
+  Tokens last 15 minutes: `Refresh` rotates them. All of it needs
+  `SUPER_ADMIN_ENABLED=true`.
+}

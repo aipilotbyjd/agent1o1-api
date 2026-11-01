@@ -1,0 +1,49 @@
+meta {
+  name: Agent Session Actions - Decide
+  type: http
+  seq: 30
+}
+
+post {
+  url: {{baseUrl}}/public/v1/agents/:agent/sessions/:session/actions/decisions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+}
+
+body:json {
+  {
+    "decisions": [
+      {
+        "action_id": "{{agentActionId}}",
+        "decision": "approve",
+        "note": "Approved by the integration."
+      }
+    ]
+  }
+}
+
+docs {
+  Decides a conversation's waiting actions. Requires the `agents:invoke`
+  ability on the key — the key is the approver.
+
+  - `decisions` — required, 1 to 100 entries, each with `action_id`
+    (uuid), `decision` (`approve`, `edit` or `reject`), `arguments`
+    (required for `edit`), and optional `note` (max 2000) and `stop`.
+    `remember` is accepted but always ignored here.
+
+  Any `action_id` not in this conversation answers `404`. An action whose
+  tool names its own approvers can only be decided by them in the app —
+  `403`. Actions no longer pending are skipped; decided turns resume on
+  the queue (poll `Agent Sessions - Get`).
+
+  Response is wrapped: `{ success, statusCode, message, data: { actions } }`.
+}

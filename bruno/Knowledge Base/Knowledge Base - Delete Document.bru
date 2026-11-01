@@ -1,0 +1,35 @@
+meta {
+  name: Knowledge Base - Delete Document
+  type: http
+  seq: 9
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/knowledge-base/document?source=handbook.md&collection=support
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  source: handbook.md
+  ~collection: support
+  ~private: 1
+}
+
+docs {
+  Removes a whole document — every chunk sharing `source` — without
+  deleting its collection.
+
+  - `source` — required, max 255.
+  - `collection` — optional; limits the delete to that collection.
+  - `private` — optional boolean. With it, only the caller's own private
+    copy is removed (needs `agent.view`); without it, only the shared one
+    (needs `agent.manage`).
+
+  404 when nothing matched. Response is wrapped:
+  `{ success, statusCode, message, data: { deleted_count } }`.
+}

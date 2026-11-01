@@ -1,0 +1,20 @@
+meta {
+  name: Connectors - List
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/connectors
+  body: none
+  auth: inherit
+}
+
+docs {
+  Lists the active integration catalog (Slack, GitHub, Gmail, ...), ordered
+  by `sort_order`. Not workspace-scoped — any authenticated user can read
+  it. `connector_id` on `Connector Credentials - Create` and
+  `- OAuth Initiate` must reference one of these ids.
+
+  Response is wrapped: `{ success, statusCode, message, data: { connectors } }`.
+}

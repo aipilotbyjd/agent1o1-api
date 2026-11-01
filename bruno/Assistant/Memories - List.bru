@@ -1,0 +1,33 @@
+meta {
+  name: Memories - List
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/memories
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const memory = res.body.data?.memories?.[0];
+    if (memory && memory.id) {
+      bru.setVar("assistantMemoryId", memory.id);
+    }
+  }
+}
+
+docs {
+  What the assistant has remembered about the caller, ordered by key.
+  Requires the `assistant.use` permission. Stores the first memory's ID
+  in `assistantMemoryId`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { memories:
+  [{ id, key, value, updated_at }] } }`.
+}

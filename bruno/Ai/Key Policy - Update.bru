@@ -1,0 +1,35 @@
+meta {
+  name: Key Policy - Update
+  type: http
+  seq: 11
+}
+
+put {
+  url: {{baseUrl}}/v1/workspaces/:workspace/ai-key-policy
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "platform_usage": "when_no_key",
+    "allow_personal_keys": true
+  }
+}
+
+docs {
+  Saves the workspace's AI key policy. Requires `ai-credential.manage`.
+  Both fields are optional; omitted ones keep their current value.
+
+  - `platform_usage` — `fallback`, `when_no_key` or `never`.
+  - `allow_personal_keys` — boolean.
+
+  Run `Key Policy - Preview` first to see which models and agents the
+  change would leave without a key.
+
+  Response is wrapped: `{ success, statusCode, message, data: { policy } }`.
+}

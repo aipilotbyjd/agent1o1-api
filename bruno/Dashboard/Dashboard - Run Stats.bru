@@ -1,0 +1,33 @@
+meta {
+  name: Dashboard - Run Stats
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/dashboard/run-stats?days=30
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  days: 30
+  ~workflow_id: {{workflowId}}
+}
+
+docs {
+  Execution health over the window: header totals, a zero-filled daily
+  series and the busiest workflows. Requires `run.view`.
+
+  - `days` — optional, 1-365, default 30.
+  - `workflow_id` — optional UUID; narrows `totals` and `series` to one
+    workflow (`top_workflows` stays workspace-wide). An unknown id reports
+    zeros rather than 404.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { window, workflow_id, totals, in_flight, series, top_workflows } }`.
+}

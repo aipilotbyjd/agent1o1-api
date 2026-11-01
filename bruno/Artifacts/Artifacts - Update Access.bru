@@ -1,0 +1,41 @@
+meta {
+  name: Artifacts - Update Access
+  type: http
+  seq: 7
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/artifacts/:artifact/access
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  artifact: {{artifactId}}
+}
+
+body:json {
+  {
+    "general_access": "organization"
+  }
+}
+
+docs {
+  Sets the sharing tier for every version in the artifact's group — General
+  Access in Gumloop's terms. Requires `artifact.view`, and only the
+  artifact's creator or someone with `artifact.manage` may call it.
+
+  `general_access` is one of:
+  - `restricted` — only the creator and users explicitly added via
+    `Artifacts - Add Share` can see it (default for a new artifact).
+  - `organization` — any workspace member with `artifact.view` can see it.
+  - `anyone` — same visibility as `organization` in this app; there is no
+    anonymous/public request path, so these two are equivalent here.
+
+  A new version created after this (re-export or re-upload of the same
+  group) inherits the group's current `general_access` rather than
+  resetting to `restricted`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { artifact } }`.
+}

@@ -1,0 +1,25 @@
+meta {
+  name: Workflows - List
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/public/v1/workflows
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+docs {
+  Lists the API key's workspace's workflows, newest first. The workspace
+  is resolved from the key, so there's no `{workspace}` path segment on
+  the Public API.
+
+  Requires the `workflows:read` ability on the key.
+
+  Response is wrapped: `{ success, statusCode, message, data: { workflows } }`.
+}

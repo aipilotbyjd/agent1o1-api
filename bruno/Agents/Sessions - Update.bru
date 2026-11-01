@@ -1,0 +1,44 @@
+meta {
+  name: Sessions - Update
+  type: http
+  seq: 10
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/sessions/:session
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+}
+
+body:json {
+  {
+    "title": "Invoice dispute",
+    "status": "active"
+  }
+}
+
+docs {
+  Renames or archives a chat session. Requires the `agent.chat` permission
+  — this is a participant's action, not an administrative one.
+
+  Every field is `sometimes` — send only what changes.
+
+  - `title` — nullable string, max 255.
+  - `status` — `active` or `archived`.
+  - `autonomy_mode` — nullable; overrides the agent's mode for this
+    conversation only (`read_only`, `ask`, `plan`, `smart`, `autopilot`);
+    `null` goes back to the agent's.
+  - `test_mode` — nullable bool; conversation-level Test run.
+
+  Making the conversation stricter than its agent needs only `agent.chat`;
+  loosening it (a freer mode, or turning Test run off when the agent has
+  it on) also needs `agent.manage`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { session } }`.
+}

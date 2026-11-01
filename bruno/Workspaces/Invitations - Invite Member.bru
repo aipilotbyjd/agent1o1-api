@@ -1,0 +1,40 @@
+meta {
+  name: Invitations - Invite Member
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/invitations
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "email": "new.member@example.com",
+    "role": "member"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const invitation = res.body.data?.invitation ?? {};
+    if (invitation.id) {
+      bru.setVar("invitationId", invitation.id);
+    }
+  }
+}
+
+docs {
+  Invites a user to the workspace by email. `role` must be an assignable
+  role: `admin`, `editor`, `member` or `viewer` (not `owner`). Requires
+  the `member.invite` permission. Refused when the plan's member limit
+  is reached. Stores the new id as `invitationId`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { invitation } }`.
+}

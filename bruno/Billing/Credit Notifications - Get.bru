@@ -1,0 +1,36 @@
+meta {
+  name: Credit Notifications - Get
+  type: http
+  seq: 19
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/credit-notifications
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  The workspace's credit notification preferences — when it wants to be
+  warned about credit spend. Requires the `billing.view` permission.
+
+  - `out_of_credits_enabled` — whether the workspace is told when it runs out
+    of credits (or reaches its overage cap). On by default.
+  - `thresholds` — percentages of the period's allowance that trigger a
+    "running low" notification. These are what is actually enforced, so this
+    holds the defaults where the workspace never chose its own.
+  - `is_default` — whether `thresholds` are the estate defaults rather than
+    the workspace's own choice.
+  - `default_thresholds` / `maximum_thresholds` — what a reset would restore,
+    and how many thresholds may be configured.
+
+  These are workspace-wide switches over *whether* a warning is sent. Each
+  user's choice of how to receive it stays on `/notifications/preferences`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { credit_notifications } }`.
+}

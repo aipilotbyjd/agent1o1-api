@@ -1,0 +1,23 @@
+meta {
+  name: Top Workspaces
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/stats/top-workspaces?days=30
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:query {
+  days: 30
+}
+
+docs {
+  The workspaces that consumed the most credits.
+}

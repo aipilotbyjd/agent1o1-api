@@ -1,0 +1,27 @@
+meta {
+  name: Sessions - Delete
+  type: http
+  seq: 11
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/sessions/:session
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+}
+
+docs {
+  Deletes a session and its transcript. Requires the `agent.manage`
+  permission — a step above the `agent.chat` needed to archive one via
+  `Sessions - Update`, since this destroys the conversation.
+
+  A session belonging to another agent answers `404`.
+
+  Answers `204 No Content` with no envelope.
+}

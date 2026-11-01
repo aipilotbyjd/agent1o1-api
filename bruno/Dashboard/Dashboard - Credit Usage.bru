@@ -1,0 +1,33 @@
+meta {
+  name: Dashboard - Credit Usage
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/dashboard/credit-usage?days=30
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  days: 30
+}
+
+docs {
+  Where the credits went over the window, read from the ledger. Requires
+  `billing.view`.
+
+  - `days` — optional, 1-365, default 30.
+
+  `topup_credits` is the part of `total_credits` drawn from purchased
+  credit packs rather than the plan allowance. For "what is left this
+  period" use `Billing/Overview - Get` instead.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { window, total_credits, topup_credits, by_source_type, series, top_workflows, top_agents } }`.
+}

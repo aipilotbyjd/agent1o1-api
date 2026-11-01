@@ -1,0 +1,41 @@
+meta {
+  name: Agent Actions - Decide
+  type: http
+  seq: 87
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agent-actions/decisions
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "decisions": [
+      {
+        "action_id": "{{agentActionId}}",
+        "decision": "reject",
+        "note": "Not during the freeze.",
+        "stop": false
+      }
+    ]
+  }
+}
+
+docs {
+  Bulk-decides waiting actions from the inbox, across agents. Requires the
+  `agent.chat` permission. Any `action_id` from another workspace answers
+  `404`; an action you may not decide answers `403`.
+
+  Body is the same as `Session Actions - Decide` (`decisions[]` with
+  `action_id`, `decision` = `approve`/`edit`/`reject`, `arguments`,
+  `note`, `stop`, `remember`). Actions no longer pending are skipped.
+  Turns left fully decided resume on the queue.
+
+  Response is wrapped: `{ success, statusCode, message, data: { actions } }`.
+}

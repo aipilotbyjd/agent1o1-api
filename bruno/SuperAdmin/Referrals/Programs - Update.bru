@@ -1,0 +1,48 @@
+meta {
+  name: Programs - Update
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{baseUrl}}/super-admin/v1/referrals/programs/:program
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  program: {{referralProgramId}}
+}
+
+body:json {
+  {
+    "default_hold_days": 14,
+    "fraud_checks": {
+      "ip_velocity": {
+        "max": 3
+      }
+    }
+  }
+}
+
+docs {
+  Partial update — send only what changes:
+
+  - `name`, `slug`, `description`, `is_active`, `is_default`, `starts_at`, `ends_at`
+  - `attribution_window_days` (1–365), `claim_window_hours` (1–720), `require_verified_email`
+  - `activation_event` (`first_successful_run` | `first_agent_session` | `run_or_agent_session`),
+    `activation_min_count`, `activation_window_days`
+  - `default_hold_days` (0–365), `approval_mode` (`automatic` | `manual`), `revoke_on_partial_refund`
+  - `referrer_monthly_credit_cap`, `referrer_max_stacked_plan_days`,
+    `referrer_max_referrals_per_month` (null = no cap), `referrer_min_account_age_days`,
+    `referrer_eligible_plan_ids` (plan ids; empty = anyone)
+  - `fraud_checks`: `shared_workspace`, `same_email_domain`, `disposable_email`,
+    `card_fingerprint`, `ip_velocity {enabled, max, hours}`,
+    `velocity_alert {enabled, max_per_hour}` — merged into the current values.
+
+  Response is wrapped: `{ success, statusCode, message, data: { program } }`.
+}

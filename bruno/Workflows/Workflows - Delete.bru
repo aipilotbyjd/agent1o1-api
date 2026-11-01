@@ -1,0 +1,25 @@
+meta {
+  name: Workflows - Delete
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+docs {
+  Moves a workflow to the trash (soft delete). Requires the
+  `workflow.manage` permission. It then shows in `Workflows - Trash` and can
+  be brought back with `Workflows - Restore` or removed for good with
+  `Workflows - Force Delete`.
+
+  Responds `204 No Content` with no envelope.
+}

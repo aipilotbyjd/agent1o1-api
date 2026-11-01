@@ -1,0 +1,32 @@
+meta {
+  name: Artifacts - Get
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/artifacts/:artifact
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  artifact: {{artifactId}}
+}
+
+docs {
+  Retrieves one artifact with its full version history. Requires
+  `artifact.view`, and — when the group's `general_access` is `restricted`
+  — that the caller is the creator or has an explicit share
+  (`Artifacts - Add Share`); otherwise `403`.
+
+  `preview_url` is a 15-minute signed URL, present for images, HTML, PDF,
+  and spreadsheet types (`text/csv`, `.xls`, `.xlsx`). Previews are served
+  sandboxed (`Content-Security-Policy: sandbox`), so an uploaded HTML
+  artifact renders without running as first-party script.
+
+  Also includes `general_access` and, when loaded, `shared_with`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { artifact } }`.
+}

@@ -1,0 +1,26 @@
+meta {
+  name: Agents - Force Delete
+  type: http
+  seq: 69
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/force
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+docs {
+  Permanently deletes a trashed agent. Requires the `agent.manage`
+  permission. Cannot be undone.
+
+  Only a trashed agent can be force-deleted — run `Agents - Delete` first;
+  an agent that isn't in the trash answers `404`.
+
+  Responds `204 No Content` with no envelope.
+}

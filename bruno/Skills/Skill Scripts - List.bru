@@ -1,0 +1,26 @@
+meta {
+  name: Skill Scripts - List
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skills/:skill/scripts
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skill: {{skillId}}
+}
+
+docs {
+  Lists a skill's scripts. Requires the `agent-skill.manage` permission
+  (not `agent.view`; script source is managed with the skill).
+
+  Storage only — there is no execution path wired up yet, `is_enabled`
+  currently has no runtime effect.
+
+  Response is wrapped: `{ success, statusCode, message, data: { scripts } }`.
+}

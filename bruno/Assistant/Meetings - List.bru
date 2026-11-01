@@ -1,0 +1,39 @@
+meta {
+  name: Meetings - List
+  type: http
+  seq: 69
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/meetings
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const meeting = (res.body.data?.meetings || [])[0];
+    if (meeting && meeting.id) {
+      bru.setVar("assistantMeetingId", meeting.id);
+    }
+  }
+}
+
+docs {
+  Upcoming meetings (from an hour ago through the configured sync window)
+  with their briefs. Requires the `assistant.use` permission. Stores the
+  first meeting's ID in `assistantMeetingId`.
+
+  When a calendar is connected, listing refreshes it at most every two
+  minutes; a calendar error just shows the meetings already known.
+
+  Response is wrapped: `{ success, statusCode, message, data: {
+  calendar_connected, meetings } }` — each meeting has `id`, `title`,
+  `starts_at`, `ends_at`, `attendees`, `is_external`, `html_link`,
+  `prep_status`, and `brief` (`run_id`, `status`, `summary`, `document`,
+  `error`, `sources`) or `null`.
+}

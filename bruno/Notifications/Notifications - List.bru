@@ -1,0 +1,40 @@
+meta {
+  name: Notifications - List
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/notifications?unread=1
+  body: none
+  auth: inherit
+}
+
+params:query {
+  unread: 1
+  ~per_page: 25
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const items = res.body.data;
+    if (Array.isArray(items) && items.length > 0) {
+      bru.setVar("notificationId", items[0].id);
+    }
+  }
+}
+
+docs {
+  The signed-in user's in-app notifications, newest first. No workspace
+  permission — always the caller's own.
+
+  - `unread` — `1` to return only unread ones.
+  - `per_page` — default 25.
+
+  Each item: `id`, `type`, `title`, `body`, `data`, `workspace_id`,
+  `read_at`, `created_at`.
+
+  Stores the first one as `notificationId`.
+
+  Paginated: `{ success, statusCode, message, data: [...], meta }`.
+}

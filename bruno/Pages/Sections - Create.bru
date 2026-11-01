@@ -1,0 +1,51 @@
+meta {
+  name: Sections - Create
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/page-sections
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "name": "Intro heading",
+    "block": {
+      "id": "intro-heading",
+      "type": "heading",
+      "props": {
+        "text": "Tell us about your project",
+        "level": 2
+      }
+    }
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const section = res.body.data?.section;
+    if (section && section.id) {
+      bru.setVar("pageSectionId", section.id);
+    }
+  }
+}
+
+docs {
+  Saves one block (with any children) to the workspace's section library.
+  Requires the `page.manage` permission. Stores the ID in `pageSectionId`.
+
+  - `name` — required, max 120.
+  - `block` — required object; `block.type` must be a page block type
+    other than `column`. The rest is normalized like page content; a block
+    that can't stand alone answers 422.
+
+  Response is wrapped (201):
+  `{ success, statusCode, message, data: { section } }`.
+}

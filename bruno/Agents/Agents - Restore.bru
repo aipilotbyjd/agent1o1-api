@@ -1,0 +1,28 @@
+meta {
+  name: Agents - Restore
+  type: http
+  seq: 68
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/restore
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+docs {
+  Restores a trashed agent. Requires the `agent.manage` permission.
+
+  Only a trashed agent can be restored — any other answers `404`. A
+  restored agent counts toward the plan's agent limit again, so this answers
+  `402` when the workspace is already at its cap.
+
+  Takes no body.
+
+  Response is wrapped: `{ success, statusCode, message, data: { agent } }`.
+}

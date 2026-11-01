@@ -1,0 +1,41 @@
+meta {
+  name: Skill Sources - Update
+  type: http
+  seq: 21
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skill-sources/:skillSource
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skillSource: {{skillSourceId}}
+}
+
+body:json {
+  {
+    "two_way": true,
+    "branch": "main",
+    "credential_id": "{{connectorCredentialId}}"
+  }
+}
+
+docs {
+  Changes a source's sync settings. Requires the `agent-skill.manage`
+  permission.
+
+  - `two_way` — required boolean. Enabling it needs a `credential_id`
+    with write access; disabling it is refused (`422`) while edits are
+    unsynced or conflicts are open.
+  - `branch` — optional; switching is refused while two-way edits are
+    pending.
+  - `credential_id` — optional GitHub connector credential.
+
+  `422` during a pending fork connection. `409` while the source is
+  syncing.
+
+  Response is wrapped: `{ success, statusCode, message, data: { source } }`.
+}

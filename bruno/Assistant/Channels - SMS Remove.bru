@@ -1,0 +1,23 @@
+meta {
+  name: Channels - SMS Remove
+  type: http
+  seq: 60
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/channels/sms
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Removes the caller's phone number, so texts from it no longer reach the
+  assistant. Requires the `assistant.use` permission.
+
+  Response is wrapped (not 204): `{ success, statusCode, message: "Number
+  removed.", data: [] }`.
+}

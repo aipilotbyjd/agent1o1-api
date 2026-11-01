@@ -1,0 +1,31 @@
+meta {
+  name: Key Policy - Preview
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/ai-key-policy/preview
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "platform_usage": "never",
+    "allow_personal_keys": false
+  }
+}
+
+docs {
+  What a proposed policy would change, without saving it. Requires
+  `ai-credential.manage`. Same body as `Key Policy - Update`; omitted
+  fields take the current value.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { impact: { unavailable_models, affected_agents, models_losing_backup, ignored_personal_keys } } }`.
+}

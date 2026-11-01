@@ -1,0 +1,50 @@
+meta {
+  name: Workflows - Publish
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/public/v1/workflows/:workflow/versions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  workflow: {{workflowId}}
+}
+
+body:json {
+  {
+    "notes": "Published through the Public API."
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const version = res.body.data?.version;
+    if (version && version.id) {
+      bru.setVar("versionId", version.id);
+    }
+  }
+}
+
+docs {
+  Publishes the draft graph as a new version. Requires the
+  `workflows:write` ability on the key. Stores the new version's ID in
+  `versionId`.
+
+  This is what makes a workflow runnable: future runs are pinned to the
+  published version, not to the draft. The full graph validation runs here,
+  and an invalid graph answers `422` — check first with
+  `Workflows - Validate Graph` if you'd rather not find out this way.
+
+  - `notes` — optional, nullable, max 1000.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { workflow, version } }`.
+}

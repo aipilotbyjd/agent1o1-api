@@ -1,0 +1,30 @@
+meta {
+  name: Plan Grants - List
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/billing/workspaces/:workspace/plan-grants
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  workspace: {{saWorkspaceId}}
+}
+
+script:post-response {
+  if (res.status === 200 || res.status === 201) {
+    const v = res.body.data?.[0]?.id;
+    if (v) bru.setVar("saPlanGrantId", v);
+  }
+}
+
+docs {
+  Stores the first as `saPlanGrantId`.
+}

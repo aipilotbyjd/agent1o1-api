@@ -1,0 +1,27 @@
+meta {
+  name: Node Runs - List
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/runs/:run/node-runs
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  run: {{runId}}
+}
+
+docs {
+  Every step of a run in full, oldest first. Requires the `run.view`
+  permission.
+
+  `Runs - Get` already returns each node run as a summary; this returns the
+  detailed form of all of them, including each step's input and output.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { node_runs } }`.
+}

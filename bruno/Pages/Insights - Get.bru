@@ -1,0 +1,35 @@
+meta {
+  name: Insights - Get
+  type: http
+  seq: 30
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/insights
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+params:query {
+  ~days: 30
+  ~include_tests: 0
+}
+
+docs {
+  Funnel stats for the page. Requires the `page.view` permission.
+
+  - `days` — `7`, `30` (default) or `90`.
+  - `include_tests` — boolean, default false.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { insights } }` — `range`,
+  `totals`, `daily` (per day) and `variants` (per A/B version, empty when
+  no test). Counts are `views`, `starts`, `submissions`, `completed`,
+  `failed`, `start_rate`, `conversion_rate`, `completion_rate`,
+  `avg_duration_seconds`.
+}

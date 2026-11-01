@@ -1,0 +1,30 @@
+meta {
+  name: Pages - Publish
+  type: http
+  seq: 23
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/publish
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+docs {
+  Makes the draft live (and version B, starting/updating the A/B test).
+  Requires the `page.manage` permission.
+
+  Answers 422 with `errors.content` listing every error-level issue in the
+  draft or B. On success snapshots a `published` version and writes an
+  audit entry.
+
+  Publishing alone doesn't make the page public — `access` must also be
+  `link` or `password` and `is_enabled` true.
+
+  Response is wrapped: `{ success, statusCode, message, data: { page } }`.
+}

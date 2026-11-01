@@ -1,0 +1,39 @@
+meta {
+  name: Referrals - List Admin
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/referrals/referrals?status=&page=1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:query {
+  status: 
+  page: 1
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const items = res.body.data;
+    if (Array.isArray(items) && items.length > 0) {
+      bru.setVar("referralId", items[0].id);
+    }
+  }
+}
+
+docs {
+  Every referral, unmasked, newest first. Filters: `status` (`pending`,
+  `verified`, `activated`, `converted`, `rejected`), `program_id`,
+  `referrer_user_id`; `per_page` defaults to 25.
+
+  Stores the first referral as `referralId`.
+
+  Paginated: `{ success, statusCode, message, data: [...], meta }`.
+}

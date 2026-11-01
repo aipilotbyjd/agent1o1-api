@@ -1,0 +1,30 @@
+meta {
+  name: Versions - Restore
+  type: http
+  seq: 41
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/versions/:version/restore
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+  version: {{versionId}}
+}
+
+docs {
+  Copies a published version's graph back into the workflow's draft.
+  Nothing goes live until it's published again (`Versions - Publish`, or a
+  publish request when the workspace reviews changes). Requires the
+  `workflow.builder.use` permission. Takes no body.
+
+  `version` is the version record's ID, as in `Versions - Get`; one from
+  another workflow answers `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { workflow } }`
+  with `nodes` and `edges` loaded.
+}

@@ -1,0 +1,24 @@
+meta {
+  name: Pages - Delete
+  type: http
+  seq: 39
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+docs {
+  Deletes a page. Requires the `page.manage` permission. Writes an audit
+  entry. The workflow and its runs are unaffected.
+
+  Unlike most deletes this answers `200` with a wrapped body:
+  `{ success, statusCode, message, data: null }`.
+}

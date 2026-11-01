@@ -1,0 +1,33 @@
+meta {
+  name: Publish Approval Policy - Update
+  type: http
+  seq: 50
+}
+
+put {
+  url: {{baseUrl}}/v1/workspaces/:workspace/publish-approval-policy
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "require_publish_approval": true
+  }
+}
+
+docs {
+  Turns publish review on or off for the workspace. Requires the
+  `workspace.update` permission. Audit-logged.
+
+  `require_publish_approval` — required boolean. Turning it on needs a plan
+  with workflow approvals (`403` otherwise). While on,
+  `Versions - Publish` answers `409` and changes go through
+  `Publish Requests - Create`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { policy } }`.
+}

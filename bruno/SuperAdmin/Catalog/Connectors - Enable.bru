@@ -1,0 +1,29 @@
+meta {
+  name: Connectors - Enable
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/catalog/connectors/:connector/enable
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  connector: {{saConnectorId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request, ticket 1234"
+  }
+}
+
+docs {
+  Needs a `reason`.
+}

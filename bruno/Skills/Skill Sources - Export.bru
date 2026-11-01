@@ -1,0 +1,38 @@
+meta {
+  name: Skill Sources - Export
+  type: http
+  seq: 23
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/skill-sources/:skillSource/export
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  skillSource: {{skillSourceId}}
+}
+
+body:json {
+  {
+    "skill_id": "{{skillId}}",
+    "path": "skills/refund-policy"
+  }
+}
+
+docs {
+  Links a local (unsynced) skill to a two-way source so the next sync
+  writes it to the repository. Requires the `agent-skill.manage`
+  permission.
+
+  - `skill_id` — required, a skill in this workspace not already synced.
+  - `path` — required, the repo folder to write it to; must not overlap
+    another synced skill.
+
+  `422` when the source isn't two-way, can't be written to, or already
+  holds 100 skills.
+
+  Response is wrapped: `{ success, statusCode, message, data: { source } }`.
+}

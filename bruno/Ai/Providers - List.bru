@@ -1,0 +1,32 @@
+meta {
+  name: Providers - List
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/ai-providers
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  The providers a workspace can bring its own key for (bring your own
+  key), from `config('byok.providers')`. Requires `ai-credential.view`.
+
+  Each entry carries `key` (the `execution_provider` value
+  `Provider Credentials - Create` expects), `label`, `key_url`,
+  `key_placeholder`, `key_prefix`, `key_guide`, the catalog `models` that
+  key would run, and `covers_knowledge_base` (true for the embeddings
+  provider).
+
+  `can_add_team` / `can_add_personal` say what the caller may add —
+  personal keys also need the workspace policy's `allow_personal_keys`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { providers, can_add_team, can_add_personal } }`.
+}

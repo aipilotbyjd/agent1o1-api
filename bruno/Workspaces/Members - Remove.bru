@@ -1,0 +1,23 @@
+meta {
+  name: Members - Remove
+  type: http
+  seq: 9
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/members/:member
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  member: replace-with-user-id
+}
+
+docs {
+  Removes a member from the workspace. `member` is the target user's ID.
+  Requires the `member.remove` permission.
+
+  Responds `204 No Content` with no envelope.
+}

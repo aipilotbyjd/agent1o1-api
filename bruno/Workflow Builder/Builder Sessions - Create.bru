@@ -1,0 +1,47 @@
+meta {
+  name: Builder Sessions - Create
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-builder-sessions
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "title": "Lead intake builder"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const session = res.body.data?.session;
+    if (session && session.id) {
+      bru.setVar("builderSessionId", session.id);
+    }
+  }
+}
+
+docs {
+  Opens a chat-based builder session, which owns its own `draft_graph`
+  edited by the builder agent's tools. Requires the
+  `workflow.builder.use` permission. Stores the session ID as
+  `builderSessionId`.
+
+  All fields are optional. Pass `workflow_id` to start the session from
+  an existing workflow (it must belong to this workspace); omit it to
+  start from scratch and create a new workflow on promote. Pass `prompt`
+  to send the first message straight away — `data.message` is then its
+  pending reply (see "Builder Sessions - Send Message"), and `mode`
+  (`build` or `ask`) to choose how it's sent. `data.message` is `null`
+  without a `prompt`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { session, message } }`.
+}

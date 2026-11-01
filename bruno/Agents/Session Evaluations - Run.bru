@@ -1,0 +1,45 @@
+meta {
+  name: Session Evaluations - Run
+  type: http
+  seq: 60
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/sessions/:session/evaluation
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const evaluation = res.body.data?.evaluation;
+    if (evaluation && evaluation.id) {
+      bru.setVar("sessionEvaluationId", evaluation.id);
+    }
+  }
+}
+
+docs {
+  Manually (re-)evaluates one session against the agent's evaluation
+  settings — for backfilling conversations from before evaluations were
+  enabled, re-grading after criteria changed, or retrying a failed
+  evaluation. Requires *both* the `agent.manage` and `agent.chat`
+  permissions, same reasoning as `Eval Runs - Start`.
+
+  Runs immediately, without the short debounce the automatic path applies
+  after each turn. Answers `422` if evaluations aren't enabled for this
+  agent (configure them first with `Evaluation Settings - Update`).
+
+  Replaces any existing evaluation for this session rather than creating a
+  second one. Takes no body. Stores the evaluation's ID in
+  `sessionEvaluationId`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { evaluation } }`.
+}

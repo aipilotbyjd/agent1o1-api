@@ -1,0 +1,31 @@
+meta {
+  name: Packs - Update
+  type: http
+  seq: 21
+}
+
+patch {
+  url: {{baseUrl}}/super-admin/v1/pricing/packs/:pack
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  pack: {{saPackId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456",
+    "price_cents": 2400
+  }
+}
+
+docs {
+  The key can't change.
+}

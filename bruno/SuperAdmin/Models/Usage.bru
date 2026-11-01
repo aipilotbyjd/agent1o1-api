@@ -1,0 +1,23 @@
+meta {
+  name: Usage
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/models/usage?days=7
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:query {
+  days: 7
+}
+
+docs {
+  Calls, tokens and estimated cost per model over the last N days (at most 31), read from the hourly rollup of workflow node runs and agent chat messages (`refreshed_at` says how fresh). Cost uses the prices in force when each day was last rebuilt; calls on a workspace's own key cost you nothing. Add `workspace_id` to narrow to one workspace.
+}

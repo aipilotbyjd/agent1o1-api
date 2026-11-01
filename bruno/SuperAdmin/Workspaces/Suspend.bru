@@ -1,0 +1,29 @@
+meta {
+  name: Suspend
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/workspaces/:workspace/suspend
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  workspace: {{saWorkspaceId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request, ticket 1234"
+  }
+}
+
+docs {
+  Needs a `reason`.
+}

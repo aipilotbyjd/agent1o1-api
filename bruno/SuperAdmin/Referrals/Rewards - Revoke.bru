@@ -1,0 +1,33 @@
+meta {
+  name: Rewards - Revoke
+  type: http
+  seq: 24
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/referrals/rewards/:reward/revoke
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  reward: {{referralRewardId}}
+}
+
+body:json {
+  {
+    "reason": "Duplicate account"
+  }
+}
+
+docs {
+  Withdraws a reward. A granted one is undone: unspent credits clawed back
+  (never below zero), plan time shortened, invoice credit debited.
+  `reason` is required.
+
+  Response is wrapped: `{ success, statusCode, message, data: { reward } }`.
+}

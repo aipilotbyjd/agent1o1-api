@@ -1,0 +1,27 @@
+meta {
+  name: Stats - Get
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/referrals/stats?days=30
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:query {
+  days: 30
+}
+
+docs {
+  Platform-wide numbers for the last `days` (1–3650, default 30): visits,
+  signups, activation and conversion rates, credits/days/invoice credit
+  issued, clawbacks, rewards awaiting approval or on hold, top referrers.
+
+  Response is wrapped: `{ success, statusCode, message, data }`.
+}

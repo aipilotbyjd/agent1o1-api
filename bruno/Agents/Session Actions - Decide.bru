@@ -1,0 +1,54 @@
+meta {
+  name: Session Actions - Decide
+  type: http
+  seq: 73
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/sessions/:session/actions/decisions
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+}
+
+body:json {
+  {
+    "decisions": [
+      {
+        "action_id": "{{agentActionId}}",
+        "decision": "approve",
+        "note": "Looks right.",
+        "remember": false
+      }
+    ]
+  }
+}
+
+docs {
+  Decides waiting actions from an open chat. Requires the `agent.chat`
+  permission. Every `action_id` must belong to this conversation or one of
+  its subagents, or the whole call answers `404`. An action you may not
+  decide (its tool names other approvers) answers `403`.
+
+  - `decisions` — required, 1 to 100 entries:
+    - `action_id` — required uuid, distinct.
+    - `decision` — `approve`, `edit` (run with `arguments` instead) or
+      `reject`.
+    - `arguments` — object, required when `decision` is `edit`.
+    - `note` — optional, max 2000; told to the agent on a rejection.
+    - `stop` — optional bool; on `reject`, ends the agent's turn there.
+    - `remember` — optional bool; on `approve`/`edit`, lets the tool run
+      without asking from now on (ignored without `agent.manage`).
+
+  Idempotent: an action no longer pending is skipped. When this leaves the
+  conversation's paused turn fully decided it resumes on the queue and
+  streams over Reverb as in `Sessions - Send Message (Reverb)`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { actions, resumed, run_id } }`.
+}

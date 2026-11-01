@@ -1,0 +1,23 @@
+meta {
+  name: Reflection Runs - List
+  type: http
+  seq: 49
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/reflection-runs
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+docs {
+  Lists past reflection runs for the agent, newest first. Requires the
+  `agent.view` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { runs } }`.
+}

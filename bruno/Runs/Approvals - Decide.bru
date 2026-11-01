@@ -1,0 +1,37 @@
+meta {
+  name: Approvals - Decide
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/runs/:run/approvals/:approval/decide
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  run: {{runId}}
+  approval: {{approvalId}}
+}
+
+body:json {
+  {
+    "decision": "approve",
+    "message": "Looks good."
+  }
+}
+
+docs {
+  Approves or rejects a run that is paused on an approval node, resuming
+  (or halting) the run. Requires the `run.trigger` permission.
+
+  - `decision` — `approve` or `reject`.
+  - `message` — optional note, max 1000 characters.
+
+  Set `approvalId` from the pending approval on `Runs - Get`. An
+  approval that doesn't belong to the run answers `404`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { approval } }`.
+}

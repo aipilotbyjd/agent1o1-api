@@ -1,0 +1,49 @@
+meta {
+  name: Runs - Start
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/public/v1/workflows/:workflow/runs
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  workflow: {{workflowId}}
+}
+
+body:json {
+  {
+    "input": {
+      "email": "jane.doe@example.com"
+    }
+  }
+}
+
+script:post-response {
+  if (res.status === 202) {
+    const run = res.body.data?.run;
+    if (run && run.id) {
+      bru.setVar("runId", run.id);
+    }
+  }
+}
+
+docs {
+  Starts a run of the workflow's published version, recorded with an
+  `api` trigger type. Requires the `workflows:write` ability on the key.
+  Stores the run ID as `runId`.
+
+  `input` is an optional object handed to the graph's entry node.
+
+  Answers `202 Accepted` — poll `Runs - Get` for the outcome. Returns
+  `402` when the workspace is out of credits.
+
+  Response is wrapped: `{ success, statusCode, message, data: { run } }`.
+}

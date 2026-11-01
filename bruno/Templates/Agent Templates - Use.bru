@@ -1,0 +1,48 @@
+meta {
+  name: Agent Templates - Use
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agent-templates/:agentTemplate/use
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agentTemplate: {{agentTemplateId}}
+}
+
+body:json {
+  {
+    "name": "Support triage"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const agent = res.body.data?.agent;
+    if (agent && agent.id) {
+      bru.setVar("agentId", agent.id);
+    }
+  }
+}
+
+docs {
+  Materializes a new agent from the template's config and bumps the
+  template's `usage_count`. Requires the `agent.manage` permission (not
+  `template.manage` — you're creating an agent here).
+
+  Works for any visible template, global public ones included. Overwrites
+  the `agentId` collection variable with the new agent.
+
+  - `name` — required, max 255.
+  - `model_catalog_id` — optional model catalog UUID the workspace may use;
+    defaults to the template's model, then the workspace default.
+
+  `402` if the plan's agent limit is reached.
+
+  `201`, wrapped: `{ success, statusCode, message, data: { agent } }`.
+}

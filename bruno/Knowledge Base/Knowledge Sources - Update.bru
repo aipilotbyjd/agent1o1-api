@@ -1,0 +1,39 @@
+meta {
+  name: Knowledge Sources - Update
+  type: http
+  seq: 14
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/knowledge-base/sources/:knowledgeSource
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  knowledgeSource: {{knowledgeSourceId}}
+}
+
+body:json {
+  {
+    "name": "Pricing page (EU)",
+    "config": {
+      "url": "https://example.com/eu/pricing"
+    }
+  }
+}
+
+docs {
+  Renames a source and/or changes what it reads. Shared sources need
+  `agent.manage`; a private one only its owner (anyone else gets 404).
+
+  - `name` — optional, max 120.
+  - `config` — optional; validated with the source type's rules (see
+    `Knowledge Sources - Create`). A changed config drops the source's
+    chunks and queues a fresh sync.
+
+  Type, collection and account can't be changed.
+
+  Response is wrapped: `{ success, statusCode, message, data: { source } }`.
+}

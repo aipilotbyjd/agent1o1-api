@@ -1,0 +1,31 @@
+meta {
+  name: Plans - Create
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/pricing/plans
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+body:json {
+  {
+    "name": "Team",
+    "slug": "team",
+    "credits_monthly": 8000,
+    "price_monthly": 4900,
+    "limits": { "workflows": 50, "agents": -1 },
+    "features": { "git_sync": true },
+    "enabled_intervals": ["monthly"]
+  }
+}
+
+docs {
+  Creates an inactive draft. No Stripe objects exist until the plan is synced (`Plans - Stripe Sync`).
+}

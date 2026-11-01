@@ -1,0 +1,25 @@
+meta {
+  name: Publish Requests - List Workspace
+  type: http
+  seq: 48
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/publish-requests
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  The approvals inbox: every pending publish request in the workspace,
+  oldest first. Requires the `workflow.view` permission.
+
+  Items leave out the graph and carry `workflow: { id, name }`,
+  `requester`, `base_version`, `notes`, `can_review` and `can_withdraw`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { requests } }`.
+}

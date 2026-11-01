@@ -1,0 +1,32 @@
+meta {
+  name: Interface - Get
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/interface
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+docs {
+  The workflow's input contract — the fields a run expects. Requires the
+  `workflow.view` permission.
+
+  This is what makes a workflow usable by someone who didn't build it:
+  without an interface, "run this workflow" means "post the right arbitrary
+  JSON", which only its author knows.
+
+  The contract is either declared through `Interface - Update` or, when no
+  declaration exists, derived from the graph. The response also carries
+  `outputs` (what a run returns), `workflow_id` and `published`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { interface } }`.
+}

@@ -1,0 +1,25 @@
+meta {
+  name: Plans - Reorder
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/pricing/plans/reorder
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+body:json {
+  {
+    "ids": ["{{saPlanId}}"]
+  }
+}
+
+docs {
+  Every plan id, in the wanted order.
+}

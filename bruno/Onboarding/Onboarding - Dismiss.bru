@@ -1,0 +1,18 @@
+meta {
+  name: Onboarding - Dismiss
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/v1/user/dismiss-onboarding
+  body: none
+  auth: inherit
+}
+
+docs {
+  Dismisses onboarding at any step (`onboarding_dismissed_at`). Callable
+  regardless of current progress.
+
+  Response is wrapped with `data: null`.
+}

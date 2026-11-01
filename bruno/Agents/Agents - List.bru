@@ -1,0 +1,29 @@
+meta {
+  name: Agents - List
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  ~tag_id: {{tagId}}
+}
+
+docs {
+  Lists the workspace's agents, newest first, each with its `tags`,
+  `sessions_count` and last session activity. Requires the `agent.view`
+  permission. Trashed agents are excluded (see `Agents - Trash`).
+
+  - `tag_id` — optional uuid; only agents with that tag.
+
+  Response is wrapped: `{ success, statusCode, message, data: { agents } }`.
+}

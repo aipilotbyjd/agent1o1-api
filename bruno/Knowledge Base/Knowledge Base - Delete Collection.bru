@@ -1,0 +1,32 @@
+meta {
+  name: Knowledge Base - Delete Collection
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/knowledge-base/collections/:collection
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  collection: support
+}
+
+params:query {
+  ~private: 1
+}
+
+docs {
+  Deletes every chunk in a collection — the practical way to re-ingest a
+  source document: drop the collection, then ingest the new revision.
+
+  Without `private`, deletes the shared chunks (requires `agent.manage`)
+  and detaches the collection from any agent. With `private=1`, deletes
+  only the caller's own private chunks (requires `agent.view`).
+
+  404s when nothing was deleted. Response is wrapped:
+  `{ ..., data: { deleted_count } }`.
+}

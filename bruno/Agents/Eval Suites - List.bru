@@ -1,0 +1,26 @@
+meta {
+  name: Eval Suites - List
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/eval-suites
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+docs {
+  Lists the agent's eval suites, newest first, each with a `cases_count`.
+  Requires the `agent.view` permission.
+
+  An eval suite is a set of fixed inputs plus the assertions that grade the
+  agent's answers — the regression test for a prompt change.
+
+  Response is wrapped: `{ success, statusCode, message, data: { suites } }`.
+}

@@ -1,0 +1,23 @@
+meta {
+  name: Builder Sessions - Get
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-builder-sessions/:session
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{builderSessionId}}
+}
+
+docs {
+  Fetches a builder session with its full message history. Requires the
+  `workflow.builder.use` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { session } }`.
+}

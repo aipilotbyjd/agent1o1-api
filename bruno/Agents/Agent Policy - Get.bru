@@ -1,0 +1,26 @@
+meta {
+  name: Agent Policy - Get
+  type: http
+  seq: 88
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agent-policy
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  The workspace's guardrails over every agent. Requires the `agent.view`
+  permission, so members can see why an action was blocked.
+
+  `policy` carries `max_autonomy_mode`, `allow_destructive_in_autopilot`,
+  `guardrails`, `approval_ttl_minutes`, `allow_chat_approvals` and
+  `updated_at`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { policy } }`.
+}

@@ -1,0 +1,26 @@
+meta {
+  name: Knowledge Base - Collections
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/knowledge-base/collections
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Lists the collections visible to the caller with their chunk counts —
+  derived from the stored chunks, since a collection is just a string
+  column. A name used both shared and privately appears once for each.
+  Agents' exported-artifact collections are left out. Requires
+  `agent.view`.
+
+  Response is wrapped:
+  `{ ..., data: { collections: [{ collection, private, chunks_count }] } }`.
+}

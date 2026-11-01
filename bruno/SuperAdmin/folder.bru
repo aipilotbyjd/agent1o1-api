@@ -1,0 +1,33 @@
+meta {
+  name: SuperAdmin
+  seq: 22
+}
+
+docs {
+  The Super Admin API (`/api/super-admin/v1`): back-office operations for the
+  people running the platform. It is a separate surface with its own accounts
+  and tokens; a user token never works here and a Super Admin token never
+  works on the user API.
+
+  ## Switching it on
+
+  Everything is behind one master flag. With `SUPER_ADMIN_ENABLED=false` (the
+  default) none of these routes exist.
+
+  ## Getting in
+
+  1. Create the first owner on the server:
+     `php artisan super-admin:create you@example.com --role=owner`
+     (it prints a one-time temporary password).
+  2. `Auth/Login`: you get a setup token. `Auth/Change Password`, then
+     `Auth/2FA - Enable` and `Auth/2FA - Confirm` (save the recovery codes).
+  3. `Auth/Login` again, then `Auth/2FA - Verify`. `superAdminToken` is now set
+     and every request in this folder uses it.
+
+  ## Conventions
+
+  Sensitive writes take `reason` and a fresh `totp_code`; the lighter ones take
+  only `reason`. Every change lands in `Audit Log/List`. List requests store
+  the first row's id (`saAccountId`, `saUserId`, `saWorkspaceId`, ...) so the
+  rest of each folder works.
+}

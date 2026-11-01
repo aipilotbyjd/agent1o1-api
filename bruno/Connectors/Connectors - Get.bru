@@ -1,0 +1,22 @@
+meta {
+  name: Connectors - Get
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/v1/connectors/:connector
+  body: none
+  auth: inherit
+}
+
+params:path {
+  connector: {{connectorId}}
+}
+
+docs {
+  Fetches a single connector from the integration catalog, including its
+  `fields` form schema (manual auth types) or `oauth` config (OAuth2 type).
+
+  Response is wrapped: `{ success, statusCode, message, data: { connector } }`.
+}

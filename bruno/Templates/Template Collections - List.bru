@@ -1,0 +1,35 @@
+meta {
+  name: Template Collections - List
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/template-collections
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  ~category: onboarding
+}
+
+docs {
+  Lists template collections visible to the workspace, newest first.
+  Requires the `template.view` permission.
+
+  A collection bundles workflow templates and agent templates so they can
+  be installed together in one call — see `Template Collections - Use`.
+
+  Each entry carries an `items_count`; the items themselves are only
+  loaded by `Template Collections - Get`.
+
+  - `category` — optional, filters to one category.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { template_collections } }`.
+}

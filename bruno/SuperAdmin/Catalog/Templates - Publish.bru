@@ -1,0 +1,30 @@
+meta {
+  name: Templates - Publish
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/catalog/templates/:type/:template/publish
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  type: workflow
+  template: {{saTemplateId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request, ticket 1234"
+  }
+}
+
+docs {
+  Platform templates only; a workspace's own template cannot be published from here.
+}

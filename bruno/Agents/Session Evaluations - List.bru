@@ -1,0 +1,32 @@
+meta {
+  name: Session Evaluations - List
+  type: http
+  seq: 58
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/session-evaluations
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+params:query {
+  ~grade: needs_attention
+  ~per_page: 20
+}
+
+docs {
+  Lists this agent's session evaluations, newest first, paginated.
+  Requires the `agent.view` permission.
+
+  - `grade` — optional filter: `pass`, `needs_review`, or `needs_attention`.
+  - `per_page` — 1-100, default 20.
+
+  Response is flattened pagination:
+  `{ success, statusCode, message, data: [...evaluations], meta: { current_page, last_page, per_page, total } }`.
+}

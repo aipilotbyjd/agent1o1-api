@@ -1,0 +1,29 @@
+meta {
+  name: Prices - Remove
+  type: http
+  seq: 21
+}
+
+delete {
+  url: {{baseUrl}}/super-admin/v1/models/prices/:price
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  price: {{saPriceId}}
+}
+
+body:json {
+  {
+    "reason": "Routing around a provider outage"
+  }
+}
+
+docs {
+  Removes a price: the model goes back to being billed by the flat tokens-per-credit guess.
+}

@@ -1,0 +1,32 @@
+meta {
+  name: Tags - Update
+  type: http
+  seq: 25
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/tags/:tag
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  tag: {{tagId}}
+}
+
+body:json {
+  {
+    "name": "urgent-v2",
+    "color": "#f97316"
+  }
+}
+
+docs {
+  Updates a tag's `name` or `color`. Both fields are optional. Requires the
+  `workflow.manage` permission.
+
+  404s if `:tag` doesn't belong to `:workspace`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { tag } }`.
+}

@@ -1,0 +1,23 @@
+meta {
+  name: Builder Assist - Explain
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflow-builder-sessions/:session/assist/explain
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{builderSessionId}}
+}
+
+docs {
+  A plain-language summary of the draft plus one line per node. 422 for an
+  empty draft. Charged in credits.
+
+  Response is wrapped: `{ success, statusCode, message, data: { explanation } }`.
+}

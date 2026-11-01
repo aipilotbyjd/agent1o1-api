@@ -1,0 +1,39 @@
+meta {
+  name: Knowledge - List
+  type: http
+  seq: 43
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/knowledge
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+docs {
+  Lists the `Knowledge Base` collections this agent uses and how, plus every
+  shared collection in the workspace so a picker can offer what isn't
+  attached yet. Requires `agent.view`.
+
+  Each attached collection has a `mode`:
+  - `search` — scopes the agent's `search_knowledge`/`read_knowledge_document`
+    tools to it.
+  - `always` — its hand-added documents are also put in the agent's prompt
+    on every turn.
+
+  `synced` collections (fed by a web page or connected app) can only be
+  searched. `documents`/`characters` count hand-added documents only: what
+  `always` would include. `always` reports how much of the
+  `knowledge_base.max_injected_characters` budget is used and which
+  documents don't fit and are left out.
+
+  An agent with nothing attached searches every shared collection in the
+  workspace.
+
+  Response is wrapped: `{ ..., data: { attached, available, always } }`.
+}

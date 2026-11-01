@@ -1,0 +1,28 @@
+meta {
+  name: Knowledge Sources - List
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/knowledge-base/sources
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Lists the web pages and connected apps the knowledge base keeps in
+  sync, newest first: every shared source plus the caller's own private
+  ones. Requires `agent.view`.
+
+  Each source: `id`, `type`, `name`, `collection`, `private`, `config`,
+  `credential_id`, `account`, `status` (`pending`/`syncing`/`ready`/
+  `failed`), `last_error`, `last_synced_at`, `documents_count`,
+  `chunks_count`, `created_at`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { sources } }`.
+}

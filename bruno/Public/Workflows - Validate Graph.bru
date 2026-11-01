@@ -1,0 +1,34 @@
+meta {
+  name: Workflows - Validate Graph
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/public/v1/workflows/:workflow/graph/validate
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  workflow: {{workflowId}}
+}
+
+docs {
+  Checks whether `Workflows - Publish` would succeed, without committing to
+  it. Requires the `workflows:write` ability on the key.
+
+  Takes no body and always validates the saved draft — unlike the Internal
+  API's `Diagnostics - Validate`, there's no option to pass an unsaved
+  graph, since a Public API caller has no canvas.
+
+  Answers `200` with the findings even when the graph is invalid — an
+  invalid graph is the expected result of asking.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { valid, issues } }`.
+}

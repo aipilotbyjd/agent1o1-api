@@ -1,0 +1,53 @@
+meta {
+  name: Subscription - Checkout
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/subscription/checkout
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "plan_id": "{{planId}}",
+    "interval": "monthly"
+  }
+}
+
+docs {
+  Starts a Stripe Checkout session for the given plan and billing interval:
+  `monthly`, `quarterly`, `yearly`, or `lifetime`. Requires the
+  `billing.manage` permission.
+
+  The three recurring intervals open (or swap) a Stripe subscription:
+
+  - No subscription yet: returns `data.checkout_url` to redirect the user
+    to Stripe Checkout (trial days are applied if the plan has any).
+  - Existing subscription: swaps its price in place and returns the updated
+    `data.subscription` instead of a checkout URL.
+
+  `lifetime` is a one-time purchase instead — a `mode=payment` Checkout
+  Session with no subscription behind it. It returns `data.checkout_url`
+  alongside the `data.plan_grant` recorded for it, which stays `pending`
+  until Stripe confirms payment via `checkout.session.completed`. Read the
+  resulting entitlement from `GET /billing`'s `current_plan`, since no
+  subscription exists to read a plan off.
+
+  - Returns `422` if the interval is not on sale for that plan — because
+    the plan is inactive, the interval is switched off (per plan or
+    estate-wide), or no Stripe price is set. The `message` says which.
+    Check `available_intervals` from `Billing/Plans - List` first.
+  - Returns `422` on a lifetime purchase of a plan the workspace already
+    holds an active grant for.
+
+  Always `200`. Response is wrapped: `{ success, statusCode, message, data }`
+  where `data` is `{ checkout_url }` (new subscription), `{ subscription }`
+  (swap) or `{ plan_grant, checkout_url }` (lifetime).
+}

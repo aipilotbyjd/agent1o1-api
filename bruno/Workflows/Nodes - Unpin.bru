@@ -1,0 +1,28 @@
+meta {
+  name: Nodes - Unpin
+  type: http
+  seq: 14
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/nodes/:node/pin
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+  node: {{workflowNodeId}}
+}
+
+docs {
+  Clears a node's pinned output so it executes normally again. Requires the
+  `workflow.manage` permission. Unpinning marks the workflow as having
+  unpublished changes.
+
+  Answers `200` with the node (not `204` — this endpoint returns the
+  updated node rather than an empty body).
+
+  Response is wrapped: `{ success, statusCode, message, data: { node } }`.
+}

@@ -1,0 +1,24 @@
+meta {
+  name: Subagents - Detach
+  type: http
+  seq: 80
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/subagents/:subagent
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  subagent: {{subagentId}}
+}
+
+docs {
+  Stops the agent delegating to that subagent. The subagent itself is not
+  deleted. Requires the `agent.manage` permission.
+
+  Responds `204 No Content` with no envelope.
+}

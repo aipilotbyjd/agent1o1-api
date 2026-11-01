@@ -1,0 +1,27 @@
+meta {
+  name: Template Collections - Get
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/template-collections/:templateCollection
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  templateCollection: {{templateCollectionId}}
+}
+
+docs {
+  Fetches a single collection with its `items` and each item's underlying
+  template eager-loaded. Requires the `template.view` permission.
+
+  Resolves against the same visibility rule as the list — the workspace's
+  own collections plus global public ones. Anything else answers `404`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { template_collection } }`.
+}

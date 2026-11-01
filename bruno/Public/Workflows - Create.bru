@@ -1,0 +1,48 @@
+meta {
+  name: Workflows - Create
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/public/v1/workflows
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+body:json {
+  {
+    "name": "Lead intake",
+    "slug": "lead-intake",
+    "description": "Routes inbound leads to the sales queue."
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const workflow = res.body.data?.workflow;
+    if (workflow && workflow.id) {
+      bru.setVar("workflowId", workflow.id);
+    }
+  }
+}
+
+docs {
+  Creates an empty workflow in the API key's workspace. Requires the
+  `workflows:write` ability on the key. Stores the new ID in `workflowId`.
+
+  The workflow starts with no graph — fill it in with
+  `Workflows - Replace Graph`, then make it runnable with
+  `Workflows - Publish`.
+
+  - `name` — required, max 255.
+  - `slug` — optional `alpha_dash`; derived from `name` plus a random
+    suffix when omitted.
+  - `description` — optional, nullable.
+
+  Response is wrapped: `{ success, statusCode, message, data: { workflow } }`.
+}

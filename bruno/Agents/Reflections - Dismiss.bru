@@ -1,0 +1,26 @@
+meta {
+  name: Reflections - Dismiss
+  type: http
+  seq: 55
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/reflections/:reflection/dismiss
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  reflection: {{reflectionId}}
+}
+
+docs {
+  Marks a pending proposal dismissed without applying it. Requires the
+  `agent.manage` permission.
+
+  Takes no body.
+
+  Response is wrapped: `{ success, statusCode, message, data: { reflection } }`.
+}

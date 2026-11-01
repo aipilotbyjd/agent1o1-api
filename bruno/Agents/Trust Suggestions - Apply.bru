@@ -1,0 +1,34 @@
+meta {
+  name: Trust Suggestions - Apply
+  type: http
+  seq: 84
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/trust-suggestions/apply
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+body:json {
+  {
+    "tool_name": "call_api"
+  }
+}
+
+docs {
+  Sets one of the agent's tools to run without asking. Requires the
+  `agent.manage` permission.
+
+  - `tool_name` — required, max 255; a `tool_name` from
+    `Trust Suggestions - List`. A name that isn't attached to this agent
+    answers `404`.
+
+  Returns the remaining suggestions, wrapped:
+  `{ success, statusCode, message, data: { suggestions } }`.
+}

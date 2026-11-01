@@ -1,0 +1,26 @@
+meta {
+  name: Connectors - List
+  type: http
+  seq: 24
+}
+
+get {
+  url: {{baseUrl}}/public/v1/connectors
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+docs {
+  Lists the active connectors available on the platform, by name. Requires
+  the `connectors:manage` ability on the key.
+
+  This is the catalog, not the workspace's credentials — use it to find the
+  `connector_id` for `Connector Credentials - Create`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { connectors } }`.
+}

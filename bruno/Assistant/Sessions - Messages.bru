@@ -1,0 +1,46 @@
+meta {
+  name: Sessions - Messages
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/sessions/:session/messages?per_page=50&page=1
+  body: none
+  auth: inherit
+}
+
+params:query {
+  per_page: 50
+  page: 1
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  session: {{assistantSessionId}}
+}
+
+script:post-response {
+  if (res.status === 200 && Array.isArray(res.body.data)) {
+    const replies = res.body.data.filter((message) => message.role === "assistant");
+    const last = replies[replies.length - 1];
+    if (last && last.id) {
+      bru.setVar("assistantMessageId", last.id);
+    }
+  }
+}
+
+docs {
+  The session's user and assistant messages, oldest first. Requires the
+  `assistant.use` permission. Stores the latest assistant reply's ID in
+  `assistantMessageId` (for `Sessions - Feedback`).
+
+  `per_page` defaults to 50 (1-200).
+
+  Each message has `id`, `assistant_session_id`, `role`, `content`,
+  `tool_calls`, `attachments`, `files` (exports handed over), `code_runs`,
+  `compacted`, `feedback` and `created_at`.
+
+  Paginated: `{ success, statusCode, message, data: [...], meta: {
+  current_page, last_page, per_page, total } }`.
+}

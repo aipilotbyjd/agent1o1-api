@@ -1,0 +1,23 @@
+meta {
+  name: Plans - Get
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/pricing/plans/:plan
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  plan: {{saPlanId}}
+}
+
+docs {
+  One plan with Stripe ids and price history.
+}

@@ -1,0 +1,52 @@
+meta {
+  name: Memories - Create
+  type: http
+  seq: 40
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/memories
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+body:json {
+  {
+    "key": "favorite_color",
+    "value": "blue",
+    "type": "fact",
+    "user_id": null,
+    "metadata": null
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const memory = res.body.data?.memory;
+    if (memory && memory.id) {
+      bru.setVar("memoryId", memory.id);
+    }
+  }
+}
+
+docs {
+  Saves a memory for the agent. Requires the `agent.manage` permission.
+
+  - `key` — required; re-creating with the same `(agent, user_id, key)`
+    combination is not an upsert here — use Memories - Update instead.
+  - `value` — required.
+  - `type` — optional, defaults to `fact`.
+  - `user_id` — optional; omit or set `null` for a workspace-wide memory
+    visible to every user's conversations, or set a user's ID to scope it
+    to just them.
+  - `metadata` — optional JSON object.
+
+  Stores the created memory's ID as `memoryId`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { memory } }`.
+}

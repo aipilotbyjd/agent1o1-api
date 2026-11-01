@@ -1,0 +1,25 @@
+meta {
+  name: Publish Requests - Withdraw
+  type: http
+  seq: 47
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/publish-requests/:publishRequest/withdraw
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+  publishRequest: {{publishRequestId}}
+}
+
+docs {
+  Withdraws a pending request. Requires the `workflow.view` permission, and
+  only the person who asked for the review may withdraw it (`403`
+  otherwise). Takes no body. `409` when the request is no longer pending.
+
+  Response is wrapped: `{ success, statusCode, message, data: { request } }`.
+}

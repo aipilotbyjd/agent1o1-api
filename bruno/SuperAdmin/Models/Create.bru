@@ -1,0 +1,45 @@
+meta {
+  name: Create
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/models
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+body:json {
+  {
+    "reason": "Routing around a provider outage",
+    "slug": "new-model",
+    "display_name": "New Model",
+    "brand": "acme",
+    "description": "What it is good at.",
+    "strengths": [
+      "Speed"
+    ],
+    "speed": "fast",
+    "cost_tier": 1,
+    "capabilities": {
+      "context_window": 128000,
+      "tool_use": true
+    }
+  }
+}
+
+script:post-response {
+  if (res.status === 200 || res.status === 201) {
+    const v = res.body.data?.id;
+    if (v) bru.setVar("saModelId", v);
+  }
+}
+
+docs {
+  Created switched off, and never internal. It goes live with `Update` (`is_active: true`) once it has an enabled route.
+}

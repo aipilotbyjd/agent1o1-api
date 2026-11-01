@@ -1,0 +1,49 @@
+meta {
+  name: Model Catalog - List
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/model-catalog?workspace_id={{workspaceId}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  workspace_id: {{workspaceId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const entry = res.body.data?.model_catalog?.[0];
+    if (entry && entry.id) {
+      bru.setVar("modelCatalogId", entry.id);
+      bru.setVar("modelCatalogSlug", entry.slug);
+    }
+  }
+}
+
+docs {
+  The public model picker for an agent's `model_catalog_id` or an
+  `ask_ai` workflow node's `model_catalog_slug` config — not
+  workspace-scoped, same as `Nodes - List (Global Catalog)`.
+
+  Only active, non-internal catalog entries are returned, ordered by
+  `sort_order` then name. Which real backend(s) serve an entry is never
+  exposed here — see `Services\Ai\ModelCatalogResolver`.
+
+  `workspace_id` — optional; a workspace the caller belongs to. Each
+  entry is then described from that member's seat: `is_available`,
+  `unavailable_reason`, `connect_providers`, `own_key`, `is_allowed`,
+  `is_default`, `credits_per_message`. Without it (or for a workspace
+  the caller isn't in) the platform view is used.
+
+  `id` is what `Agents - Update`'s `model_catalog_id` and
+  `Model Settings - Update` expect; `slug` is what an `ask_ai` node and
+  `Model Catalog - Try` expect. Stores the first entry's as
+  `modelCatalogId` / `modelCatalogSlug`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { model_catalog: [{ id, slug, display_name, brand, description, strengths, speed, cost_tier, capabilities, retires_at, replacement_slug, ... }] } }`.
+}

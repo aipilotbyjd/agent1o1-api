@@ -1,0 +1,23 @@
+meta {
+  name: Node Runs
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/runs/:run/node-runs
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  run: {{saRunId}}
+}
+
+docs {
+  The steps of the run, without their data.
+}

@@ -1,0 +1,19 @@
+meta {
+  name: Me
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/auth/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+docs {
+  The signed-in account, its role and abilities, and the scope of the token (`full` or `setup`).
+}

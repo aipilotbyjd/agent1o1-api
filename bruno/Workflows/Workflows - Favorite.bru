@@ -1,0 +1,32 @@
+meta {
+  name: Workflows - Favorite
+  type: http
+  seq: 40
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/favorite
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+body:json {
+  {
+    "is_favorite": true
+  }
+}
+
+docs {
+  Stars or unstars a workflow for the calling user only. Requires the
+  `workflow.view` permission.
+
+  `is_favorite` — required boolean. `Workflows - List` reports it back per
+  user as `is_favorite`.
+
+  Response is wrapped: `{ success, statusCode, message, data: null }`.
+}

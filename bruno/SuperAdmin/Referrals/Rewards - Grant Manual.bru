@@ -1,0 +1,33 @@
+meta {
+  name: Rewards - Grant Manual
+  type: http
+  seq: 25
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/referrals/rewards/manual
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+body:json {
+  {
+    "user_id": "{{userId}}",
+    "reward_type": "credits",
+    "credits": 1000,
+    "notes": "Thanks for the feedback"
+  }
+}
+
+docs {
+  A goodwill reward, granted immediately. `user_id` and `reward_type` are
+  required, plus the matching value: `credits`, `plan_id` + `duration_days`,
+  `amount_cents`, or `trial_days`. `workspace_id` (a workspace the user
+  belongs to) defaults to one they own; `notes` is stored on the reward.
+
+  `201`, wrapped: `{ success, statusCode, message, data: { reward } }`.
+}

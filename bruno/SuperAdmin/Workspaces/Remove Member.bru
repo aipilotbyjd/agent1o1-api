@@ -1,0 +1,31 @@
+meta {
+  name: Remove Member
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrl}}/super-admin/v1/workspaces/:workspace/members/:member
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  workspace: {{saWorkspaceId}}
+  member: {{saMemberId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456"
+  }
+}
+
+docs {
+  Needs a reason and a fresh code. The owner cannot be removed.
+}

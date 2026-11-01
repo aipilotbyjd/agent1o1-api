@@ -1,0 +1,35 @@
+meta {
+  name: 2FA - Enable
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUrl}}/v1/auth/2fa/enable
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "current_password": "Password123!"
+  }
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setVar("twoFactorSecret", res.body.data?.secret);
+  }
+}
+
+docs {
+  Generates a new TOTP secret and QR code URL (`otpauth://`) for the
+  authenticated user. Scan `otpauth_url` with an authenticator app, then
+  call `2FA - Confirm` with a generated code to finish enabling.
+  Re-running this replaces any unconfirmed secret.
+
+  `current_password` is required — binding an authenticator decides every
+  future sign-in, so a stolen access token alone must not be enough.
+
+  Response is wrapped: `{ success, statusCode, message, data: { secret, otpauth_url } }`.
+}

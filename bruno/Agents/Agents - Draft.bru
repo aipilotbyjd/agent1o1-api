@@ -1,0 +1,38 @@
+meta {
+  name: Agents - Draft
+  type: http
+  seq: 65
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/draft
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "prompt": "An agent that triages inbound support emails and drafts a first reply.",
+    "model_catalog_id": "{{modelCatalogId}}"
+  }
+}
+
+docs {
+  Drafts a new agent's `name`, `description`, `instructions`, `icon` and
+  `color` from a plain-language description. Requires the `agent.manage`
+  permission. Nothing is saved — feed the draft to `Agents - Create`.
+
+  - `prompt` — required, max 4000.
+  - `model_catalog_id` — required; an ID from `Ai/Model Catalog - List`
+    that the workspace is allowed to use (`Ai/Model Catalog - List`
+    stores one in `modelCatalogId`).
+
+  Calls the model and deducts credits; returns `402` when the workspace
+  is out of credits.
+
+  Response is wrapped: `{ success, statusCode, message, data: { draft } }`.
+}

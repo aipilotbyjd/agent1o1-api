@@ -1,0 +1,25 @@
+meta {
+  name: Page Templates - Delete
+  type: http
+  seq: 27
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/page-templates/:pageTemplate
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  pageTemplate: {{pageTemplateId}}
+}
+
+docs {
+  Deletes a page template owned by the workspace. Requires the
+  `template.manage` permission. A global public template answers `404`.
+
+  Pages already created from the template are unaffected.
+
+  Answers `204 No Content` with no envelope.
+}

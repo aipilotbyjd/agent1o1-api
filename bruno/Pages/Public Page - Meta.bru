@@ -1,0 +1,25 @@
+meta {
+  name: Public Page - Meta
+  type: http
+  seq: 33
+}
+
+get {
+  url: {{baseUrl}}/v1/p/:token/meta
+  body: none
+  auth: none
+}
+
+params:path {
+  token: {{pageToken}}
+}
+
+docs {
+  The page's link-preview card, for the server rendering the page's HTML
+  head (Open Graph tags). No auth. Same availability rules as
+  `Public Page - Get` (404 otherwise); works for password pages without
+  unlocking. Not counted as a view.
+
+  Response is wrapped: `{ success, statusCode, message, data: { meta } }`
+  — `title`, `description`, `image_url`, `theme_color`, `site_name`.
+}

@@ -1,0 +1,38 @@
+meta {
+  name: Briefings - Run Now
+  type: http
+  seq: 54
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/assistant/briefings/:type/run-now
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  type: daily
+}
+
+script:post-response {
+  if (res.status === 202) {
+    const run = res.body.data?.run;
+    if (run && run.id) {
+      bru.setVar("assistantBriefingRunId", run.id);
+    }
+  }
+}
+
+docs {
+  Writes the Daily report now, outside its schedule. Requires the
+  `assistant.use` permission. Throttled to 6 per minute. Stores the run ID
+  in the `assistantBriefingRunId` collection variable.
+
+  Only `type: daily` is accepted — `meeting_prep` answers `422` (meeting
+  briefs are prepared per meeting via `Meetings - Prepare`).
+
+  The report is written on the queue. Responds `202`, wrapped:
+  `{ success, statusCode, message, data: { run } }` — `run` is `null` when
+  no run was started.
+}

@@ -1,0 +1,46 @@
+meta {
+  name: Agent Templates - Save From Agent
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/save-as-template
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+body:json {
+  {
+    "name": "Support triage starter",
+    "description": "Snapshot of the support triage agent.",
+    "category": "support",
+    "visibility": "private"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const template = res.body.data?.agent_template;
+    if (template && template.id) {
+      bru.setVar("agentTemplateId", template.id);
+    }
+  }
+}
+
+docs {
+  Snapshots an existing agent's current configuration into a new
+  workspace-owned template. Requires the `template.manage` permission.
+  Stores the new ID in `agentTemplateId`.
+
+  - `name` — required, max 255. `description`, `category`, `icon`,
+    `color`, `visibility` — optional, same rules as `Create`.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { agent_template } }`.
+}

@@ -1,0 +1,66 @@
+meta {
+  name: Eval Cases - Create
+  type: http
+  seq: 24
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/eval-suites/:suite/cases
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  suite: {{evalSuiteId}}
+}
+
+body:json {
+  {
+    "name": "Refund outside the window",
+    "input": "I bought this eight months ago, can I get a refund?",
+    "assertions": [
+      { "type": "contains", "value": "30 days" },
+      { "type": "not_contains", "value": "certainly" }
+    ],
+    "sort_order": 0
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const evalCase = res.body.data?.case;
+    if (evalCase && evalCase.id) {
+      bru.setVar("evalCaseId", evalCase.id);
+    }
+  }
+}
+
+docs {
+  Adds a case to the suite. Requires the `agent.manage` permission. Stores
+  the new ID in the `evalCaseId` collection variable.
+
+  - `name` — required, max 255.
+  - `input` — required, the message sent to the agent.
+  - `assertions` — required, at least one. Each needs a `type` and a
+    `value` (max 10000 characters).
+  - `sort_order` — optional integer from 0.
+
+  Assertion types:
+
+  - `contains` — the answer includes `value`.
+  - `not_contains` — the answer does not include `value`.
+  - `equals` — the answer matches `value` exactly.
+  - `tool_called` — the answer called the tool named in `value`.
+  - `tool_not_called` — the answer did not call that tool.
+  - `llm_rubric` — `value` is graded by a second model call.
+
+  The first five are deterministic: the same answer always grades the same
+  way. `llm_rubric` costs an extra model call and can disagree with itself
+  between runs, so it's for expectations that genuinely can't be written as
+  a string check ("politely declines", "doesn't invent a refund policy"),
+  not as a default.
+
+  Response is wrapped: `{ success, statusCode, message, data: { case } }`.
+}

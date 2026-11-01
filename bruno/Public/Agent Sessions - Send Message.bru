@@ -1,0 +1,39 @@
+meta {
+  name: Agent Sessions - Send Message
+  type: http
+  seq: 23
+}
+
+post {
+  url: {{baseUrl}}/public/v1/agents/:agent/sessions/:session/messages
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+params:path {
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+}
+
+body:json {
+  {
+    "message": "A customer says their invoice is wrong. What should I do?"
+  }
+}
+
+docs {
+  Sends a user message to the agent and returns its reply. Requires the
+  `agents:invoke` ability on the key.
+
+  Synchronous — the response waits on the model (and any tools the agent
+  calls). Returns `402` when the workspace is out of credits.
+
+  A reply with `awaiting_approval: true` is on hold — decide its actions
+  with `Agent Session Actions - List` / `Agent Session Actions - Decide`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { message } }`.
+}

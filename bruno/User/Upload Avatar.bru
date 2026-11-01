@@ -1,0 +1,22 @@
+meta {
+  name: Upload Avatar
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/v1/user/avatar
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  avatar: @file()
+}
+
+docs {
+  Uploads the authenticated user's avatar (`avatar`: required image, max
+  2MB). Replaces and deletes any existing avatar file.
+
+  Response is wrapped: `{ success, statusCode, message, data: { user } }`.
+}

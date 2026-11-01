@@ -1,0 +1,36 @@
+meta {
+  name: Publish Requests - Approve
+  type: http
+  seq: 45
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/publish-requests/:publishRequest/approve
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+  publishRequest: {{publishRequestId}}
+}
+
+body:json {
+  {
+    "notes": "Looks good."
+  }
+}
+
+docs {
+  Approves a pending request and publishes the graph it was reviewed with
+  as a new version. Requires the `workflow.approve-publish` permission.
+
+  `notes` — optional, max 1000 characters.
+
+  `403` when reviewing your own request; `409` when the request is no
+  longer pending; `422` if the graph no longer validates.
+
+  Response is wrapped:
+  `{ success, statusCode, message, data: { request, workflow } }`.
+}

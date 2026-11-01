@@ -1,0 +1,26 @@
+meta {
+  name: Endpoints - List
+  type: http
+  seq: 22
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/models/endpoints
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+script:post-response {
+  if (res.status === 200 || res.status === 201) {
+    const v = res.body.data?.[0]?.id;
+    if (v) bru.setVar("saEndpointId", v);
+  }
+}
+
+docs {
+  The operator's own OpenAI-compatible endpoints. Shows whether a key is set and its last four characters (never the key), the request limits, and how many calls those limits turned away today (`rejected_today`).
+}

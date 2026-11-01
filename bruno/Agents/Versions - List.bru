@@ -1,0 +1,27 @@
+meta {
+  name: Versions - List
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/versions
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+}
+
+docs {
+  The agent's behavioral history, highest version number first. Requires
+  the `agent.view` permission.
+
+  Versions are written automatically when the agent is edited — there's no
+  endpoint to mint one by hand, because a version that didn't correspond to
+  a real edit would make the history lie.
+
+  Response is wrapped: `{ success, statusCode, message, data: { versions } }`.
+}

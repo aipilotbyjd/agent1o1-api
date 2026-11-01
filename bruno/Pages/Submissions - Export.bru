@@ -1,0 +1,35 @@
+meta {
+  name: Submissions - Export
+  type: http
+  seq: 29
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/pages/:page/submissions/export
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  page: {{pageId}}
+}
+
+params:query {
+  ~status: completed
+  ~variant: a
+  ~include_tests: 0
+  ~from: 2026-01-01
+  ~to: 2026-12-31
+}
+
+docs {
+  Downloads every matching submission as CSV. Requires the `page.manage`
+  permission. Same filters as `Submissions - List` (no pagination).
+
+  Columns: submitted at, status, person, version, test run, run time, one
+  per workflow input field, one per output the page shows.
+
+  Not JSON and not wrapped: a streamed `text/csv` download named
+  `<page-slug>-submissions-<date>.csv`.
+}

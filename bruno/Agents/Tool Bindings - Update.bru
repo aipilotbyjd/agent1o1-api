@@ -1,0 +1,54 @@
+meta {
+  name: Tool Bindings - Update
+  type: http
+  seq: 81
+}
+
+patch {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/tool-bindings/:toolBinding
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  toolBinding: {{toolBindingId}}
+}
+
+body:json {
+  {
+    "exposed_fields": ["url"],
+    "approval_policy": {
+      "mode": "ask",
+      "conditions": [
+        { "field": "method", "op": "eq", "value": "DELETE", "then": "deny", "label": "No deletes" }
+      ],
+      "rate_limit": { "max": 20, "per": "hour", "then": "ask" },
+      "approvers": ["role:admin"]
+    }
+  }
+}
+
+docs {
+  Changes a tool binding's pinned config, exposed fields or approval rule.
+  Requires the `agent.manage` permission. A binding belonging to a
+  different agent answers `404`.
+
+  All fields are `sometimes` — send only what changes.
+
+  - `config` / `exposed_fields` — as in `Tool Bindings - Create`.
+  - `approval_policy` — nullable object:
+    - `mode` — `allow`, `ask`, `deny` or `inherit`.
+    - `conditions[]` — up to 20, each `field`, `op`, `value`, `then`
+      (`allow`/`ask`/`deny`), optional `label`. `op` is one of `eq`, `neq`,
+      `in`, `not_in`, `contains`, `not_contains`, `gt`, `gte`, `lt`, `lte`,
+      `domain_in`, `domain_not_in`, `matches`, `count_gt`, `exists`,
+      `missing`.
+    - `rate_limit` — `max` (required, 1-100000), `per`
+      (`minute`/`hour`/`day`), `then` (`ask`/`deny`).
+    - `approvers[]` — up to 50, `user:<uuid>` or
+      `role:owner|admin|editor|member`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { tool_binding } }`.
+}

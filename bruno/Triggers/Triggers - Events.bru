@@ -1,0 +1,29 @@
+meta {
+  name: Triggers - Events
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/triggers/:trigger/events?per_page=25
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  trigger: {{triggerId}}
+}
+
+params:query {
+  per_page: 25
+}
+
+docs {
+  Lists the trigger's received events, newest first. Requires the
+  `trigger.view` permission.
+
+  Paginated — `per_page` defaults to 25.
+
+  Response is paginated: `{ success, statusCode, message, data, meta, links }`.
+}

@@ -1,0 +1,18 @@
+meta {
+  name: Referrals - Program Terms
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/v1/referrals/program
+  body: none
+  auth: inherit
+}
+
+docs {
+  The program the user's code earns under and its live terms, each as a
+  ready-to-show sentence (`terms[].description`).
+
+  Response is wrapped: `{ success, statusCode, message, data }`.
+}

@@ -1,0 +1,40 @@
+meta {
+  name: Knowledge Base - List Chunks
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/knowledge-base?per_page=25
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  per_page: 25
+  ~collection: support
+  ~source: handbook.md
+  ~private: 0
+}
+
+docs {
+  Lists stored chunks visible to the caller (shared ones plus their own
+  private ones), ordered by collection, source, then chunk index. Agents'
+  exported-artifact collections are left out. Requires `agent.view`.
+
+  - `per_page` — optional, 1-100, default 25.
+  - `collection`, `source` — optional exact filters.
+  - `private` — optional; `1` for only private chunks, `0` for only
+    shared ones, omit for both.
+
+  The embedding vector itself is never returned — `dimensions` reports its
+  size instead (a mismatch means it was embedded with a different model).
+  Each chunk: `id`, `collection`, `private`, `knowledge_source_id`,
+  `source`, `chunk_text`, `dimensions`, `metadata`, timestamps.
+
+  Paginated: `{ success, statusCode, message, data: [...], meta }`.
+}

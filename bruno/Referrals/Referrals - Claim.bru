@@ -1,0 +1,32 @@
+meta {
+  name: Referrals - Claim
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/v1/referrals/claim
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "code": "{{referralCode}}",
+    "visitor_id": "{{referralVisitorId}}"
+  }
+}
+
+docs {
+  Links a fresh social signup to a referral code — the OAuth round trip
+  can't carry `?ref=`. Only a user with no referral yet, within the
+  program's claim window (24h by default). 409 if already linked, 422 if too
+  late, 404 for a bad code. `visitor_id` (UUID from `Record Visit`) is
+  optional. Rate limited to 5/min per user.
+
+  Email signups don't need this: send `referral_code` and
+  `referral_visitor_id` with `Auth/Register` instead.
+
+  `201`, wrapped: `{ success, statusCode, message, data: { status, accepted } }`
+  — `accepted: false` means the signup was recorded but is ineligible.
+}

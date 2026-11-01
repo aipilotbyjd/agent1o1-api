@@ -1,0 +1,46 @@
+meta {
+  name: Nodes - Pin
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/nodes/:node/pin
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+  node: {{workflowNodeId}}
+}
+
+body:json {
+  {
+    "data": {
+      "status": "ok",
+      "id": 42
+    }
+  }
+}
+
+docs {
+  Pins fixed output onto a node so downstream nodes can be worked on
+  without re-running it. Requires the `workflow.manage` permission.
+
+  Provide exactly one of:
+
+  - `data` — the output array to pin, or
+  - `node_run_id` — an earlier node run of this workflow, whose output is
+    copied in.
+
+  Sending both, or neither, answers `422`. A `node_run_id` from another
+  workflow answers `404`.
+
+  Pinning marks the workflow as having unpublished changes.
+
+  `node` is the workflow node's ID (not the node catalog's `nodeId`).
+
+  Response is wrapped: `{ success, statusCode, message, data: { node } }`.
+}

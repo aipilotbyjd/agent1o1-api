@@ -1,0 +1,43 @@
+meta {
+  name: Audit Logs - List
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/audit-logs?per_page=25
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  per_page: 25
+  ~action: member.role_changed
+  ~actor_id: {{userId}}
+  ~from: 2026-01-01
+  ~to: 2026-12-31
+  ~page: 1
+}
+
+docs {
+  The workspace's audit trail — membership, keys, secrets, connector and
+  AI credentials, policies, pages, billing — newest first. Requires
+  `audit-log.view` (owners and admins).
+
+  - `action` — optional; one `AuditAction` value, e.g. `member.added`,
+    `api_key.created`, `secret.updated`,
+    `connector_credential.reassigned`, `ai_key_policy.updated`,
+    `page.published`, `billing.checkout_started`.
+  - `actor_id` — optional user UUID.
+  - `from` / `to` — optional dates; `to` must be on or after `from`.
+  - `per_page` — optional, 1-100, default 25.
+
+  Each entry: `id`, `action`, `actor_id`, `actor`, `subject_type`,
+  `subject_id`, `metadata`, `ip_address`, `user_agent`, `created_at`.
+
+  Paginated: `{ success, statusCode, message, data: [...], meta }`.
+}

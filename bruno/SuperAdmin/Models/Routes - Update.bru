@@ -1,0 +1,32 @@
+meta {
+  name: Routes - Update
+  type: http
+  seq: 11
+}
+
+patch {
+  url: {{baseUrl}}/super-admin/v1/models/:model/routes/:route
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  model: {{saModelId}}
+  route: {{saRouteId}}
+}
+
+body:json {
+  {
+    "reason": "Routing around a provider outage",
+    "is_enabled": true,
+    "priority": 0
+  }
+}
+
+docs {
+  Switches a route on or off, or changes its priority. The only enabled route of an active model cannot be switched off.
+}

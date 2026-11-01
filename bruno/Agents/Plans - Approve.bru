@@ -1,0 +1,42 @@
+meta {
+  name: Plans - Approve
+  type: http
+  seq: 75
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/sessions/:session/plans/:plan/approve
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  session: {{agentSessionId}}
+  plan: {{agentPlanId}}
+}
+
+body:json {
+  {
+    "skip_step_ids": [],
+    "note": "Go ahead, but skip anything that emails customers.",
+    "execute": true
+  }
+}
+
+docs {
+  Approves a proposed plan, optionally trimming it first. Requires the
+  `agent.chat` permission, plus `agent.approve` when the conversation
+  isn't yours.
+
+  - `skip_step_ids` — optional; step `id`s to mark skipped.
+  - `note` — optional, max 2000.
+  - `execute` — optional bool; carry the plan out now on the queue
+    instead of waiting for the next message.
+
+  A plan with no steps left is marked `completed`. A plan that isn't
+  `proposed` answers `422`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { plan } }`.
+}

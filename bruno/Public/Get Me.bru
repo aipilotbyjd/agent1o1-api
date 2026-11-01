@@ -1,0 +1,22 @@
+meta {
+  name: Get Me
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/public/v1/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+docs {
+  Placeholder Public V1 route used to confirm the API-key guard resolves
+  correctly. Send the plain-text workspace API key (from
+  `workspaces/api-keys/Create Api Key`) as a bearer token. Rate limited
+  by the `public-api` throttle.
+}

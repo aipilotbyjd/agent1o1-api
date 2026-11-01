@@ -1,0 +1,24 @@
+meta {
+  name: Eval Cases - Delete
+  type: http
+  seq: 26
+}
+
+delete {
+  url: {{baseUrl}}/v1/workspaces/:workspace/agents/:agent/eval-suites/:suite/cases/:case
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  agent: {{agentId}}
+  suite: {{evalSuiteId}}
+  case: {{evalCaseId}}
+}
+
+docs {
+  Removes a case from the suite. Requires the `agent.manage` permission.
+
+  Answers `204 No Content` with no envelope.
+}

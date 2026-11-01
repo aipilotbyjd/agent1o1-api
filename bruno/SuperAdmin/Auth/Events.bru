@@ -1,0 +1,19 @@
+meta {
+  name: Events
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/auth/events
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+docs {
+  Your own sign-in history (latest 100).
+}

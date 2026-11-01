@@ -1,0 +1,22 @@
+meta {
+  name: Nodes - Custom
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/nodes/custom
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Lists just this workspace's active custom nodes, ordered by name — no
+  built-in registry nodes merged in. Requires the `node.view` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { nodes } }`.
+}

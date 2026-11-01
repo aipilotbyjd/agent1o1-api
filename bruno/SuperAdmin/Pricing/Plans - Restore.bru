@@ -1,0 +1,30 @@
+meta {
+  name: Plans - Restore
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/super-admin/v1/pricing/plans/:plan/restore
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  plan: {{saPlanId}}
+}
+
+body:json {
+  {
+    "reason": "Verified request from the account owner",
+    "totp_code": "123456"
+  }
+}
+
+docs {
+  Brings an archived plan back as an inactive plan.
+}

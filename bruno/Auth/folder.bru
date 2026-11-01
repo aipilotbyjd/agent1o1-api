@@ -1,0 +1,14 @@
+meta {
+  name: Auth
+  seq: 1
+}
+
+docs {
+  Sign-up, sign-in (password, two-factor, Google/GitHub), sessions and
+  password management, plus the public `App Config` and the Reverb
+  `Broadcasting Auth` endpoint.
+
+  Sign-in requests store `accessToken`. The refresh token is never in a
+  response body: it travels as an httpOnly `refresh_token` cookie that
+  `Refresh Token` reads, so keep Bruno's cookie jar enabled.
+}
