@@ -10,8 +10,20 @@
     "license": "MIT",
     "require": {
         "php": "^8.5",
+        "dompdf/dompdf": "^3.1",
+        "laravel/ai": "^1.3",
+        "laravel/cashier": "^16.9",
         "laravel/framework": "^13.17",
-        "laravel/tinker": "^3.0"
+        "laravel/horizon": "^5.50",
+        "laravel/passport": "^13.10",
+        "laravel/pulse": "^1.8",
+        "laravel/reverb": "^1.12",
+        "laravel/socialite": "^5.31",
+        "laravel/tinker": "^3.0",
+        "phpoffice/phpspreadsheet": "^5.10",
+        "phpoffice/phpword": "^1.4",
+        "pragmarx/google2fa": "^9.1",
+        "predis/predis": "^3.7"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

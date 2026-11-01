@@ -16,8 +16,14 @@
     "skills": [
         "infer-conventions",
         "deploying-to-cloud",
+        "ai-sdk-development",
+        "cashier-stripe-development",
         "laravel-best-practices",
         "testing-best-practices",
+        "configuring-horizon",
+        "passport-development",
+        "pulse-development",
+        "socialite-development",
         "tailwindcss-development"
     ]
 }
