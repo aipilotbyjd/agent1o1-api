@@ -25,7 +25,6 @@
         "passport-development",
         "pulse-development",
         "socialite-development",
-        "tailwindcss-development",
-        "pest-testing"
+        "tailwindcss-development"
     ]
 }
