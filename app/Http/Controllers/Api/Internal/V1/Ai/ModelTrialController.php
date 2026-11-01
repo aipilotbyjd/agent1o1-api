@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Internal\V1\Ai;
 use App\Actions\Billing\DeductCreditsAction;
 use App\Ai\Agents\AdHocPromptAgent;
 use App\Ai\ResponseUsage;
+use App\Ai\Usage\TokenUsage;
 use App\Enums\Billing\CreditTransactionType;
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Controller;
@@ -93,8 +94,7 @@ class ModelTrialController extends Controller
         return ApiResponse::success(['trial' => [
             'text' => $response->text,
             'duration_ms' => (int) $startedAt->diffInMilliseconds(now()),
-            'prompt_tokens' => (int) ($usage['prompt_tokens'] ?? 0),
-            'completion_tokens' => (int) ($usage['completion_tokens'] ?? 0),
+            ...TokenUsage::fromArray($usage)->toArrayWithLegacyKeys(),
             'credits' => $credits,
             'served_by_own_key' => ByokProviderRegistrar::isByok($usage['provider'] ?? null),
         ]]);

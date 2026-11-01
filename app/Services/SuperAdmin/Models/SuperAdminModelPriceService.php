@@ -20,9 +20,9 @@ class SuperAdminModelPriceService
      * Creates the price, or replaces it. Setting a price confirms it, so
      * `checked_at` becomes now.
      */
-    public function set(SuperAdmin $actor, string $provider, string $modelId, float $input, float $output, ModelPriceSource $source, ?string $notes, string $reason): ModelPrice
+    public function set(SuperAdmin $actor, string $provider, string $modelId, float $input, float $output, ?float $cacheRead, ?float $cacheWrite, ModelPriceSource $source, ?string $notes, string $reason): ModelPrice
     {
-        return DB::transaction(function () use ($actor, $provider, $modelId, $input, $output, $source, $notes, $reason): ModelPrice {
+        return DB::transaction(function () use ($actor, $provider, $modelId, $input, $output, $cacheRead, $cacheWrite, $source, $notes, $reason): ModelPrice {
             $price = ModelPrice::query()->where('provider', $provider)->where('model_id', $modelId)->first() ?? new ModelPrice([
                 'provider' => $provider,
                 'model_id' => $modelId,
@@ -33,6 +33,8 @@ class SuperAdminModelPriceService
             $price->fill([
                 'input_per_mtok' => $input,
                 'output_per_mtok' => $output,
+                'cache_read_per_mtok' => $cacheRead,
+                'cache_write_per_mtok' => $cacheWrite,
                 'source' => $source,
                 'notes' => $notes,
                 'checked_at' => now(),
@@ -63,6 +65,8 @@ class SuperAdminModelPriceService
             'model_id' => $price->model_id,
             'input_per_mtok' => $price->input_per_mtok,
             'output_per_mtok' => $price->output_per_mtok,
+            'cache_read_per_mtok' => $price->cache_read_per_mtok,
+            'cache_write_per_mtok' => $price->cache_write_per_mtok,
             'source' => $price->source->value,
         ];
     }

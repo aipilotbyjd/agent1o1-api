@@ -5,6 +5,7 @@ namespace App\Services\Agents;
 use App\Ai\Agents\EvalJudgeAgent;
 use App\Ai\Tools\SubmitVerdictTool;
 use App\Ai\ToolSubmission;
+use App\Ai\Usage\TokenUsage;
 use App\Enums\Agents\EvalAssertionType;
 use App\Models\Agents\Agent;
 use App\Services\Ai\ByokProviderRegistrar;
@@ -93,7 +94,7 @@ class AssertionGrader
 
         return [
             (ToolSubmission::arguments($response, SubmitVerdictTool::NAME)['passed'] ?? false) === true,
-            $response->usage->toArray(),
+            TokenUsage::fromSdk($response->usage)->toArray(),
         ];
     }
 

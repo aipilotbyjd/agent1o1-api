@@ -228,7 +228,7 @@ class SuperAdminModelService
      * Sends the route one tiny real prompt and keeps the outcome on it. Costs
      * a fraction of a cent; always on the platform's own key.
      *
-     * @return array{ok: bool, latency_ms: ?int, prompt_tokens: ?int, completion_tokens: ?int, estimated_cost_usd: ?float, message: string}
+     * @return array{ok: bool, latency_ms: ?int, input_tokens: ?int, output_tokens: ?int, prompt_tokens: ?int, completion_tokens: ?int, estimated_cost_usd: ?float, message: string}
      */
     public function testRoute(SuperAdmin $actor, ModelCatalog $model, ModelRoute $route): array
     {

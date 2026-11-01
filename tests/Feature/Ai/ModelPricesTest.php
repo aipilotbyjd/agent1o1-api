@@ -28,8 +28,8 @@ it('lets the table override the older config price, and falls back to config wit
 
     $prices = app(ModelPrices::class);
 
-    expect($prices->for('openai', 'gpt-x'))->toBe(['input' => 10.0, 'output' => 20.0])
-        ->and($prices->for('openai', 'gpt-y'))->toBe(['input' => 3.0, 'output' => 4.0])
+    expect($prices->for('openai', 'gpt-x'))->toBe(['input' => 10.0, 'output' => 20.0, 'cache_read' => null, 'cache_write' => null])
+        ->and($prices->for('openai', 'gpt-y'))->toBe(['input' => 3.0, 'output' => 4.0, 'cache_read' => null, 'cache_write' => null])
         ->and($prices->isStored('openai', 'gpt-x'))->toBeTrue()
         ->and($prices->isStored('openai', 'gpt-y'))->toBeFalse();
 });
@@ -37,7 +37,7 @@ it('lets the table override the older config price, and falls back to config wit
 it('reads config prices for model ids that contain dots', function () {
     config(['billing.model_prices' => ['openrouter:anthropic/claude-haiku-4.5' => ['input' => 1, 'output' => 5]]]);
 
-    expect(app(ModelPrices::class)->for('openrouter', 'anthropic/claude-haiku-4.5'))->toBe(['input' => 1.0, 'output' => 5.0]);
+    expect(app(ModelPrices::class)->for('openrouter', 'anthropic/claude-haiku-4.5'))->toBe(['input' => 1.0, 'output' => 5.0, 'cache_read' => null, 'cache_write' => null]);
 });
 
 it('has no price for a model nobody priced, and bills it by the flat ratio', function () {
