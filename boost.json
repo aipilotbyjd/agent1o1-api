@@ -3,6 +3,7 @@
         "claude_code",
         "amp",
         "cursor",
+        "codex",
         "factory",
         "kiro",
         "opencode",
@@ -24,6 +25,7 @@
         "passport-development",
         "pulse-development",
         "socialite-development",
-        "tailwindcss-development"
+        "tailwindcss-development",
+        "pest-testing"
     ]
 }
