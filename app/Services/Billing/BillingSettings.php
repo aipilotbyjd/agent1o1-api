@@ -36,6 +36,7 @@ class BillingSettings
         'guardrails.kill_switch',
         'guardrails.platform_daily_budget_usd',
         'guardrails.platform_hard_stop_ratio',
+        'price_enforcement',
     ];
 
     /**
