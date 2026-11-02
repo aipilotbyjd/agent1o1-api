@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\AdHocPromptAgent;
+use App\Ai\Agents\Workspace\AdHocPromptAgent;
 use App\Enums\SuperAdmin\SuperAdminRole;
 use App\Models\Ai\ModelCatalog;
 use App\Models\Ai\ModelRoute;

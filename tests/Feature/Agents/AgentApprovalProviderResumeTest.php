@@ -76,7 +76,7 @@ it('resumes a paused turn through the real provider with the approved action\'s 
     $paused = app(AgentRunner::class)->run($session, 'Tell the team the deploy is done.');
 
     expect(Run::query()->where('runnable_id', $session->id)->sole()->status)->toBe(RunStatus::AwaitingApproval);
-    expect($paused->paused_state['provider_content_blocks'])->not->toBeEmpty();
+    expect($paused->paused_state['replay_blocks'])->not->toBeEmpty();
 
     app(ResolveAgentActionsAction::class)->execute($owner, [['action_id' => AgentAction::query()->sole()->id, 'decision' => 'approve']]);
 

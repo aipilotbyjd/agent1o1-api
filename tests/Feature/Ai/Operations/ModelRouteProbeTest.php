@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\AdHocPromptAgent;
+use App\Ai\Agents\Workspace\AdHocPromptAgent;
 use App\Models\Ai\AiEndpoint;
 use App\Models\Ai\ModelPrice;
 use App\Services\Ai\Operations\ModelRouteProbe;

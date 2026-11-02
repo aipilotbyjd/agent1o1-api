@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\WorkflowBuilderAgent;
+use App\Ai\Agents\Builder\WorkflowBuilderAgent;
 use App\Ai\Tools\WorkflowBuilder\AddNodeTool;
 use App\Ai\Tools\WorkflowBuilder\ConnectNodesTool;
 use App\Ai\Tools\WorkflowBuilder\DisconnectNodesTool;

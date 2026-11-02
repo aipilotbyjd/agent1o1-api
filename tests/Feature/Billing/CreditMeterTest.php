@@ -3,6 +3,8 @@
 use App\Models\Agents\AgentMessage;
 use App\Models\Runs\NodeRun;
 use App\Services\Billing\CreditMeter;
+use Laravel\Pulse\Entry;
+use Laravel\Pulse\Facades\Pulse;
 
 it('costs 1 base credit for a node type with no configured fixed cost and no usage', function () {
     $nodeRun = NodeRun::factory()->make(['type' => 'transform']);
@@ -133,4 +135,65 @@ it('still bills tool calls and compute on a chat turn served by the workspace\'s
 
     // 0 token credits + 2 tool calls + ceil(0.5 min × 5) = 3 compute credits
     expect(app(CreditMeter::class)->costForAgentMessage($message))->toBe(5);
+});
+
+it('bills cache reads and writes at the model\'s cache prices and reasoning as output', function () {
+    config([
+        'billing.model_prices.anthropic:claude-x' => ['input' => 3.00, 'output' => 15.00, 'cache_read' => 0.30, 'cache_write' => 3.75],
+        'billing.credit_value_usd' => 0.005,
+    ]);
+
+    $usage = [
+        'input_tokens' => 3_000_000,
+        'cache_read_input_tokens' => 1_000_000,
+        'cache_write_input_tokens' => 1_000_000,
+        'output_tokens' => 1_000_000,
+        'reasoning_tokens' => 400_000,
+        'provider' => 'anthropic',
+        'model' => 'claude-x',
+    ];
+
+    // 1M uncached at $3 + 1M read at $0.30 + 1M written at $3.75 + 1M out at $15 = $22.05.
+    expect(app(CreditMeter::class)->dollarCost($usage))->toEqualWithDelta(22.05, 0.000001);
+});
+
+it('bills cached tokens at the input price scaled by the fallback when the model has no cache price', function () {
+    config([
+        'billing.model_prices.openai:gpt-4o' => ['input' => 2.00, 'output' => 8.00],
+        'billing.cache_price_fallback' => ['read' => 0.5, 'write' => 1.0],
+    ]);
+
+    $usage = ['input_tokens' => 2_000_000, 'cache_read_input_tokens' => 1_000_000, 'output_tokens' => 0, 'provider' => 'openai', 'model' => 'gpt-4o'];
+
+    // 1M uncached at $2 + 1M read at $2 x 0.5 = $3.
+    expect(app(CreditMeter::class)->dollarCost($usage))->toEqualWithDelta(3.0, 0.000001);
+});
+
+it('records how many more credits a call costs than before the upgrade', function () {
+    config([
+        'billing.model_prices.openai:gpt-4o' => ['input' => 2.00, 'output' => 8.00],
+        'billing.credit_value_usd' => 0.005,
+        'billing.shadow_billing' => true,
+    ]);
+    $entry = Mockery::mock(Entry::class);
+    $entry->shouldReceive('sum')->once()->andReturnSelf();
+    $entry->shouldReceive('count')->once()->andReturnSelf();
+    Pulse::shouldReceive('record')->once()->with('ai_billing_shadow_delta', 'openai:gpt-4o', 160)->andReturn($entry);
+
+    $nodeRun = NodeRun::factory()->make([
+        'type' => 'ask_ai',
+        'usage' => ['input_tokens' => 0, 'output_tokens' => 200_000, 'reasoning_tokens' => 100_000, 'provider' => 'openai', 'model' => 'gpt-4o'],
+    ]);
+
+    // Now: 0.2M out at $8 = $1.60 = 320 credits. Before: only the 0.1M visible out = 160 credits.
+    expect(app(CreditMeter::class)->costForNodeRun($nodeRun))->toBe(1 + 320);
+});
+
+it('records nothing when a call costs the same as before the upgrade', function () {
+    config(['billing.shadow_billing' => true]);
+    Pulse::shouldReceive('record')->never();
+
+    $nodeRun = NodeRun::factory()->make(['type' => 'ask_ai', 'usage' => ['input_tokens' => 1500, 'output_tokens' => 600]]);
+
+    expect(app(CreditMeter::class)->costForNodeRun($nodeRun))->toBe(1 + 3);
 });

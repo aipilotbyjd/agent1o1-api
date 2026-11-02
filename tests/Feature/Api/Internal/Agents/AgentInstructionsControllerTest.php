@@ -1,14 +1,12 @@
 <?php
 
-use App\Ai\Agents\AgentInstructionsAgent;
-use App\Ai\Tools\SubmitAgentInstructionsTool;
+use App\Ai\Agents\Drafting\AgentInstructionsAgent;
 use App\Enums\Billing\CreditTransactionType;
 use App\Models\Agents\Agent;
 use App\Models\Billing\CreditTransaction;
 use App\Models\User;
 use App\Services\Workspaces\WorkspaceService;
 use Laravel\Ai\Prompts\AgentPrompt;
-use Laravel\Ai\Responses\Data\ToolCall;
 use Laravel\Passport\Passport;
 
 /**
@@ -33,9 +31,9 @@ function improveInstructionsEndpoint(): array
 it('rewrites instructions from the agent\'s purpose, tools and the requested change without saving them', function () {
     [$url, $agent] = improveInstructionsEndpoint();
 
-    AgentInstructionsAgent::fake([new ToolCall('call_1', SubmitAgentInstructionsTool::NAME, [
+    AgentInstructionsAgent::fake([[
         'instructions' => "  You are a competitor research analyst.\nAlways cite sources.  ",
-    ])]);
+    ]]);
 
     $this->postJson($url, ['request' => 'Focus on pricing'])
         ->assertOk()
@@ -55,7 +53,7 @@ it('works for an agent that has no instructions yet', function () {
     [$url, $agent] = improveInstructionsEndpoint();
     $agent->update(['instructions' => null]);
 
-    AgentInstructionsAgent::fake([new ToolCall('call_1', SubmitAgentInstructionsTool::NAME, ['instructions' => 'You are a researcher.'])]);
+    AgentInstructionsAgent::fake([['instructions' => 'You are a researcher.']]);
 
     $this->postJson($url)->assertOk()->assertJsonPath('data.instructions', 'You are a researcher.');
 
@@ -65,7 +63,7 @@ it('works for an agent that has no instructions yet', function () {
 it('rewrites the unsaved instructions it is sent instead of the saved ones', function () {
     [$url] = improveInstructionsEndpoint();
 
-    AgentInstructionsAgent::fake([new ToolCall('call_1', SubmitAgentInstructionsTool::NAME, ['instructions' => 'X'])]);
+    AgentInstructionsAgent::fake([['instructions' => 'X']]);
 
     $this->postJson($url, ['instructions' => 'Reply in French.'])->assertOk();
 

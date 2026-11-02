@@ -128,7 +128,7 @@ class KnowledgeBaseController extends Controller
     }
 
     /**
-     * Runs the exact retrieval `Ai\Tools\ReadKnowledgeDocumentTool` would,
+     * Runs the exact retrieval `Ai\Tools\Knowledge\ReadKnowledgeDocumentTool` would,
      * so a workspace can preview a document's full text without starting a
      * conversation: the "read document" counterpart to `search()`.
      */

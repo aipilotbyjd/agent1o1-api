@@ -2,13 +2,13 @@
 
 namespace App\Services\Agents;
 
-use App\Ai\Tools\CreateSkillTool;
-use App\Ai\Tools\ForgetTool;
-use App\Ai\Tools\ImportSkillsTool;
-use App\Ai\Tools\RecallMemoriesTool;
-use App\Ai\Tools\RememberTool;
-use App\Ai\Tools\UpdateSkillTool;
-use App\Ai\Tools\UseSkillTool;
+use App\Ai\Tools\Memory\ForgetTool;
+use App\Ai\Tools\Memory\RecallMemoriesTool;
+use App\Ai\Tools\Memory\RememberTool;
+use App\Ai\Tools\Skills\CreateSkillTool;
+use App\Ai\Tools\Skills\ImportSkillsTool;
+use App\Ai\Tools\Skills\UpdateSkillTool;
+use App\Ai\Tools\Skills\UseSkillTool;
 use App\Enums\Agents\KnowledgeMode;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentMemory;

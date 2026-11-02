@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\WorkspaceAgent;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
 use App\Models\Agents\Agent;
 use App\Models\Auth\ApiKey;
 use App\Models\User;

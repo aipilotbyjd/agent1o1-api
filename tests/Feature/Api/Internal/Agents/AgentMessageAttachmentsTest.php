@@ -1,7 +1,7 @@
 <?php
 
 use App\Actions\Agents\CreateAgentSessionAction;
-use App\Ai\Agents\WorkspaceAgent;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
 use App\Enums\Agents\AgentMessageRole;
 use App\Enums\RunStatus;
 use App\Models\Agents\Agent;

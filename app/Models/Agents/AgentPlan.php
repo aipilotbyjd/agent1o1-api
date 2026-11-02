@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * A plan proposed by an agent in Plan mode: see `Ai\Tools\SubmitPlanTool`.
+ * A plan proposed by an agent in Plan mode: see `Ai\Tools\Workspace\SubmitPlanTool`.
  * Each step is `{id, tool, summary, arguments, status}`: `arguments` holds
  * the key values the step commits to (a recipient, a channel), and a call
  * only counts as that step when it matches them. `status` and the decision

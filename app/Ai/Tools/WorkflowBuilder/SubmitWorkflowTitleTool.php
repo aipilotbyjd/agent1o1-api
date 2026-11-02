@@ -8,7 +8,7 @@ use Laravel\Ai\Tools\Request;
 use Stringable;
 
 /**
- * How `WorkflowBuilderTitleAgent` hands back a title (see `ToolSubmission`).
+ * How `WorkflowBuilderTitleAgent` hands back a title (see `SubmitsStructuredOutput`).
  */
 class SubmitWorkflowTitleTool implements Tool
 {

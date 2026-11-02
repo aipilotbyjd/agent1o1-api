@@ -1,8 +1,8 @@
 <?php
 
-use App\Ai\Tools\ForgetTool;
-use App\Ai\Tools\RecallMemoriesTool;
-use App\Ai\Tools\RememberTool;
+use App\Ai\Tools\Memory\ForgetTool;
+use App\Ai\Tools\Memory\RecallMemoriesTool;
+use App\Ai\Tools\Memory\RememberTool;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentSession;
 use App\Models\Runs\Run;

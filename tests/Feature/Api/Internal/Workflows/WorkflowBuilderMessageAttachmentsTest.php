@@ -1,7 +1,7 @@
 <?php
 
-use App\Ai\Agents\WorkflowBuilderAgent;
-use App\Ai\Agents\WorkflowBuilderTitleAgent;
+use App\Ai\Agents\Builder\WorkflowBuilderAgent;
+use App\Ai\Agents\Builder\WorkflowBuilderTitleAgent;
 use App\Models\Agents\DocumentEmbedding;
 use App\Models\User;
 use App\Models\Workflows\Builder\WorkflowBuilderSession;

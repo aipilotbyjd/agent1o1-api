@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\WorkspaceAgent;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
 use App\Enums\Agents\AgentActionStatus;
 use App\Enums\Agents\AutonomyMode;
 use App\Enums\RunStatus;

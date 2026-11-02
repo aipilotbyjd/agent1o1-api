@@ -1,7 +1,7 @@
 <?php
 
 use App\Actions\Agents\ResolveAgentActionsAction;
-use App\Ai\Agents\WorkspaceAgent;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
 use App\Enums\Agents\AgentActionStatus;
 use App\Enums\Agents\AgentMessageRole;
 use App\Enums\Agents\AutonomyMode;

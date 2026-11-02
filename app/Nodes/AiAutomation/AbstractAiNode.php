@@ -2,7 +2,7 @@
 
 namespace App\Nodes\AiAutomation;
 
-use App\Ai\Agents\AdHocPromptAgent;
+use App\Ai\Agents\Workspace\AdHocPromptAgent;
 use App\Contracts\DeclaresEffect;
 use App\Contracts\DeclaresOutputSchema;
 use App\Contracts\NodeContract;

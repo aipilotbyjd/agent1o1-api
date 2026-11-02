@@ -22,7 +22,7 @@ class ModelPrices
     private const int CACHE_TTL_SECONDS = 300;
 
     /**
-     * @return array{input: float, output: float}|null US dollars per million tokens
+     * @return array{input: float, output: float, cache_read: float|null, cache_write: float|null}|null US dollars per million tokens
      */
     public function for(?string $provider, ?string $model): ?array
     {
@@ -80,14 +80,19 @@ class ModelPrices
     }
 
     /**
-     * @return array<string, array{input: float, output: float}>
+     * @return array<string, array{input: float, output: float, cache_read: float|null, cache_write: float|null}>
      */
     private function stored(): array
     {
         return Cache::remember(self::CACHE_KEY, self::CACHE_TTL_SECONDS, fn (): array => ModelPrice::query()
             ->get()
             ->mapWithKeys(fn (ModelPrice $price): array => [
-                "{$price->provider}:{$price->model_id}" => ['input' => $price->input_per_mtok, 'output' => $price->output_per_mtok],
+                "{$price->provider}:{$price->model_id}" => [
+                    'input' => $price->input_per_mtok,
+                    'output' => $price->output_per_mtok,
+                    'cache_read' => $price->cache_read_per_mtok,
+                    'cache_write' => $price->cache_write_per_mtok,
+                ],
             ])
             ->all());
     }
@@ -96,12 +101,17 @@ class ModelPrices
      * Read through `config()` as a whole array, never by dotted path: model
      * ids contain dots (`claude-haiku-4.5`), which a path lookup would split.
      *
-     * @return array<string, array{input: float, output: float}>
+     * @return array<string, array{input: float, output: float, cache_read: float|null, cache_write: float|null}>
      */
     private function legacy(): array
     {
         return collect((array) config('billing.model_prices', []))
-            ->map(fn (array $price): array => ['input' => (float) $price['input'], 'output' => (float) $price['output']])
+            ->map(fn (array $price): array => [
+                'input' => (float) $price['input'],
+                'output' => (float) $price['output'],
+                'cache_read' => isset($price['cache_read']) ? (float) $price['cache_read'] : null,
+                'cache_write' => isset($price['cache_write']) ? (float) $price['cache_write'] : null,
+            ])
             ->all();
     }
 }

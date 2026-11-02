@@ -2,7 +2,7 @@
 
 use App\Actions\Agents\CreateAgentSessionAction;
 use App\Actions\Agents\SendAgentMessageAction;
-use App\Ai\Agents\WorkspaceAgent;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
 use App\Enums\Agents\AgentSessionStatus;
 use App\Models\Agents\Agent;
 use App\Models\User;

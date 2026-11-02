@@ -1,7 +1,7 @@
 <?php
 
 use App\Actions\Artifacts\StoreArtifactAction;
-use App\Ai\Tools\ExportArtifactTool;
+use App\Ai\Tools\Workspace\ExportArtifactTool;
 use App\Models\Agents\Agent;
 use App\Models\Agents\DocumentEmbedding;
 use App\Models\Artifacts\Artifact;

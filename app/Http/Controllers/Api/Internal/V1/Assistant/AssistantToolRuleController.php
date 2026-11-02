@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Internal\V1\Assistant;
 
-use App\Ai\Assistant\Tools\AssistantTool;
+use App\Ai\Tools\Assistant\AssistantTool;
 use App\Enums\Assistant\AssistantToolRule;
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Api\Internal\V1\Assistant\Concerns\ResolvesOwnAssistant;

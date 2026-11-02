@@ -1,21 +1,19 @@
 <?php
 
-use App\Ai\Agents\SessionEvalJudgeAgent;
-use App\Ai\Tools\SubmitEvaluationTool;
+use App\Ai\Agents\Judges\SessionEvalJudgeAgent;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentEvaluationSettings;
 use App\Models\Agents\AgentMessage;
 use App\Models\Agents\AgentSession;
 use App\Models\User;
 use App\Services\Workspaces\WorkspaceService;
-use Laravel\Ai\Responses\Data\ToolCall;
 use Laravel\Passport\Passport;
 
 it('manually runs and lists session evaluations', function () {
-    SessionEvalJudgeAgent::fake([new ToolCall('call_1', SubmitEvaluationTool::NAME, [
+    SessionEvalJudgeAgent::fake([[
         'criteria_results' => [], 'tags' => [], 'data_results' => [], 'sentiment' => null,
         'call_successful' => 'success', 'summary' => 'All good.',
-    ])]);
+    ]]);
 
     $owner = User::factory()->create();
     $workspace = app(WorkspaceService::class)->create($owner, ['name' => 'Acme']);

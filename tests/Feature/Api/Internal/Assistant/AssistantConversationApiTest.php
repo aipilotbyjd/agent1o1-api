@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Assistant\AssistantAgent;
+use App\Ai\Agents\Assistant\AssistantAgent;
 use App\Broadcasting\WorkspaceChannelGate;
 use App\Enums\Assistant\AssistantActionStatus;
 use App\Enums\Assistant\AssistantFollowUpStatus;

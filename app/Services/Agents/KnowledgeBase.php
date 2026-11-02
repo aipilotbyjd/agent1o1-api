@@ -22,7 +22,7 @@ use RuntimeException;
 /**
  * The workspace knowledge base behind `document_embeddings`: turning text
  * into stored chunks, and ranking those chunks against a query. Shared by
- * the Internal API's knowledge-base endpoints and `Ai\Tools\SearchKnowledgeTool`
+ * the Internal API's knowledge-base endpoints and `Ai\Tools\Knowledge\SearchKnowledgeTool`
  * (the agent-facing side of the same data), so ingestion and retrieval agree
  * on chunking and scoring instead of each implementing their own.
  *
@@ -186,12 +186,12 @@ class KnowledgeBase
      *
      * @param  array<int, string>  $texts
      * @param  string|array<string, null>  $provider
-     * @return array{vectors: array<int, array<int, float>>, usage: array{prompt_tokens: int, provider: string|null, model: string|null}}
+     * @return array{vectors: array<int, array<int, float>>, usage: array{input_tokens: int, provider: string|null, model: string|null}}
      */
     private function embed(array $texts, string|array $provider): array
     {
         $vectors = [];
-        $usage = ['prompt_tokens' => 0, 'provider' => null, 'model' => null];
+        $usage = ['input_tokens' => 0, 'provider' => null, 'model' => null];
 
         foreach (array_chunk(array_values($texts), self::EMBED_BATCH) as $batch) {
             $response = Embeddings::for($batch)->generate($provider);
@@ -206,7 +206,7 @@ class KnowledgeBase
 
             $vectors = [...$vectors, ...$response->embeddings];
             $usage = [
-                'prompt_tokens' => $usage['prompt_tokens'] + $response->tokens,
+                'input_tokens' => $usage['input_tokens'] + $response->usage->inputTokens,
                 'provider' => $response->meta->provider,
                 'model' => $response->meta->model,
             ];
@@ -238,7 +238,7 @@ class KnowledgeBase
      * embedding rounds to nothing, and an agent's search is already billed
      * as the tool call it is.
      *
-     * @param  array{prompt_tokens: int, provider: string|null, model: string|null}  $usage
+     * @param  array{input_tokens: int, provider: string|null, model: string|null}  $usage
      */
     private function chargeForEmbeddings(Workspace $workspace, DocumentEmbedding $firstChunk, array $usage): void
     {
@@ -377,7 +377,7 @@ class KnowledgeBase
      * same `source` exists in several collections and none was asked for, the
      * first collection alphabetically wins rather than interleaving different
      * documents. Capped at `MAX_DOCUMENT_CHARACTERS`.
-     * Backs `Ai\Tools\ReadKnowledgeDocumentTool`: a search hit's `text` is
+     * Backs `Ai\Tools\Knowledge\ReadKnowledgeDocumentTool`: a search hit's `text` is
      * a chunk-level snippet, and this is what a model calls when a snippet
      * alone isn't enough context.
      *

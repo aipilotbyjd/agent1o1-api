@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api\Internal\V1\Agents;
 
 use App\Actions\Billing\DeductCreditsAction;
-use App\Ai\Agents\AgentInstructionsAgent;
-use App\Ai\ResponseUsage;
-use App\Ai\Tools\SubmitAgentInstructionsTool;
-use App\Ai\ToolSubmission;
+use App\Ai\Agents\Drafting\AgentInstructionsAgent;
+use App\Ai\Support\ToolSubmission;
+use App\Ai\Tools\Submissions\SubmitAgentInstructionsTool;
+use App\Ai\Usage\ResponseUsage;
 use App\Enums\Billing\CreditTransactionType;
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Controller;

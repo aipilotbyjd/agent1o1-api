@@ -1,7 +1,6 @@
 <?php
 
-use App\Ai\Agents\ActionReviewerAgent;
-use App\Ai\Tools\SubmitRiskAssessmentTool;
+use App\Ai\Agents\Judges\ActionReviewerAgent;
 use App\Enums\Agents\ActionEffect;
 use App\Enums\Agents\ActionRisk;
 use App\Enums\Agents\ActionToolKind;
@@ -19,7 +18,6 @@ use App\Services\Agents\Approvals\ActionGate;
 use App\Services\Agents\Approvals\AutonomyResolver;
 use App\Services\Agents\Approvals\ToolCall;
 use App\Services\Workspaces\WorkspaceService;
-use Laravel\Ai\Responses\Data\ToolCall as ModelToolCall;
 
 beforeEach(function () {
     $this->owner = User::factory()->create();
@@ -178,8 +176,8 @@ it('runs low-risk writes and asks about the rest in Smart mode', function () {
     $this->agent->update(['autonomy_mode' => AutonomyMode::Smart]);
 
     ActionReviewerAgent::fake([
-        new ModelToolCall('r1', SubmitRiskAssessmentTool::NAME, ['risk' => 'low', 'reason' => 'The user asked for exactly this.']),
-        new ModelToolCall('r2', SubmitRiskAssessmentTool::NAME, ['risk' => 'high', 'reason' => 'It emails someone the user never mentioned.']),
+        ['risk' => 'low', 'reason' => 'The user asked for exactly this.'],
+        ['risk' => 'high', 'reason' => 'It emails someone the user never mentioned.'],
     ]);
 
     $low = ($this->weigh)(($this->call)(id: 'call-low'));

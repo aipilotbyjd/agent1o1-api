@@ -2,8 +2,8 @@
 
 namespace App\Services\Assistant\Briefings;
 
-use App\Ai\Assistant\BriefingWriterAgent;
-use App\Ai\ResponseUsage;
+use App\Ai\Agents\Assistant\BriefingWriterAgent;
+use App\Ai\Usage\ResponseUsage;
 use App\Enums\Assistant\AssistantBriefingRunStatus;
 use App\Enums\Assistant\AssistantStyleKind;
 use App\Models\Assistant\Assistant;

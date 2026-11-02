@@ -1,10 +1,10 @@
 <?php
 
 use App\Actions\Workflows\StartWorkflowRunAction;
-use App\Ai\Tools\NodeTool;
-use App\Ai\Tools\ReadKnowledgeDocumentTool;
-use App\Ai\Tools\SearchKnowledgeTool;
-use App\Ai\Tools\WorkflowTool;
+use App\Ai\Tools\Knowledge\ReadKnowledgeDocumentTool;
+use App\Ai\Tools\Knowledge\SearchKnowledgeTool;
+use App\Ai\Tools\Workspace\NodeTool;
+use App\Ai\Tools\Workspace\WorkflowTool;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentToolBinding;
 use App\Models\Agents\DocumentEmbedding;

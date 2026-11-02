@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\EmbeddedAgent;
+use App\Ai\Agents\Workspace\EmbeddedAgent;
 use App\Jobs\Agents\RunAgentEvalJob;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentEvalCase;

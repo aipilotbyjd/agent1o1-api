@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Tools\UpdateSkillTool;
+use App\Ai\Tools\Skills\UpdateSkillTool;
 use App\Enums\Agents\SkillSourceStatus;
 use App\Enums\Connectors\ConnectorCredentialScope;
 use App\Enums\Workspaces\Role;

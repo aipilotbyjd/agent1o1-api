@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Assistant\AssistantAgent;
+use App\Ai\Agents\Assistant\AssistantAgent;
 use App\Enums\Assistant\AssistantSessionOrigin;
 use App\Enums\Assistant\AssistantTriggerStatus;
 use App\Enums\Assistant\AssistantTriggerType;
