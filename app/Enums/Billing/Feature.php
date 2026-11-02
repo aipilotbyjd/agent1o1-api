@@ -21,6 +21,12 @@ enum Feature: string
     case PublicPages = 'public_pages';
 
     /**
+     * Hiding the "Made with Agent1o1" badge on workflow pages. Without it
+     * the badge always shows, whatever the page's theme says.
+     */
+    case RemoveBranding = 'remove_branding';
+
+    /**
      * The personal assistant's Smart Inbox (labels new mail, drafts replies).
      */
     case SmartInbox = 'smart_inbox';
