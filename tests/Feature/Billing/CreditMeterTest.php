@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Agents\AgentMessage;
+use App\Models\Ai\AiProviderCredential;
 use App\Models\Runs\NodeRun;
 use App\Services\Billing\CreditMeter;
 use Laravel\Pulse\Entry;
@@ -127,7 +128,7 @@ it('bills no token credits for a call served by the workspace\'s own provider ke
 });
 
 it('still bills tool calls and compute on a chat turn served by the workspace\'s own key', function () {
-    config(['billing.orchestration_fee_rate' => 0]);
+    config(['billing.orchestration_fee_rate' => 0, 'billing.byok_orchestration_fee_rate' => 0]);
 
     $message = AgentMessage::factory()->assistant()->make([
         'usage' => ['prompt_tokens' => 50_000, 'completion_tokens' => 10_000, 'provider' => 'byok-01a1b2c3', 'model' => 'gpt-4o', 'tool_call_count' => 2, 'duration_seconds' => 30],
@@ -135,6 +136,30 @@ it('still bills tool calls and compute on a chat turn served by the workspace\'s
 
     // 0 token credits + 2 tool calls + ceil(0.5 min × 5) = 3 compute credits
     expect(app(CreditMeter::class)->costForAgentMessage($message))->toBe(5);
+});
+
+it('charges a BYOK chat turn the BYOK orchestration fee on what the turn would have been worth', function () {
+    config([
+        'billing.model_prices.openai:gpt-4o' => ['input' => 2.5, 'output' => 10.0],
+        'billing.credit_value_usd' => 0.005,
+        'billing.orchestration_fee_rate' => 0.08,
+        'billing.byok_orchestration_fee_rate' => 0.16,
+    ]);
+    $credential = AiProviderCredential::factory()->create(['execution_provider' => 'openai']);
+
+    $usage = ['input_tokens' => 100_000, 'output_tokens' => 10_000, 'provider' => 'byok-'.$credential->id, 'model' => 'gpt-4o', 'tool_call_count' => 2, 'duration_seconds' => 30];
+    $breakdown = app(CreditMeter::class)->chatTurnBreakdown($usage);
+
+    // Would-be reasoning: $0.25 + $0.10 = $0.35 = 70 credits. Would-be subtotal
+    // 70 + 2 tool calls + 3 compute = 75; fee ceil(75 × 0.16) = 12.
+    expect($breakdown)->toMatchArray([
+        'reasoning' => 0,
+        'waived_reasoning' => 70,
+        'tool_calls' => 2,
+        'compute' => 3,
+        'orchestration' => 12,
+        'total' => 17,
+    ]);
 });
 
 it('bills cache reads and writes at the model\'s cache prices and reasoning as output', function () {
