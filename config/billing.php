@@ -72,6 +72,9 @@ return [
     'guardrails' => [
         'enabled' => (bool) env('BILLING_GUARDRAILS_ENABLED', true),
         'free_tier_daily_budget_usd' => env('FREE_TIER_DAILY_BUDGET_USD') === null ? null : (float) env('FREE_TIER_DAILY_BUDGET_USD'),
+        'kill_switch' => env('BILLING_KILL_SWITCH', 'off'),
+        'platform_daily_budget_usd' => env('PLATFORM_DAILY_AI_BUDGET_USD') === null ? null : (float) env('PLATFORM_DAILY_AI_BUDGET_USD'),
+        'platform_hard_stop_ratio' => (float) env('PLATFORM_AI_HARD_STOP_RATIO', 1.5),
     ],
 
     /*
@@ -293,6 +296,32 @@ return [
     | tool calls and compute) at this rate instead of `orchestration_fee_rate`.
     |
     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Credit Reservations and Real-time Billing
+    |--------------------------------------------------------------------------
+    |
+    | Work in flight holds credits (`CreditReservations`) so the pre-flight
+    | check sees them: an agent turn holds `agent_turn_credits`, an AI step
+    | `ai_step_credits`, both typical charges rather than worst cases. A hold
+    | the worker never released expires after `ttl_minutes`.
+    |
+    | With `realtime_node_billing` on, each workflow step is charged as soon
+    | as it finishes instead of when the whole run ends, so the balance a
+    | long loop sees is always current. The end-of-run charge still runs and
+    | skips every step already charged.
+    |
+    */
+
+    'reservations' => [
+        'enabled' => (bool) env('BILLING_RESERVATIONS_ENABLED', true),
+        'agent_turn_credits' => (int) env('BILLING_RESERVE_AGENT_TURN_CREDITS', 40),
+        'ai_step_credits' => (int) env('BILLING_RESERVE_AI_STEP_CREDITS', 15),
+        'ttl_minutes' => (int) env('BILLING_RESERVATION_TTL_MINUTES', 30),
+    ],
+
+    'realtime_node_billing' => (bool) env('BILLING_REALTIME_NODE_BILLING', true),
 
     'byok_orchestration_fee_rate' => (float) env('BILLING_BYOK_ORCHESTRATION_FEE_RATE', 0.16),
 

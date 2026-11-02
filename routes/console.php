@@ -72,6 +72,7 @@ Schedule::onOneServer()->withoutOverlapping()->group(function (): void {
     Schedule::command('billing:notify-trial-ending')->daily();
     Schedule::command('billing:invoice-overage')->daily();
     Schedule::command('credits:expire')->hourlyAt(20);
+    Schedule::command('credits:prune-reservations')->hourlyAt(25);
 
     // Referrals
     Schedule::command('referrals:grant-pending')->hourly();

@@ -7,6 +7,7 @@ use App\Enums\Notifications\AlertSeverity;
 use App\Enums\RunStatus;
 use App\Exceptions\CostLimitReachedException;
 use App\Exceptions\RunBudgetExceededException;
+use App\Models\Ai\AiCallEvent;
 use App\Models\Billing\CreditGrant;
 use App\Models\Billing\CreditGrantAllocation;
 use App\Models\Billing\CreditTransaction;
@@ -27,6 +28,8 @@ use Carbon\CarbonInterface;
  * - `billing.guardrails.free_tier_daily_budget_usd`: once free and trial
  *   credits spent today, across every workspace, pass it, free and trial
  *   workspaces pause until tomorrow. Paying workspaces never pause.
+ * - `SpendControls`: the operator's kill switch, the platform's daily
+ *   provider budget and hard stop, and per-workspace throttles.
  *
  * Spend is measured from the credit ledger at `billing.credit_value_usd` per
  * credit, which includes the platform's margin: the caps trigger slightly
@@ -39,6 +42,7 @@ class CostGuard
         private readonly BillingSettings $settings,
         private readonly AdminAlerts $alerts,
         private readonly CreditMeter $meter,
+        private readonly SpendControls $spendControls,
     ) {}
 
     /**
@@ -57,7 +61,10 @@ class CostGuard
             $this->assertUnder($workspace, 'ai_cost_weekly', $plan->aiCostWeeklyUsd(), now()->subDays(7), 'in the last 7 days');
         }
 
-        $this->assertFreeTierOpen($workspace);
+        $onFreeOrTrial = $this->onFreeOrTrialAllowance($workspace);
+
+        $this->assertFreeTierOpen($workspace, $onFreeOrTrial);
+        $this->spendControls->assertAllowed($workspace, $onFreeOrTrial);
     }
 
     /**
@@ -103,10 +110,7 @@ class CostGuard
             return;
         }
 
-        $used = $run->nodeRuns()
-            ->whereNotNull('finished_at')
-            ->get(['id', 'run_id', 'type', 'usage'])
-            ->sum(fn (NodeRun $nodeRun): int => $this->meter->costForNodeRun($nodeRun));
+        $used = $this->creditsUsedBy($run);
 
         if ($used >= $max) {
             throw new RunBudgetExceededException($max, $used);
@@ -128,6 +132,12 @@ class CostGuard
         return $credits * $this->creditValueUsd();
     }
 
+    /**
+     * What the workspace has spent since `$since`: the larger of its credits
+     * at `billing.credit_value_usd` and what its calls actually cost the
+     * platform (`ai_call_events`), so a model whose price is missing or wrong
+     * cannot slip past the caps by being charged too few credits.
+     */
     public function spentSinceUsd(Workspace $workspace, CarbonInterface $since): float
     {
         $credits = (int) CreditTransaction::query()
@@ -135,7 +145,32 @@ class CostGuard
             ->where('created_at', '>=', $since)
             ->sum('credits');
 
-        return $credits * $this->creditValueUsd();
+        $providerCost = (float) AiCallEvent::query()
+            ->where('workspace_id', $workspace->id)
+            ->where('occurred_at', '>=', $since)
+            ->where('is_byok', false)
+            ->sum('provider_cost_usd');
+
+        return max($credits * $this->creditValueUsd(), $providerCost);
+    }
+
+    /**
+     * The run's running total (`runs.credits_accrued`, added to as each step
+     * finishes). A run started before that column existed is re-priced from
+     * its steps instead.
+     */
+    private function creditsUsedBy(Run $run): int
+    {
+        $accrued = (int) Run::query()->whereKey($run->id)->value('credits_accrued');
+
+        if ($accrued > 0) {
+            return $accrued;
+        }
+
+        return (int) $run->nodeRuns()
+            ->whereNotNull('finished_at')
+            ->get(['id', 'run_id', 'type', 'usage'])
+            ->sum(fn (NodeRun $nodeRun): int => $this->meter->costForNodeRun($nodeRun));
     }
 
     private function assertUnder(Workspace $workspace, string $limit, ?float $capUsd, CarbonInterface $since, string $window): void
@@ -153,11 +188,11 @@ class CostGuard
         }
     }
 
-    private function assertFreeTierOpen(Workspace $workspace): void
+    private function assertFreeTierOpen(Workspace $workspace, bool $onFreeOrTrial): void
     {
         $budget = $this->settings->get('guardrails.free_tier_daily_budget_usd');
 
-        if (! is_numeric($budget) || (float) $budget <= 0 || ! $this->onFreeOrTrialAllowance($workspace)) {
+        if (! is_numeric($budget) || (float) $budget <= 0 || ! $onFreeOrTrial) {
             return;
         }
 
@@ -179,7 +214,7 @@ class CostGuard
         throw new CostLimitReachedException('free_tier_daily_budget', 'Free and trial usage is paused for today because of high demand. It resumes tomorrow, or choose a plan to continue now.');
     }
 
-    private function onFreeOrTrialAllowance(Workspace $workspace): bool
+    public function onFreeOrTrialAllowance(Workspace $workspace): bool
     {
         $period = $workspace->currentUsagePeriod();
 

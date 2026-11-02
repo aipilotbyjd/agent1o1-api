@@ -33,6 +33,9 @@ class BillingSettings
         'abuse.block_disposable_email',
         'guardrails.free_tier_daily_budget_usd',
         'guardrails.enabled',
+        'guardrails.kill_switch',
+        'guardrails.platform_daily_budget_usd',
+        'guardrails.platform_hard_stop_ratio',
     ];
 
     /**
