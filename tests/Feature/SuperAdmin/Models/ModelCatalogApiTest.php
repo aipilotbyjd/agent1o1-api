@@ -46,6 +46,16 @@ it('lists the catalog with its routes, to any role', function (SuperAdminRole $r
         ->assertJsonPath('data.0.routes.0.price.in_table', true);
 })->with(array_map(fn (SuperAdminRole $role) => [$role], SuperAdminRole::cases()));
 
+it('shows a route\'s cache prices', function () {
+    apiModel('gpt-a');
+    ModelPrice::factory()->priced(3, 15)->create(['provider' => 'openai', 'model_id' => 'gpt-a-id', 'cache_read_per_mtok' => 0.3, 'cache_write_per_mtok' => 3.75]);
+
+    $this->withHeaders($this->headers)->getJson(saUrl('models'))
+        ->assertOk()
+        ->assertJsonPath('data.0.routes.0.price.cache_read_per_mtok', 0.3)
+        ->assertJsonPath('data.0.routes.0.price.cache_write_per_mtok', 3.75);
+});
+
 it('never puts a key anywhere in what it returns', function () {
     apiModel('gpt-a');
     AiEndpoint::factory()->create(['slug' => 'my-vllm', 'api_key' => 'sk-supersecretvalue']);

@@ -62,6 +62,8 @@ class ModelPrices
                 [
                     'input_per_mtok' => $price['input'],
                     'output_per_mtok' => $price['output'],
+                    'cache_read_per_mtok' => $price['cache_read'],
+                    'cache_write_per_mtok' => $price['cache_write'],
                     'source' => ModelPriceSource::Config,
                     'checked_at' => null,
                     'notes' => 'Imported from config/billing.php',
