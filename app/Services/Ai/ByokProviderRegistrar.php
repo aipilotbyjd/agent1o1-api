@@ -2,10 +2,12 @@
 
 namespace App\Services\Ai;
 
+use App\Ai\Observability\AiCallContext;
 use App\Enums\Ai\AiProviderCredentialStatus;
 use App\Enums\Ai\PlatformKeyUsage;
 use App\Enums\Connectors\ConnectorCredentialScope;
 use App\Exceptions\ModelBusyException;
+use App\Exceptions\ModelPriceUnverifiedException;
 use App\Exceptions\OwnAiKeyRequiredException;
 use App\Exceptions\ProviderPausedException;
 use App\Models\Ai\AiProviderCredential;
@@ -70,6 +72,10 @@ class ByokProviderRegistrar
      */
     public function apply(string|array|null $provider, ?string $model, string $workspaceId, ?string $userId): array
     {
+        // Every model call passes through here first, so this is where the
+        // call ledger learns who is paying when the caller did not say.
+        app(AiCallContext::class)->remember($workspaceId, $userId);
+
         if ($provider === null || $provider === []) {
             return [$provider, $model];
         }
@@ -84,6 +90,7 @@ class ByokProviderRegistrar
         };
         $pauses = app(ProviderPauses::class);
         $limiter = app(EndpointRateLimiter::class);
+        $priceGate = app(PriceGate::class);
 
         // A bare provider with no model leaves the model to the driver's
         // default, which only a single-provider call can express.
@@ -100,10 +107,19 @@ class ByokProviderRegistrar
 
         $result = [];
         $busyFor = 0;
+        $unpricedHops = 0;
 
         foreach ($chain as $hop => $hopModel) {
             if ($credentials->has($hop)) {
                 $result[$this->register($credentials[$hop], $hop)] = $hopModel;
+            }
+
+            if ($platformAllowed && ModelCatalogResolver::providerIsConfigured($hop) && ! $priceGate->allowsPlatformCall($hop, $hopModel)) {
+                // `billing.price_enforcement` is `enforce` and this model's
+                // price is not verified: never bill a customer on a guess.
+                $unpricedHops++;
+
+                continue;
             }
 
             if ($platformAllowed && ModelCatalogResolver::providerIsConfigured($hop)) {
@@ -116,6 +132,10 @@ class ByokProviderRegistrar
                     $busyFor = max($busyFor, $wait);
                 }
             }
+        }
+
+        if ($result === [] && $unpricedHops > 0) {
+            throw ModelPriceUnverifiedException::forProviders();
         }
 
         if ($result === []) {

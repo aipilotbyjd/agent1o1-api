@@ -7,7 +7,9 @@ use App\Models\Ai\ModelCatalog;
 use App\Models\Ai\ModelRoute;
 use App\Models\SuperAdmin\SuperAdmin;
 use App\Services\Ai\ModelCatalogResolver;
+use App\Services\Ai\ModelPrices;
 use App\Services\Ai\Operations\ModelRouteProbe;
+use App\Services\Ai\PriceGate;
 use App\Services\SuperAdmin\Audit\SuperAdminAuditLogger;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -30,6 +32,8 @@ class SuperAdminModelService
         private readonly SuperAdminAuditLogger $audit,
         private readonly ModelCatalogResolver $resolver,
         private readonly ModelRouteProbe $probe,
+        private readonly PriceGate $priceGate,
+        private readonly ModelPrices $prices,
     ) {}
 
     /**
@@ -119,7 +123,7 @@ class SuperAdminModelService
         $enabled = (bool) ($data['is_enabled'] ?? false);
 
         if ($enabled) {
-            $this->assertRunnable($data['execution_provider']);
+            $this->assertRunnable($data['execution_provider'], $data['execution_model_id']);
         }
 
         $route = DB::transaction(function () use ($actor, $model, $data, $enabled, $reason): ModelRoute {
@@ -154,7 +158,7 @@ class SuperAdminModelService
         $this->assertBelongs($model, $route);
 
         if (($data['is_enabled'] ?? false) && ! $route->is_enabled) {
-            $this->assertRunnable($route->execution_provider);
+            $this->assertRunnable($route->execution_provider, $route->execution_model_id);
         }
 
         if (array_key_exists('is_enabled', $data) && ! $data['is_enabled'] && $route->is_enabled) {
@@ -257,12 +261,19 @@ class SuperAdminModelService
     /**
      * A route can only be switched on if the platform can run it, or the
      * provider is one a workspace can bring its own key for (a route that
-     * only workspaces with a key will use).
+     * only workspaces with a key will use). While prices are enforced, a
+     * route the platform would pay for also needs a verified price first.
      */
-    private function assertRunnable(string $provider): void
+    private function assertRunnable(string $provider, string $modelId): void
     {
-        if (! ModelCatalogResolver::providerIsConfigured($provider) && config("byok.providers.{$provider}") === null) {
+        $platformRuns = ModelCatalogResolver::providerIsConfigured($provider);
+
+        if (! $platformRuns && config("byok.providers.{$provider}") === null) {
             throw $this->conflict("The platform has no key for [{$provider}], so a route on it cannot be switched on. Add the key, or add it as an endpoint.");
+        }
+
+        if ($platformRuns && $this->priceGate->enforcing() && ! $this->prices->status($provider, $modelId)?->isTrusted()) {
+            throw $this->conflict("[{$provider}:{$modelId}] has no verified price, so the platform cannot bill for it. Verify its price under Models › Prices first.");
         }
     }
 

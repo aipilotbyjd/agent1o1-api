@@ -11,6 +11,7 @@ use App\Models\Billing\UsagePeriod;
 use App\Models\Workspaces\Workspace;
 use App\Notifications\Billing\CreditsLowNotification;
 use App\Services\Billing\CreditOverage;
+use App\Services\Billing\CreditRevenue;
 use App\Services\Billing\CreditWallet;
 use App\Services\Notifications\AdminAlerts;
 use App\Services\Notifications\NotificationDispatcher;
@@ -52,6 +53,7 @@ class DeductCreditsAction
         private readonly NotificationDispatcher $dispatcher,
         private readonly CreditOverage $overage,
         private readonly CreditWallet $wallet,
+        private readonly CreditRevenue $revenue,
     ) {}
 
     /**
@@ -101,6 +103,7 @@ class DeductCreditsAction
                 'topup_credits' => $funding['topup'],
                 'overage_credits' => $funding['overage'],
                 'debt_credits' => $funding['debt'],
+                'revenue_usd' => $this->revenue->forCharge($lockedWorkspace, $funding['allocations'], $funding['overage']),
                 'reason' => $reason,
             ]);
 

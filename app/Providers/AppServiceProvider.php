@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Ai\Observability\AiActivityCard;
+use App\Ai\Observability\AiCallContext;
+use App\Ai\Observability\AiCallRecorder;
 use App\Authorization\WorkspaceContext;
 use App\Contracts\Triggers\RunStarter;
 use App\Enums\Triggers\TriggerTargetType;
@@ -59,6 +61,7 @@ use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
@@ -79,6 +82,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(RunStarter::class, TargetRunStarter::class);
         $this->app->singleton(OperatorEndpoints::class);
+        $this->app->scoped(AiCallContext::class);
         $this->app->bind(BrandRepository::class, ConfigBrandRepository::class);
         $this->app->bind(SandboxDriver::class, E2BSandboxDriver::class);
         $this->app->tag([ConnectorToolProvider::class, KnowledgeToolProvider::class, ComputerToolProvider::class], ToolCatalog::TAG);
@@ -104,6 +108,22 @@ class AppServiceProvider extends ServiceProvider
         $this->configureMorphMap();
         $this->configureCashier();
         $this->configureSchedulerRecording();
+        $this->configureAiCallLedger();
+    }
+
+    /**
+     * Writes every request sent to an AI provider to `ai_call_events`, from
+     * Laravel AI's own events: see `AiCallRecorder`.
+     */
+    private function configureAiCallLedger(): void
+    {
+        if (! config('model_operations.call_ledger.enabled', true)) {
+            return;
+        }
+
+        foreach (AiCallRecorder::listeners() as $event => $method) {
+            Event::listen($event, [AiCallRecorder::class, $method]);
+        }
     }
 
     /**

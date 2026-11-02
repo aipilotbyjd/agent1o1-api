@@ -60,6 +60,8 @@ Schedule::onOneServer()->withoutOverlapping()->group(function (): void {
     Schedule::command('model-catalog:retire-due')->dailyAt('04:00');
     Schedule::command('model-usage:rollup')->hourlyAt(5);
     Schedule::command('model-spend:check')->hourlyAt(15);
+    Schedule::command('model-prices:sync')->dailyAt('03:40')->when(fn (): bool => (bool) config('model_operations.price_sync.enabled'));
+    Schedule::command('ai-calls:prune')->dailyAt('04:20');
 
     // Workflow builder
     Schedule::command('workflow-builder:archive-idle')->dailyAt('03:00');
