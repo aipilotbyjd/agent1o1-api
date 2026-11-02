@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\WorkspaceAgent;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
 use App\Enums\RunStatus;
 use App\Enums\Triggers\TriggerEventStatus;
 use App\Enums\Triggers\TriggerType;

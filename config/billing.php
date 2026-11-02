@@ -275,6 +275,41 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Cache Price Fallback
+    |--------------------------------------------------------------------------
+    |
+    | Laravel AI reports how many input tokens a provider read from, or wrote
+    | into, its prompt cache. A model with its own cache prices (the
+    | `cache_read_per_mtok` / `cache_write_per_mtok` columns, or `cache_read`
+    | / `cache_write` in `model_prices` below) is billed at those. One
+    | without is billed at its input price times these multipliers: 1.0
+    | charges cached tokens like any other input token, so a missing price
+    | never undercharges.
+    |
+    */
+
+    'cache_price_fallback' => [
+        'read' => (float) env('BILLING_CACHE_READ_MULTIPLIER', 1.0),
+        'write' => (float) env('BILLING_CACHE_WRITE_MULTIPLIER', 1.0),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Shadow Billing
+    |--------------------------------------------------------------------------
+    |
+    | Laravel AI 1.x counts cached and reasoning tokens that the 0.x release
+    | left out, so the same call can cost more credits than it did before
+    | the upgrade. While this is on, `CreditMeter` also prices every call the
+    | old way and records the difference to Pulse (`ai_billing_shadow_delta`)
+    | so the change can be reviewed. Only the new price is charged.
+    |
+    */
+
+    'shadow_billing' => (bool) env('BILLING_SHADOW_ENABLED', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Model Prices
     |--------------------------------------------------------------------------
     |

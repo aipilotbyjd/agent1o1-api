@@ -2,6 +2,7 @@
 
 namespace App\Services\Agents;
 
+use App\Ai\Usage\ResponseUsage;
 use App\Enums\Agents\EvalRunStatus;
 use App\Enums\Agents\EvalRunTrigger;
 use App\Enums\RunStatus;
@@ -266,11 +267,7 @@ class EvalRunner
      */
     private function addUsage(array $total, array $extra): array
     {
-        foreach ($extra as $key => $value) {
-            $total[$key] = (int) ($total[$key] ?? 0) + (int) $value;
-        }
-
-        return $total;
+        return ResponseUsage::combine($total, $extra);
     }
 
     private function openRun(AgentEvalRun $evalRun, AgentEvalSuite $suite, ?User $triggeredBy): Run

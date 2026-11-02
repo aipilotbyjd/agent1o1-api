@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Tools\SearchKnowledgeTool;
+use App\Ai\Tools\Knowledge\SearchKnowledgeTool;
 use App\Enums\Agents\KnowledgeSourceStatus;
 use App\Enums\Connectors\ConnectorCredentialScope;
 use App\Enums\Workspaces\Role;

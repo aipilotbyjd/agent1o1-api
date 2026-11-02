@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * engine-managed, not in `#[Fillable]`, written via `forceFill()` after
  * create(), mirroring `NodeRun`'s own convention. So is `paused_state`: set
  * by `AgentRunner` while the turn waits on an approval, cleared when it
- * resumes: see `Services\Agents\Approvals\PausedTurn`.
+ * resumes: see `Ai\Runtime\PauseState`.
  */
 #[Fillable(['agent_session_id', 'role', 'content', 'skill_id', 'tool_calls', 'tool_results', 'tool_call_id'])]
 class AgentMessage extends Model

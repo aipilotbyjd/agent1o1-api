@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\AdHocPromptAgent;
+use App\Ai\Agents\Workspace\AdHocPromptAgent;
 use App\Enums\NodeRunStatus;
 use App\Models\Runs\NodeRun;
 use App\Nodes\AiAutomation\AbstractAiNode;

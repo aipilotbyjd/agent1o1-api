@@ -3,8 +3,8 @@
 namespace App\Services\Assistant\Runtime;
 
 use App\Actions\Billing\DeductCreditsAction;
-use App\Ai\Assistant\RecapAgent;
-use App\Ai\ResponseUsage;
+use App\Ai\Agents\Assistant\RecapAgent;
+use App\Ai\Usage\ResponseUsage;
 use App\Enums\Assistant\AssistantMessageRole;
 use App\Enums\Billing\CreditTransactionType;
 use App\Models\Assistant\AssistantMessage;

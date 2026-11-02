@@ -1,8 +1,8 @@
 <?php
 
-use App\Ai\Assistant\Tools\ReadKnowledgeEntryTool;
-use App\Ai\Assistant\Tools\SaveToKnowledgeTool;
-use App\Ai\Assistant\Tools\SearchKnowledgeBaseTool;
+use App\Ai\Tools\Assistant\ReadKnowledgeEntryTool;
+use App\Ai\Tools\Assistant\SaveToKnowledgeTool;
+use App\Ai\Tools\Assistant\SearchKnowledgeBaseTool;
 use App\Enums\Workspaces\Role;
 use App\Models\Agents\DocumentEmbedding;
 use App\Models\Assistant\Assistant;

@@ -53,11 +53,11 @@ it('confirms a price by setting it, and a call is billed at the new price straig
     $this->withHeaders($this->headers)->putJson(saUrl('models/prices'), pricePayload(['input_per_mtok' => 10, 'output_per_mtok' => 20]))->assertOk();
 
     expect(ModelPrice::query()->sole()->checked_at)->not->toBeNull()
-        ->and(app(ModelPrices::class)->for('openai', 'gpt-x'))->toBe(['input' => 10.0, 'output' => 20.0]);
+        ->and(app(ModelPrices::class)->for('openai', 'gpt-x'))->toBe(['input' => 10.0, 'output' => 20.0, 'cache_read' => null, 'cache_write' => null]);
 
     $this->withHeaders($this->headers)->putJson(saUrl('models/prices'), pricePayload(['input_per_mtok' => 99, 'output_per_mtok' => 99]))->assertOk();
 
-    expect(app(ModelPrices::class)->for('openai', 'gpt-x'))->toBe(['input' => 99.0, 'output' => 99.0]);
+    expect(app(ModelPrices::class)->for('openai', 'gpt-x'))->toBe(['input' => 99.0, 'output' => 99.0, 'cache_read' => null, 'cache_write' => null]);
 });
 
 it('validates a price', function (array $input, string $error) {
@@ -119,3 +119,22 @@ it('keeps price changes to finance and owners', function (SuperAdminRole $role, 
 it('accepts every source a person may choose', function (ModelPriceSource $source) {
     $this->withHeaders($this->headers)->putJson(saUrl('models/prices'), pricePayload(['source' => $source->value]))->assertOk();
 })->with([[ModelPriceSource::ProviderList], [ModelPriceSource::Contract], [ModelPriceSource::Estimate]]);
+
+it('saves a model\'s cache prices and bills cached tokens at them', function () {
+    $this->withHeaders($this->headers)
+        ->putJson(saUrl('models/prices'), pricePayload(['input_per_mtok' => 3, 'output_per_mtok' => 15, 'cache_read_per_mtok' => 0.3, 'cache_write_per_mtok' => 3.75]))
+        ->assertOk()
+        ->assertJsonPath('data.cache_read_per_mtok', 0.3)
+        ->assertJsonPath('data.cache_write_per_mtok', 3.75);
+
+    expect(app(ModelPrices::class)->for('openai', 'gpt-x'))->toBe(['input' => 3.0, 'output' => 15.0, 'cache_read' => 0.3, 'cache_write' => 3.75]);
+});
+
+it('rejects a negative cache price with 422', function () {
+    $this->withHeaders($this->headers)
+        ->putJson(saUrl('models/prices'), pricePayload(['cache_read_per_mtok' => -1]))
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('cache_read_per_mtok');
+
+    expect(ModelPrice::query()->count())->toBe(0);
+});

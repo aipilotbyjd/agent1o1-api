@@ -1,7 +1,7 @@
 <?php
 
-use App\Ai\Assistant\AssistantAgent;
-use App\Ai\Assistant\RecapAgent;
+use App\Ai\Agents\Assistant\AssistantAgent;
+use App\Ai\Agents\Assistant\RecapAgent;
 use App\Enums\Assistant\AssistantMessageRole;
 use App\Enums\Billing\CreditTransactionType;
 use App\Models\Ai\ModelCatalog;

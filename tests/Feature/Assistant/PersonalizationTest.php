@@ -1,7 +1,7 @@
 <?php
 
-use App\Ai\Assistant\AssistantAgent;
-use App\Ai\Assistant\StyleLearnerAgent;
+use App\Ai\Agents\Assistant\AssistantAgent;
+use App\Ai\Agents\Assistant\StyleLearnerAgent;
 use App\Enums\Assistant\AssistantFeedbackStatus;
 use App\Enums\Assistant\AssistantMessageRole;
 use App\Enums\Assistant\AssistantStyleKind;

@@ -3,10 +3,10 @@
 namespace App\Jobs\Pages;
 
 use App\Actions\Billing\DeductCreditsAction;
-use App\Ai\Agents\PageDesignerAgent;
-use App\Ai\ResponseUsage;
-use App\Ai\Tools\SubmitPageTool;
-use App\Ai\ToolSubmission;
+use App\Ai\Agents\Drafting\PageDesignerAgent;
+use App\Ai\Support\ToolSubmission;
+use App\Ai\Tools\Submissions\SubmitPageTool;
+use App\Ai\Usage\ResponseUsage;
 use App\Enums\Billing\CreditTransactionType;
 use App\Enums\Queue;
 use App\Events\Pages\PageActivity;

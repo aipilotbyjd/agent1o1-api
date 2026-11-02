@@ -1,5 +1,6 @@
 <?php
 
+use App\Ai\Observability\AiActivityRecorder;
 use Laravel\Pulse\Http\Middleware\Authorize;
 use Laravel\Pulse\Pulse;
 use Laravel\Pulse\Recorders;
@@ -231,6 +232,10 @@ return [
                 '#^/'.env('PULSE_PATH', 'pulse').'$#', // Pulse dashboard...
                 '#^/telescope#', // Telescope dashboard...
             ],
+        ],
+
+        AiActivityRecorder::class => [
+            'enabled' => env('PULSE_AI_ACTIVITY_ENABLED', true),
         ],
     ],
 ];

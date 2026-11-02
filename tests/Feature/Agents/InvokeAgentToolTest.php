@@ -1,9 +1,9 @@
 <?php
 
 use App\Actions\Agents\CreateAgentSessionAction;
-use App\Ai\Agents\WorkspaceAgent;
-use App\Ai\Tools\InvokeAgentTool;
-use App\Ai\Tools\WaitForSubagentsTool;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
+use App\Ai\Tools\Workspace\InvokeAgentTool;
+use App\Ai\Tools\Workspace\WaitForSubagentsTool;
 use App\Enums\Agents\SubagentTaskStatus;
 use App\Enums\RunStatus;
 use App\Jobs\Agents\RunSubagentTaskJob;

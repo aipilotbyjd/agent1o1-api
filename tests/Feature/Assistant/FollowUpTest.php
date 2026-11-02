@@ -1,8 +1,8 @@
 <?php
 
-use App\Ai\Assistant\Tools\CancelFollowUpTool;
-use App\Ai\Assistant\Tools\ListFollowUpsTool;
-use App\Ai\Assistant\Tools\TrackFollowUpTool;
+use App\Ai\Tools\Assistant\CancelFollowUpTool;
+use App\Ai\Tools\Assistant\ListFollowUpsTool;
+use App\Ai\Tools\Assistant\TrackFollowUpTool;
 use App\Enums\Assistant\AssistantFollowUpStatus;
 use App\Enums\Assistant\AssistantSessionOrigin;
 use App\Jobs\Assistant\CheckFollowUpJob;

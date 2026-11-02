@@ -1,11 +1,11 @@
 <?php
 
-use App\Ai\Tools\ExportArtifactTool;
-use App\Ai\Tools\ForgetTool;
-use App\Ai\Tools\NodeTool;
-use App\Ai\Tools\RememberTool;
-use App\Ai\Tools\UpdateInstructionsTool;
-use App\Ai\Tools\WorkflowTool;
+use App\Ai\Tools\Memory\ForgetTool;
+use App\Ai\Tools\Memory\RememberTool;
+use App\Ai\Tools\Workspace\ExportArtifactTool;
+use App\Ai\Tools\Workspace\NodeTool;
+use App\Ai\Tools\Workspace\UpdateInstructionsTool;
+use App\Ai\Tools\Workspace\WorkflowTool;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentSession;
 use App\Models\Ai\ModelCatalog;

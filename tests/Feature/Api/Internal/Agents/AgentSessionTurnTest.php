@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\WorkspaceAgent;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
 use App\Broadcasting\Channels;
 use App\Enums\Agents\AgentMessageRole;
 use App\Enums\RunStatus;
@@ -250,4 +250,17 @@ it('refuses to replace a message from another conversation, or a reply', functio
 
     expect($other->messages()->count())->toBe(1)
         ->and($this->session->messages()->count())->toBe(1);
+});
+
+it('fails the turn from the stream itself when a caller iterates it without handling the error', function () {
+    Queue::fake();
+    WorkspaceAgent::fake(function () {
+        throw new RuntimeException('provider unavailable');
+    });
+    $run = app(AgentRunner::class)->beginTurn($this->session, 'Hi!');
+    $stream = app(AgentRunner::class)->streamBegun($run)->response;
+
+    expect(fn () => iterator_to_array($stream))->toThrow(RuntimeException::class, 'provider unavailable');
+
+    expect($run->fresh())->status->toBe(RunStatus::Failed)->error->toContain('provider unavailable');
 });

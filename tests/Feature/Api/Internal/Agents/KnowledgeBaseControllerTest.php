@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Tools\SearchKnowledgeTool;
+use App\Ai\Tools\Knowledge\SearchKnowledgeTool;
 use App\Enums\Workspaces\Role;
 use App\Jobs\Knowledge\IngestKnowledgeJob;
 use App\Models\Agents\Agent;

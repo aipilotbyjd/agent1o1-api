@@ -28,7 +28,7 @@ class ModelUsageReport
         $rows = ModelUsageDaily::query()
             ->where('date', '>=', $this->since($days))
             ->when($workspaceId !== null, fn ($query) => $query->where('workspace_id', $workspaceId))
-            ->selectRaw('provider, model, own_key, sum(calls) as calls, sum(prompt_tokens) as prompt_tokens, sum(completion_tokens) as completion_tokens, sum(estimated_cost_usd) as cost, sum(case when estimated_cost_usd is null then calls else 0 end) as unpriced_calls')
+            ->selectRaw('provider, model, own_key, sum(calls) as calls, sum(input_tokens) as input_tokens, sum(output_tokens) as output_tokens, sum(cache_read_tokens) as cache_read_tokens, sum(cache_write_tokens) as cache_write_tokens, sum(reasoning_tokens) as reasoning_tokens, sum(prompt_tokens) as prompt_tokens, sum(completion_tokens) as completion_tokens, sum(estimated_cost_usd) as cost, sum(case when estimated_cost_usd is null then calls else 0 end) as unpriced_calls')
             ->groupBy('provider', 'model', 'own_key')
             ->get();
 
@@ -38,6 +38,11 @@ class ModelUsageReport
                 'model' => $row->model,
                 'own_key' => (bool) $row->own_key,
                 'calls' => (int) $row->calls,
+                'input_tokens' => (int) $row->input_tokens,
+                'output_tokens' => (int) $row->output_tokens,
+                'cache_read_tokens' => (int) $row->cache_read_tokens,
+                'cache_write_tokens' => (int) $row->cache_write_tokens,
+                'reasoning_tokens' => (int) $row->reasoning_tokens,
                 'prompt_tokens' => (int) $row->prompt_tokens,
                 'completion_tokens' => (int) $row->completion_tokens,
                 'priced' => (int) $row->unpriced_calls === 0,

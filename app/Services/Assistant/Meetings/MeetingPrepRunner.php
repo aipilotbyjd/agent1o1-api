@@ -2,8 +2,8 @@
 
 namespace App\Services\Assistant\Meetings;
 
-use App\Ai\Assistant\MeetingBriefAgent;
-use App\Ai\ResponseUsage;
+use App\Ai\Agents\Assistant\MeetingBriefAgent;
+use App\Ai\Usage\ResponseUsage;
 use App\Enums\Assistant\AssistantBriefingRunStatus;
 use App\Enums\Assistant\AssistantMeetingPrepStatus;
 use App\Enums\Assistant\AssistantStyleKind;

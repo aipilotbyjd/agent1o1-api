@@ -1,19 +1,14 @@
 <?php
 
-use App\Ai\Agents\WorkflowExplanationAgent;
-use App\Ai\Agents\WorkflowImprovementAgent;
-use App\Ai\Agents\WorkflowNodeConfigAgent;
-use App\Ai\Agents\WorkflowNodeSuggestionAgent;
-use App\Ai\Tools\WorkflowBuilder\SubmitNodeConfigTool;
-use App\Ai\Tools\WorkflowBuilder\SubmitNodeSuggestionsTool;
-use App\Ai\Tools\WorkflowBuilder\SubmitWorkflowExplanationTool;
-use App\Ai\Tools\WorkflowBuilder\SubmitWorkflowImprovementsTool;
+use App\Ai\Agents\Builder\WorkflowExplanationAgent;
+use App\Ai\Agents\Builder\WorkflowImprovementAgent;
+use App\Ai\Agents\Builder\WorkflowNodeConfigAgent;
+use App\Ai\Agents\Builder\WorkflowNodeSuggestionAgent;
 use App\Enums\Billing\CreditTransactionType;
 use App\Models\Billing\CreditTransaction;
 use App\Models\User;
 use App\Models\Workflows\Builder\WorkflowBuilderSession;
 use App\Services\Workspaces\WorkspaceService;
-use Laravel\Ai\Responses\Data\ToolCall;
 use Laravel\Passport\Passport;
 
 /**
@@ -42,11 +37,11 @@ function twoNodeGraph(): array
 }
 
 it('suggests next nodes, dropping types the model invented', function () {
-    WorkflowNodeSuggestionAgent::fake([new ToolCall('call_1', SubmitNodeSuggestionsTool::NAME, ['suggestions' => [
+    WorkflowNodeSuggestionAgent::fake([['suggestions' => [
         ['type' => 'slack_post_message', 'reason' => 'Tell the team.', 'connect_from' => 'shape'],
         ['type' => 'teleport', 'reason' => 'Not a real node.'],
         ['type' => 'transform', 'reason' => 'Reshape again.', 'connect_from' => 'ghost'],
-    ]])]);
+    ]]]);
 
     [$url] = assistSession(twoNodeGraph());
 
@@ -59,11 +54,11 @@ it('suggests next nodes, dropping types the model invented', function () {
 });
 
 it('proposes a node config and reports where it breaks the schema', function () {
-    WorkflowNodeConfigAgent::fake([new ToolCall('call_1', SubmitNodeConfigTool::NAME, [
+    WorkflowNodeConfigAgent::fake([[
         'config_json' => json_encode(['method' => 'GET']),
         'explanation' => 'Fetches the data.',
         'needs_from_user' => ['The API URL'],
-    ])]);
+    ]]);
 
     [$url, $session] = assistSession(twoNodeGraph());
 
@@ -85,13 +80,13 @@ it('422s configuring a node the draft does not have', function () {
 });
 
 it('explains the draft, keeping only steps for real nodes', function () {
-    WorkflowExplanationAgent::fake([new ToolCall('call_1', SubmitWorkflowExplanationTool::NAME, [
+    WorkflowExplanationAgent::fake([[
         'summary' => 'Pulls orders and reshapes them.',
         'steps' => [
             ['key' => 'fetch', 'description' => 'Gets the orders.'],
             ['key' => 'made_up', 'description' => 'Nope.'],
         ],
-    ])]);
+    ]]);
 
     [$url] = assistSession(twoNodeGraph());
 
@@ -110,10 +105,10 @@ it('refuses to explain an empty draft without calling the model', function () {
 });
 
 it('suggests improvements, normalizing what the model returns', function () {
-    WorkflowImprovementAgent::fake([new ToolCall('call_1', SubmitWorkflowImprovementsTool::NAME, ['improvements' => [
+    WorkflowImprovementAgent::fake([['improvements' => [
         ['title' => 'Handle API failures', 'description' => 'Add an error edge.', 'priority' => 'urgent', 'node_keys' => ['fetch', 'ghost'], 'suggested_type' => 'slack_post_message'],
         ['title' => '', 'description' => 'Empty title, dropped.'],
-    ]])]);
+    ]]]);
 
     [$url] = assistSession(twoNodeGraph());
 
@@ -136,9 +131,9 @@ it('does not charge when the model returns no usable answer', function () {
 });
 
 it('keeps flow-control types in suggestions', function () {
-    WorkflowNodeSuggestionAgent::fake([new ToolCall('call_1', SubmitNodeSuggestionsTool::NAME, ['suggestions' => [
+    WorkflowNodeSuggestionAgent::fake([['suggestions' => [
         ['type' => 'human_approval', 'reason' => 'Have someone sign off first.', 'connect_from' => 'fetch'],
-    ]])]);
+    ]]]);
 
     [$url] = assistSession(twoNodeGraph());
 

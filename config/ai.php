@@ -40,6 +40,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Structured Output
+    |--------------------------------------------------------------------------
+    |
+    | Agents that hand back a structured result (`SubmitsStructuredOutput`)
+    | ask the provider for JSON matching their schema. An agent listed here,
+    | by class name, falls back to the older way instead: it is forced to
+    | call a submit tool whose arguments carry the result, which works on
+    | any provider that can call tools. Use it for an agent whose provider
+    | does not keep to the schema.
+    |
+    */
+
+    'structured_output' => [
+        'forced_tool' => array_values(array_filter(explode(',', (string) env('AI_STRUCTURED_OUTPUT_FORCED_TOOL', '')))),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | AI Providers
     |--------------------------------------------------------------------------
     |

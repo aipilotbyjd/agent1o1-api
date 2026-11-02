@@ -68,7 +68,7 @@ enum CreditTransactionType: string
     case PageGeneration = 'page_generation';
 
     /**
-     * A node an agent ran as a tool (`Ai\Tools\NodeTool`): the node's own
+     * A node an agent ran as a tool (`Ai\Tools\Workspace\NodeTool`): the node's own
      * cost beyond the one credit its tool call already adds to the turn: a
      * fixed `billing.node_costs` surcharge, and the tokens an AI node spent
      * on its own model call. Saves nothing, so it carries an id of its own.

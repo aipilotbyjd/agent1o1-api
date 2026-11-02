@@ -1,7 +1,7 @@
 <?php
 
-use App\Ai\Agents\WorkflowBuilderAgent;
-use App\Ai\Agents\WorkflowBuilderTitleAgent;
+use App\Ai\Agents\Builder\WorkflowBuilderAgent;
+use App\Ai\Agents\Builder\WorkflowBuilderTitleAgent;
 use App\Jobs\Workflows\ProcessWorkflowBuilderMessageJob;
 use App\Models\Ai\ModelCatalog;
 use App\Models\Ai\WorkspaceModelSettings;

@@ -3,9 +3,9 @@
 namespace App\Services\Agents\Approvals;
 
 use App\Actions\Billing\DeductCreditsAction;
-use App\Ai\Agents\ActionReviewerAgent;
-use App\Ai\Tools\SubmitRiskAssessmentTool;
-use App\Ai\ToolSubmission;
+use App\Ai\Agents\Judges\ActionReviewerAgent;
+use App\Ai\Support\ToolSubmission;
+use App\Ai\Tools\Submissions\SubmitRiskAssessmentTool;
 use App\Enums\Agents\ActionRisk;
 use App\Enums\Agents\AgentMessageRole;
 use App\Enums\Billing\CreditTransactionType;

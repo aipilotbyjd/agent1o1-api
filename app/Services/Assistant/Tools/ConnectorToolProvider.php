@@ -2,7 +2,7 @@
 
 namespace App\Services\Assistant\Tools;
 
-use App\Ai\Assistant\Tools\ConnectorNodeTool;
+use App\Ai\Tools\Assistant\ConnectorNodeTool;
 use App\Contracts\Assistant\ProvidesAssistantTools;
 use App\Enums\Connectors\ConnectorCredentialScope;
 use App\Models\Assistant\Assistant;

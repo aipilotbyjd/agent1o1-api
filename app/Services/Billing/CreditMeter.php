@@ -2,6 +2,8 @@
 
 namespace App\Services\Billing;
 
+use App\Ai\Usage\TokenUsage;
+use App\Ai\Usage\UsagePricer;
 use App\Models\Agents\AgentEvalCaseResult;
 use App\Models\Agents\AgentMessage;
 use App\Models\Agents\AgentSessionEvaluation;
@@ -9,6 +11,7 @@ use App\Models\Agents\ReflectionRun;
 use App\Models\Runs\NodeRun;
 use App\Services\Ai\ByokProviderRegistrar;
 use App\Services\Ai\ModelPrices;
+use Laravel\Pulse\Facades\Pulse;
 
 /**
  * The per-node/per-agent-step cost table docs/PLAN.md's "Architecture
@@ -72,7 +75,10 @@ class CreditMeter
 
     private const int TYPICAL_COMPLETION_TOKENS = 500;
 
-    public function __construct(private readonly ModelPrices $prices) {}
+    public function __construct(
+        private readonly ModelPrices $prices,
+        private readonly UsagePricer $pricer,
+    ) {}
 
     /**
      * The size of the message `estimateChatMessage()` prices.
@@ -204,7 +210,7 @@ class CreditMeter
     /**
      * Embedding text for the knowledge base, priced by its input tokens.
      *
-     * @param  array{prompt_tokens: int, provider?: string|null, model?: string|null}  $usage
+     * @param  array<string, mixed>  $usage
      */
     public function costForEmbeddings(array $usage): int
     {
@@ -221,8 +227,8 @@ class CreditMeter
     public function estimateChatMessage(?string $provider, ?string $model): int
     {
         return $this->costForChatTurn([
-            'prompt_tokens' => self::TYPICAL_PROMPT_TOKENS,
-            'completion_tokens' => self::TYPICAL_COMPLETION_TOKENS,
+            'input_tokens' => self::TYPICAL_PROMPT_TOKENS,
+            'output_tokens' => self::TYPICAL_COMPLETION_TOKENS,
             'provider' => $provider,
             'model' => $model,
         ]);
@@ -275,17 +281,50 @@ class CreditMeter
             return 0;
         }
 
-        $dollarCost = $this->dollarCost($usage);
+        $tokens = TokenUsage::fromArray($usage);
+        $price = $this->priceFor($usage);
 
-        if ($dollarCost !== null) {
-            $creditValue = (float) config('billing.credit_value_usd');
+        $credits = $price !== null
+            ? $this->dollarsToCredits($this->pricer->dollars($tokens, $price))
+            : (int) ceil($tokens->totalTokens() / self::TOKENS_PER_CREDIT);
 
-            return (int) ceil($dollarCost / $creditValue);
+        $this->recordShadowDelta($usage, $tokens, $price, $credits);
+
+        return $credits;
+    }
+
+    private function dollarsToCredits(float $dollars): int
+    {
+        return (int) ceil($dollars / (float) config('billing.credit_value_usd'));
+    }
+
+    /**
+     * Records how many more (or fewer) credits this call costs than it would
+     * have before the upgrade to Laravel AI 1.x, which started counting
+     * cached and reasoning tokens: see `billing.shadow_billing`.
+     *
+     * @param  array<string, mixed>  $usage
+     * @param  array{input: float, output: float, cache_read: float|null, cache_write: float|null}|null  $price
+     */
+    private function recordShadowDelta(array $usage, TokenUsage $tokens, ?array $price, int $credits): void
+    {
+        if (! config('billing.shadow_billing')) {
+            return;
         }
 
-        $totalTokens = (int) ($usage['prompt_tokens'] ?? 0) + (int) ($usage['completion_tokens'] ?? 0);
+        $legacyCredits = $price !== null
+            ? $this->dollarsToCredits($this->pricer->legacyDollars($tokens, $price))
+            : (int) ceil(($tokens->uncachedInputTokens() + $tokens->visibleOutputTokens()) / self::TOKENS_PER_CREDIT);
 
-        return (int) ceil($totalTokens / self::TOKENS_PER_CREDIT);
+        if ($legacyCredits === $credits) {
+            return;
+        }
+
+        Pulse::record(
+            'ai_billing_shadow_delta',
+            ($usage['provider'] ?? 'unknown').':'.($usage['model'] ?? 'unknown'),
+            $credits - $legacyCredits,
+        )->sum()->count();
     }
 
     /**
@@ -298,18 +337,22 @@ class CreditMeter
      */
     public function dollarCost(array $usage): ?float
     {
+        $price = $this->priceFor($usage);
+
+        return $price === null ? null : $this->pricer->dollars(TokenUsage::fromArray($usage), $price);
+    }
+
+    /**
+     * @param  array<string, mixed>  $usage
+     * @return array{input: float, output: float, cache_read: float|null, cache_write: float|null}|null
+     */
+    private function priceFor(array $usage): ?array
+    {
         if (! isset($usage['provider'], $usage['model'])) {
             return null;
         }
 
-        $price = $this->prices->for($usage['provider'], $usage['model']);
-
-        if ($price === null) {
-            return null;
-        }
-
-        return ((int) ($usage['prompt_tokens'] ?? 0) / 1_000_000 * $price['input'])
-            + ((int) ($usage['completion_tokens'] ?? 0) / 1_000_000 * $price['output']);
+        return $this->prices->for($usage['provider'], $usage['model']);
     }
 
     /**

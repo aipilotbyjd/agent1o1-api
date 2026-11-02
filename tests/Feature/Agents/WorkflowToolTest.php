@@ -1,7 +1,7 @@
 <?php
 
 use App\Actions\Workflows\StartWorkflowRunAction;
-use App\Ai\Tools\WorkflowTool;
+use App\Ai\Tools\Workspace\WorkflowTool;
 use App\Models\User;
 use App\Models\Workflows\Workflow;
 use App\Services\Workspaces\WorkspaceService;

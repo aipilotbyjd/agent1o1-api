@@ -1,7 +1,6 @@
 <?php
 
-use App\Ai\Agents\ReflectionReviewerAgent;
-use App\Ai\Tools\SubmitReflectionsTool;
+use App\Ai\Agents\Judges\ReflectionReviewerAgent;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentMessage;
 use App\Models\Agents\AgentSession;
@@ -10,7 +9,6 @@ use App\Models\Agents\ReflectionRun;
 use App\Models\User;
 use App\Models\Workspaces\Workspace;
 use App\Services\Workspaces\WorkspaceService;
-use Laravel\Ai\Responses\Data\ToolCall;
 use Laravel\Passport\Passport;
 
 /**
@@ -56,7 +54,7 @@ it('rejects an invalid cron expression', function () {
 });
 
 it('triggers a reflection run on demand and lists it', function () {
-    ReflectionReviewerAgent::fake([new ToolCall('call_1', SubmitReflectionsTool::NAME, ['reflections' => []])]);
+    ReflectionReviewerAgent::fake([['reflections' => []]]);
 
     [$agent, $owner, $workspace] = reflectionApiAgent();
     $session = AgentSession::factory()->forAgent($agent)->create();
@@ -80,10 +78,10 @@ it('triggers a reflection run on demand and lists it', function () {
 });
 
 it('applies and dismisses a reflection', function () {
-    ReflectionReviewerAgent::fake([new ToolCall('call_1', SubmitReflectionsTool::NAME, ['reflections' => [
+    ReflectionReviewerAgent::fake([['reflections' => [
         ['type' => 'instruction_update', 'title' => 'x', 'rationale' => 'r', 'confidence' => 60, 'session_numbers' => [1, 2], 'proposed_prompt' => 'New instructions.'],
         ['type' => 'instruction_update', 'title' => 'y', 'rationale' => 'r', 'confidence' => 60, 'session_numbers' => [1, 2], 'proposed_prompt' => 'Other.'],
-    ]])]);
+    ]]]);
 
     [$agent, $owner, $workspace] = reflectionApiAgent();
     foreach (AgentSession::factory()->forAgent($agent)->count(2)->create() as $session) {

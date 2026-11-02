@@ -17,6 +17,11 @@ use Laravel\Ai\AiManager;
  * usual providers cost no query. A registered endpoint is re-read at most
  * every `RECHECK_SECONDS`, which is how a long-running worker notices a
  * changed key or a switched-off endpoint without a restart.
+ *
+ * Unlike a workspace's own key (`ByokProviderRegistrar`), an endpoint is not
+ * built with `AiManager::build()`: those providers are flushed between queue
+ * jobs, while an endpoint is platform-wide and has to stay visible to the
+ * availability checks and provider lists that read `config('ai.providers')`.
  */
 class OperatorEndpoints
 {

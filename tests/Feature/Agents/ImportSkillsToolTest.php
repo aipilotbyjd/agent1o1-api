@@ -1,7 +1,7 @@
 <?php
 
-use App\Ai\Assistant\Tools\ImportSkillsTool as AssistantImportSkillsTool;
-use App\Ai\Tools\ImportSkillsTool;
+use App\Ai\Tools\Assistant\ImportSkillsTool as AssistantImportSkillsTool;
+use App\Ai\Tools\Skills\ImportSkillsTool;
 use App\Enums\Agents\SkillSourceStatus;
 use App\Enums\Workspaces\Role;
 use App\Models\Agents\Agent;

@@ -2,7 +2,7 @@
 
 namespace App\Services\Assistant\Runtime;
 
-use App\Ai\Assistant\Tools\AssistantTool;
+use App\Ai\Tools\Assistant\AssistantTool;
 use App\Models\Assistant\AssistantSession;
 use App\Services\Assistant\AssistantInstructions;
 use App\Services\Assistant\Tools\ToolCatalog;

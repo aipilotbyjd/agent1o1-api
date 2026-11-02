@@ -2,8 +2,8 @@
 
 use App\Actions\Agents\ResolveAgentActionsAction;
 use App\Actions\Workflows\StartWorkflowRunAction;
-use App\Ai\Agents\WorkspaceAgent;
-use App\Ai\Tools\InvokeAgentTool;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
+use App\Ai\Tools\Workspace\InvokeAgentTool;
 use App\Enums\Agents\AgentActionStatus;
 use App\Enums\Agents\AutonomyMode;
 use App\Enums\Agents\SubagentTaskStatus;

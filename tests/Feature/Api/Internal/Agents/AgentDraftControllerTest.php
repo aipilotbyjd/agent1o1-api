@@ -1,14 +1,12 @@
 <?php
 
-use App\Ai\Agents\AgentDraftAgent;
-use App\Ai\Tools\SubmitAgentDraftTool;
+use App\Ai\Agents\Drafting\AgentDraftAgent;
 use App\Enums\Billing\CreditTransactionType;
 use App\Models\Ai\ModelCatalog;
 use App\Models\Billing\CreditTransaction;
 use App\Models\User;
 use App\Services\Workspaces\WorkspaceService;
 use Laravel\Ai\Prompts\AgentPrompt;
-use Laravel\Ai\Responses\Data\ToolCall;
 use Laravel\Passport\Passport;
 
 /**
@@ -29,13 +27,13 @@ function draftEndpoint(): array
 it('drafts an agent from a description without saving it', function () {
     [$url, $catalog] = draftEndpoint();
 
-    AgentDraftAgent::fake([new ToolCall('call_1', SubmitAgentDraftTool::NAME, [
+    AgentDraftAgent::fake([[
         'name' => 'Ticket Theme Analyzer',
         'description' => 'Groups support tickets by theme.',
         'instructions' => 'You are a support ticket analyzer.',
         'icon' => 'headphones',
         'color' => 'green',
-    ])]);
+    ]]);
 
     $this->postJson($url, ['prompt' => 'Summarize our support tickets by theme', 'model_catalog_id' => $catalog->id])
         ->assertOk()
@@ -60,9 +58,9 @@ it('drafts an agent from a description without saving it', function () {
 it('falls back to a default icon and color the frontend can render', function () {
     [$url, $catalog] = draftEndpoint();
 
-    AgentDraftAgent::fake([new ToolCall('call_1', SubmitAgentDraftTool::NAME, [
+    AgentDraftAgent::fake([[
         'name' => 'X', 'description' => 'Y', 'instructions' => 'Z', 'icon' => 'unicorn', 'color' => '#123456',
-    ])]);
+    ]]);
 
     $this->postJson($url, ['prompt' => 'Anything', 'model_catalog_id' => $catalog->id])
         ->assertOk()

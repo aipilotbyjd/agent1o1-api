@@ -1,6 +1,6 @@
 <?php
 
-use App\Ai\Agents\WorkspaceAgent;
+use App\Ai\Agents\Workspace\WorkspaceAgent;
 use App\Enums\Agents\KnowledgeMode;
 use App\Enums\Workspaces\Role;
 use App\Models\Agents\Agent;

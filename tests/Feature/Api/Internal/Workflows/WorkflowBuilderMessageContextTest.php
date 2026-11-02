@@ -1,7 +1,7 @@
 <?php
 
-use App\Ai\Agents\WorkflowBuilderAgent;
-use App\Ai\Agents\WorkflowBuilderTitleAgent;
+use App\Ai\Agents\Builder\WorkflowBuilderAgent;
+use App\Ai\Agents\Builder\WorkflowBuilderTitleAgent;
 use App\Ai\Tools\WorkflowBuilder\ListConnectedAccountsTool;
 use App\Enums\Connectors\ConnectorCredentialScope;
 use App\Enums\Workspaces\Role;

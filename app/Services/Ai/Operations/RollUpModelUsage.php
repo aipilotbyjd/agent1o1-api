@@ -2,6 +2,8 @@
 
 namespace App\Services\Ai\Operations;
 
+use App\Ai\Usage\TokenUsage;
+use App\Ai\Usage\UsagePricer;
 use App\Models\Ai\ModelUsageDaily;
 use App\Services\Ai\ByokProviderRegistrar;
 use App\Services\Ai\ModelPrices;
@@ -27,7 +29,10 @@ class RollUpModelUsage
     /** Rows written per insert. */
     private const int INSERT_CHUNK = 500;
 
-    public function __construct(private readonly ModelPrices $prices) {}
+    public function __construct(
+        private readonly ModelPrices $prices,
+        private readonly UsagePricer $pricer,
+    ) {}
 
     /**
      * @return array{days: int, rows: int}
@@ -106,8 +111,7 @@ class RollUpModelUsage
         return [
             "{$table}.usage->provider as provider",
             "{$table}.usage->model as model",
-            "{$table}.usage->prompt_tokens as prompt_tokens",
-            "{$table}.usage->completion_tokens as completion_tokens",
+            "{$table}.usage as usage",
         ];
     }
 
@@ -133,13 +137,13 @@ class RollUpModelUsage
             'model' => $model,
             'own_key' => $ownKey,
             'calls' => 0,
-            'prompt_tokens' => 0,
-            'completion_tokens' => 0,
+            'tokens' => new TokenUsage,
         ];
 
         $groups[$key]['calls']++;
-        $groups[$key]['prompt_tokens'] += (int) $row->prompt_tokens;
-        $groups[$key]['completion_tokens'] += (int) $row->completion_tokens;
+        $groups[$key]['tokens'] = $groups[$key]['tokens']->add(
+            TokenUsage::fromArray(is_string($row->usage) ? json_decode($row->usage, true) : (array) $row->usage),
+        );
     }
 
     /**
@@ -150,14 +154,25 @@ class RollUpModelUsage
     {
         $price = $group['own_key'] ? null : $this->prices->for($group['provider'], $group['model']);
 
+        /** @var TokenUsage $tokens */
+        $tokens = $group['tokens'];
+        unset($group['tokens']);
+
         return [
             'id' => (string) Str::orderedUuid(),
             'date' => $day->toDateString(),
             ...$group,
+            'input_tokens' => $tokens->inputTokens,
+            'output_tokens' => $tokens->outputTokens,
+            'cache_read_tokens' => $tokens->cacheReadInputTokens,
+            'cache_write_tokens' => $tokens->cacheWriteInputTokens,
+            'reasoning_tokens' => $tokens->reasoningTokens,
+            'prompt_tokens' => $tokens->uncachedInputTokens(),
+            'completion_tokens' => $tokens->visibleOutputTokens(),
             'estimated_cost_usd' => match (true) {
                 $group['own_key'] => 0.0,
                 $price === null => null,
-                default => ($group['prompt_tokens'] / 1_000_000 * $price['input']) + ($group['completion_tokens'] / 1_000_000 * $price['output']),
+                default => $this->pricer->dollars($tokens, $price),
             },
             'created_at' => now(),
             'updated_at' => now(),

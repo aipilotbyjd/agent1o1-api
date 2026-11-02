@@ -8,7 +8,7 @@ use Laravel\Ai\Tools\Request;
 use Stringable;
 
 /**
- * How `WorkflowNodeConfigAgent` hands back a proposed config (see `ToolSubmission`).
+ * How `WorkflowNodeConfigAgent` hands back a proposed config (see `SubmitsStructuredOutput`).
  * The config travels as a JSON string, like `AddNodeTool`'s `config_json`,
  * since its shape differs per node type.
  */

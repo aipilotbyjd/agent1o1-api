@@ -2,10 +2,10 @@
 
 namespace App\Services\Agents;
 
-use App\Ai\Agents\SessionEvalJudgeAgent;
-use App\Ai\ResponseUsage;
-use App\Ai\Tools\SubmitEvaluationTool;
-use App\Ai\ToolSubmission;
+use App\Ai\Agents\Judges\SessionEvalJudgeAgent;
+use App\Ai\Support\ToolSubmission;
+use App\Ai\Tools\Submissions\SubmitEvaluationTool;
+use App\Ai\Usage\ResponseUsage;
 use App\Enums\Agents\SessionEvaluationGrade;
 use App\Enums\Agents\SessionEvaluationStatus;
 use App\Enums\RunStatus;
