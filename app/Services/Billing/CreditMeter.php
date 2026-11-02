@@ -244,13 +244,70 @@ class CreditMeter
      */
     private function costForChatTurn(?array $usage): int
     {
-        $reasoning = $this->tokenCost($usage);
+        return $this->chatTurnBreakdown($usage)['total'];
+    }
+
+    /**
+     * A chat turn's charge split into Gumloop's Chat Details lines. A turn
+     * served by the workspace's own key pays nothing for reasoning, and its
+     * orchestration fee is `billing.byok_orchestration_fee_rate` of what the
+     * turn would have been worth on the platform's key ("16% instead of 8%,
+     * calculated on what the run would have been worth").
+     *
+     * @param  array<string, mixed>|null  $usage
+     * @return array{reasoning: int, tool_calls: int, compute: int, orchestration: int, waived_reasoning: int, total: int}
+     */
+    public function chatTurnBreakdown(?array $usage): array
+    {
         $toolCalls = (int) ($usage['tool_call_count'] ?? 0) * self::CREDITS_PER_TOOL_CALL;
         $compute = $this->computeCost($usage['duration_seconds'] ?? null);
 
-        $subtotal = $reasoning + $toolCalls + $compute;
+        if ($usage !== null && ByokProviderRegistrar::isByok($usage['provider'] ?? null)) {
+            $waived = $this->listTokenCost($usage);
+            $rate = (float) config('billing.byok_orchestration_fee_rate', config('billing.orchestration_fee_rate'));
+            $orchestration = (int) ceil(($waived + $toolCalls + $compute) * $rate);
 
-        return $subtotal + $this->orchestrationFee($subtotal);
+            return [
+                'reasoning' => 0,
+                'tool_calls' => $toolCalls,
+                'compute' => $compute,
+                'orchestration' => $orchestration,
+                'waived_reasoning' => $waived,
+                'total' => $toolCalls + $compute + $orchestration,
+            ];
+        }
+
+        $reasoning = $this->tokenCost($usage);
+        $subtotal = $reasoning + $toolCalls + $compute;
+        $orchestration = $this->orchestrationFee($subtotal);
+
+        return [
+            'reasoning' => $reasoning,
+            'tool_calls' => $toolCalls,
+            'compute' => $compute,
+            'orchestration' => $orchestration,
+            'waived_reasoning' => 0,
+            'total' => $subtotal + $orchestration,
+        ];
+    }
+
+    /**
+     * What a call's tokens would cost in credits on the platform's own key,
+     * whoever's key actually served it. A BYOK call is priced as the
+     * provider its key stands in for; one whose key or price is unknown
+     * falls back to the flat per-token ratio.
+     *
+     * @param  array<string, mixed>  $usage
+     */
+    private function listTokenCost(array $usage): int
+    {
+        $provider = ByokProviderRegistrar::underlyingProvider($usage['provider'] ?? null) ?? ($usage['provider'] ?? null);
+        $tokens = TokenUsage::fromArray($usage);
+        $price = $this->priceFor([...$usage, 'provider' => $provider]);
+
+        return $price !== null
+            ? $this->dollarsToCredits($this->pricer->dollars($tokens, $price))
+            : (int) ceil($tokens->totalTokens() / self::TOKENS_PER_CREDIT);
     }
 
     private function computeCost(int|float|null $durationSeconds): int

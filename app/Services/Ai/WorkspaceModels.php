@@ -4,6 +4,7 @@ namespace App\Services\Ai;
 
 use App\Models\Ai\ModelCatalog;
 use App\Models\Ai\WorkspaceModelSettings;
+use App\Models\Billing\Plan;
 use App\Models\Workspaces\Workspace;
 
 /**
@@ -51,17 +52,40 @@ class WorkspaceModels
      * Whether the workspace's plan reaches the model's minimum plan. Plans are
      * compared by monthly credits, the measure `Workspace::currentPlan()` uses
      * to pick the more generous of a subscription and a grant. A model with no
-     * minimum is open to every plan.
+     * minimum of its own takes its cost tier's minimum
+     * (`billing.model_access.min_plan_by_cost_tier`); with neither, it is open
+     * to every plan.
      */
     public function planAllows(string $workspaceId, string $modelCatalogId): bool
     {
-        $minimum = ModelCatalog::query()->with('minPlan')->find($modelCatalogId)?->minPlan;
+        $model = ModelCatalog::query()->with('minPlan')->find($modelCatalogId);
+
+        if ($model === null) {
+            return true;
+        }
+
+        $minimum = $model->minPlan ?? $this->minimumPlanForCostTier($model->cost_tier);
 
         if ($minimum === null) {
             return true;
         }
 
         return self::planCredits($workspaceId) >= $minimum->creditsMonthly();
+    }
+
+    /**
+     * The cheapest plan allowed a model of this cost tier, or null when the
+     * tier is open to every plan (or its configured plan does not exist).
+     */
+    public function minimumPlanForCostTier(?int $costTier): ?Plan
+    {
+        $slug = config("billing.model_access.min_plan_by_cost_tier.{$costTier}");
+
+        if (! is_string($slug) || $slug === '') {
+            return null;
+        }
+
+        return once(fn (): ?Plan => Plan::query()->where('slug', $slug)->first());
     }
 
     /**

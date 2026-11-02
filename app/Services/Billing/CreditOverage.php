@@ -116,13 +116,24 @@ class CreditOverage
     }
 
     /**
-     * What `$credits` of overage costs, in cents, at
-     * `config('billing.credit_value_usd')`: Gumloop bills overage at the
-     * same $0.005 a credit is worth everywhere else. Rounded up, so a
-     * fraction of a cent is never given away.
+     * What `$credits` of overage costs, in cents, at `creditValueUsd()`.
+     * Rounded up, so a fraction of a cent is never given away.
      */
     public function priceInCents(int $credits): int
     {
-        return (int) ceil($credits * (float) config('billing.credit_value_usd') * 100);
+        return (int) ceil($credits * $this->creditValueUsd() * 100);
+    }
+
+    /**
+     * What one overage credit is invoiced at: `billing.overage.credit_value_usd`,
+     * never less than what a credit costs (`billing.credit_value_usd`), so a
+     * misconfigured rate can't sell model tokens below cost.
+     */
+    public function creditValueUsd(): float
+    {
+        $cost = (float) config('billing.credit_value_usd');
+        $rate = config('billing.overage.credit_value_usd');
+
+        return is_numeric($rate) ? max($cost, (float) $rate) : $cost;
     }
 }

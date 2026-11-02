@@ -66,7 +66,7 @@ class CreditOverageController extends Controller
      * `maximum_limit` the highest cap it may choose: the settings screen
      * needs all three to render a slider that can't submit an invalid value.
      *
-     * @return array{available: bool, enabled: bool, limit: int|null, effective_limit: int|null, maximum_limit: int|null, credits_used: int, credits_remaining: int|null, credit_value_usd: float}
+     * @return array{available: bool, enabled: bool, limit: int|null, effective_limit: int|null, maximum_limit: int|null, credits_used: int, credits_remaining: int|null, credit_value_usd: float, overage_credit_value_usd: float}
      */
     private function state(Workspace $workspace, CreditOverage $overage): array
     {
@@ -81,6 +81,7 @@ class CreditOverageController extends Controller
             'credits_used' => $period->overage_credits_used,
             'credits_remaining' => $overage->remainingFor($workspace, $period),
             'credit_value_usd' => (float) config('billing.credit_value_usd'),
+            'overage_credit_value_usd' => $overage->creditValueUsd(),
         ];
     }
 }

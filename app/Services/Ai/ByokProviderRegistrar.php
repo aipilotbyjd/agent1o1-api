@@ -195,6 +195,23 @@ class ByokProviderRegistrar
     }
 
     /**
+     * The platform provider a `byok-{credential id}` name stands in for
+     * (`openai`, `anthropic`, ...), so a call served by a workspace's own key
+     * can still be priced at what it would have cost on the platform's key.
+     * Null when the name is not a BYOK name or the key no longer exists.
+     */
+    public static function underlyingProvider(mixed $provider): ?string
+    {
+        if (! self::isByok($provider)) {
+            return null;
+        }
+
+        $credentialId = substr((string) $provider, strlen(self::PREFIX));
+
+        return once(fn (): ?string => AiProviderCredential::query()->whereKey($credentialId)->value('execution_provider'));
+    }
+
+    /**
      * Which providers this member's calls would run on their workspace's own
      * key, for marking catalog models usable that the platform can't serve.
      *
