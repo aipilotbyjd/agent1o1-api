@@ -30,6 +30,9 @@ return [
     | key cost you nothing and are not counted. A model with no price cannot be
     | counted either, which the health report says.
     |
+    | "auto_throttle" pauses a free or trial workspace that spikes until the
+    | end of the day; a paying one is only reported.
+    |
     | "daily_usd" is a budget for the whole platform for one day. You are warned
     | at "warn_ratio" of it and again when it is passed. Null switches it off.
     |
@@ -49,6 +52,7 @@ return [
         'daily_usd' => env('MODEL_WORKSPACE_DAILY_USD') === null ? null : (float) env('MODEL_WORKSPACE_DAILY_USD'),
         'spike_factor' => (float) env('MODEL_WORKSPACE_SPIKE_FACTOR', 5),
         'spike_min_usd' => (float) env('MODEL_WORKSPACE_SPIKE_MIN_USD', 5),
+        'auto_throttle' => (bool) env('MODEL_WORKSPACE_AUTO_THROTTLE', true),
     ],
 
     /*
