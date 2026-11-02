@@ -16,6 +16,7 @@ use App\Services\Workflows\Pages\PagePresenter;
 use App\Services\Workflows\Pages\PageSharePreview;
 use App\Services\Workflows\Pages\PageSubmissions;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 /**
  * A workflow page at its public link. No session and no API key: the token
@@ -56,15 +57,15 @@ class PublicPageController extends Controller
     }
 
     /**
-     * The visitor started filling in the page.
+     * The visitor started filling in the page, or clicked its badge.
      */
     public function event(Request $request, string $token)
     {
         $page = $this->available($token);
-        $request->validate(['type' => ['required', 'in:'.WorkflowPageEvent::Start]]);
+        $validated = $request->validate(['type' => ['required', Rule::in(WorkflowPageEvent::REPORTABLE)]]);
         $visitor = $this->insights->visitor($page, $request);
 
-        $this->insights->record($page, WorkflowPageEvent::Start, $this->insights->variantFor($page, $visitor), $visitor);
+        $this->insights->record($page, $validated['type'], $this->insights->variantFor($page, $visitor), $visitor);
 
         return ApiResponse::noContent();
     }
@@ -145,7 +146,7 @@ class PublicPageController extends Controller
 
     private function available(string $token): WorkflowPage
     {
-        $page = WorkflowPage::query()->where('public_token', $token)->with(['workflow', 'workspace:id,name'])->first();
+        $page = WorkflowPage::query()->where('public_token', $token)->with(['workflow', 'workspace:id,name', 'creator'])->first();
 
         abort_if($page === null || ! $page->isPubliclyAvailable() || $page->workflow === null, 404, 'This page is not available.');
 
