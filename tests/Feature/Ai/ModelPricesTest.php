@@ -103,6 +103,19 @@ it('imports the older config prices once and never overwrites a stored one', fun
         ->and(ModelPrice::query()->where('model_id', 'gpt-b')->sole()->input_per_mtok)->toBe(99.0);
 });
 
+it('imports a config price\'s cache prices with it', function () {
+    config(['billing.model_prices' => [
+        'anthropic:claude-x' => ['input' => 3.0, 'output' => 15.0, 'cache_read' => 0.3, 'cache_write' => 3.75],
+    ]]);
+
+    app(ModelPrices::class)->importFromConfig();
+
+    $imported = ModelPrice::query()->sole();
+
+    expect($imported->cache_read_per_mtok)->toBe(0.3)
+        ->and($imported->cache_write_per_mtok)->toBe(3.75);
+});
+
 it('seeds the table from config through the seeder', function () {
     config(['billing.model_prices' => ['openai:gpt-seeded' => ['input' => 1.0, 'output' => 2.0]]]);
 

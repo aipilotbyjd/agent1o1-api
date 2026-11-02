@@ -59,7 +59,7 @@ class ModelRouteDescriber
     }
 
     /**
-     * @return array{input_per_mtok: float, output_per_mtok: float, source: string, checked_at: ?Carbon, in_table: bool}|null
+     * @return array{input_per_mtok: float, output_per_mtok: float, cache_read_per_mtok: ?float, cache_write_per_mtok: ?float, source: string, checked_at: ?Carbon, in_table: bool}|null
      */
     private function price(string $provider, string $model): ?array
     {
@@ -69,6 +69,8 @@ class ModelRouteDescriber
             return [
                 'input_per_mtok' => $row->input_per_mtok,
                 'output_per_mtok' => $row->output_per_mtok,
+                'cache_read_per_mtok' => $row->cache_read_per_mtok,
+                'cache_write_per_mtok' => $row->cache_write_per_mtok,
                 'source' => $row->source->value,
                 'checked_at' => $row->checked_at,
                 'in_table' => true,
@@ -80,6 +82,8 @@ class ModelRouteDescriber
         return $legacy === null ? null : [
             'input_per_mtok' => $legacy['input'],
             'output_per_mtok' => $legacy['output'],
+            'cache_read_per_mtok' => $legacy['cache_read'],
+            'cache_write_per_mtok' => $legacy['cache_write'],
             'source' => 'config',
             'checked_at' => null,
             'in_table' => false,
