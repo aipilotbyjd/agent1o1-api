@@ -90,4 +90,20 @@ return [
         'feed_url' => env('MODEL_PRICE_SYNC_FEED_URL', 'https://openrouter.ai/api/v1/models'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Provider SLOs
+    |--------------------------------------------------------------------------
+    |
+    | What a healthy provider route looks like over the last hour, for the
+    | live operations board and the recommendation that a route be moved
+    | down: the share of calls that succeed, and the 95th percentile latency.
+    |
+    */
+
+    'slo' => [
+        'success_rate' => (float) env('MODEL_SLO_SUCCESS_RATE', 0.99),
+        'p95_latency_ms' => (int) env('MODEL_SLO_P95_LATENCY_MS', 20000),
+    ],
+
 ];

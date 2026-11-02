@@ -63,6 +63,12 @@ Schedule::onOneServer()->withoutOverlapping()->group(function (): void {
     Schedule::command('model-prices:sync')->dailyAt('03:40')->when(fn (): bool => (bool) config('model_operations.price_sync.enabled'));
     Schedule::command('ai-calls:prune')->dailyAt('04:20');
 
+    // Admin intelligence
+    Schedule::command('intelligence:rollup')->hourlyAt(10);
+    Schedule::command('intelligence:recommend')->hourlyAt(35);
+    Schedule::command('intelligence:predict')->dailyAt('01:15');
+    Schedule::command('intelligence:briefing')->weeklyOn(1, '07:45')->when(fn (): bool => (bool) config('intelligence.briefing.enabled'));
+
     // Workflow builder
     Schedule::command('workflow-builder:archive-idle')->dailyAt('03:00');
 

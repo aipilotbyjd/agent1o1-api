@@ -46,6 +46,7 @@ class AiCallRecorder
         'Judges' => 'judges',
         'Assistant' => 'assistant',
         'Drafting' => 'drafting',
+        'Intelligence' => 'admin_analyst',
     ];
 
     public function __construct(
