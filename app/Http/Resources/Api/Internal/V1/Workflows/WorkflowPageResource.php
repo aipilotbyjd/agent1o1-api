@@ -4,6 +4,7 @@ namespace App\Http\Resources\Api\Internal\V1\Workflows;
 
 use App\Models\User;
 use App\Models\Workflows\WorkflowPage;
+use App\Services\Workflows\Pages\PageBranding;
 use App\Services\Workflows\Pages\PageSchema;
 use App\Services\Workflows\Pages\PageSharePreview;
 use Illuminate\Http\Request;
@@ -56,6 +57,9 @@ class WorkflowPageResource extends JsonResource
                 'title' => $this->share_title,
                 'description' => $this->share_description,
                 'image_url' => $this->share_image_url,
+            ],
+            'branding' => [
+                'can_remove' => app(PageBranding::class)->canRemove($this->resource),
             ],
             'share_preview' => $this->when($this->withContent, fn () => app(PageSharePreview::class)->for($this->resource)),
             'runs_count' => $this->whenCounted('runs'),
