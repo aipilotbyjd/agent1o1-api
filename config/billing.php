@@ -376,6 +376,38 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Price Enforcement
+    |--------------------------------------------------------------------------
+    |
+    | What happens to a call on the platform's own key when its model price is
+    | not `verified` (see `ModelPriceStatus`):
+    |
+    | - `enforce`: the call is refused (`ModelPriceUnverifiedException`), and
+    |   a route cannot be enabled until its price is verified. A workspace's
+    |   own key still works, since the workspace pays the provider.
+    | - `warn`: the call runs and is counted, so `model-prices:check` and the
+    |   price book report show what `enforce` would block. Use it to roll
+    |   out, then switch to `enforce` once nothing would be blocked.
+    | - `off`: no checks.
+    |
+    | `unpriced_fallback` decides how a call on a model with no price is
+    | billed. `tier_max` (the default) bills it at the most expensive priced
+    | model of the same cost tier, or at `input`/`output` per million tokens
+    | when the tier has none: high on purpose, so a missing price overcharges
+    | instead of losing money. `flat` keeps the old 1 credit per 1,000 tokens.
+    |
+    */
+
+    'price_enforcement' => env('BILLING_PRICE_ENFORCEMENT', 'warn'),
+
+    'unpriced_fallback' => [
+        'mode' => env('BILLING_UNPRICED_FALLBACK', 'tier_max'),
+        'input' => (float) env('BILLING_UNPRICED_INPUT_PER_MTOK', 15.0),
+        'output' => (float) env('BILLING_UNPRICED_OUTPUT_PER_MTOK', 75.0),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Model Prices
     |--------------------------------------------------------------------------
     |

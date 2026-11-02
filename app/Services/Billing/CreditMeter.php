@@ -44,11 +44,10 @@ class CreditMeter
     private const int BASE_CREDITS_PER_RUN = 1;
 
     /**
-     * Fallback ratio for a model with no `config('billing.model_prices')`
-     * entry: additional credits per 1,000 prompt+completion tokens, rounded
-     * up. Used whenever the model that served a call isn't in the price
-     * table (see that config entry for why most of this app's catalog isn't
-     * priced yet).
+     * The old ratio for a model with no price: credits per 1,000
+     * prompt+completion tokens, rounded up. Only used when
+     * `billing.unpriced_fallback.mode` is `flat`; by default an unpriced call
+     * is billed at its cost tier's highest price instead.
      */
     private const int TOKENS_PER_CREDIT = 1000;
 
@@ -303,7 +302,7 @@ class CreditMeter
     {
         $provider = ByokProviderRegistrar::underlyingProvider($usage['provider'] ?? null) ?? ($usage['provider'] ?? null);
         $tokens = TokenUsage::fromArray($usage);
-        $price = $this->priceFor([...$usage, 'provider' => $provider]);
+        $price = $this->priceFor([...$usage, 'provider' => $provider]) ?? $this->unpricedPrice([...$usage, 'provider' => $provider]);
 
         return $price !== null
             ? $this->dollarsToCredits($this->pricer->dollars($tokens, $price))
@@ -341,6 +340,11 @@ class CreditMeter
         $tokens = TokenUsage::fromArray($usage);
         $price = $this->priceFor($usage);
 
+        if ($price === null) {
+            $this->recordUnpriced($usage);
+            $price = $this->unpricedPrice($usage);
+        }
+
         $credits = $price !== null
             ? $this->dollarsToCredits($this->pricer->dollars($tokens, $price))
             : (int) ceil($tokens->totalTokens() / self::TOKENS_PER_CREDIT);
@@ -348,6 +352,37 @@ class CreditMeter
         $this->recordShadowDelta($usage, $tokens, $price, $credits);
 
         return $credits;
+    }
+
+    /**
+     * The price an unpriced call is billed at: the conservative tier
+     * fallback (`ModelPrices::fallbackFor()`), or null for the flat
+     * per-token ratio when `billing.unpriced_fallback.mode` is `flat`.
+     *
+     * @param  array<string, mixed>  $usage
+     * @return array{input: float, output: float, cache_read: float|null, cache_write: float|null}|null
+     */
+    private function unpricedPrice(array $usage): ?array
+    {
+        if (config('billing.unpriced_fallback.mode') === 'flat') {
+            return null;
+        }
+
+        return $this->prices->fallbackFor($usage['provider'] ?? null, $usage['model'] ?? null);
+    }
+
+    /**
+     * Counts calls billed without a price of their own, so the price book
+     * report can show which models still need one.
+     *
+     * @param  array<string, mixed>  $usage
+     */
+    private function recordUnpriced(array $usage): void
+    {
+        Pulse::record(
+            'ai_unpriced_call',
+            ($usage['provider'] ?? 'unknown').':'.($usage['model'] ?? 'unknown'),
+        )->count();
     }
 
     private function dollarsToCredits(float $dollars): int
@@ -397,6 +432,36 @@ class CreditMeter
         $price = $this->priceFor($usage);
 
         return $price === null ? null : $this->pricer->dollars(TokenUsage::fromArray($usage), $price);
+    }
+
+    /**
+     * What a call cost the platform in provider fees: zero on a workspace's
+     * own key, its own price when it has one, and the conservative fallback
+     * price otherwise, so an unpriced call is never counted as free.
+     *
+     * @param  array<string, mixed>|null  $usage
+     * @return array{usd: float, priced: bool, status: string, version_id: string|null}
+     */
+    public function providerCost(?array $usage): array
+    {
+        if ($usage === null || ! isset($usage['provider'])) {
+            return ['usd' => 0.0, 'priced' => false, 'status' => 'none', 'version_id' => null];
+        }
+
+        if (ByokProviderRegistrar::isByok($usage['provider'])) {
+            return ['usd' => 0.0, 'priced' => true, 'status' => 'byok', 'version_id' => null];
+        }
+
+        $price = $this->priceFor($usage);
+        $meta = $price === null ? null : $this->prices->meta($usage['provider'], $usage['model'] ?? null);
+        $price ??= $this->prices->fallbackFor($usage['provider'], $usage['model'] ?? null);
+
+        return [
+            'usd' => round($this->pricer->dollars(TokenUsage::fromArray($usage), $price), 8),
+            'priced' => $meta !== null,
+            'status' => $meta === null ? 'unpriced' : $meta['status']->value,
+            'version_id' => $meta['version_id'] ?? null,
+        ];
     }
 
     /**

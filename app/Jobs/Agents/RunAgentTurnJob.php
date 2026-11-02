@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Agents;
 
+use App\Ai\Observability\AiCallContext;
 use App\Enums\Queue;
 use App\Enums\RunStatus;
 use App\Models\Runs\Run;
@@ -44,7 +45,14 @@ class RunAgentTurnJob implements ShouldQueue
         }
 
         try {
-            $turn = $runner->streamBegun($run);
+            $turn = app(AiCallContext::class)->run([
+                'workspace_id' => $run->workspace_id,
+                'user_id' => $run->triggered_by,
+                'feature' => 'agent_chat',
+                'run_id' => $run->id,
+                'subject_type' => 'run',
+                'subject_id' => $run->id,
+            ], fn () => $runner->streamBegun($run));
         } catch (Throwable $e) {
             // `streamBegun()` has already failed the run; the chat still
             // needs to hear about it.

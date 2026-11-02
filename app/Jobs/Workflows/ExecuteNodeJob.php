@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Workflows;
 
+use App\Ai\Observability\AiCallContext;
 use App\Enums\Queue;
 use App\Models\Runs\NodeRun;
 use App\Services\Workflows\WorkflowRunner;
@@ -35,6 +36,13 @@ class ExecuteNodeJob implements ShouldQueue
             return;
         }
 
-        $runner->executeStep($nodeRun);
+        app(AiCallContext::class)->run([
+            'workspace_id' => $nodeRun->run?->workspace_id,
+            'user_id' => $nodeRun->run?->triggered_by,
+            'feature' => 'workflow_node',
+            'run_id' => $nodeRun->run_id,
+            'subject_type' => 'node_run',
+            'subject_id' => $nodeRun->id,
+        ], fn () => $runner->executeStep($nodeRun));
     }
 }

@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * `debt_credits` is the part no grant could pay for (an overdraft), and
  * `allocations` say exactly which wallet grants paid for the rest.
  */
-#[Fillable(['workspace_id', 'usage_period_id', 'source_type', 'source_id', 'credits', 'topup_credits', 'overage_credits', 'debt_credits', 'reason'])]
+#[Fillable(['workspace_id', 'usage_period_id', 'source_type', 'source_id', 'credits', 'topup_credits', 'overage_credits', 'debt_credits', 'revenue_usd', 'reason'])]
 class CreditTransaction extends Model
 {
     use HasUuids;
@@ -38,6 +38,7 @@ class CreditTransaction extends Model
             'topup_credits' => 'integer',
             'overage_credits' => 'integer',
             'debt_credits' => 'integer',
+            'revenue_usd' => 'float',
         ];
     }
 
