@@ -6,13 +6,15 @@ use App\Enums\Billing\CreditGrantSource;
 use App\Models\Billing\Plan;
 use App\Models\Billing\Subscription;
 use App\Models\Workspaces\Workspace;
+use App\Services\Intelligence\Experiments;
 
 /**
  * Decides what a usage period's allowance is: which kind of grant and how
  * many credits.
  *
  * - No plan resolved (a half-seeded install): unlimited, as before.
- * - A trialing subscription: the plan's `trial_credits`.
+ * - A trialing subscription: the plan's `trial_credits`, or its
+ *   `trial-credits` experiment variant's while one is running.
  * - A paid subscription or lifetime plan: the plan's monthly credits.
  * - Otherwise the free plan, through `FreeCreditPolicy`: the monthly credits
  *   for the owner's free workspace, 0 for any other.
@@ -23,7 +25,16 @@ use App\Models\Workspaces\Workspace;
  */
 class CreditAllowancePolicy
 {
-    public function __construct(private readonly FreeCreditPolicy $free) {}
+    /**
+     * The experiment that may vary trial credits (`Experiments`): a variant's
+     * `credits` setting replaces the plan's trial credits while it runs.
+     */
+    public const string TRIAL_CREDITS_EXPERIMENT = 'trial-credits';
+
+    public function __construct(
+        private readonly FreeCreditPolicy $free,
+        private readonly Experiments $experiments,
+    ) {}
 
     /**
      * @return array{source: CreditGrantSource, credits: int|null, plan: Plan|null, subscription: Subscription|null}
@@ -43,7 +54,9 @@ class CreditAllowancePolicy
         }
 
         if ($subscription !== null && $subscription->onTrial()) {
-            return ['source' => CreditGrantSource::Trial, 'credits' => $plan->trialCredits(), 'plan' => $plan, 'subscription' => $subscription];
+            $credits = (int) $this->experiments->setting(self::TRIAL_CREDITS_EXPERIMENT, $workspace->id, 'credits', $plan->trialCredits());
+
+            return ['source' => CreditGrantSource::Trial, 'credits' => $credits, 'plan' => $plan, 'subscription' => $subscription];
         }
 
         if ($subscription === null && $workspace->activePlanGrant() === null) {

@@ -30,6 +30,9 @@ return [
     | key cost you nothing and are not counted. A model with no price cannot be
     | counted either, which the health report says.
     |
+    | "auto_throttle" pauses a free or trial workspace that spikes until the
+    | end of the day; a paying one is only reported.
+    |
     | "daily_usd" is a budget for the whole platform for one day. You are warned
     | at "warn_ratio" of it and again when it is passed. Null switches it off.
     |
@@ -49,6 +52,58 @@ return [
         'daily_usd' => env('MODEL_WORKSPACE_DAILY_USD') === null ? null : (float) env('MODEL_WORKSPACE_DAILY_USD'),
         'spike_factor' => (float) env('MODEL_WORKSPACE_SPIKE_FACTOR', 5),
         'spike_min_usd' => (float) env('MODEL_WORKSPACE_SPIKE_MIN_USD', 5),
+        'auto_throttle' => (bool) env('MODEL_WORKSPACE_AUTO_THROTTLE', true),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | AI call ledger
+    |--------------------------------------------------------------------------
+    |
+    | Every request sent to an AI provider is written to `ai_call_events` with
+    | what it cost the platform (see `AiCallRecorder`). It is the source for
+    | the unit-economics reports, the real-dollar cost caps and the forecasts.
+    | `ai-calls:prune` deletes rows older than `retention_days`: the daily
+    | facts (`fact_usage_daily`) keep the history after that.
+    |
+    */
+
+    'call_ledger' => [
+        'enabled' => (bool) env('AI_CALL_LEDGER_ENABLED', true),
+        'retention_days' => (int) env('AI_CALL_LEDGER_RETENTION_DAYS', 180),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Price sync
+    |--------------------------------------------------------------------------
+    |
+    | `model-prices:sync` reads a public list of model prices (OpenRouter's by
+    | default) to fill in missing, demo and unverified prices as `unverified`,
+    | and to raise `model_price_drift` when a verified price no longer matches
+    | the list. It never changes a verified price.
+    |
+    */
+
+    'price_sync' => [
+        'enabled' => (bool) env('MODEL_PRICE_SYNC_ENABLED', true),
+        'feed_url' => env('MODEL_PRICE_SYNC_FEED_URL', 'https://openrouter.ai/api/v1/models'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Provider SLOs
+    |--------------------------------------------------------------------------
+    |
+    | What a healthy provider route looks like over the last hour, for the
+    | live operations board and the recommendation that a route be moved
+    | down: the share of calls that succeed, and the 95th percentile latency.
+    |
+    */
+
+    'slo' => [
+        'success_rate' => (float) env('MODEL_SLO_SUCCESS_RATE', 0.99),
+        'p95_latency_ms' => (int) env('MODEL_SLO_P95_LATENCY_MS', 20000),
     ],
 
 ];

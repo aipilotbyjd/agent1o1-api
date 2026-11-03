@@ -4,6 +4,8 @@ namespace App\Services\Ai\Operations;
 
 use App\Models\Ai\ModelUsageDaily;
 use App\Models\Workspaces\Workspace;
+use App\Services\Billing\CostGuard;
+use App\Services\Billing\SpendControls;
 use App\Services\SuperAdmin\Alerts\SuperAdminAlerter;
 use Illuminate\Support\Facades\Cache;
 
@@ -48,11 +50,39 @@ class SpendGuard
                 continue;
             }
 
-            $this->alerter->raise($finding['alert'], $finding['message'], ['workspace_id' => $finding['workspace_id']]);
+            $message = $this->throttleIfUnpaid($finding) ? $finding['message'].' It was on free or trial credits, so it is paused until the end of the day.' : $finding['message'];
+
+            $this->alerter->raise($finding['alert'], $message, ['workspace_id' => $finding['workspace_id']]);
             $raised++;
         }
 
         return $raised;
+    }
+
+    /**
+     * A free or trial workspace whose spend spikes is paused until the end of
+     * the day (`model_operations.workspace.auto_throttle`): it pays nothing,
+     * so it is the cheapest thing to stop and the likeliest abuse. A paying
+     * workspace is only reported; what to do about it stays the operator's
+     * decision.
+     *
+     * @param  array{code: string, severity: string, message: string, workspace_id: ?string, alert: string}  $finding
+     */
+    private function throttleIfUnpaid(array $finding): bool
+    {
+        if ($finding['workspace_id'] === null || ! config('model_operations.workspace.auto_throttle', true)) {
+            return false;
+        }
+
+        $workspace = Workspace::query()->find($finding['workspace_id']);
+
+        if ($workspace === null || ! app(CostGuard::class)->onFreeOrTrialAllowance($workspace)) {
+            return false;
+        }
+
+        app(SpendControls::class)->throttle($workspace->id, now()->endOfDay(), $finding['message']);
+
+        return true;
     }
 
     /**

@@ -51,6 +51,8 @@ return [
         'role_changed' => true,
         'spend_budget' => true,
         'spend_spike' => true,
+        'model_price_drift' => true,
+        'unit_economics' => true,
         'provider_paused' => true,
         'audit_tampering' => true,
         'lockdown' => true,

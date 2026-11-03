@@ -72,6 +72,9 @@ return [
     'guardrails' => [
         'enabled' => (bool) env('BILLING_GUARDRAILS_ENABLED', true),
         'free_tier_daily_budget_usd' => env('FREE_TIER_DAILY_BUDGET_USD') === null ? null : (float) env('FREE_TIER_DAILY_BUDGET_USD'),
+        'kill_switch' => env('BILLING_KILL_SWITCH', 'off'),
+        'platform_daily_budget_usd' => env('PLATFORM_DAILY_AI_BUDGET_USD') === null ? null : (float) env('PLATFORM_DAILY_AI_BUDGET_USD'),
+        'platform_hard_stop_ratio' => (float) env('PLATFORM_AI_HARD_STOP_RATIO', 1.5),
     ],
 
     /*
@@ -105,7 +108,7 @@ return [
         'monthly' => (bool) env('BILLING_INTERVAL_MONTHLY_ENABLED', true),
         'quarterly' => (bool) env('BILLING_INTERVAL_QUARTERLY_ENABLED', true),
         'yearly' => (bool) env('BILLING_INTERVAL_YEARLY_ENABLED', true),
-        'lifetime' => (bool) env('BILLING_INTERVAL_LIFETIME_ENABLED', true),
+        'lifetime' => (bool) env('BILLING_INTERVAL_LIFETIME_ENABLED', false),
     ],
 
     /*
@@ -158,6 +161,13 @@ return [
     | to `null` lifts the ceiling estate-wide, which is Gumloop's uncapped
     | Enterprise case.
     |
+    | `credit_value_usd` is what one overage credit is invoiced at. It is kept
+    | above `billing.credit_value_usd` on purpose: overage credits are mostly
+    | spent on model tokens that cost exactly `billing.credit_value_usd`, so
+    | invoicing them at that same rate loses the card processing fee on every
+    | one. `CreditOverage::priceInCents()` reads it; `MarginFloor` refuses a
+    | value at or below cost.
+    |
     | `minimum_invoice_cents` stops `billing:invoice-overage` opening a Stripe
     | invoice for a few cents of accrued usage: anything below it rolls into
     | the next run rather than being written off, since the credits stay
@@ -170,6 +180,7 @@ return [
             ? (int) env('BILLING_OVERAGE_DEFAULT_LIMIT', 1_000_000)
             : null,
         'minimum_invoice_cents' => (int) env('BILLING_OVERAGE_MINIMUM_INVOICE_CENTS', 50),
+        'credit_value_usd' => (float) env('BILLING_OVERAGE_CREDIT_VALUE_USD', 0.0065),
     ],
 
     /*
@@ -275,6 +286,90 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | BYOK Orchestration Fee
+    |--------------------------------------------------------------------------
+    |
+    | Gumloop's "agent chats on BYOK carry a 16% orchestration fee instead of
+    | 8%, calculated on what the run would have been worth". A chat turn
+    | served by a workspace's own key pays no token credits, so the fee is
+    | taken on the turn's would-be value (its token cost at list price plus
+    | tool calls and compute) at this rate instead of `orchestration_fee_rate`.
+    |
+    */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Credit Reservations and Real-time Billing
+    |--------------------------------------------------------------------------
+    |
+    | Work in flight holds credits (`CreditReservations`) so the pre-flight
+    | check sees them: an agent turn holds `agent_turn_credits`, an AI step
+    | `ai_step_credits`, both typical charges rather than worst cases. A hold
+    | the worker never released expires after `ttl_minutes`.
+    |
+    | With `realtime_node_billing` on, each workflow step is charged as soon
+    | as it finishes instead of when the whole run ends, so the balance a
+    | long loop sees is always current. The end-of-run charge still runs and
+    | skips every step already charged.
+    |
+    */
+
+    'reservations' => [
+        'enabled' => (bool) env('BILLING_RESERVATIONS_ENABLED', true),
+        'agent_turn_credits' => (int) env('BILLING_RESERVE_AGENT_TURN_CREDITS', 40),
+        'ai_step_credits' => (int) env('BILLING_RESERVE_AI_STEP_CREDITS', 15),
+        'ttl_minutes' => (int) env('BILLING_RESERVATION_TTL_MINUTES', 30),
+    ],
+
+    'realtime_node_billing' => (bool) env('BILLING_REALTIME_NODE_BILLING', true),
+
+    'byok_orchestration_fee_rate' => (float) env('BILLING_BYOK_ORCHESTRATION_FEE_RATE', 0.16),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Margin Floors
+    |--------------------------------------------------------------------------
+    |
+    | The least a credit may earn, in USD, on each way of buying one. Model
+    | calls are billed at cost (`credit_value_usd`), so a plan that earns less
+    | than that per credit loses money on every credit spent on tokens.
+    | `MarginFloor` checks every plan, interval, pack and the overage rate
+    | against these, and the test suite fails when one falls below.
+    |
+    | `payment_fee_rate` is the card processor's cut, taken off revenue before
+    | it is compared with cost. `lifetime_months` spreads a lifetime price
+    | over the months its credits are expected to keep coming.
+    |
+    */
+
+    'margin_floor' => [
+        'monthly_usd_per_credit' => (float) env('BILLING_MARGIN_FLOOR_MONTHLY', 0.0062),
+        'prepaid_usd_per_credit' => (float) env('BILLING_MARGIN_FLOOR_PREPAID', 0.0054),
+        'payment_fee_rate' => (float) env('BILLING_PAYMENT_FEE_RATE', 0.032),
+        'lifetime_months' => (int) env('BILLING_MARGIN_LIFETIME_MONTHS', 36),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Model Access by Cost Tier
+    |--------------------------------------------------------------------------
+    |
+    | The cheapest plan (by slug) that may use a model of each `cost_tier`,
+    | for models without their own `min_plan_id`. A model's own minimum plan
+    | always wins. Keeps the free plan on tier-1 models, whose real cost the
+    | free allowance can absorb.
+    |
+    */
+
+    'model_access' => [
+        'min_plan_by_cost_tier' => [
+            2 => env('BILLING_MIN_PLAN_COST_TIER_2', 'starter'),
+            3 => env('BILLING_MIN_PLAN_COST_TIER_3', 'pro'),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Cache Price Fallback
     |--------------------------------------------------------------------------
     |
@@ -307,6 +402,38 @@ return [
     */
 
     'shadow_billing' => (bool) env('BILLING_SHADOW_ENABLED', true),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Price Enforcement
+    |--------------------------------------------------------------------------
+    |
+    | What happens to a call on the platform's own key when its model price is
+    | not `verified` (see `ModelPriceStatus`):
+    |
+    | - `enforce`: the call is refused (`ModelPriceUnverifiedException`), and
+    |   a route cannot be enabled until its price is verified. A workspace's
+    |   own key still works, since the workspace pays the provider.
+    | - `warn`: the call runs and is counted, so `model-prices:check` and the
+    |   price book report show what `enforce` would block. Use it to roll
+    |   out, then switch to `enforce` once nothing would be blocked.
+    | - `off`: no checks.
+    |
+    | `unpriced_fallback` decides how a call on a model with no price is
+    | billed. `tier_max` (the default) bills it at the most expensive priced
+    | model of the same cost tier, or at `input`/`output` per million tokens
+    | when the tier has none: high on purpose, so a missing price overcharges
+    | instead of losing money. `flat` keeps the old 1 credit per 1,000 tokens.
+    |
+    */
+
+    'price_enforcement' => env('BILLING_PRICE_ENFORCEMENT', 'warn'),
+
+    'unpriced_fallback' => [
+        'mode' => env('BILLING_UNPRICED_FALLBACK', 'tier_max'),
+        'input' => (float) env('BILLING_UNPRICED_INPUT_PER_MTOK', 15.0),
+        'output' => (float) env('BILLING_UNPRICED_OUTPUT_PER_MTOK', 75.0),
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -381,6 +508,10 @@ return [
     */
 
     'stripe_plan_ids' => [
+        'STRIPE_PLAN_BUSINESS_MONTHLY_PRICE_ID' => env('STRIPE_PLAN_BUSINESS_MONTHLY_PRICE_ID'),
+        'STRIPE_PLAN_BUSINESS_PRODUCT_ID' => env('STRIPE_PLAN_BUSINESS_PRODUCT_ID'),
+        'STRIPE_PLAN_BUSINESS_QUARTERLY_PRICE_ID' => env('STRIPE_PLAN_BUSINESS_QUARTERLY_PRICE_ID'),
+        'STRIPE_PLAN_BUSINESS_YEARLY_PRICE_ID' => env('STRIPE_PLAN_BUSINESS_YEARLY_PRICE_ID'),
         'STRIPE_PLAN_PRO_LIFETIME_PRICE_ID' => env('STRIPE_PLAN_PRO_LIFETIME_PRICE_ID'),
         'STRIPE_PLAN_PRO_MONTHLY_PRICE_ID' => env('STRIPE_PLAN_PRO_MONTHLY_PRICE_ID'),
         'STRIPE_PLAN_PRO_PRODUCT_ID' => env('STRIPE_PLAN_PRO_PRODUCT_ID'),

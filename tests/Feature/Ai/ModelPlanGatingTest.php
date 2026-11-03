@@ -120,3 +120,31 @@ it('forgets the limit when its plan is deleted', function () {
     expect($this->gated->fresh()->min_plan_id)->toBeNull()
         ->and(app(WorkspaceModels::class)->allows($this->workspace->id, $this->gated->id))->toBeTrue();
 });
+
+it('keeps a model of a gated cost tier away from a lower plan when the model has no minimum of its own', function () {
+    config(['billing.model_access.min_plan_by_cost_tier' => [3 => 'pro']]);
+    $frontier = ModelCatalog::factory()->create(['slug' => 'frontier', 'cost_tier' => 3]);
+    $cheap = ModelCatalog::factory()->create(['slug' => 'cheap', 'cost_tier' => 1]);
+    $models = app(WorkspaceModels::class);
+
+    expect($models->planAllows($this->workspace->id, $frontier->id))->toBeFalse()
+        ->and($models->planAllows($this->workspace->id, $cheap->id))->toBeTrue();
+
+    givePlan($this->pro);
+
+    expect(app(WorkspaceModels::class)->planAllows($this->workspace->id, $frontier->id))->toBeTrue();
+});
+
+it('lets a model\'s own minimum plan win over its cost tier\'s', function () {
+    config(['billing.model_access.min_plan_by_cost_tier' => [3 => 'pro']]);
+    $openFrontier = ModelCatalog::factory()->create(['slug' => 'open-frontier', 'cost_tier' => 3, 'min_plan_id' => $this->free->id]);
+
+    expect(app(WorkspaceModels::class)->planAllows($this->workspace->id, $openFrontier->id))->toBeTrue();
+});
+
+it('leaves a cost tier open when its configured plan does not exist', function () {
+    config(['billing.model_access.min_plan_by_cost_tier' => [2 => 'no-such-plan']]);
+    $model = ModelCatalog::factory()->create(['slug' => 'mid', 'cost_tier' => 2]);
+
+    expect(app(WorkspaceModels::class)->planAllows($this->workspace->id, $model->id))->toBeTrue();
+});

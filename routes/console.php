@@ -60,6 +60,14 @@ Schedule::onOneServer()->withoutOverlapping()->group(function (): void {
     Schedule::command('model-catalog:retire-due')->dailyAt('04:00');
     Schedule::command('model-usage:rollup')->hourlyAt(5);
     Schedule::command('model-spend:check')->hourlyAt(15);
+    Schedule::command('model-prices:sync')->dailyAt('03:40')->when(fn (): bool => (bool) config('model_operations.price_sync.enabled'));
+    Schedule::command('ai-calls:prune')->dailyAt('04:20');
+
+    // Admin intelligence
+    Schedule::command('intelligence:rollup')->hourlyAt(10);
+    Schedule::command('intelligence:recommend')->hourlyAt(35);
+    Schedule::command('intelligence:predict')->dailyAt('01:15');
+    Schedule::command('intelligence:briefing')->weeklyOn(1, '07:45')->when(fn (): bool => (bool) config('intelligence.briefing.enabled'));
 
     // Workflow builder
     Schedule::command('workflow-builder:archive-idle')->dailyAt('03:00');
@@ -70,6 +78,7 @@ Schedule::onOneServer()->withoutOverlapping()->group(function (): void {
     Schedule::command('billing:notify-trial-ending')->daily();
     Schedule::command('billing:invoice-overage')->daily();
     Schedule::command('credits:expire')->hourlyAt(20);
+    Schedule::command('credits:prune-reservations')->hourlyAt(25);
 
     // Referrals
     Schedule::command('referrals:grant-pending')->hourly();

@@ -44,11 +44,10 @@ class CreditMeter
     private const int BASE_CREDITS_PER_RUN = 1;
 
     /**
-     * Fallback ratio for a model with no `config('billing.model_prices')`
-     * entry: additional credits per 1,000 prompt+completion tokens, rounded
-     * up. Used whenever the model that served a call isn't in the price
-     * table (see that config entry for why most of this app's catalog isn't
-     * priced yet).
+     * The old ratio for a model with no price: credits per 1,000
+     * prompt+completion tokens, rounded up. Only used when
+     * `billing.unpriced_fallback.mode` is `flat`; by default an unpriced call
+     * is billed at its cost tier's highest price instead.
      */
     private const int TOKENS_PER_CREDIT = 1000;
 
@@ -244,13 +243,70 @@ class CreditMeter
      */
     private function costForChatTurn(?array $usage): int
     {
-        $reasoning = $this->tokenCost($usage);
+        return $this->chatTurnBreakdown($usage)['total'];
+    }
+
+    /**
+     * A chat turn's charge split into Gumloop's Chat Details lines. A turn
+     * served by the workspace's own key pays nothing for reasoning, and its
+     * orchestration fee is `billing.byok_orchestration_fee_rate` of what the
+     * turn would have been worth on the platform's key ("16% instead of 8%,
+     * calculated on what the run would have been worth").
+     *
+     * @param  array<string, mixed>|null  $usage
+     * @return array{reasoning: int, tool_calls: int, compute: int, orchestration: int, waived_reasoning: int, total: int}
+     */
+    public function chatTurnBreakdown(?array $usage): array
+    {
         $toolCalls = (int) ($usage['tool_call_count'] ?? 0) * self::CREDITS_PER_TOOL_CALL;
         $compute = $this->computeCost($usage['duration_seconds'] ?? null);
 
-        $subtotal = $reasoning + $toolCalls + $compute;
+        if ($usage !== null && ByokProviderRegistrar::isByok($usage['provider'] ?? null)) {
+            $waived = $this->listTokenCost($usage);
+            $rate = (float) config('billing.byok_orchestration_fee_rate', config('billing.orchestration_fee_rate'));
+            $orchestration = (int) ceil(($waived + $toolCalls + $compute) * $rate);
 
-        return $subtotal + $this->orchestrationFee($subtotal);
+            return [
+                'reasoning' => 0,
+                'tool_calls' => $toolCalls,
+                'compute' => $compute,
+                'orchestration' => $orchestration,
+                'waived_reasoning' => $waived,
+                'total' => $toolCalls + $compute + $orchestration,
+            ];
+        }
+
+        $reasoning = $this->tokenCost($usage);
+        $subtotal = $reasoning + $toolCalls + $compute;
+        $orchestration = $this->orchestrationFee($subtotal);
+
+        return [
+            'reasoning' => $reasoning,
+            'tool_calls' => $toolCalls,
+            'compute' => $compute,
+            'orchestration' => $orchestration,
+            'waived_reasoning' => 0,
+            'total' => $subtotal + $orchestration,
+        ];
+    }
+
+    /**
+     * What a call's tokens would cost in credits on the platform's own key,
+     * whoever's key actually served it. A BYOK call is priced as the
+     * provider its key stands in for; one whose key or price is unknown
+     * falls back to the flat per-token ratio.
+     *
+     * @param  array<string, mixed>  $usage
+     */
+    private function listTokenCost(array $usage): int
+    {
+        $provider = ByokProviderRegistrar::underlyingProvider($usage['provider'] ?? null) ?? ($usage['provider'] ?? null);
+        $tokens = TokenUsage::fromArray($usage);
+        $price = $this->priceFor([...$usage, 'provider' => $provider]) ?? $this->unpricedPrice([...$usage, 'provider' => $provider]);
+
+        return $price !== null
+            ? $this->dollarsToCredits($this->pricer->dollars($tokens, $price))
+            : (int) ceil($tokens->totalTokens() / self::TOKENS_PER_CREDIT);
     }
 
     private function computeCost(int|float|null $durationSeconds): int
@@ -284,6 +340,11 @@ class CreditMeter
         $tokens = TokenUsage::fromArray($usage);
         $price = $this->priceFor($usage);
 
+        if ($price === null) {
+            $this->recordUnpriced($usage);
+            $price = $this->unpricedPrice($usage);
+        }
+
         $credits = $price !== null
             ? $this->dollarsToCredits($this->pricer->dollars($tokens, $price))
             : (int) ceil($tokens->totalTokens() / self::TOKENS_PER_CREDIT);
@@ -291,6 +352,37 @@ class CreditMeter
         $this->recordShadowDelta($usage, $tokens, $price, $credits);
 
         return $credits;
+    }
+
+    /**
+     * The price an unpriced call is billed at: the conservative tier
+     * fallback (`ModelPrices::fallbackFor()`), or null for the flat
+     * per-token ratio when `billing.unpriced_fallback.mode` is `flat`.
+     *
+     * @param  array<string, mixed>  $usage
+     * @return array{input: float, output: float, cache_read: float|null, cache_write: float|null}|null
+     */
+    private function unpricedPrice(array $usage): ?array
+    {
+        if (config('billing.unpriced_fallback.mode') === 'flat') {
+            return null;
+        }
+
+        return $this->prices->fallbackFor($usage['provider'] ?? null, $usage['model'] ?? null);
+    }
+
+    /**
+     * Counts calls billed without a price of their own, so the price book
+     * report can show which models still need one.
+     *
+     * @param  array<string, mixed>  $usage
+     */
+    private function recordUnpriced(array $usage): void
+    {
+        Pulse::record(
+            'ai_unpriced_call',
+            ($usage['provider'] ?? 'unknown').':'.($usage['model'] ?? 'unknown'),
+        )->count();
     }
 
     private function dollarsToCredits(float $dollars): int
@@ -340,6 +432,36 @@ class CreditMeter
         $price = $this->priceFor($usage);
 
         return $price === null ? null : $this->pricer->dollars(TokenUsage::fromArray($usage), $price);
+    }
+
+    /**
+     * What a call cost the platform in provider fees: zero on a workspace's
+     * own key, its own price when it has one, and the conservative fallback
+     * price otherwise, so an unpriced call is never counted as free.
+     *
+     * @param  array<string, mixed>|null  $usage
+     * @return array{usd: float, priced: bool, status: string, version_id: string|null}
+     */
+    public function providerCost(?array $usage): array
+    {
+        if ($usage === null || ! isset($usage['provider'])) {
+            return ['usd' => 0.0, 'priced' => false, 'status' => 'none', 'version_id' => null];
+        }
+
+        if (ByokProviderRegistrar::isByok($usage['provider'])) {
+            return ['usd' => 0.0, 'priced' => true, 'status' => 'byok', 'version_id' => null];
+        }
+
+        $price = $this->priceFor($usage);
+        $meta = $price === null ? null : $this->prices->meta($usage['provider'], $usage['model'] ?? null);
+        $price ??= $this->prices->fallbackFor($usage['provider'], $usage['model'] ?? null);
+
+        return [
+            'usd' => round($this->pricer->dollars(TokenUsage::fromArray($usage), $price), 8),
+            'priced' => $meta !== null,
+            'status' => $meta === null ? 'unpriced' : $meta['status']->value,
+            'version_id' => $meta['version_id'] ?? null,
+        ];
     }
 
     /**
