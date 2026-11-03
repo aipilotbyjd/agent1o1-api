@@ -8,6 +8,7 @@ use App\Exceptions\InsufficientCreditsException;
 use App\Exceptions\PlanLimitExceededException;
 use App\Exceptions\RunStateException;
 use App\Services\Agents\Approvals\ActionGuard;
+use App\Services\Agents\Approvals\ActionMessages;
 use Closure;
 use Illuminate\Database\QueryException;
 use Laravel\Ai\Approvals\Approval;
@@ -30,6 +31,11 @@ trait GatesActions
     use InteractsWithApprovals;
 
     private ?ActionGuard $actionGuard = null;
+
+    /**
+     * Calls of this tool that failed in this turn: see `ActionGuard::hasFailedTooOften()`.
+     */
+    private int $failedCalls = 0;
 
     public function guardedBy(?ActionGuard $guard): static
     {
@@ -61,7 +67,8 @@ trait GatesActions
 
     protected function needsApproval(Request $request): Approval|bool
     {
-        if ($this->actionGuard === null) {
+        // A tool refused for failing too often is never put to a person.
+        if ($this->actionGuard === null || $this->actionGuard->hasFailedTooOften($this->failedCalls)) {
             return false;
         }
 
@@ -80,7 +87,8 @@ trait GatesActions
      * text ("channel_not_found", "credential has expired") is usually enough
      * for the model to fix its arguments and retry, or to tell the user what
      * went wrong. Failures that must stop the turn itself (no credits left,
-     * a plan limit, a pause for approval) are still thrown.
+     * a plan limit, a pause for approval) are still thrown. A tool that
+     * keeps failing is refused once it reaches `ActionGuard::MAX_FAILURES_PER_TURN`.
      *
      * @param  Closure(array<string, mixed>): string  $execute  given the (possibly edited) model arguments
      */
@@ -93,6 +101,10 @@ trait GatesActions
                 return $execute($arguments);
             }
 
+            if ($this->actionGuard->hasFailedTooOften($this->failedCalls)) {
+                return ActionMessages::failedTooOften($this->actionGuard->toolName());
+            }
+
             $effective = $this->effectiveArguments($arguments);
 
             return $this->actionGuard->run($request, $arguments, $effective, $this->actionEffect($effective), $execute);
@@ -100,6 +112,8 @@ trait GatesActions
             throw $e;
         } catch (Throwable $e) {
             report($e);
+
+            $this->failedCalls++;
 
             return json_encode([
                 'error' => $e instanceof QueryException ? 'An internal error occurred.' : $e->getMessage(),
