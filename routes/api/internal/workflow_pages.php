@@ -29,6 +29,7 @@ Route::middleware(['auth:api', 'workspace.context'])
         Route::patch('{page}', [WorkflowPageController::class, 'update'])->name('update');
         Route::delete('{page}', [WorkflowPageController::class, 'destroy'])->name('destroy');
         Route::post('{page}/duplicate', [WorkflowPageController::class, 'duplicate'])->name('duplicate');
+        Route::post('{page}/clone', [WorkflowPageController::class, 'clone'])->name('clone');
         Route::post('{page}/publish', [WorkflowPageController::class, 'publish'])->name('publish');
         Route::post('{page}/unpublish', [WorkflowPageController::class, 'unpublish'])->name('unpublish');
         Route::post('{page}/rotate-link', [WorkflowPageController::class, 'rotateLink'])->name('rotate-link');

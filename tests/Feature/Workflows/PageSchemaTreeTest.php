@@ -119,6 +119,65 @@ it('sanitizes the steps and features blocks', function () {
     expect($blocks[3]['props']['columns'])->toBe(4);
 });
 
+it('sanitizes the code, pricing and embed blocks', function () {
+    $blocks = $this->schema->normalize(['blocks' => [
+        treeBlock('code', ['code' => "line 1\r\n    indented\r\n", 'language' => 'php']),
+        treeBlock('pricing', ['items' => [
+            ['name' => 'Pro', 'price' => '$9', 'cta_url' => 'javascript:alert(1)', 'highlighted' => true],
+            ['name' => '', 'price' => ''],
+            'junk',
+        ]]),
+        treeBlock('embed', ['url' => 'https://calendly.com/acme/intro', 'height' => 'huge']),
+        treeBlock('embed', ['url' => 'https://evil.example.com/calendly.com']),
+        treeBlock('embed', ['url' => 'http://calendly.com/acme']),
+        treeBlock('embed', ['url' => 'https://notcalendly.com/x']),
+    ]])['blocks'];
+
+    expect($blocks[0]['props']['code'])->toBe("line 1\n    indented");
+    expect($blocks[1]['props']['items'])->toHaveCount(1);
+    expect($blocks[1]['props']['items'][0])->toMatchArray(['name' => 'Pro', 'price' => '$9', 'cta_url' => null, 'highlighted' => true]);
+    expect($blocks[2]['props'])->toMatchArray(['url' => 'https://calendly.com/acme/intro', 'height' => 'md']);
+    expect($blocks[3]['props']['url'])->toBeNull();
+    expect($blocks[4]['props']['url'])->toBeNull();
+    expect($blocks[5]['props']['url'])->toBeNull();
+});
+
+it('sanitizes the gallery, compare, progress, social and timeline blocks', function () {
+    $blocks = $this->schema->normalize(['blocks' => [
+        treeBlock('gallery', ['columns' => 9, 'items' => [['url' => 'https://example.com/a.png'], ['url' => 'data:image/png;base64,AAAA']]]),
+        treeBlock('compare', ['mode' => 'weird', 'before_url' => 'https://example.com/b.png', 'after_url' => 'ftp://nope']),
+        treeBlock('progress', ['items' => [['label' => 'Speed', 'value' => 140], ['label' => '', 'value' => 0], ['label' => 'Low', 'value' => -5]]]),
+        treeBlock('social', ['items' => [
+            ['network' => 'github', 'url' => 'https://github.com/acme'],
+            ['network' => 'email', 'url' => 'hi@example.com'],
+            ['network' => 'email', 'url' => 'not an email'],
+            ['network' => 'x', 'url' => 'javascript:alert(1)'],
+            ['network' => 'myspace', 'url' => 'https://example.com'],
+        ]]),
+        treeBlock('timeline', ['items' => [['date' => '2025', 'title' => 'Launch'], ['date' => '', 'title' => '']]]),
+    ]])['blocks'];
+
+    expect($blocks[0]['props']['columns'])->toBe(3);
+    expect($blocks[0]['props']['items'])->toBe([['url' => 'https://example.com/a.png', 'alt' => null]]);
+    expect($blocks[1]['props'])->toMatchArray(['mode' => 'slider', 'before_url' => 'https://example.com/b.png', 'after_url' => null]);
+    expect($blocks[2]['props']['items'])->toBe([['label' => 'Speed', 'value' => 100], ['label' => 'Low', 'value' => 0]]);
+    expect(array_column($blocks[3]['props']['items'], 'url'))->toBe(['https://github.com/acme', 'mailto:hi@example.com', 'https://example.com']);
+    expect($blocks[3]['props']['items'][2]['network'])->toBe('website');
+    expect($blocks[4]['props']['items'])->toBe([['date' => '2025', 'title' => 'Launch', 'description' => '']]);
+});
+
+it('keeps how a block is shown: visibility, lock, spacing and mobile alignment', function () {
+    $blocks = $this->schema->normalize(['blocks' => [
+        ['id' => 'a', 'type' => 'text', 'width' => 'full', 'visibility' => 'mobile', 'locked' => true, 'space_above' => 'lg', 'mobile_space_above' => 'none', 'mobile_align' => 'center', 'props' => []],
+        ['id' => 'b', 'type' => 'text', 'width' => 'full', 'visibility' => 'tv', 'space_above' => 'huge', 'mobile_space_above' => 'huge', 'mobile_align' => 'justify', 'props' => []],
+        treeBlock('text'),
+    ]])['blocks'];
+
+    expect($blocks[0])->toMatchArray(['visibility' => 'mobile', 'locked' => true, 'space_above' => 'lg', 'mobile_space_above' => 'none', 'mobile_align' => 'center']);
+    expect($blocks[1])->toMatchArray(['visibility' => 'all', 'locked' => false, 'space_above' => 'none', 'mobile_space_above' => null, 'mobile_align' => null]);
+    expect($blocks[2])->toMatchArray(['visibility' => 'all', 'locked' => false]);
+});
+
 it('checks fields and the Run button wherever they sit', function () {
     $content = $this->schema->normalize(['blocks' => [
         treeBlock('section', [], [

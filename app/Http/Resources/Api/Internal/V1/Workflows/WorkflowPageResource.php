@@ -57,6 +57,7 @@ class WorkflowPageResource extends JsonResource
                 'title' => $this->share_title,
                 'description' => $this->share_description,
                 'image_url' => $this->share_image_url,
+                'hide_from_search' => $this->hide_from_search,
             ],
             'branding' => [
                 'can_remove' => app(PageBranding::class)->canRemove($this->resource),
