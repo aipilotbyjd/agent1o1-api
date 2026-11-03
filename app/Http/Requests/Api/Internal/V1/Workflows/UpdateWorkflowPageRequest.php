@@ -50,6 +50,7 @@ class UpdateWorkflowPageRequest extends FormRequest
             'max_runs_per_day' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:100000'],
             'share_title' => ['sometimes', 'nullable', 'string', 'max:120'],
             'share_description' => ['sometimes', 'nullable', 'string', 'max:300'],
+            'hide_from_search' => ['sometimes', 'boolean'],
             'share_image_url' => ['sometimes', 'nullable', 'string', 'max:2048', 'url:http,https'],
         ];
     }
