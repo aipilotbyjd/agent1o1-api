@@ -79,6 +79,18 @@ final class ActionMessages
         return self::encode(['error' => 'The action failed: '.($action->result ?? 'unknown error')]);
     }
 
+    /**
+     * A tool that already failed `ActionGuard::MAX_FAILURES_PER_TURN` times
+     * this turn: refused without running, so the model stops retrying it.
+     */
+    public static function failedTooOften(string $toolName): string
+    {
+        return self::encode([
+            'error' => "{$toolName} already failed several times in this turn, so it was not run again.",
+            'note' => 'Stop calling this tool and tell the user what went wrong.',
+        ]);
+    }
+
     public static function pending(AgentAction $action): string
     {
         return self::encode(['status' => 'waiting_for_approval', 'note' => 'This action is waiting for a person to approve it.']);

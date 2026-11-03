@@ -2,6 +2,7 @@
 
 namespace App\Services\Agents;
 
+use App\Ai\Runtime\StepLimit;
 use App\Enums\Agents\SubagentTaskStatus;
 use App\Models\Agents\AgentMessage;
 use App\Models\Agents\AgentSession;
@@ -38,7 +39,9 @@ class SubagentTaskTracker
             ->whereIn('status', [SubagentTaskStatus::Running, SubagentTaskStatus::AwaitingApproval])
             ->update([
                 'status' => SubagentTaskStatus::Completed,
-                'result' => $reply->content,
+                'result' => $reply->stop_reason === StepLimit::REASON
+                    ? trim($reply->content."\n\n".StepLimit::SUBAGENT_NOTE)
+                    : $reply->content,
                 'finished_at' => now(),
             ]);
     }

@@ -22,6 +22,7 @@ use App\Ai\Tools\Workspace\AskUserTool;
 use App\Ai\Tools\Workspace\ExportArtifactTool;
 use App\Ai\Tools\Workspace\InvokeAgentTool;
 use App\Ai\Tools\Workspace\NodeTool;
+use App\Ai\Tools\Workspace\ReadToolResultTool;
 use App\Ai\Tools\Workspace\SubmitPlanTool;
 use App\Ai\Tools\Workspace\UpdateInstructionsTool;
 use App\Ai\Tools\Workspace\WaitForSubagentsTool;
@@ -29,6 +30,7 @@ use App\Ai\Tools\Workspace\WorkflowTool;
 use App\Contracts\DeclaresEffect;
 use App\Enums\Agents\ActionEffect;
 use App\Enums\Agents\ActionToolKind;
+use App\Enums\Agents\AgentMessageRole;
 use App\Enums\Agents\AutonomyMode;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentSession;
@@ -120,7 +122,7 @@ class ToolRegistry
     ) {}
 
     /**
-     * @return array<int, NodeTool|WorkflowTool|SearchKnowledgeTool|ReadKnowledgeDocumentTool|UseSkillTool|CreateSkillTool|ImportSkillsTool|UpdateSkillTool|RememberTool|ForgetTool|RecallMemoriesTool|ExportArtifactTool|UpdateInstructionsTool|InvokeAgentTool|WaitForSubagentsTool|ScheduleFollowUpTool|ListFollowUpsTool|CancelFollowUpTool|SearchPastConversationsTool|ReadPastConversationTool|AskUserTool|SubmitPlanTool|WebSearch|WebFetch>
+     * @return array<int, NodeTool|WorkflowTool|SearchKnowledgeTool|ReadKnowledgeDocumentTool|UseSkillTool|CreateSkillTool|ImportSkillsTool|UpdateSkillTool|RememberTool|ForgetTool|RecallMemoriesTool|ExportArtifactTool|ReadToolResultTool|UpdateInstructionsTool|InvokeAgentTool|WaitForSubagentsTool|ScheduleFollowUpTool|ListFollowUpsTool|CancelFollowUpTool|SearchPastConversationsTool|ReadPastConversationTool|AskUserTool|SubmitPlanTool|WebSearch|WebFetch>
      */
     public function toolsFor(Agent $agent, Run $run, ?AgentSession $session = null, bool $canPause = true, bool $simulateActions = false): array
     {
@@ -156,6 +158,8 @@ class ToolRegistry
         $artifactTools = $session !== null
             ? [new ExportArtifactTool($agent, $session, $run, $this->storeArtifact, $this->documentRenderer)]
             : [];
+
+        $toolResultTools = $session !== null && $this->hasToolResults($session) ? [new ReadToolResultTool($session)] : [];
 
         $skillEditingTools = $session !== null && $agent->allow_skill_editing
             ? array_values(array_filter([
@@ -210,6 +214,7 @@ class ToolRegistry
             ...$skillEditingTools,
             ...$memoryTools,
             ...$artifactTools,
+            ...$toolResultTools,
             ...$selfUpdateTools,
             ...$subagentTools,
             ...$followUpTools,
@@ -260,6 +265,18 @@ class ToolRegistry
         return ($userId !== null ? User::query()->find($userId) : null)?->timezoneIn($agent->workspace)
             ?? $agent->workspace?->timezone
             ?? Timezones::DEFAULT;
+    }
+
+    /**
+     * Whether the conversation has an earlier tool result `ReadToolResultTool`
+     * could read back: until then the tool would only add to every request.
+     */
+    private function hasToolResults(AgentSession $session): bool
+    {
+        return $session->messages()
+            ->where('role', AgentMessageRole::Assistant)
+            ->whereNotNull('tool_results')
+            ->exists();
     }
 
     /**

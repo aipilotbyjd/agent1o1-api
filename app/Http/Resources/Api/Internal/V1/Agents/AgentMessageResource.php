@@ -53,6 +53,8 @@ class AgentMessageResource extends JsonResource
             // Set while the turn waits on approvals: which calls are waiting.
             'awaiting_approval' => $this->paused_state !== null,
             'pending_tool_call_ids' => $this->paused_state['pending_tool_call_ids'] ?? [],
+            // `step_limit`: the turn ran out of steps before it finished.
+            'stop_reason' => $this->stop_reason,
             'actions' => AgentActionResource::collection($this->whenLoaded('actions')),
             // Where a user-role message no person typed came from, e.g. a
             // follow-up the agent scheduled itself: `{type: "follow_up", ...}`.
