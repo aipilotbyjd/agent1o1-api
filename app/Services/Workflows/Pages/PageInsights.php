@@ -15,7 +15,7 @@ use Illuminate\Support\Carbon;
 
 /**
  * How a page is doing: who opens it, who starts filling it in, how many
- * runs it starts and how they end: overall, by day, and per version while
+ * runs it starts and how they end, and how many click its badge: overall, by day, and per version while
  * an A/B test runs.
  *
  * A visitor is the random id the page keeps in their browser (sent as
@@ -23,7 +23,7 @@ use Illuminate\Support\Carbon;
  * browser, always stored as a keyed hash scoped to the page, so the same
  * person can't be followed from one page to another.
  *
- * @phpstan-type Counts array{views: int, starts: int, submissions: int, completed: int, failed: int, start_rate: ?float, conversion_rate: ?float, completion_rate: ?float, avg_duration_seconds: ?float}
+ * @phpstan-type Counts array{views: int, starts: int, badge_clicks: int, submissions: int, completed: int, failed: int, start_rate: ?float, conversion_rate: ?float, completion_rate: ?float, avg_duration_seconds: ?float}
  * @phpstan-type Filters array{status?: ?string, variant?: ?string, include_tests?: bool, from?: ?string, to?: ?string}
  */
 class PageInsights
@@ -35,6 +35,17 @@ class PageInsights
         'failed' => [RunStatus::Failed, RunStatus::Cancelled],
         'running' => [RunStatus::Pending, RunStatus::Running],
         'waiting' => [RunStatus::AwaitingApproval, RunStatus::AwaitingCallback],
+    ];
+
+    /**
+     * The tally each event type is counted under.
+     *
+     * @var array<string, string>
+     */
+    private const array EVENT_TALLIES = [
+        WorkflowPageEvent::View => 'views',
+        WorkflowPageEvent::Start => 'starts',
+        WorkflowPageEvent::BadgeClick => 'badge_clicks',
     ];
 
     public function visitor(WorkflowPage $page, Request $request, ?User $user = null): string
@@ -90,7 +101,12 @@ class PageInsights
             ->groupBy('day', 'variant', 'type')
             ->get()
             ->each(function (WorkflowPageEvent $row) use (&$tally): void {
-                $key = $row->type === WorkflowPageEvent::Start ? 'starts' : 'views';
+                $key = self::EVENT_TALLIES[$row->type] ?? null;
+
+                if ($key === null) {
+                    return;
+                }
+
                 $tally[$row->day->toDateString()][$row->variant][$key] = (int) $row->getAttribute('total');
             });
 
@@ -182,6 +198,7 @@ class PageInsights
         return [
             'views' => $views,
             'starts' => $starts,
+            'badge_clicks' => $sum('badge_clicks'),
             'submissions' => $submissions,
             'completed' => $completed,
             'failed' => $sum('failed'),
