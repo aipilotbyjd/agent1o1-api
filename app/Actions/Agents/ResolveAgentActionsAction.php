@@ -3,6 +3,7 @@
 namespace App\Actions\Agents;
 
 use App\Authorization\WorkspaceContext;
+use App\Enums\Agents\ActionToolKind;
 use App\Enums\Agents\AgentActionStatus;
 use App\Enums\Workspaces\Permission;
 use App\Events\Agents\AgentActionsChanged;
@@ -11,9 +12,11 @@ use App\Models\User;
 use App\Services\Agents\Approvals\ActionApprovers;
 use App\Services\Agents\Approvals\ActionResumer;
 use App\Services\Agents\Approvals\TrustRules;
+use App\Services\Agents\UserQuestions;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Records people's decisions on waiting actions, then resumes every turn
@@ -26,6 +29,11 @@ use Illuminate\Support\Facades\DB;
  *   the tool: a field bound at attach time can't be changed this way.
  * - `reject`: don't run it. With `stop`, the agent's turn ends there;
  *   otherwise it carries on, told of the rejection and any `note`.
+ * - `answer`: only for a question the agent asked (`AskUserTool`), the one
+ *   way to answer it: `answer` is checked against the question and handed
+ *   to the agent when its turn resumes. A question can also be rejected
+ *   (skipped), but never approved or edited, so a generic "approve" from
+ *   a chat button or bulk action leaves it waiting.
  *
  * `remember` on an approval also sets the tool to run without asking from
  * now on, only for someone who may manage the agent.
@@ -39,14 +47,16 @@ class ResolveAgentActionsAction
         private readonly ActionApprovers $approvers,
         private readonly ActionResumer $resumer,
         private readonly TrustRules $trust,
+        private readonly UserQuestions $questions,
     ) {}
 
     /**
-     * @param  list<array{action_id: string, decision: string, arguments?: array<string, mixed>|null, note?: string|null, stop?: bool, remember?: bool}>  $decisions
+     * @param  list<array{action_id: string, decision: string, arguments?: array<string, mixed>|null, note?: string|null, stop?: bool, remember?: bool, answer?: mixed}>  $decisions
      * @param  User|null  $user  null for a decision made on a person's behalf without an account here (a chat button)
      * @return Collection<int, AgentAction> the actions this call decided
      *
      * @throws AuthorizationException
+     * @throws ValidationException when an answer doesn't fit its question
      */
     public function execute(?User $user, array $decisions, string $channel = 'app', bool $resume = true, ?string $actorLabel = null): Collection
     {
@@ -56,7 +66,7 @@ class ResolveAgentActionsAction
             foreach ($decisions as $decision) {
                 $action = AgentAction::query()->with(['session', 'workspace', 'agent'])->lockForUpdate()->find($decision['action_id']);
 
-                if ($action === null || ! $action->status->isAwaitingDecision()) {
+                if ($action === null || ! $action->status->isAwaitingDecision() || ! $this->fits($action, $decision['decision'])) {
                     continue;
                 }
 
@@ -66,7 +76,7 @@ class ResolveAgentActionsAction
 
                 $this->apply($action, $decision, $user, $channel, $actorLabel);
 
-                if (($decision['remember'] ?? false) && $decision['decision'] !== 'reject' && $user !== null
+                if (($decision['remember'] ?? false) && in_array($decision['decision'], ['approve', 'edit'], true) && $user !== null
                     && WorkspaceContext::resolveRole($action->workspace, $user)?->has(Permission::AgentManage)) {
                     $this->trust->allowAlways($action->agent, $action->tool_name);
                 }
@@ -91,15 +101,34 @@ class ResolveAgentActionsAction
     }
 
     /**
-     * @param  array{decision: string, arguments?: array<string, mixed>|null, note?: string|null, stop?: bool}  $decision
+     * Whether a decision applies to this kind of action: a question is
+     * answered or skipped, everything else approved, edited or rejected.
+     */
+    private function fits(AgentAction $action, string $decision): bool
+    {
+        return $action->tool_kind === ActionToolKind::Question
+            ? in_array($decision, ['answer', 'reject'], true)
+            : $decision !== 'answer';
+    }
+
+    /**
+     * @param  array{action_id: string, decision: string, arguments?: array<string, mixed>|null, note?: string|null, stop?: bool, answer?: mixed}  $decision
+     *
+     * @throws ValidationException
      */
     private function apply(AgentAction $action, array $decision, ?User $user, string $channel, ?string $actorLabel): void
     {
         $note = filled($decision['note'] ?? null) ? trim((string) $decision['note']) : null;
 
+        $editedArguments = match ($decision['decision']) {
+            'edit' => $decision['arguments'] ?? [],
+            'answer' => [...($action->arguments ?? []), 'answer' => $this->questions->answer($action->arguments ?? [], $decision['answer'] ?? null)],
+            default => null,
+        };
+
         $action->forceFill([
             'status' => $decision['decision'] === 'reject' ? AgentActionStatus::Rejected : AgentActionStatus::Approved,
-            'edited_arguments' => $decision['decision'] === 'edit' ? ($decision['arguments'] ?? []) : null,
+            'edited_arguments' => $editedArguments,
             'stops_turn' => $decision['decision'] === 'reject' && ($decision['stop'] ?? false),
             'decided_by' => $user?->id,
             'decided_at' => now(),

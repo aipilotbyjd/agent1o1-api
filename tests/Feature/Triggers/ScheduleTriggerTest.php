@@ -1,5 +1,9 @@
 <?php
 
+use App\Ai\Agents\Workspace\WorkspaceAgent;
+use App\Enums\Triggers\TriggerEventStatus;
+use App\Enums\Triggers\TriggerTargetType;
+use App\Models\Agents\Agent;
 use App\Models\Triggers\Trigger;
 use App\Models\User;
 use App\Services\Workspaces\WorkspaceService;
@@ -62,6 +66,26 @@ it('fires a one-time schedule once and then switches it off', function () {
     $this->artisan('triggers:run-due');
 
     expect($trigger->events()->count())->toBe(1)
+        ->and($trigger->fresh()->is_active)->toBeFalse();
+});
+
+it('really runs a one-time schedule\'s slot rather than skipping it as switched off', function () {
+    $owner = User::factory()->create();
+    $workspace = app(WorkspaceService::class)->create($owner, ['name' => 'Acme']);
+    $agent = Agent::factory()->forWorkspace($workspace)->create();
+    $trigger = Trigger::factory()->schedule()->forWorkspace($workspace)->create([
+        'target_type' => TriggerTargetType::Agent->value,
+        'target_id' => $agent->id,
+        'config' => ['run_once_at' => now()->addMinute()->toIso8601String()],
+    ]);
+
+    WorkspaceAgent::fake(['Done.']);
+
+    $this->travelTo(now()->addMinute());
+    $this->artisan('triggers:run-due');
+
+    expect($trigger->events()->sole()->status)->toBe(TriggerEventStatus::Fired)
+        ->and($agent->sessions()->count())->toBe(1)
         ->and($trigger->fresh()->is_active)->toBeFalse();
 });
 

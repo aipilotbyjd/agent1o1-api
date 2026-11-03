@@ -2,6 +2,7 @@
 
 namespace App\Services\Agents\Approvals;
 
+use App\Enums\Agents\ActionToolKind;
 use App\Enums\Agents\AgentActionStatus;
 use App\Models\Agents\AgentAction;
 
@@ -35,7 +36,31 @@ final class ActionMessages
 
     public static function rejected(AgentAction $action): string
     {
+        if ($action->tool_kind === ActionToolKind::Question) {
+            return self::unanswered($action);
+        }
+
         return self::rejectionText($action->status, $action->decision_note);
+    }
+
+    /**
+     * A question (`AskUserTool`) the person skipped, let lapse, or moved on
+     * from by writing a new message instead.
+     */
+    public static function unanswered(AgentAction $action): string
+    {
+        $base = match ($action->status) {
+            AgentActionStatus::Expired => 'The user did not answer your question in time.',
+            AgentActionStatus::Cancelled => 'The user did not answer your question; they wrote a new message instead, which comes next in the conversation. Treat that message as their reply.',
+            default => 'The user chose not to answer your question.',
+        };
+
+        $note = $action->status === AgentActionStatus::Rejected && filled($action->decision_note) ? " Their note: {$action->decision_note}" : '';
+
+        return self::encode([
+            'status' => 'unanswered',
+            'note' => "{$base}{$note} Do not ask the same question again right away: carry on with your best judgement and say what you assumed.",
+        ]);
     }
 
     public static function rejectionText(AgentActionStatus $status, ?string $note): string

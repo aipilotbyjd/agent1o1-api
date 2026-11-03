@@ -4,6 +4,7 @@ namespace App\Ai\Tools\Knowledge;
 
 use App\Models\Workspaces\Workspace;
 use App\Services\Agents\KnowledgeBase;
+use App\Services\Agents\KnowledgeCitations;
 use App\Services\Agents\UntrustedContent;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Contracts\Tool;
@@ -18,6 +19,8 @@ use Throwable;
  * itself lives in `Services\Agents\KnowledgeBase`, shared with the Internal
  * API's knowledge-base endpoints, so what an agent retrieves is exactly what
  * that API's search preview shows.
+ *
+ * Each hit carries the ref the agent cites it by: see `KnowledgeCitations`.
  */
 class SearchKnowledgeTool implements Tool
 {
@@ -32,7 +35,10 @@ class SearchKnowledgeTool implements Tool
 
     public function description(): Stringable|string
     {
-        return 'Searches the workspace knowledge base for chunks relevant to a query.';
+        return 'Searches the workspace knowledge base for chunks relevant to a query. '
+            .'Each result has a `ref` such as K1A2B3C: when your answer uses a result, cite it by putting its ref in square brackets '
+            .'right after the sentence it supports, e.g. "Refunds take 5 business days [K1A2B3C]." Cite several as [K1A2B3C, K4D5E6F]. '
+            .'Only cite refs you were given, never make one up, and do not add a separate list of sources: the user sees each citation as a link to its source.';
     }
 
     public function handle(Request $request): Stringable|string
@@ -49,8 +55,10 @@ class SearchKnowledgeTool implements Tool
 
         $results = $found
             ->map(fn (array $result): array => [
+                'ref' => KnowledgeCitations::chunkRef($result['id']),
                 'collection' => $result['collection'],
                 'source' => $result['source'],
+                'url' => $result['url'],
                 'text' => UntrustedContent::wrap('knowledge_base', $result['text']),
                 'score' => round($result['score'], 4),
             ]);
