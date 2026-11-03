@@ -4,6 +4,11 @@ namespace App\Services\Agents;
 
 use App\Actions\Artifacts\StoreArtifactAction;
 use App\Actions\Workflows\StartWorkflowRunAction;
+use App\Ai\Tools\FollowUps\CancelFollowUpTool;
+use App\Ai\Tools\FollowUps\ListFollowUpsTool;
+use App\Ai\Tools\FollowUps\ScheduleFollowUpTool;
+use App\Ai\Tools\History\ReadPastConversationTool;
+use App\Ai\Tools\History\SearchPastConversationsTool;
 use App\Ai\Tools\Knowledge\ReadKnowledgeDocumentTool;
 use App\Ai\Tools\Knowledge\SearchKnowledgeTool;
 use App\Ai\Tools\Memory\ForgetTool;
@@ -13,6 +18,7 @@ use App\Ai\Tools\Skills\CreateSkillTool;
 use App\Ai\Tools\Skills\ImportSkillsTool;
 use App\Ai\Tools\Skills\UpdateSkillTool;
 use App\Ai\Tools\Skills\UseSkillTool;
+use App\Ai\Tools\Workspace\AskUserTool;
 use App\Ai\Tools\Workspace\ExportArtifactTool;
 use App\Ai\Tools\Workspace\InvokeAgentTool;
 use App\Ai\Tools\Workspace\NodeTool;
@@ -31,6 +37,7 @@ use App\Models\Agents\AgentSession;
 use App\Models\Agents\AgentToolBinding;
 use App\Models\Agents\DocumentEmbedding;
 use App\Models\Runs\Run;
+use App\Models\User;
 use App\Models\Workflows\Workflow;
 use App\Services\Agents\Approvals\ActionContext;
 use App\Services\Agents\Approvals\ActionGate;
@@ -39,6 +46,7 @@ use App\Services\Agents\Approvals\AutonomyResolver;
 use App\Services\Agents\Approvals\PlanTracker;
 use App\Services\Ai\ModelCatalogResolver;
 use App\Services\Artifacts\DocumentRenderer;
+use App\Services\Timezones\Timezones;
 use App\Services\Workflows\NodeRegistry;
 use Laravel\Ai\AiManager;
 use Laravel\Ai\Contracts\Providers\SupportsWebFetch;
@@ -82,9 +90,20 @@ use Laravel\Ai\Providers\Tools\WebSearch;
  * `Approvals\ActionGate`). `$canPause` is false for a stateless call with no
  * conversation to resume. In Plan mode the agent also gets
  * `SubmitPlanTool`.
+ *
+ * A turn of a top-level conversation also gets the follow-up tools, to come
+ * back to it later on its own (`ScheduleFollowUpTool`, gated like any write,
+ * with `ListFollowUpsTool`/`CancelFollowUpTool`), the history tools to look
+ * back through its earlier conversations with the same person, once there
+ * are any (`SearchPastConversationsTool`/`ReadPastConversationTool`), and,
+ * when a person typed it in the chat, `AskUserTool` to stop and ask them
+ * something.
  */
 class ToolRegistry
 {
+    /** The `runs.trigger_type` of a turn a person typed in the chat. */
+    public const string CHAT_TRIGGER_TYPE = 'manual';
+
     public function __construct(
         private readonly NodeRegistry $nodes,
         private readonly StartWorkflowRunAction $startWorkflowRun,
@@ -97,10 +116,13 @@ class ToolRegistry
         private readonly AutonomyResolver $autonomy,
         private readonly ActionGate $gate,
         private readonly PlanTracker $plans,
+        private readonly UserQuestions $questions,
+        private readonly AgentFollowUps $followUps,
+        private readonly ConversationSearch $conversations,
     ) {}
 
     /**
-     * @return array<int, NodeTool|WorkflowTool|SearchKnowledgeTool|ReadKnowledgeDocumentTool|UseSkillTool|CreateSkillTool|ImportSkillsTool|UpdateSkillTool|RememberTool|ForgetTool|RecallMemoriesTool|ExportArtifactTool|ReadToolResultTool|UpdateInstructionsTool|InvokeAgentTool|WaitForSubagentsTool|SubmitPlanTool|WebSearch|WebFetch>
+     * @return array<int, NodeTool|WorkflowTool|SearchKnowledgeTool|ReadKnowledgeDocumentTool|UseSkillTool|CreateSkillTool|ImportSkillsTool|UpdateSkillTool|RememberTool|ForgetTool|RecallMemoriesTool|ExportArtifactTool|ReadToolResultTool|UpdateInstructionsTool|InvokeAgentTool|WaitForSubagentsTool|ScheduleFollowUpTool|ListFollowUpsTool|CancelFollowUpTool|SearchPastConversationsTool|ReadPastConversationTool|AskUserTool|SubmitPlanTool|WebSearch|WebFetch>
      */
     public function toolsFor(Agent $agent, Run $run, ?AgentSession $session = null, bool $canPause = true, bool $simulateActions = false): array
     {
@@ -137,7 +159,7 @@ class ToolRegistry
             ? [new ExportArtifactTool($agent, $session, $run, $this->storeArtifact, $this->documentRenderer)]
             : [];
 
-        $historyTools = $session !== null && $this->hasToolResults($session) ? [new ReadToolResultTool($session)] : [];
+        $toolResultTools = $session !== null && $this->hasToolResults($session) ? [new ReadToolResultTool($session)] : [];
 
         $skillEditingTools = $session !== null && $agent->allow_skill_editing
             ? array_values(array_filter([
@@ -158,7 +180,27 @@ class ToolRegistry
 
         $subagentTools = $session !== null ? $this->subagentTools($agent, $session, $context) : [];
 
-        $gatedTools = [...$nodeTools->values()->all(), ...$workflowTools->values()->all(), ...$skillEditingTools, ...$selfUpdateTools];
+        $followUpTools = $this->isTopLevelConversationTurn($run, $session)
+            ? [
+                (new ScheduleFollowUpTool($agent, $session, $this->followUps, $run->triggered_by))
+                    ->guardedBy($this->guard($context, ScheduleFollowUpTool::NAME, ActionToolKind::Builtin)),
+                new ListFollowUpsTool($agent, $this->followUps, $run->triggered_by),
+                new CancelFollowUpTool($agent, $this->followUps, $run->triggered_by),
+            ]
+            : [];
+
+        $historyTools = $this->isTopLevelConversationTurn($run, $session) && $this->conversations->hasHistory($agent, $run->triggered_by, $session->id)
+            ? [
+                new SearchPastConversationsTool($agent, $this->conversations, $run->triggered_by, $session->id, $this->timezoneFor($agent, $run->triggered_by)),
+                new ReadPastConversationTool($agent, $this->conversations, $run->triggered_by, $this->timezoneFor($agent, $run->triggered_by)),
+            ]
+            : [];
+
+        $questionTools = $this->canAskUser($run, $session, $canPause, $simulateActions)
+            ? [new AskUserTool($context, $this->questions)]
+            : [];
+
+        $gatedTools = [...$nodeTools->values()->all(), ...$workflowTools->values()->all(), ...$skillEditingTools, ...$selfUpdateTools, ...array_slice($followUpTools, 0, 1)];
 
         $planTools = $context->mode === AutonomyMode::Plan && $session !== null && $gatedTools !== []
             ? [new SubmitPlanTool($session, $run, $this->plans, array_map(fn ($tool): string => $tool->name(), $gatedTools))]
@@ -172,12 +214,57 @@ class ToolRegistry
             ...$skillEditingTools,
             ...$memoryTools,
             ...$artifactTools,
-            ...$historyTools,
+            ...$toolResultTools,
             ...$selfUpdateTools,
             ...$subagentTools,
+            ...$followUpTools,
+            ...$historyTools,
+            ...$questionTools,
             ...$planTools,
             ...$this->webTools($agent),
         ];
+    }
+
+    /**
+     * `AskUserTool` only where someone is reading along and can answer: a
+     * person's own chat turn in a top-level conversation that can pause.
+     * A triggered, scheduled, API or workflow turn has nobody watching it,
+     * a subagent's conversation is read by its parent agent, and an eval
+     * or embedded call has no conversation to resume.
+     */
+    private function canAskUser(Run $run, ?AgentSession $session, bool $canPause, bool $simulateActions): bool
+    {
+        return $canPause
+            && ! $simulateActions
+            && $this->isTopLevelConversationTurn($run, $session)
+            && $run->trigger_type === self::CHAT_TRIGGER_TYPE;
+    }
+
+    /**
+     * A turn of a conversation of its own (`$run` is that conversation's
+     * turn), not a subagent's and not an Agent node's inside a workflow run.
+     * Only such a conversation can be continued later by a follow-up or
+     * read along by the person a question is for.
+     *
+     * @phpstan-assert-if-true AgentSession $session
+     */
+    private function isTopLevelConversationTurn(Run $run, ?AgentSession $session): bool
+    {
+        return $session !== null
+            && $session->parent_session_id === null
+            && $run->runnable_type === $session->getMorphClass()
+            && $run->runnable_id === $session->id;
+    }
+
+    /**
+     * The timezone of the person a turn runs for, so dates the agent reads
+     * and writes are on their calendar.
+     */
+    private function timezoneFor(Agent $agent, ?string $userId): string
+    {
+        return ($userId !== null ? User::query()->find($userId) : null)?->timezoneIn($agent->workspace)
+            ?? $agent->workspace?->timezone
+            ?? Timezones::DEFAULT;
     }
 
     /**

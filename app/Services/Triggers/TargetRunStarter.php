@@ -13,6 +13,7 @@ use App\Models\Agents\AgentSession;
 use App\Models\Runs\Run;
 use App\Models\Triggers\Trigger;
 use App\Models\Workflows\Workflow;
+use App\Services\Agents\AgentFollowUps;
 use App\Services\Workflows\TemplateResolver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -35,6 +36,7 @@ class TargetRunStarter implements RunStarter
         private readonly CreateAgentSessionAction $createAgentSession,
         private readonly SendAgentMessageAction $sendAgentMessage,
         private readonly TemplateResolver $templates,
+        private readonly AgentFollowUps $followUps,
     ) {}
 
     /**
@@ -137,6 +139,10 @@ class TargetRunStarter implements RunStarter
      */
     private function startAgent(Trigger $trigger, Agent $agent, array $payload): string
     {
+        if (AgentFollowUps::isFollowUp($trigger)) {
+            return $this->continueFollowUp($trigger, $agent, $payload);
+        }
+
         $session = $this->createAgentSession->execute(
             $agent,
             $trigger->actingUser(),
@@ -154,6 +160,43 @@ class TargetRunStarter implements RunStarter
 
         // One run per turn, and this new session has exactly one turn.
         return $session->runs()->latest('id')->value('id')
+            ?? throw new RuntimeException("Agent session {$session->id} produced no run.");
+    }
+
+    /**
+     * A follow-up the agent scheduled itself (`AgentFollowUps`) carries on
+     * the conversation it was set in, in that conversation's own mode, so
+     * the result lands where the person asked for it and the agent has the
+     * context it scheduled the work with. If that conversation is gone, it
+     * runs in a fresh one instead, like any other trigger.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private function continueFollowUp(Trigger $trigger, Agent $agent, array $payload): string
+    {
+        $followUp = $trigger->config['follow_up'];
+
+        // Only the conversation of the person the follow-up was set for: it
+        // carries on their chat, so it must never post into someone else's.
+        $session = AgentSession::query()
+            ->where('agent_id', $agent->id)
+            ->where('workspace_id', $trigger->workspace_id)
+            ->whereNull('parent_session_id')
+            ->when($trigger->created_by === null, fn ($query) => $query->whereNull('user_id'), fn ($query) => $query->where('user_id', $trigger->created_by))
+            ->find($followUp['agent_session_id'] ?? null)
+            ?? $this->createAgentSession->execute($agent, $trigger->actingUser(), (string) ($followUp['title'] ?? 'Follow-up'));
+
+        $origin = [
+            'type' => 'follow_up',
+            'trigger_id' => $trigger->id,
+            'title' => $followUp['title'] ?? null,
+            'scheduled_for' => $payload['scheduled_at'] ?? null,
+        ];
+
+        $reply = $this->sendAgentMessage->execute($session, $this->followUps->messageFor($trigger), $trigger->type->value, origin: $origin);
+
+        return $session->runs()->where('output->message_id', $reply->id)->value('id')
+            ?? $session->runs()->latest('id')->value('id')
             ?? throw new RuntimeException("Agent session {$session->id} produced no run.");
     }
 

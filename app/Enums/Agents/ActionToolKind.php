@@ -12,4 +12,10 @@ enum ActionToolKind: string
 
     /** One of the agent's own built-in tools, e.g. editing its instructions. */
     case Builtin = 'builtin';
+
+    /**
+     * A question the agent asked the person it's chatting with
+     * (`AskUserTool`): answered rather than approved, never an approval.
+     */
+    case Question = 'question';
 }

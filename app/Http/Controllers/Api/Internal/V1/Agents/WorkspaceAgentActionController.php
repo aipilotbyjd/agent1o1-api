@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Internal\V1\Agents;
 use App\Actions\Agents\ResolveAgentActionsAction;
 use App\Enums\Agents\ActionEffect;
 use App\Enums\Agents\ActionRisk;
+use App\Enums\Agents\ActionToolKind;
 use App\Enums\Agents\AgentActionStatus;
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Controller;
@@ -44,6 +45,8 @@ class WorkspaceAgentActionController extends Controller
         $actions = AgentAction::query()
             ->with(['agent', 'session'])
             ->where('workspace_id', $workspace->id)
+            // Questions an agent asked are answered in their own chat, not here.
+            ->where('tool_kind', '!=', ActionToolKind::Question)
             ->where('status', $status)
             ->when($filters['agent_id'] ?? null, fn (Builder $query, string $agentId) => $query->where('agent_id', $agentId))
             ->when($filters['effect'] ?? null, fn (Builder $query, string $effect) => $query->where('effect', $effect))

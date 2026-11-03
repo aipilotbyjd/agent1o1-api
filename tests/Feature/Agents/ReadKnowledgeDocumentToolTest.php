@@ -4,6 +4,7 @@ use App\Ai\Tools\Knowledge\ReadKnowledgeDocumentTool;
 use App\Models\Agents\DocumentEmbedding;
 use App\Models\User;
 use App\Services\Agents\KnowledgeBase;
+use App\Services\Agents\KnowledgeCitations;
 use App\Services\Workspaces\WorkspaceService;
 use Laravel\Ai\Tools\Request;
 
@@ -16,9 +17,11 @@ it('reassembles a document\'s chunks in storage order', function () {
     DocumentEmbedding::create(['workspace_id' => $workspace->id, 'source' => 'other.md', 'chunk_text' => 'Unrelated.', 'embedding' => [1.0]]);
 
     $tool = new ReadKnowledgeDocumentTool($workspace, app(KnowledgeBase::class));
-    $text = (string) $tool->handle(new Request(['source' => 'handbook.md']));
+    $result = json_decode((string) $tool->handle(new Request(['source' => 'handbook.md'])), true);
 
-    expect(unwrapUntrusted($text))->toBe("First.\n\nSecond.");
+    expect(unwrapUntrusted($result['text']))->toBe("First.\n\nSecond.");
+    expect($result['source'])->toBe('handbook.md');
+    expect($result['ref'])->toBe(KnowledgeCitations::documentRef('', 'handbook.md'));
 });
 
 it('reports an error for a source with no chunks', function () {
@@ -39,7 +42,7 @@ it('scopes to the given collection(s)', function () {
     DocumentEmbedding::create(['workspace_id' => $workspace->id, 'collection' => 'other', 'source' => 's', 'chunk_text' => 'out-of-scope', 'embedding' => [1.0]]);
 
     $tool = new ReadKnowledgeDocumentTool($workspace, app(KnowledgeBase::class), collection: ['docs']);
-    $text = (string) $tool->handle(new Request(['source' => 's']));
+    $result = json_decode((string) $tool->handle(new Request(['source' => 's'])), true);
 
-    expect(unwrapUntrusted($text))->toBe('in-scope');
+    expect(unwrapUntrusted($result['text']))->toBe('in-scope');
 });

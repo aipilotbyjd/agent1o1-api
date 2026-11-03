@@ -56,6 +56,12 @@ class AgentMessageResource extends JsonResource
             // `step_limit`: the turn ran out of steps before it finished.
             'stop_reason' => $this->stop_reason,
             'actions' => AgentActionResource::collection($this->whenLoaded('actions')),
+            // Where a user-role message no person typed came from, e.g. a
+            // follow-up the agent scheduled itself: `{type: "follow_up", ...}`.
+            'origin' => $this->origin,
+            // The sources the reply's `[ref]` markers cite, numbered in order
+            // of first appearance: see `KnowledgeCitations`.
+            'citations' => $this->citations ?? [],
             'usage' => $this->usage,
             'created_at' => $this->created_at,
         ];

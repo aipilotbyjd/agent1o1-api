@@ -4,6 +4,7 @@ namespace App\Ai\Tools\Knowledge;
 
 use App\Models\Workspaces\Workspace;
 use App\Services\Agents\KnowledgeBase;
+use App\Services\Agents\KnowledgeCitations;
 use App\Services\Agents\UntrustedContent;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Contracts\Tool;
@@ -31,20 +32,31 @@ class ReadKnowledgeDocumentTool implements Tool
     {
         return 'Fetches the full text of a specific knowledge base document by its source identifier '
             .'(the "source" field a Search Knowledge Base result reports), for when a search snippet '
-            .'is not enough context.';
+            .'is not enough context. The document has a `ref` such as D1A2B3C: cite it in square brackets, [D1A2B3C], '
+            .'right after a sentence it supports, the same way as a search result.';
     }
 
     public function handle(Request $request): Stringable|string
     {
+        $source = (string) $request['source'];
+
         $text = $this->knowledgeBase->readDocument(
             $this->workspace,
-            (string) $request['source'],
+            $source,
             $this->collection,
         );
 
-        return $text === null
-            ? json_encode(['error' => 'No document found for that source.'])
-            : UntrustedContent::wrap('knowledge_base', $text);
+        if ($text === null) {
+            return json_encode(['error' => 'No document found for that source.']) ?: '{}';
+        }
+
+        // The collection doesn't name the document: its ref is the same in
+        // whichever collection it was read from (`KnowledgeCitations`).
+        return json_encode([
+            'ref' => KnowledgeCitations::documentRef('', $source),
+            'source' => $source,
+            'text' => UntrustedContent::wrap('knowledge_base', $text),
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: '{}';
     }
 
     public function schema(JsonSchema $schema): array

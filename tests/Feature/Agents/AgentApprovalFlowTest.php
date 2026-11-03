@@ -305,3 +305,18 @@ it('leaves a paused turn that is being resumed to finish when the person writes 
     expect($pausedRun->fresh()->status)->toBe(RunStatus::Running);
     expect(AgentAction::query()->sole()->status)->toBe(AgentActionStatus::Pending);
 });
+
+it('runs an approved built-in tool that comes after a tool with no name of its own', function () {
+    // `ExportArtifactTool` defines no `name()`, and the self-update tool is
+    // listed after it: finding the approved tool must not trip over it.
+    $this->agent->update(['allow_self_updates' => true]);
+
+    WorkspaceAgent::fake([new ToolCall('call-1', 'update_own_instructions', ['instructions' => 'Always answer in Spanish.']), 'Hecho.']);
+
+    app(AgentRunner::class)->run($this->session, 'From now on, answer in Spanish.');
+
+    ($this->decide)(['decision' => 'approve']);
+
+    expect(AgentAction::query()->sole()->status)->toBe(AgentActionStatus::Executed);
+    expect($this->agent->fresh()->instructions)->toBe('Always answer in Spanish.');
+});
