@@ -47,6 +47,15 @@ class PageSchema
 
     private const array ALIGN = ['left', 'center', 'right'];
 
+    private const array SOCIAL_NETWORKS = ['website', 'x', 'linkedin', 'github', 'youtube', 'instagram', 'facebook', 'tiktok', 'discord', 'email'];
+
+    /** Hosts a page may embed, with their subdomains. */
+    private const array EMBED_HOSTS = [
+        'calendly.com', 'typeform.com', 'tally.so', 'airtable.com', 'figma.com', 'notion.site',
+        'docs.google.com', 'www.google.com', 'maps.google.com', 'forms.gle', 'youtube-nocookie.com',
+        'player.vimeo.com', 'loom.com', 'cal.com', 'spotify.com', 'codepen.io',
+    ];
+
     private const string ID_PATTERN = '/^[A-Za-z0-9_-]{1,64}$/';
 
     public function __construct(private readonly WorkflowInterface $interface) {}
@@ -325,7 +334,30 @@ class PageSchema
      */
     private static function block(PageBlockType $type, array $props): array
     {
-        return ['id' => self::newBlockId(), 'type' => $type->value, 'width' => 'full', 'props' => $props];
+        return ['id' => self::newBlockId(), 'type' => $type->value, 'width' => 'full', ...self::display([]), 'props' => $props];
+    }
+
+    /**
+     * How a block shows up around its props: where it is visible, whether
+     * the builder keeps it from being edited, and the spacing and
+     * alignment it asks for (`mobile_*` apply on narrow screens only).
+     *
+     * @param  array<string, mixed>  $block
+     * @return array{visibility: string, locked: bool, space_above: string, mobile_space_above: ?string, mobile_align: ?string}
+     */
+    private static function display(array $block): array
+    {
+        $spacing = ['none', 'sm', 'md', 'lg'];
+        $mobileSpace = $block['mobile_space_above'] ?? null;
+        $mobileAlign = $block['mobile_align'] ?? null;
+
+        return [
+            'visibility' => self::oneOf($block['visibility'] ?? null, ['all', 'desktop', 'mobile']),
+            'locked' => (bool) ($block['locked'] ?? false),
+            'space_above' => self::oneOf($block['space_above'] ?? null, $spacing),
+            'mobile_space_above' => in_array($mobileSpace, $spacing, true) ? $mobileSpace : null,
+            'mobile_align' => in_array($mobileAlign, self::ALIGN, true) ? $mobileAlign : null,
+        ];
     }
 
     /**
@@ -367,6 +399,7 @@ class PageSchema
                 'width' => $type->isContainer() || $parent === PageBlockType::Column
                     ? 'full'
                     : self::oneOf($block['width'] ?? null, self::WIDTHS),
+                ...self::display($block),
                 'props' => $props,
             ];
 
@@ -737,6 +770,86 @@ class PageSchema
                 )),
                 'columns' => self::oneOf((int) ($p['columns'] ?? 3), [3, 2, 4]),
             ],
+            PageBlockType::Code => [
+                'code' => self::rawText($p['code'] ?? null, 20000),
+                'language' => self::text($p['language'] ?? null, 30),
+                'filename' => self::text($p['filename'] ?? null, 120),
+                'show_copy' => (bool) ($p['show_copy'] ?? true),
+            ],
+            PageBlockType::Pricing => [
+                'title' => self::text($p['title'] ?? null, 120),
+                'items' => self::items($p['items'] ?? null, 4, function (array $item): ?array {
+                    $plan = [
+                        'name' => self::text($item['name'] ?? null, 60),
+                        'price' => self::text($item['price'] ?? null, 40),
+                        'period' => self::text($item['period'] ?? null, 40),
+                        'description' => self::text($item['description'] ?? null, 300),
+                        'features' => self::text($item['features'] ?? null, 2000),
+                        'cta_label' => self::text($item['cta_label'] ?? null, 60),
+                    ];
+
+                    if (array_filter($plan, fn (?string $part): bool => $part !== null) === []) {
+                        return null;
+                    }
+
+                    return array_map(fn (?string $part): string => $part ?? '', $plan) + [
+                        'cta_url' => self::url($item['cta_url'] ?? null),
+                        'highlighted' => (bool) ($item['highlighted'] ?? false),
+                    ];
+                }),
+            ],
+            PageBlockType::Embed => [
+                'url' => self::embedUrl($p['url'] ?? null),
+                'title' => self::text($p['title'] ?? null, 200),
+                'height' => self::oneOf($p['height'] ?? null, ['md', 'sm', 'lg', 'xl']),
+            ],
+            PageBlockType::Gallery => [
+                'items' => self::items($p['items'] ?? null, 12, function (array $item): ?array {
+                    $url = self::url($item['url'] ?? null);
+
+                    return $url === null ? null : ['url' => $url, 'alt' => self::text($item['alt'] ?? null, 200)];
+                }),
+                'columns' => self::oneOf((int) ($p['columns'] ?? 3), [3, 2, 4]),
+                'ratio' => self::oneOf($p['ratio'] ?? null, ['square', 'landscape', 'auto']),
+                'lightbox' => (bool) ($p['lightbox'] ?? true),
+            ],
+            PageBlockType::Compare => [
+                'mode' => self::oneOf($p['mode'] ?? null, ['slider', 'lists']),
+                'before_url' => self::url($p['before_url'] ?? null),
+                'after_url' => self::url($p['after_url'] ?? null),
+                'before_label' => self::text($p['before_label'] ?? null, 60),
+                'after_label' => self::text($p['after_label'] ?? null, 60),
+                'before_items' => self::text($p['before_items'] ?? null, 2000),
+                'after_items' => self::text($p['after_items'] ?? null, 2000),
+            ],
+            PageBlockType::Progress => [
+                'title' => self::text($p['title'] ?? null, 120),
+                'items' => self::items($p['items'] ?? null, 10, function (array $item): ?array {
+                    $label = self::text($item['label'] ?? null, 80);
+                    $value = max(0, min(100, (int) ($item['value'] ?? 0)));
+
+                    return $label === null && $value === 0 ? null : ['label' => $label ?? '', 'value' => $value];
+                }),
+                'show_values' => (bool) ($p['show_values'] ?? true),
+            ],
+            PageBlockType::Social => [
+                'items' => self::items($p['items'] ?? null, 10, function (array $item): ?array {
+                    $network = self::oneOf($item['network'] ?? null, self::SOCIAL_NETWORKS);
+                    $url = $network === 'email' ? self::mailto($item['url'] ?? null) : self::url($item['url'] ?? null);
+
+                    return $url === null ? null : ['network' => $network, 'url' => $url];
+                }),
+                'align' => self::oneOf($p['align'] ?? null, ['left', 'center', 'right']),
+                'style' => self::oneOf($p['style'] ?? null, ['solid', 'outline']),
+            ],
+            PageBlockType::Timeline => [
+                'title' => self::text($p['title'] ?? null, 120),
+                'items' => self::items($p['items'] ?? null, 12, fn (array $item): ?array => self::pair([
+                    'date' => self::text($item['date'] ?? null, 60),
+                    'title' => self::text($item['title'] ?? null, 120),
+                    'description' => self::text($item['description'] ?? null, 1000),
+                ])),
+            ],
             PageBlockType::Field => [
                 'field_key' => self::text($p['field_key'] ?? null, 255) ?? '',
                 'label' => self::text($p['label'] ?? null, 200),
@@ -892,6 +1005,57 @@ class PageSchema
         } catch (Throwable) {
             return null;
         }
+    }
+
+    /**
+     * Text kept as typed (code keeps its indentation and blank lines),
+     * limited in length.
+     */
+    private static function rawText(mixed $value, int $max): string
+    {
+        if (! is_scalar($value)) {
+            return '';
+        }
+
+        return Str::limit(rtrim(str_replace("\r\n", "\n", (string) $value)), $max, '');
+    }
+
+    /**
+     * An https link on a host a page may embed, else null.
+     */
+    private static function embedUrl(mixed $value): ?string
+    {
+        $url = self::url($value);
+
+        if ($url === null || strtolower((string) parse_url($url, PHP_URL_SCHEME)) !== 'https') {
+            return null;
+        }
+
+        $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+
+        foreach (self::EMBED_HOSTS as $allowed) {
+            if ($host === $allowed || str_ends_with($host, '.'.$allowed)) {
+                return $url;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * An email address as a `mailto:` link, else null.
+     */
+    private static function mailto(mixed $value): ?string
+    {
+        $value = self::text($value, 254);
+
+        if ($value === null) {
+            return null;
+        }
+
+        $address = str_starts_with(strtolower($value), 'mailto:') ? substr($value, 7) : $value;
+
+        return filter_var($address, FILTER_VALIDATE_EMAIL) === false ? null : 'mailto:'.$address;
     }
 
     /**

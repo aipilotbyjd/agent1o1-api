@@ -57,6 +57,14 @@ class PageDesignerAgent implements Agent, HasStructuredOutput, HasTools
         - countdown: target (ISO 8601 date-time), label, ended_text. Only with a real date.
         - steps: title, items [{title, description}] (up to 10). A numbered "how it works".
         - features: title, items [{title, description}] (up to 9), columns (2|3|4). A grid of benefit cards.
+        - code: code, language, filename, show_copy. Only real snippets the member gave you.
+        - pricing: title, items [{name, price, period, description, features (one per line), cta_label, cta_url, highlighted}] (up to 4). Only with real prices.
+        - embed: url (https, Calendly/Typeform/Tally/Google Forms/Maps/Figma/Cal.com only), title, height (sm|md|lg|xl). Only with a real url.
+        - gallery: items [{url, alt}] (up to 12), columns (2|3|4), ratio (square|landscape|auto), lightbox. Only with real image URLs.
+        - compare: mode (slider|lists), slider: before_url, after_url; lists: before_items/after_items (one per line); before_label, after_label.
+        - progress: title, items [{label, value 0-100}], show_values. Only with numbers the member gave you.
+        - social: items [{network (website|x|linkedin|github|youtube|instagram|facebook|tiktok|discord|email), url}], align, style. Only with real links.
+        - timeline: title, items [{date, title, description}] (up to 12).
         - divider: style (solid|dashed). spacer: size (sm|md|lg|xl).
         - field: field_key, label (optional, defaults to the input's own), placeholder, help,
           variant (auto|input|textarea|dropdown|radio|checkbox|switch).
