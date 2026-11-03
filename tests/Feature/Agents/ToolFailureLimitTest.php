@@ -16,7 +16,12 @@ use Laravel\Ai\Tools\Request;
 
 beforeEach(function () {
     app()->instance(SsrfGuard::class, new SsrfGuard(fn () => ['203.0.113.10']));
-    Http::fake(fn () => throw new ConnectionException('Connection refused'));
+    $this->attempts = 0;
+    Http::fake(function () {
+        $this->attempts++;
+
+        throw new ConnectionException('Connection refused');
+    });
 
     $this->owner = User::factory()->create();
     $this->workspace = app(WorkspaceService::class)->create($this->owner, ['name' => 'Acme']);
@@ -49,12 +54,13 @@ it('refuses a tool that keeps failing once it reaches the limit, without running
         expect(($this->call)($tool, "call-{$attempt}"))->toContain('Connection refused');
     }
 
+    $attemptsBefore = $this->attempts;
     $refused = ($this->call)($tool, 'call-last');
 
     expect($refused)->toContain('already failed several times')
-        ->and($refused)->toContain('Stop calling this tool');
-    Http::assertSentCount(0);
-    expect(json_decode($refused, true))->toHaveKey('note');
+        ->and($refused)->toContain('Stop calling this tool')
+        ->and(json_decode($refused, true))->toHaveKey('note')
+        ->and($this->attempts)->toBe($attemptsBefore);
 });
 
 it('keeps counting a chat turn\'s failures after its tools are rebuilt, as on resume', function () {
