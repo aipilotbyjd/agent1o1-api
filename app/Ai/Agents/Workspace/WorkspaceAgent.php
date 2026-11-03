@@ -12,6 +12,7 @@ use App\Models\Agents\AgentMessage;
 use App\Models\Agents\AgentSession;
 use App\Models\Artifacts\Artifact;
 use App\Services\Agents\GenerationSettings;
+use Illuminate\Support\Collection;
 use Laravel\Ai\Attributes\CacheInstructions;
 use Laravel\Ai\Attributes\CacheToolDefinitions;
 use Laravel\Ai\Attributes\MaxSteps;
@@ -22,7 +23,6 @@ use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Messages\Message;
 use Laravel\Ai\Messages\UserMessage;
-use Illuminate\Support\Collection;
 use Laravel\Ai\Promptable;
 
 /**
