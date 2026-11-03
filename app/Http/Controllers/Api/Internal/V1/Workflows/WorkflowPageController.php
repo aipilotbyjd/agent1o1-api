@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api\Internal\V1\Workflows;
 
+use App\Authorization\WorkspaceContext;
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Internal\V1\Workflows\ClonePageToWorkspaceRequest;
 use App\Http\Requests\Api\Internal\V1\Workflows\StoreWorkflowPageRequest;
 use App\Http\Requests\Api\Internal\V1\Workflows\UpdateWorkflowPageRequest;
 use App\Http\Resources\Api\Internal\V1\Workflows\WorkflowPageListResource;
@@ -106,6 +108,27 @@ class WorkflowPageController extends Controller
         $this->ensureBelongsToWorkspace($workspace, $page);
 
         return ApiResponse::created(['page' => $this->full($this->pages->duplicate($page, $request->user()))], 'Page duplicated.');
+    }
+
+    /**
+     * Copies the page into another workspace the member can build pages in,
+     * wired to one of that workspace's workflows (a page always needs one).
+     */
+    public function clone(ClonePageToWorkspaceRequest $request, Workspace $workspace, WorkflowPage $page)
+    {
+        $this->requirePermission(Permission::PageView);
+        $this->ensureBelongsToWorkspace($workspace, $page);
+
+        $target = Workspace::query()->find($request->validated('target_workspace_id'));
+        $role = $target === null || $target->isSuspended() ? null : WorkspaceContext::resolveRole($target, $request->user());
+
+        abort_unless($role?->has(Permission::PageManage) === true, 403, 'You can’t create pages in that workspace.');
+
+        $workflow = $this->workflowIn($target, $request->validated('workflow_id'));
+
+        $clone = $this->pages->cloneTo($page, $workflow, $request->user(), $request->validated('name'));
+
+        return ApiResponse::created(['page' => $this->full($clone)], 'Page copied.');
     }
 
     public function publish(Request $request, Workspace $workspace, WorkflowPage $page)

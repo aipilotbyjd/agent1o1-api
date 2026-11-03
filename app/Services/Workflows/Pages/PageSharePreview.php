@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
  * first image. Read from the published page, so the card matches what a
  * visitor will see.
  *
- * @phpstan-type Preview array{title: string, description: string, image_url: ?string, theme_color: string, site_name: string}
+ * @phpstan-type Preview array{title: string, description: string, image_url: ?string, theme_color: string, site_name: string, noindex: bool}
  */
 class PageSharePreview
 {
@@ -37,6 +37,7 @@ class PageSharePreview
             'image_url' => $page->share_image_url ?: $this->image($content),
             'theme_color' => $content['theme']['accent'],
             'site_name' => $workspace ?: config('app.name'),
+            'noindex' => $page->hide_from_search,
         ];
     }
 
