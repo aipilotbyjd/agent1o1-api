@@ -47,13 +47,15 @@ final class TranscriptReplay
      * An earlier reply as the model sees it again: its answered tool calls
      * and their results, then its text. Calls without a stored result are
      * dropped (providers reject a call left unanswered) and results longer
-     * than `$maxResultChars` are cut short.
+     * than `$maxResultChars` are cut short. `$readToolName` is a tool the
+     * model can call to read a cut-short result in full; without one, the
+     * note only lets it look a result up again, never repeat an action.
      *
      * @param  array<int, array<string, mixed>>|null  $toolCalls
      * @param  array<int, array<string, mixed>>|null  $toolResults
      * @return list<Message>
      */
-    public static function assistantTurn(?string $content, ?array $toolCalls, ?array $toolResults, int $maxResultChars): array
+    public static function assistantTurn(?string $content, ?array $toolCalls, ?array $toolResults, int $maxResultChars, ?string $readToolName = null): array
     {
         $results = collect($toolResults ?? [])->keyBy('id');
         $calls = collect($toolCalls ?? [])->filter(fn (array $call): bool => $results->has($call['id']))->values();
@@ -62,7 +64,7 @@ final class TranscriptReplay
 
         if ($calls->isNotEmpty()) {
             $messages[] = new AssistantMessage('', $calls->map(ToolCall::fromArray(...)));
-            $messages[] = new ToolResultMessage($calls->map(fn (array $call): ToolResult => self::replayedResult($results[$call['id']], $maxResultChars)));
+            $messages[] = new ToolResultMessage($calls->map(fn (array $call): ToolResult => self::replayedResult($results[$call['id']], $maxResultChars, $readToolName)));
         }
 
         if ($calls->isEmpty() || filled($content)) {
@@ -75,16 +77,34 @@ final class TranscriptReplay
     /**
      * @param  array<string, mixed>  $stored
      */
-    private static function replayedResult(array $stored, int $maxChars): ToolResult
+    private static function replayedResult(array $stored, int $maxChars, ?string $readToolName): ToolResult
     {
         $result = $stored['result'] ?? null;
         $text = is_string($result) ? $result : (string) json_encode($result);
 
         if (mb_strlen($text) > $maxChars) {
-            $stored['result'] = mb_substr($text, 0, $maxChars)
-                .'… [cut short in the conversation history; call the tool again if you need the rest]';
+            $stored['result'] = mb_substr($text, 0, $maxChars).'… '.self::cutShortNote($stored, mb_strlen($text), $readToolName);
         }
 
         return ToolResult::fromArray($stored);
+    }
+
+    /**
+     * What the model is told about a result it only sees the start of. It
+     * must never be nudged into calling the tool again: for a tool that
+     * changes something (sends an email, starts a workflow) that would do
+     * it twice.
+     *
+     * @param  array<string, mixed>  $stored
+     */
+    private static function cutShortNote(array $stored, int $length, ?string $readToolName): string
+    {
+        if ($readToolName !== null && isset($stored['id'])) {
+            return "[cut short in the conversation history: the full result is {$length} characters. "
+                ."Call {$readToolName} with tool_call_id \"{$stored['id']}\" to read the rest]";
+        }
+
+        return '[cut short in the conversation history. If you need the rest and this tool only looks things up, '
+            .'you may call it again; never repeat a tool call that changes something]';
     }
 }

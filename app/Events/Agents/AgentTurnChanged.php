@@ -14,8 +14,9 @@ use Illuminate\Foundation\Events\Dispatchable;
  * failed. Anything but `running` is final for this stretch of the turn:
  * the chat swaps its live draft for the stored message (`message_id`) and,
  * for `awaiting_approval`, fetches the waiting actions
- * (`pending_action_ids`). `error` is a message that is safe to show; the
- * raw failure is on the run.
+ * (`pending_action_ids`). `stop_reason` is `step_limit` when the turn ran
+ * out of steps before it finished. `error` is a message that is safe to
+ * show; the raw failure is on the run.
  */
 class AgentTurnChanged implements ShouldBroadcastNow
 {
@@ -41,6 +42,7 @@ class AgentTurnChanged implements ShouldBroadcastNow
             'status' => $run->status->value,
             'message_id' => $run->output['message_id'] ?? null,
             'pending_action_ids' => $run->output['pending_action_ids'] ?? null,
+            'stop_reason' => $run->output['stop_reason'] ?? null,
             'error' => $error,
         ], fn (mixed $value): bool => $value !== null);
     }

@@ -6,7 +6,9 @@ use App\Actions\Agents\CreateAgentSessionAction;
 use App\Actions\Artifacts\StoreArtifactAction;
 use App\Ai\Agents\Workspace\EmbeddedAgent;
 use App\Ai\Agents\Workspace\WorkspaceAgent;
+use App\Ai\Runtime\ContextBudget;
 use App\Ai\Runtime\PauseState;
+use App\Ai\Runtime\StepLimit;
 use App\Ai\Usage\ResponseUsage;
 use App\Enums\Agents\AgentActionStatus;
 use App\Enums\Agents\AgentMessageRole;
@@ -301,6 +303,7 @@ class AgentRunner
                 $userMessage->id,
                 $tools,
                 GenerationSettings::fromAgent($agent),
+                historyTokens: $this->historyTokens($agent, $instructions, $tools),
             ),
             $provider,
             $model,
@@ -319,6 +322,22 @@ class AgentRunner
         [$provider, $model] = $this->modelCatalog->forAgent($agent);
 
         return $this->byok->apply($provider, $model, $run->workspace_id, $run->triggered_by);
+    }
+
+    /**
+     * How many tokens of history `$agent`'s model can take alongside these
+     * instructions and tools: see `ContextBudget`.
+     *
+     * @param  array<int, mixed>  $tools
+     */
+    private function historyTokens(AgentModel $agent, string $instructions, array $tools): int
+    {
+        return ContextBudget::historyTokens(
+            $this->modelCatalog->contextWindowFor($agent),
+            $instructions,
+            count($tools),
+            GenerationSettings::fromAgent($agent)->maxTokens,
+        );
     }
 
     /**
@@ -424,6 +443,8 @@ class AgentRunner
     {
         $assistantMessage = $this->storeAssistantMessage($turn->session, $response, ResponseUsage::from($response, $turn->run->started_at));
 
+        $this->markStepLimit($assistantMessage, $response);
+
         if ($response->hasPendingApprovals()) {
             return $this->pauseTurn($turn->session, $turn->run, $assistantMessage, $response);
         }
@@ -438,7 +459,11 @@ class AgentRunner
             // `message_id` lets `RecordRunCreditUsage` find the exact
             // `AgentMessage` to charge for, without guessing at "the
             // latest assistant message" for this session.
-            'output' => ['text' => $assistantMessage->content, 'message_id' => $assistantMessage->id],
+            'output' => array_filter([
+                'text' => $assistantMessage->content,
+                'message_id' => $assistantMessage->id,
+                'stop_reason' => $assistantMessage->stop_reason,
+            ], fn (mixed $value): bool => $value !== null),
             'finished_at' => now(),
         ])->save();
 
@@ -558,7 +583,7 @@ class AgentRunner
             new AgentTurn(
                 $session,
                 $run,
-                new WorkspaceAgent($instructions, $session, null, $tools, GenerationSettings::fromAgent($agent), $message->id),
+                new WorkspaceAgent($instructions, $session, null, $tools, GenerationSettings::fromAgent($agent), $message->id, $this->historyTokens($agent, $instructions, $tools)),
                 $provider,
                 $model,
             ),
@@ -573,6 +598,8 @@ class AgentRunner
     {
         $message = $this->mergeResumed($resumption, $response);
         $turn = $resumption->turn;
+
+        $this->markStepLimit($message, $response);
 
         if ($response->hasPendingApprovals()) {
             return $this->pauseTurn($turn->session, $turn->run, $message, $response);
@@ -694,6 +721,19 @@ class AgentRunner
     }
 
     /**
+     * Marks a reply whose turn ran out of steps before it finished, or
+     * clears the mark when a resumed turn went on to finish.
+     */
+    private function markStepLimit(AgentMessage $message, AgentResponse $response): void
+    {
+        $reason = StepLimit::reached($response) ? StepLimit::REASON : null;
+
+        if ($message->stop_reason !== $reason) {
+            $message->forceFill(['stop_reason' => $reason])->save();
+        }
+    }
+
+    /**
      * Marks a turn's `Run` failed. Public because a streamed turn fails in
      * the caller's loop rather than inside this class: see `streamBegun()`.
      * Idempotent, so a caller that fails a turn the SDK already closed out
@@ -794,12 +834,16 @@ class AgentRunner
 
         $startedAt = now();
 
-        $response = (new WorkspaceAgent($instructions, $session, $userMessage->id, $this->tools->toolsFor($agent, $run, $session), GenerationSettings::fromAgent($agent)))
+        $tools = $this->tools->toolsFor($agent, $run, $session);
+
+        $response = (new WorkspaceAgent($instructions, $session, $userMessage->id, $tools, GenerationSettings::fromAgent($agent), historyTokens: $this->historyTokens($agent, $instructions, $tools)))
             ->prompt($prompt, provider: $provider, model: $model);
 
         $usage = ResponseUsage::from($response, $startedAt);
 
         $assistantMessage = $this->storeAssistantMessage($session, $response, $usage);
+
+        $this->markStepLimit($assistantMessage, $response);
 
         $session->forceFill(['last_activity_at' => now()])->save();
 
@@ -828,6 +872,8 @@ class AgentRunner
         $response = $resumption->turn->agent->prompt($resumption->decisions, provider: $resumption->turn->provider, model: $resumption->turn->model);
 
         $message = $this->mergeResumed($resumption, $response);
+
+        $this->markStepLimit($message, $response);
 
         $session->forceFill(['last_activity_at' => now()])->save();
 
