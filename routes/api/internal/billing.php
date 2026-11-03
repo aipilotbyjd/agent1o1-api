@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Internal\V1\Billing\CreditPackController;
 use App\Http\Controllers\Api\Internal\V1\Billing\InvoiceController;
 use App\Http\Controllers\Api\Internal\V1\Billing\PlanController;
 use App\Http\Controllers\Api\Internal\V1\Billing\SubscriptionController;
+use App\Http\Controllers\Api\Internal\V1\Billing\UsageInsightsController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:api', 'workspace.context'])
@@ -28,6 +29,7 @@ Route::middleware(['auth:api', 'workspace.context'])
         Route::post('credit-packs/checkout', [CreditPackController::class, 'checkout'])->name('credit-packs.checkout');
 
         Route::get('credits', [CreditController::class, 'index'])->name('credits.index');
+        Route::get('usage-insights', UsageInsightsController::class)->name('usage-insights');
 
         Route::get('overage', [CreditOverageController::class, 'show'])->name('overage.show');
         Route::put('overage', [CreditOverageController::class, 'update'])->name('overage.update');

@@ -3,6 +3,7 @@
 namespace Database\Factories\Ai;
 
 use App\Enums\Ai\ModelPriceSource;
+use App\Enums\Ai\ModelPriceStatus;
 use App\Models\Ai\ModelPrice;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -24,8 +25,20 @@ class ModelPriceFactory extends Factory
             'input_per_mtok' => 2.5,
             'output_per_mtok' => 10,
             'source' => ModelPriceSource::ProviderList,
+            'status' => ModelPriceStatus::Verified,
+            'verified_at' => now(),
             'checked_at' => now(),
         ];
+    }
+
+    public function unverified(): static
+    {
+        return $this->state(fn (): array => ['status' => ModelPriceStatus::Unverified, 'verified_at' => null]);
+    }
+
+    public function demo(): static
+    {
+        return $this->state(fn (): array => ['status' => ModelPriceStatus::Demo, 'verified_at' => null, 'source' => ModelPriceSource::Config]);
     }
 
     public function priced(float $input, float $output): static

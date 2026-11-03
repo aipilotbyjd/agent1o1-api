@@ -54,6 +54,7 @@ class CreditGate
         private readonly NotificationDispatcher $dispatcher,
         private readonly CreditOverage $overage,
         private readonly CostGuard $costGuard,
+        private readonly CreditReservations $reservations,
     ) {}
 
     /**
@@ -68,6 +69,11 @@ class CreditGate
         }
 
         $available = $workspace->availableCredits();
+
+        if ($available !== null) {
+            // Credits already held for work in flight are spoken for.
+            $available = max(0, $available - $this->reservations->outstanding($workspace->id));
+        }
 
         if ($available !== null
             && $available < self::MINIMUM_CREDITS_TO_START

@@ -35,6 +35,8 @@ Route::prefix('models')->as('models.')->group(function () use ($base) {
         Route::get('usage/daily', [SuperAdminModelInsightController::class, 'dailyUsage'])->name('usage.daily');
         Route::get('margins', [SuperAdminModelInsightController::class, 'margins'])->name('margins');
         Route::get('prices', [SuperAdminModelPriceController::class, 'index'])->name('prices.index');
+        Route::get('prices/readiness', [SuperAdminModelPriceController::class, 'readiness'])->name('prices.readiness');
+        Route::get('prices/{price}/versions', [SuperAdminModelPriceController::class, 'versions'])->whereUuid('price')->name('prices.versions');
         Route::get('{model}', [SuperAdminModelController::class, 'show'])->whereUuid('model')->name('show');
         Route::get('{model}/retirement-impact', [SuperAdminModelLifecycleController::class, 'impact'])->whereUuid('model')->name('impact');
     });
@@ -68,6 +70,7 @@ Route::prefix('models')->as('models.')->group(function () use ($base) {
 
     Route::middleware([...$base, 'super-admin.can:models.prices'])->group(function () {
         Route::put('prices', [SuperAdminModelPriceController::class, 'upsert'])->name('prices.upsert');
+        Route::post('prices/{price}/verify', [SuperAdminModelPriceController::class, 'verify'])->whereUuid('price')->name('prices.verify');
         Route::delete('prices/{price}', [SuperAdminModelPriceController::class, 'destroy'])->whereUuid('price')->name('prices.destroy');
     });
 });

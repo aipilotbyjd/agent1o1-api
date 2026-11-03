@@ -130,7 +130,26 @@ function currentOveragePeriod(): UsagePeriod
 
 beforeEach(function () {
     config()->set('billing.credit_value_usd', 0.005);
+    config()->set('billing.overage.credit_value_usd', 0.005);
     config()->set('billing.overage.minimum_invoice_cents', 50);
+});
+
+it('invoices overage at the overage rate, which sits above what a credit costs', function () {
+    config()->set('billing.overage.credit_value_usd', 0.0065);
+    $workspace = workspaceWithUnbilledOverage(1_000);
+
+    $result = recordingBiller()->execute($workspace, currentOveragePeriod());
+
+    expect($result['amount_cents'])->toBe(650);
+});
+
+it('never invoices overage below what a credit costs', function () {
+    config()->set('billing.overage.credit_value_usd', 0.001);
+    $workspace = workspaceWithUnbilledOverage(1_000);
+
+    $result = recordingBiller()->execute($workspace, currentOveragePeriod());
+
+    expect($result['amount_cents'])->toBe(500);
 });
 
 it('invoices a closed period for the overage it accrued', function () {

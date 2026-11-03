@@ -2,11 +2,13 @@
 
 namespace App\Jobs\Agents;
 
+use App\Ai\Observability\AiCallContext;
 use App\Enums\Queue;
 use App\Enums\RunStatus;
 use App\Models\Runs\Run;
 use App\Services\Agents\AgentRunner;
 use App\Services\Agents\AgentTurnBroadcaster;
+use App\Services\Billing\CreditReservations;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -43,17 +45,30 @@ class RunAgentTurnJob implements ShouldQueue
             return;
         }
 
-        try {
-            $turn = $runner->streamBegun($run);
-        } catch (Throwable $e) {
-            // `streamBegun()` has already failed the run; the chat still
-            // needs to hear about it.
-            $broadcaster->fail($run, $e);
+        // The turn holds a typical charge until it has been streamed and
+        // charged, so work started meanwhile sees the credits it will spend.
+        $reservations = app(CreditReservations::class);
 
-            return;
-        }
+        $reservations->holding($run->workspace_id, 'run', $run->id, $reservations->agentTurnCredits(), fn () => app(AiCallContext::class)->run([
+            'workspace_id' => $run->workspace_id,
+            'user_id' => $run->triggered_by,
+            'feature' => 'agent_chat',
+            'run_id' => $run->id,
+            'subject_type' => 'run',
+            'subject_id' => $run->id,
+        ], function () use ($run, $runner, $broadcaster): void {
+            try {
+                $turn = $runner->streamBegun($run);
+            } catch (Throwable $e) {
+                // `streamBegun()` has already failed the run; the chat still
+                // needs to hear about it.
+                $broadcaster->fail($run, $e);
 
-        $broadcaster->broadcast($turn);
+                return;
+            }
+
+            $broadcaster->broadcast($turn);
+        }));
     }
 
     /**
