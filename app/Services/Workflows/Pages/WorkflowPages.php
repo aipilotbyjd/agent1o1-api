@@ -59,6 +59,25 @@ class WorkflowPages
         return $page;
     }
 
+    /**
+     * A copy of the page's draft layout and theme in the workspace of
+     * `$workflow`, wired to that workflow: inputs and outputs are matched to
+     * the ones it has (see `PageSchema::bindToWorkflow()`). Sharing settings,
+     * comments, history and the second version stay behind.
+     */
+    public function cloneTo(WorkflowPage $page, Workflow $workflow, User $creator, ?string $name = null): WorkflowPage
+    {
+        $this->limits->assertCanCreate($workflow->workspace, PlanLimit::Pages);
+
+        return $workflow->pages()->create([
+            'workspace_id' => $workflow->workspace_id,
+            'created_by' => $creator->id,
+            'name' => filled($name) ? $name : $page->name,
+            'description' => $page->description,
+            'content' => $this->schema->bindToWorkflow($page->content, $workflow),
+        ]);
+    }
+
     public function duplicate(WorkflowPage $page, User $creator): WorkflowPage
     {
         $this->limits->assertCanCreate($page->workspace, PlanLimit::Pages);
@@ -86,6 +105,10 @@ class WorkflowPages
             if (array_key_exists($key, $changes)) {
                 $page->{$key} = $changes[$key];
             }
+        }
+
+        if (array_key_exists('hide_from_search', $changes)) {
+            $page->hide_from_search = (bool) $changes['hide_from_search'];
         }
 
         foreach (['share_title', 'share_description', 'share_image_url'] as $key) {

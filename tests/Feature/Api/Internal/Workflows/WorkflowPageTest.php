@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Workflows\Workflow;
 use App\Models\Workflows\WorkflowPage;
 use App\Models\Workspaces\AuditLog;
+use App\Models\Workspaces\Workspace;
 use App\Services\Workspaces\WorkspaceService;
 use Laravel\Passport\Passport;
 
@@ -300,11 +301,81 @@ it('saves the link card and shows the preview it makes', function () {
 
     $this->patchJson("{$this->base}/{$page['id']}", ['share_title' => '  Note writer  ', 'share_description' => '', 'share_image_url' => 'https://images.example.com/og.png'])
         ->assertOk()
-        ->assertJsonPath('data.page.share', ['title' => 'Note writer', 'description' => null, 'image_url' => 'https://images.example.com/og.png'])
+        ->assertJsonPath('data.page.share', ['title' => 'Note writer', 'description' => null, 'image_url' => 'https://images.example.com/og.png', 'hide_from_search' => false])
         ->assertJsonPath('data.page.share_preview.title', 'Note writer')
         ->assertJsonPath('data.page.share_preview.image_url', 'https://images.example.com/og.png');
+
+    $this->patchJson("{$this->base}/{$page['id']}", ['hide_from_search' => true])
+        ->assertOk()
+        ->assertJsonPath('data.page.share.hide_from_search', true)
+        ->assertJsonPath('data.page.share_preview.noindex', true);
 
     $this->patchJson("{$this->base}/{$page['id']}", ['share_image_url' => 'javascript:alert(1)'])
         ->assertUnprocessable()
         ->assertJsonValidationErrors('share_image_url');
+});
+
+/**
+ * A second workspace the owner builds in, with a workflow that has the same
+ * inputs and outputs as the first one's.
+ *
+ * @return array{0: Workspace, 1: Workflow}
+ */
+function pageCloneTarget(?User $owner = null): array
+{
+    $workspace = app(WorkspaceService::class)->create($owner ?? test()->owner, ['name' => 'Beta']);
+    $workflow = Workflow::factory()->forWorkspace($workspace)->create(['name' => 'Other writer']);
+    $workflow->replaceGraph(pageWorkflowGraph());
+    $workflow->publishVersion(publisher: $owner ?? test()->owner);
+
+    return [$workspace, $workflow];
+}
+
+it('copies a page into another workspace, wired to that workspace’s workflow', function () {
+    $page = pageCreate(['name' => 'Launch page']);
+    [$target, $targetWorkflow] = pageCloneTarget();
+
+    $copy = $this->postJson("{$this->base}/{$page['id']}/clone", [
+        'target_workspace_id' => $target->id,
+        'workflow_id' => $targetWorkflow->id,
+    ])->assertCreated()->json('data.page');
+
+    $stored = WorkflowPage::query()->findOrFail($copy['id']);
+
+    expect($stored->workspace_id)->toBe($target->id);
+    expect($stored->workflow_id)->toBe($targetWorkflow->id);
+    expect($stored->name)->toBe('Launch page');
+    expect(WorkflowPage::query()->findOrFail($page['id'])->workspace_id)->toBe($this->workspace->id);
+});
+
+it('keeps people from copying a page into a workspace they cannot build in', function () {
+    $page = pageCreate();
+    $stranger = User::factory()->create();
+    [$theirs, $theirWorkflow] = pageCloneTarget($stranger);
+
+    $this->postJson("{$this->base}/{$page['id']}/clone", [
+        'target_workspace_id' => $theirs->id,
+        'workflow_id' => $theirWorkflow->id,
+    ])->assertForbidden();
+
+    [$shared, $sharedWorkflow] = pageCloneTarget($stranger);
+    $shared->members()->create(['user_id' => $this->owner->id, 'role' => Role::Viewer, 'joined_at' => now()]);
+
+    $this->postJson("{$this->base}/{$page['id']}/clone", [
+        'target_workspace_id' => $shared->id,
+        'workflow_id' => $sharedWorkflow->id,
+    ])->assertForbidden();
+
+    expect(WorkflowPage::query()->where('workspace_id', $theirs->id)->count())->toBe(0);
+    expect(WorkflowPage::query()->where('workspace_id', $shared->id)->count())->toBe(0);
+});
+
+it('only wires a copy to a workflow of the workspace it goes to', function () {
+    $page = pageCreate();
+    [$target] = pageCloneTarget();
+
+    $this->postJson("{$this->base}/{$page['id']}/clone", [
+        'target_workspace_id' => $target->id,
+        'workflow_id' => $this->workflow->id,
+    ])->assertNotFound();
 });
