@@ -412,4 +412,23 @@ return [
         'jira' => ['enabled' => (bool) env('TRIGGERS_PUSH_JIRA_ENABLED', false)],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Agent follow-ups
+    |--------------------------------------------------------------------------
+    |
+    | An agent can schedule itself to come back to a conversation later
+    | ("I'll check this PR again tomorrow at 9"): `ScheduleFollowUpTool`
+    | creates a schedule trigger that continues the same conversation. These
+    | bound how many it can have waiting, how far ahead a one-time follow-up
+    | may be, and how often a repeating one may run.
+    |
+    */
+
+    'agent_follow_ups' => [
+        'max_active_per_agent' => (int) env('TRIGGERS_AGENT_FOLLOW_UPS_MAX_ACTIVE', 25),
+        'max_days_ahead' => (int) env('TRIGGERS_AGENT_FOLLOW_UPS_MAX_DAYS_AHEAD', 365),
+        'min_interval_minutes' => (int) env('TRIGGERS_AGENT_FOLLOW_UPS_MIN_INTERVAL_MINUTES', 60),
+    ],
+
 ];

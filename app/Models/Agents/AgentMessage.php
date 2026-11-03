@@ -20,7 +20,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * engine-managed, not in `#[Fillable]`, written via `forceFill()` after
  * create(), mirroring `NodeRun`'s own convention. So is `paused_state`: set
  * by `AgentRunner` while the turn waits on an approval, cleared when it
- * resumes: see `Ai\Runtime\PauseState`.
+ * resumes: see `Ai\Runtime\PauseState`. `origin` (who sent a user-role
+ * message no person typed) and `citations` (the sources a reply cites,
+ * `Services\Agents\KnowledgeCitations`) are engine-managed the same way.
  */
 #[Fillable(['agent_session_id', 'role', 'content', 'skill_id', 'tool_calls', 'tool_results', 'tool_call_id'])]
 class AgentMessage extends Model
@@ -39,6 +41,8 @@ class AgentMessage extends Model
             'tool_results' => 'array',
             'paused_state' => 'array',
             'usage' => 'array',
+            'origin' => 'array',
+            'citations' => 'array',
         ];
     }
 

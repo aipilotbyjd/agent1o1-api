@@ -24,6 +24,7 @@ use App\Models\Agents\AgentSession;
 use App\Models\Agents\Skill;
 use App\Models\Artifacts\Artifact;
 use App\Models\Runs\Run;
+use App\Services\Agents\Approvals\ActionMessages;
 use App\Services\Agents\Approvals\AgentActionExecutor;
 use App\Services\Agents\Approvals\AutonomyResolver;
 use App\Services\Agents\Approvals\Resumption;
@@ -77,6 +78,7 @@ class AgentRunner
         private readonly AutonomyResolver $autonomy,
         private readonly AgentActionExecutor $executor,
         private readonly SubagentTaskTracker $subagentTasks,
+        private readonly KnowledgeCitations $citations,
     ) {}
 
     /**
@@ -87,11 +89,15 @@ class AgentRunner
      * retry or an edit): it and everything after it are deleted before the
      * new message is stored, so the abandoned turn never reaches the model.
      *
+     * `$origin` marks a message no person typed (a follow-up the agent
+     * scheduled itself, say) so the chat can show where it came from.
+     *
      * @param  array<int, UploadedFile>  $attachments  Files the member attached to this message.
+     * @param  array<string, mixed>|null  $origin
      */
-    public function run(AgentSession $session, string $message, string $triggerType = 'manual', array $attachments = [], ?Skill $skill = null, ?string $replacing = null): AgentMessage
+    public function run(AgentSession $session, string $message, string $triggerType = 'manual', array $attachments = [], ?Skill $skill = null, ?string $replacing = null, ?array $origin = null): AgentMessage
     {
-        $turn = $this->openTurn($session, $message, $triggerType, $attachments, $skill, $replacing);
+        $turn = $this->openTurn($session, $message, $triggerType, $attachments, $skill, $replacing, $origin);
 
         try {
             $response = $turn->agent->prompt($message, $turn->attachments, provider: $turn->provider, model: $turn->model);
@@ -214,10 +220,11 @@ class AgentRunner
      * pinned to.
      *
      * @param  array<int, UploadedFile>  $attachments
+     * @param  array<string, mixed>|null  $origin
      */
-    private function openTurn(AgentSession $session, string $message, string $triggerType, array $attachments, ?Skill $skill = null, ?string $replacing = null): AgentTurn
+    private function openTurn(AgentSession $session, string $message, string $triggerType, array $attachments, ?Skill $skill = null, ?string $replacing = null, ?array $origin = null): AgentTurn
     {
-        [$run, $userMessage, $stored] = $this->startTurn($session, $message, $triggerType, $attachments, $skill, $replacing);
+        [$run, $userMessage, $stored] = $this->startTurn($session, $message, $triggerType, $attachments, $skill, $replacing, $origin);
 
         try {
             return $this->buildTurn($session, $run, $userMessage, $stored, $skill);
@@ -235,9 +242,10 @@ class AgentRunner
      * for), the `Run`, the user's message and its attachments.
      *
      * @param  array<int, UploadedFile>  $attachments
+     * @param  array<string, mixed>|null  $origin
      * @return array{0: Run, 1: AgentMessage, 2: array<int, Artifact>}
      */
-    private function startTurn(AgentSession $session, string $message, string $triggerType, array $attachments, ?Skill $skill, ?string $replacing = null): array
+    private function startTurn(AgentSession $session, string $message, string $triggerType, array $attachments, ?Skill $skill, ?string $replacing = null, ?array $origin = null): array
     {
         $this->creditGate->assertCanStartRun($session->workspace);
 
@@ -256,6 +264,10 @@ class AgentRunner
                 'content' => $message,
                 'skill_id' => $skill?->id,
             ]);
+
+            if ($origin !== null) {
+                $userMessage->forceFill(['origin' => $origin])->save();
+            }
 
             // What `streamBegun()` needs to pick a queued turn up again.
             $run->forceFill(['input' => [...$run->input, 'user_message_id' => $userMessage->id]])->save();
@@ -438,7 +450,9 @@ class AgentRunner
             // `message_id` lets `RecordRunCreditUsage` find the exact
             // `AgentMessage` to charge for, without guessing at "the
             // latest assistant message" for this session.
-            'output' => ['text' => $assistantMessage->content, 'message_id' => $assistantMessage->id],
+            // Plain text for whoever reads the output outside the chat: its
+            // citation markers become numbers (`KnowledgeCitations::plain()`).
+            'output' => ['text' => $this->citations->plain((string) $assistantMessage->content, $assistantMessage->citations), 'message_id' => $assistantMessage->id],
             'finished_at' => now(),
         ])->save();
 
@@ -622,7 +636,7 @@ class AgentRunner
             'usage' => ResponseUsage::combine($message->usage ?? [], ResponseUsage::from($response, $resumption->startedAt)),
         ])->save();
 
-        return $message;
+        return $this->citations->attachTo($message, $resumption->turn->session->agent);
     }
 
     /**
@@ -665,7 +679,7 @@ class AgentRunner
                     ->update(['status' => AgentActionStatus::Cancelled, 'updated_at' => now()]);
 
                 $message = AgentMessage::query()->find($run->output['message_id'] ?? null);
-                $message?->forceFill(['paused_state' => null])->save();
+                $message?->forceFill(['paused_state' => null, 'tool_results' => $this->withCancelledResults($message)])->save();
 
                 event(new AgentActionsChanged($session, $run));
 
@@ -675,6 +689,36 @@ class AgentRunner
                     $run->forceFill(['status' => RunStatus::Cancelled, 'finished_at' => now()])->save();
                 }
             });
+    }
+
+    /**
+     * A closed-out turn's results with an outcome for every call that was
+     * cancelled while it waited, so later turns still see what was asked
+     * and that it never happened. Without one the call is dropped from the
+     * replayed history (`TranscriptReplay`), and a question the agent asked
+     * (`AskUserTool`) would vanish right before the person's reply to it.
+     *
+     * @return array<int, array<string, mixed>>|null
+     */
+    private function withCancelledResults(AgentMessage $message): ?array
+    {
+        $results = collect($message->tool_results ?? [])->keyBy('id');
+
+        AgentAction::query()
+            ->where('agent_message_id', $message->id)
+            ->where('status', AgentActionStatus::Cancelled)
+            ->whereNotNull('tool_call_id')
+            ->get()
+            ->reject(fn (AgentAction $action): bool => $results->has($action->tool_call_id))
+            ->each(fn (AgentAction $action) => $results->put($action->tool_call_id, [
+                'id' => $action->tool_call_id,
+                'name' => $action->tool_name,
+                'arguments' => $action->effectiveArguments(),
+                'result' => ActionMessages::rejected($action),
+                'result_id' => null,
+            ]));
+
+        return $results->isNotEmpty() ? $results->values()->all() : null;
     }
 
     /**
@@ -690,7 +734,7 @@ class AgentRunner
         ]);
         $message->forceFill(['usage' => $usage])->save();
 
-        return $message;
+        return $this->citations->attachTo($message, $session->agent);
     }
 
     /**
@@ -740,8 +784,10 @@ class AgentRunner
         $response = (new EmbeddedAgent($instructions, $this->tools->toolsFor($agent, $run, canPause: false, simulateActions: $simulateActions), GenerationSettings::fromAgent($agent)))
             ->prompt($prompt, provider: $provider, model: $model);
 
+        $citations = $this->citations->resolve((string) $response->text, $response->toolResults->toArray(), agent: $agent);
+
         return [
-            'text' => $response->text,
+            'text' => $this->citations->plain((string) $response->text, $citations),
             'usage' => ResponseUsage::from($response, $startedAt),
             'tool_calls' => $response->toolCalls->pluck('name')->values()->all(),
         ];
@@ -860,7 +906,7 @@ class AgentRunner
     private function conversationResult(AgentSession $session, Run $run, AgentMessage $assistantMessage): array
     {
         return [
-            'text' => (string) $assistantMessage->content,
+            'text' => $this->citations->plain((string) $assistantMessage->content, $assistantMessage->citations),
             'usage' => $assistantMessage->usage ?? [],
             'conversation_id' => $session->id,
             'messages' => $session->messages()->oldest()->get()

@@ -3,6 +3,7 @@
 namespace App\Services\Agents\Approvals;
 
 use App\Authorization\WorkspaceContext;
+use App\Enums\Agents\ActionToolKind;
 use App\Enums\Workspaces\Permission;
 use App\Enums\Workspaces\Role;
 use App\Models\Agents\AgentAction;
@@ -28,6 +29,11 @@ class ActionApprovers
 
         if ($role === null) {
             return false;
+        }
+
+        // A question is for the person in the conversation, not an approver.
+        if ($action->tool_kind === ActionToolKind::Question) {
+            return $action->session?->user_id === $user->id;
         }
 
         if (in_array($role, [Role::Owner, Role::Admin], true)) {
@@ -86,6 +92,11 @@ class ActionApprovers
 
     private function shouldHear(User $user, Role $role, AgentAction $action): bool
     {
+        // A question is for the person in the conversation, not an approver.
+        if ($action->tool_kind === ActionToolKind::Question) {
+            return $action->session?->user_id === $user->id;
+        }
+
         if (in_array($role, [Role::Owner, Role::Admin], true)) {
             return true;
         }

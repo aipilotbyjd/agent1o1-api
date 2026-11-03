@@ -1,7 +1,11 @@
 <?php
 
+use App\Ai\Tools\FollowUps\CancelFollowUpTool;
+use App\Ai\Tools\FollowUps\ListFollowUpsTool;
+use App\Ai\Tools\FollowUps\ScheduleFollowUpTool;
 use App\Ai\Tools\Memory\ForgetTool;
 use App\Ai\Tools\Memory\RememberTool;
+use App\Ai\Tools\Workspace\AskUserTool;
 use App\Ai\Tools\Workspace\ExportArtifactTool;
 use App\Ai\Tools\Workspace\NodeTool;
 use App\Ai\Tools\Workspace\UpdateInstructionsTool;
@@ -64,11 +68,18 @@ it('attaches ExportArtifactTool only for a session-backed run', function () {
     $session = $agent->sessions()->create(['workspace_id' => $workspace->id, 'user_id' => $owner->id]);
     $sessionRun = $session->runs()->create(['workspace_id' => $workspace->id, 'trigger_type' => 'manual']);
 
-    $tools = app(ToolRegistry::class)->toolsFor($agent, $sessionRun);
-    expect($tools)->toHaveCount(3);
-    expect($tools[0])->toBeInstanceOf(RememberTool::class);
-    expect($tools[1])->toBeInstanceOf(ForgetTool::class);
-    expect($tools[2])->toBeInstanceOf(ExportArtifactTool::class);
+    // A chat turn also gets the follow-up tools and `ask_user`: see
+    // ToolRegistryConversationToolsTest.
+    $tools = collect(app(ToolRegistry::class)->toolsFor($agent, $sessionRun));
+    expect($tools->map(fn ($tool) => $tool::class)->all())->toBe([
+        RememberTool::class,
+        ForgetTool::class,
+        ExportArtifactTool::class,
+        ScheduleFollowUpTool::class,
+        ListFollowUpsTool::class,
+        CancelFollowUpTool::class,
+        AskUserTool::class,
+    ]);
 
     $workflowRun = Run::factory()->forWorkspace($workspace)->create();
     $tools = app(ToolRegistry::class)->toolsFor($agent, $workflowRun);

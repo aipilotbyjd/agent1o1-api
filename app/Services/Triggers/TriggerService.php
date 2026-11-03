@@ -107,8 +107,16 @@ class TriggerService
             $this->limits->assertCanCreate($trigger->workspace, PlanLimit::ActiveTriggers);
         }
 
+        $config = $data['config'] ?? $trigger->config;
+
+        // What makes a trigger an agent's own follow-up (`AgentFollowUps`) is
+        // engine-managed and never accepted from a request, so an edit keeps it.
+        if (is_array($trigger->config['follow_up'] ?? null) && is_array($config)) {
+            $config['follow_up'] = $trigger->config['follow_up'];
+        }
+
         $trigger->update([
-            'config' => $data['config'] ?? $trigger->config,
+            'config' => $config,
             'is_active' => $data['is_active'] ?? $trigger->is_active,
         ]);
 

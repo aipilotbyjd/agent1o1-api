@@ -20,9 +20,10 @@ class SendAgentMessageAction
      *
      * @param  array<int, UploadedFile>  $attachments  Files the member attached to this message.
      * @param  string|null  $replacing  An earlier user message this one replaces: see `AgentRunner::run()`.
+     * @param  array<string, mixed>|null  $origin  Where a message no person typed came from: see `AgentRunner::run()`.
      */
-    public function execute(AgentSession $session, string $message, string $triggerType = 'manual', array $attachments = [], ?Skill $skill = null, ?string $replacing = null): AgentMessage
+    public function execute(AgentSession $session, string $message, string $triggerType = 'manual', array $attachments = [], ?Skill $skill = null, ?string $replacing = null, ?array $origin = null): AgentMessage
     {
-        return $this->runner->run($session, $message, $triggerType, $attachments, $skill, $replacing);
+        return $this->runner->run($session, $message, $triggerType, $attachments, $skill, $replacing, $origin);
     }
 }

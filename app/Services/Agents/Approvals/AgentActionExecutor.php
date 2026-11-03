@@ -10,6 +10,7 @@ use Laravel\Ai\Approvals\Decision;
 use Laravel\Ai\Approvals\Decisions;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Tools\Request;
+use Laravel\Ai\Tools\ToolNameResolver;
 use Throwable;
 
 /**
@@ -86,7 +87,7 @@ class AgentActionExecutor
             $action->tool_call_id => match (true) {
                 in_array($action->status, [AgentActionStatus::Executed, AgentActionStatus::Failed, AgentActionStatus::Running], true) => Decision::approve(),
                 $action->stops_turn => Decision::reject(),
-                default => Decision::reject(ActionMessages::rejectionText($action->status, $action->decision_note)),
+                default => Decision::reject(ActionMessages::rejected($action)),
             },
         ])->all());
     }
@@ -96,7 +97,8 @@ class AgentActionExecutor
      */
     private function runApproved(AgentAction $action, array $tools): void
     {
-        $tool = collect($tools)->first(fn (mixed $tool): bool => $tool instanceof Tool && $tool->name() === $action->tool_name);
+        // Not every tool defines `name()`: the SDK derives a name for those.
+        $tool = collect($tools)->first(fn (mixed $tool): bool => $tool instanceof Tool && ToolNameResolver::resolve($tool) === $action->tool_name);
 
         if ($tool === null) {
             $action->forceFill([
@@ -120,7 +122,7 @@ class AgentActionExecutor
         return match ($action->status) {
             AgentActionStatus::Executed => (string) $action->result,
             AgentActionStatus::Failed => ActionMessages::failed($action),
-            default => ActionMessages::rejectionText($action->status, $action->decision_note),
+            default => ActionMessages::rejected($action),
         };
     }
 }

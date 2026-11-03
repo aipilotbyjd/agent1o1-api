@@ -54,6 +54,12 @@ class AgentMessageResource extends JsonResource
             'awaiting_approval' => $this->paused_state !== null,
             'pending_tool_call_ids' => $this->paused_state['pending_tool_call_ids'] ?? [],
             'actions' => AgentActionResource::collection($this->whenLoaded('actions')),
+            // Where a user-role message no person typed came from, e.g. a
+            // follow-up the agent scheduled itself: `{type: "follow_up", ...}`.
+            'origin' => $this->origin,
+            // The sources the reply's `[ref]` markers cite, numbered in order
+            // of first appearance: see `KnowledgeCitations`.
+            'citations' => $this->citations ?? [],
             'usage' => $this->usage,
             'created_at' => $this->created_at,
         ];

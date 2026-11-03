@@ -2,6 +2,7 @@
 
 namespace App\Services\Dashboard;
 
+use App\Enums\Agents\ActionToolKind;
 use App\Enums\Agents\AgentActionStatus;
 use App\Enums\Billing\CreditTransactionType;
 use App\Enums\RunStatus;
@@ -202,6 +203,7 @@ final class DashboardMetrics
     {
         return AgentAction::query()
             ->where('workspace_id', $workspace->id)
+            ->where('tool_kind', '!=', ActionToolKind::Question)
             ->where('status', AgentActionStatus::Pending);
     }
 
