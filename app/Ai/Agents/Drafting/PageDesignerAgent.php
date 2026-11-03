@@ -55,6 +55,8 @@ class PageDesignerAgent implements Agent, HasStructuredOutput, HasTools
         - logos: title, items [{url, alt}]. Only with real logo URLs.
         - tabs: items [{label, markdown}].
         - countdown: target (ISO 8601 date-time), label, ended_text. Only with a real date.
+        - steps: title, items [{title, description}] (up to 10). A numbered "how it works".
+        - features: title, items [{title, description}] (up to 9), columns (2|3|4). A grid of benefit cards.
         - divider: style (solid|dashed). spacer: size (sm|md|lg|xl).
         - field: field_key, label (optional, defaults to the input's own), placeholder, help,
           variant (auto|input|textarea|dropdown|radio|checkbox|switch).

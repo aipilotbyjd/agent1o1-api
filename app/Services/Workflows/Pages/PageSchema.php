@@ -724,6 +724,19 @@ class PageSchema
                 'ended_text' => self::text($p['ended_text'] ?? null, 200),
                 'show_seconds' => (bool) ($p['show_seconds'] ?? true),
             ],
+            PageBlockType::Steps => [
+                'title' => self::text($p['title'] ?? null, 120),
+                'items' => self::items($p['items'] ?? null, 10, fn (array $item): ?array => self::pair(
+                    ['title' => self::text($item['title'] ?? null, 120), 'description' => self::text($item['description'] ?? null, 1000)],
+                )),
+            ],
+            PageBlockType::Features => [
+                'title' => self::text($p['title'] ?? null, 120),
+                'items' => self::items($p['items'] ?? null, 9, fn (array $item): ?array => self::pair(
+                    ['title' => self::text($item['title'] ?? null, 120), 'description' => self::text($item['description'] ?? null, 500)],
+                )),
+                'columns' => self::oneOf((int) ($p['columns'] ?? 3), [3, 2, 4]),
+            ],
             PageBlockType::Field => [
                 'field_key' => self::text($p['field_key'] ?? null, 255) ?? '',
                 'label' => self::text($p['label'] ?? null, 200),

@@ -103,6 +103,22 @@ it('sanitizes the new content blocks', function () {
     expect($blocks[6]['props']['target'])->toBeNull();
 });
 
+it('sanitizes the steps and features blocks', function () {
+    $blocks = $this->schema->normalize(['blocks' => [
+        treeBlock('steps', ['title' => 'How it works', 'items' => [['title' => 'Fill in', 'description' => 'Tell us the topic'], ['title' => '', 'description' => ''], 'junk']]),
+        treeBlock('steps', ['items' => array_fill(0, 14, ['title' => 'Step'])]),
+        treeBlock('features', ['columns' => 7, 'items' => array_fill(0, 12, ['title' => 'Fast', 'description' => 'Very'])]),
+        treeBlock('features', ['columns' => '4']),
+    ]])['blocks'];
+
+    expect($blocks[0]['props']['title'])->toBe('How it works');
+    expect($blocks[0]['props']['items'])->toBe([['title' => 'Fill in', 'description' => 'Tell us the topic']]);
+    expect($blocks[1]['props']['items'])->toHaveCount(10);
+    expect($blocks[2]['props']['columns'])->toBe(3);
+    expect($blocks[2]['props']['items'])->toHaveCount(9);
+    expect($blocks[3]['props']['columns'])->toBe(4);
+});
+
 it('checks fields and the Run button wherever they sit', function () {
     $content = $this->schema->normalize(['blocks' => [
         treeBlock('section', [], [
