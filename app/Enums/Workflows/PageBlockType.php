@@ -26,6 +26,14 @@ enum PageBlockType: string
     case Countdown = 'countdown';
     case Steps = 'steps';
     case Features = 'features';
+    case Code = 'code';
+    case Pricing = 'pricing';
+    case Embed = 'embed';
+    case Gallery = 'gallery';
+    case Compare = 'compare';
+    case Progress = 'progress';
+    case Social = 'social';
+    case Timeline = 'timeline';
     case Field = 'field';
     case Submit = 'submit';
     case Output = 'output';
