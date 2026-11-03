@@ -3,8 +3,10 @@
 namespace App\Ai\Agents\Workspace;
 
 use App\Ai\Agents\Concerns\AppliesGenerationSettings;
+use App\Ai\Runtime\ContextBudget;
 use App\Ai\Runtime\PauseState;
 use App\Ai\Runtime\TranscriptReplay;
+use App\Ai\Tools\Workspace\ReadToolResultTool;
 use App\Enums\Agents\AgentMessageRole;
 use App\Models\Agents\AgentMessage;
 use App\Models\Agents\AgentSession;
@@ -20,6 +22,7 @@ use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Messages\Message;
 use Laravel\Ai\Messages\UserMessage;
+use Illuminate\Support\Collection;
 use Laravel\Ai\Promptable;
 
 /**
@@ -64,6 +67,9 @@ class WorkspaceAgent implements Agent, Conversational, HasTools
      * unanswered calls intact (`PauseState::replay()`) instead of the usual
      * results-only replay, since those calls are what the decisions answer.
      *
+     * `$historyTokens` is how many tokens the replayed history may use
+     * (`ContextBudget::historyTokens()`); null replays the whole window.
+     *
      * @param  array<int, Tool>  $tools
      */
     public function __construct(
@@ -73,6 +79,7 @@ class WorkspaceAgent implements Agent, Conversational, HasTools
         private readonly array $tools = [],
         private readonly ?GenerationSettings $settings = null,
         private readonly ?string $resumingMessageId = null,
+        private readonly ?int $historyTokens = null,
     ) {}
 
     public function instructions(): string
@@ -101,6 +108,8 @@ class WorkspaceAgent implements Agent, Conversational, HasTools
      * so the model can still refer back to a file sent earlier in the
      * conversation.
      *
+     * The window is then held to `$historyTokens`: see `withinBudget()`.
+     *
      * @return iterable<int, Message>
      */
     public function messages(): iterable
@@ -115,10 +124,12 @@ class WorkspaceAgent implements Agent, Conversational, HasTools
             ->reverse()
             ->values();
 
-        return TranscriptReplay::answeredWindow($history, self::HISTORY_LIMIT, fn (AgentMessage $message): bool => $message->role === AgentMessageRole::User)
+        $window = TranscriptReplay::answeredWindow($history, self::HISTORY_LIMIT, fn (AgentMessage $message): bool => $message->role === AgentMessageRole::User);
+
+        return $this->withinBudget($window)
             ->flatMap(fn (AgentMessage $message): array => match (true) {
                 $message->id === $this->resumingMessageId && $message->paused_state !== null => PauseState::replay($message->content, $message->tool_calls, $message->tool_results, $message->paused_state),
-                $message->role === AgentMessageRole::Assistant => TranscriptReplay::assistantTurn($message->content, $message->tool_calls, $message->tool_results, self::MAX_REPLAYED_RESULT_CHARS),
+                $message->role === AgentMessageRole::Assistant => TranscriptReplay::assistantTurn($message->content, $message->tool_calls, $message->tool_results, self::MAX_REPLAYED_RESULT_CHARS, ReadToolResultTool::NAME),
                 $message->attachments->isNotEmpty() => [
                     new UserMessage($message->content, $message->attachments->map(fn (Artifact $artifact) => $artifact->toPromptAttachment())),
                 ],
@@ -126,5 +137,69 @@ class WorkspaceAgent implements Agent, Conversational, HasTools
             })
             ->values()
             ->all();
+    }
+
+    /**
+     * The newest messages of `$window` that fit in `$historyTokens`, still
+     * starting on a user message. The latest exchange is always kept,
+     * whatever it costs: it is what the new message follows on from, and
+     * when resuming it holds the paused calls the decisions answer.
+     *
+     * @param  Collection<int, AgentMessage>  $window
+     * @return Collection<int, AgentMessage>
+     */
+    private function withinBudget(Collection $window): Collection
+    {
+        if ($this->historyTokens === null) {
+            return $window;
+        }
+
+        $kept = [];
+        $used = 0;
+
+        foreach ($window->reverse()->values() as $index => $message) {
+            $cost = $this->estimatedTokens($message);
+
+            if ($index >= 2 && $used + $cost > $this->historyTokens) {
+                break;
+            }
+
+            $used += $cost;
+            array_unshift($kept, $message);
+        }
+
+        if (count($kept) === $window->count()) {
+            return $window;
+        }
+
+        return collect($kept)
+            ->skipUntil(fn (AgentMessage $message): bool => $message->role === AgentMessageRole::User)
+            ->values();
+    }
+
+    /**
+     * What one stored message costs once replayed: its text, its tool calls,
+     * its tool results as cut short for replay, and its attachments.
+     */
+    private function estimatedTokens(AgentMessage $message): int
+    {
+        $tokens = ContextBudget::estimate((string) $message->content);
+
+        if ($message->role === AgentMessageRole::Assistant) {
+            $tokens += ContextBudget::estimate((string) json_encode($message->tool_calls ?? []));
+
+            foreach ($message->tool_results ?? [] as $result) {
+                $text = is_string($result['result'] ?? null) ? $result['result'] : (string) json_encode($result['result'] ?? null);
+
+                // The cut-short note adds a couple of hundred characters.
+                $tokens += ContextBudget::estimate(mb_substr($text, 0, self::MAX_REPLAYED_RESULT_CHARS + 300));
+            }
+        }
+
+        foreach ($message->attachments as $attachment) {
+            $tokens += ContextBudget::attachmentTokens($attachment);
+        }
+
+        return $tokens;
     }
 }

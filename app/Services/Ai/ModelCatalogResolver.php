@@ -44,6 +44,18 @@ class ModelCatalogResolver
     }
 
     /**
+     * The context window of `$agent`'s model in tokens, when its catalog
+     * entry states one. Null for a raw provider/model (a custom or BYOK
+     * model the catalog doesn't describe).
+     */
+    public function contextWindowFor(Agent $agent): ?int
+    {
+        $window = $agent->model_catalog_id !== null ? ($agent->modelCatalog?->capabilities['context_window'] ?? null) : null;
+
+        return is_numeric($window) && $window > 0 ? (int) $window : null;
+    }
+
+    /**
      * The provider/model to grade `$agent`'s output with. `$judgeModel` (the
      * agent's evaluation settings `model`) is a deliberate override (grade
      * with a specific model rather than the one that wrote the answer) and
