@@ -15,10 +15,17 @@ use App\Services\Workflows\WorkflowInterface;
  *
  * A field whose input the workflow no longer has is left out rather than
  * shown as a control that submits to nothing.
+ *
+ * `branding` is the badge as it should render (see `PageBranding`), and
+ * `theme.show_branding` is set to match it, so a page on a plan that can't
+ * hide the badge shows it even when its theme says otherwise.
  */
 class PagePresenter
 {
-    public function __construct(private readonly WorkflowInterface $interface) {}
+    public function __construct(
+        private readonly WorkflowInterface $interface,
+        private readonly PageBranding $branding,
+    ) {}
 
     /**
      * @param  array{blocks: array<int, array<string, mixed>>, theme: array<string, mixed>}  $content
@@ -26,11 +33,14 @@ class PagePresenter
      */
     public function present(WorkflowPage $page, array $content, bool $locked = false): array
     {
+        $branding = $this->branding->for($page, $content);
+
         $view = [
             'name' => $page->name,
             'description' => $page->description,
             'workspace_name' => $page->workspace?->name,
-            'theme' => $content['theme'],
+            'theme' => [...$content['theme'], 'show_branding' => $branding['show']],
+            'branding' => $branding,
             'locked' => $locked,
             'requires_password' => $page->access === PageAccess::Password,
             'blocks' => [],

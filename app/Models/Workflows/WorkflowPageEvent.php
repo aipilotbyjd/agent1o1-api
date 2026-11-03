@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Someone opening a workflow page (`view`) or starting to fill it in
- * (`start`). At most one of each per visitor, variant and day (see
+ * Someone opening a workflow page (`view`), starting to fill it in
+ * (`start`), or clicking its "Made with Agent1o1" badge (`badge_click`).
+ * At most one of each per visitor, variant and day (see
  * `PageInsights::record()`) so counting rows counts unique visitors.
  * `visitor_hash` is a keyed hash; it never holds an address or id as-is.
  */
@@ -18,6 +19,16 @@ class WorkflowPageEvent extends Model
     public const string View = 'view';
 
     public const string Start = 'start';
+
+    public const string BadgeClick = 'badge_click';
+
+    /**
+     * What a visitor's browser may report through the public events
+     * endpoint; views are recorded by the server when the page is served.
+     *
+     * @var array<int, string>
+     */
+    public const array REPORTABLE = [self::Start, self::BadgeClick];
 
     public const UPDATED_AT = null;
 
