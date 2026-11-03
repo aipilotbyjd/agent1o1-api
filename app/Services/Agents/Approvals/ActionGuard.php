@@ -23,6 +23,13 @@ use Throwable;
 class ActionGuard
 {
     /**
+     * How many times one tool may fail in a turn before it is refused. A
+     * model that can't get a tool's arguments right tends to retry it until
+     * its steps run out, and in Ask mode every retry is another approval.
+     */
+    public const int MAX_FAILURES_PER_TURN = 3;
+
+    /**
      * @param  array<string, mixed>|null  $policy
      */
     public function __construct(
@@ -71,6 +78,42 @@ class ActionGuard
             AgentActionStatus::Failed => ActionMessages::failed($action),
             AgentActionStatus::Rejected, AgentActionStatus::Expired, AgentActionStatus::Cancelled => ActionMessages::rejected($action),
         };
+    }
+
+    /**
+     * Whether this tool has failed too often this turn to be run again.
+     * `$failedHere` counts the failures the tool saw itself; for a chat turn
+     * the failures stored before it paused for approval count too, since a
+     * resumed turn rebuilds its tools. Other runs (an eval run shared by
+     * every case, a workflow run shared by several Agent nodes) only count
+     * their own tool's failures, so one case's failures never block another.
+     */
+    public function hasFailedTooOften(int $failedHere): bool
+    {
+        if ($failedHere >= self::MAX_FAILURES_PER_TURN) {
+            return true;
+        }
+
+        $session = $this->context->session;
+        $run = $this->context->run;
+
+        if ($session === null || $run->runnable_type !== $session->getMorphClass() || $run->runnable_id !== $session->id) {
+            return false;
+        }
+
+        $stored = AgentAction::query()
+            ->where('run_id', $run->id)
+            ->where('agent_session_id', $session->id)
+            ->where('tool_name', $this->toolName)
+            ->where('status', AgentActionStatus::Failed)
+            ->count();
+
+        return $stored >= self::MAX_FAILURES_PER_TURN;
+    }
+
+    public function toolName(): string
+    {
+        return $this->toolName;
     }
 
     /**
