@@ -27,7 +27,7 @@ use Illuminate\Support\Str;
  * `public_token` is the page's link. It exists for every page, but only
  * answers when `access` is public; rotating it breaks the old link.
  */
-#[Fillable(['workspace_id', 'workflow_id', 'created_by', 'name', 'description', 'content', 'access', 'is_enabled', 'max_runs_per_day', 'share_title', 'share_description', 'share_image_url', 'variant_content', 'variant_split'])]
+#[Fillable(['workspace_id', 'workflow_id', 'created_by', 'name', 'description', 'content', 'access', 'is_enabled', 'max_runs_per_day', 'share_title', 'share_description', 'share_image_url', 'hide_from_search', 'variant_content', 'variant_split'])]
 #[Hidden(['password'])]
 class WorkflowPage extends Model
 {
@@ -73,6 +73,7 @@ class WorkflowPage extends Model
             'access' => PageAccess::class,
             'password' => 'hashed',
             'is_enabled' => 'boolean',
+            'hide_from_search' => 'boolean',
             'max_runs_per_day' => 'integer',
         ];
     }

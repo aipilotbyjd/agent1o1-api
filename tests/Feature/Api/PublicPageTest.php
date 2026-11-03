@@ -173,6 +173,7 @@ it('describes the link card from the published page', function () {
             'image_url' => 'https://images.example.com/cover.jpg',
             'theme_color' => '#16a34a',
             'site_name' => 'Acme',
+            'noindex' => false,
         ]);
 });
 
@@ -184,6 +185,12 @@ it('uses the link card the builder chose over the page', function () {
         ->assertJsonPath('data.meta.title', 'Free note writer')
         ->assertJsonPath('data.meta.description', 'Try it now.')
         ->assertJsonPath('data.meta.image_url', 'https://images.example.com/og.png');
+});
+
+it('tells search engines to skip a page the builder hid from search', function () {
+    $this->page->update(['hide_from_search' => true]);
+
+    $this->getJson("{$this->url}/meta")->assertOk()->assertJsonPath('data.meta.noindex', true);
 });
 
 it('describes a password page’s card but hides a private page’s', function () {
