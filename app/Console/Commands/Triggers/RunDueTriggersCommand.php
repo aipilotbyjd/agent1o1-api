@@ -6,6 +6,7 @@ use App\Enums\Triggers\TriggerType;
 use App\Jobs\Triggers\PollTrigger;
 use App\Models\Triggers\Trigger;
 use App\Services\Triggers\TriggerService;
+use Carbon\CarbonInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -77,40 +78,59 @@ class RunDueTriggersCommand extends Command
 
                 // Move on first, so if intake throws, the next tick doesn't retry
                 // the same slot forever.
-                // A one-time schedule has no next slot: it switches itself off
-                // here, whether the slot fires below or was missed.
-                $trigger->forceFill(['next_run_at' => $trigger->nextRun($now)])
-                    ->forceFill($trigger->isOneTimeSchedule() ? ['is_active' => false] : [])
-                    ->save();
+                $trigger->forceFill(['next_run_at' => $trigger->nextRun($now)])->save();
 
-                if ($slot->lt($catchUpCutoff)) {
-                    Log::info('Schedule trigger slot missed beyond the catch-up window.', ['trigger_id' => $trigger->id, 'slot' => $slot->toIso8601String()]);
-
-                    return;
-                }
-
-                // The delivery id names the slot, so a second scheduler or a
-                // re-run of this tick hits the unique index instead of firing
-                // twice. Unlike a lock, that holds across servers.
+                // A one-time schedule has no next slot: it switches itself off,
+                // whether the slot fires below or was missed. Only after intake,
+                // which skips an inactive trigger: switching it off first meant
+                // its one slot was always recorded as skipped and never ran. A
+                // tick that dies in between leaves it due, and the next tick's
+                // intake finds the slot already recorded (its delivery id).
                 try {
-                    $triggers->receive(
-                        $trigger,
-                        TriggerType::Schedule,
-                        ['scheduled_at' => $slot->toIso8601String()],
-                        deliveryId: 'schedule:'.$slot->format('Y-m-d H:i'),
-                    );
-                } catch (Throwable $exception) {
-                    // One trigger's failure must never stop the tick for every
-                    // other workspace's schedules.
-                    report($exception);
-
-                    return;
+                    if ($this->fireSlot($triggers, $trigger, $slot, $catchUpCutoff)) {
+                        $queued++;
+                    }
+                } finally {
+                    if ($trigger->isOneTimeSchedule()) {
+                        $trigger->forceFill(['is_active' => false])->save();
+                    }
                 }
-
-                $queued++;
             });
 
         return $queued;
+    }
+
+    /**
+     * Hands one due slot to intake, unless it was missed by more than the
+     * catch-up window. Whether it was handed over.
+     */
+    private function fireSlot(TriggerService $triggers, Trigger $trigger, CarbonInterface $slot, CarbonInterface $catchUpCutoff): bool
+    {
+        if ($slot->lt($catchUpCutoff)) {
+            Log::info('Schedule trigger slot missed beyond the catch-up window.', ['trigger_id' => $trigger->id, 'slot' => $slot->toIso8601String()]);
+
+            return false;
+        }
+
+        // The delivery id names the slot, so a second scheduler or a
+        // re-run of this tick hits the unique index instead of firing
+        // twice. Unlike a lock, that holds across servers.
+        try {
+            $triggers->receive(
+                $trigger,
+                TriggerType::Schedule,
+                ['scheduled_at' => $slot->toIso8601String()],
+                deliveryId: 'schedule:'.$slot->format('Y-m-d H:i'),
+            );
+        } catch (Throwable $exception) {
+            // One trigger's failure must never stop the tick for every
+            // other workspace's schedules.
+            report($exception);
+
+            return false;
+        }
+
+        return true;
     }
 
     /**

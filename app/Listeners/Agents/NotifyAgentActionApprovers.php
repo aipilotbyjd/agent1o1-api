@@ -2,7 +2,9 @@
 
 namespace App\Listeners\Agents;
 
+use App\Enums\Agents\ActionToolKind;
 use App\Events\Agents\AgentActionsRequested;
+use App\Models\Agents\AgentAction;
 use App\Notifications\Agents\AgentActionApprovalRequestedNotification;
 use App\Services\Agents\Approvals\ActionApprovers;
 use App\Services\Notifications\NotificationDispatcher;
@@ -20,13 +22,17 @@ class NotifyAgentActionApprovers
 
     public function handle(AgentActionsRequested $event): void
     {
-        if ($event->actions->isEmpty()) {
+        // A question the agent asked is answered in the chat it was asked
+        // in, by the person there: it is not an approval request.
+        $actions = $event->actions->reject(fn (AgentAction $action): bool => $action->tool_kind === ActionToolKind::Question)->values();
+
+        if ($actions->isEmpty()) {
             return;
         }
 
-        $event->actions->loadMissing('session');
+        $actions->loadMissing('session');
 
-        foreach ($this->approvers->notificationsFor($event->session->workspace, $event->actions) as $entry) {
+        foreach ($this->approvers->notificationsFor($event->session->workspace, $actions) as $entry) {
             $this->notifications->dispatch(
                 [$entry['user']],
                 new AgentActionApprovalRequestedNotification($event->session, $entry['actions']),
