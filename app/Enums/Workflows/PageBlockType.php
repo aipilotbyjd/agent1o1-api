@@ -24,6 +24,8 @@ enum PageBlockType: string
     case Logos = 'logos';
     case Tabs = 'tabs';
     case Countdown = 'countdown';
+    case Steps = 'steps';
+    case Features = 'features';
     case Field = 'field';
     case Submit = 'submit';
     case Output = 'output';
