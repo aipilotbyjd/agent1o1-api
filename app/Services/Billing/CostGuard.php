@@ -16,6 +16,7 @@ use App\Models\Runs\Run;
 use App\Models\Workspaces\Workspace;
 use App\Services\Notifications\AdminAlerts;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * AI cost guardrails: limits in dollars and in concurrency that stop work
@@ -133,6 +134,27 @@ class CostGuard
     }
 
     /**
+     * `freeTierSpendTodayUsd()` for the start-of-work check: a platform-wide
+     * sum over every free and trial allocation, which would otherwise run on
+     * every start. Held for `billing.guardrails.free_tier_spend_cache_seconds`
+     * (0 reads fresh every time).
+     */
+    private function cachedFreeTierSpendTodayUsd(): float
+    {
+        $seconds = (int) config('billing.guardrails.free_tier_spend_cache_seconds', 30);
+
+        if ($seconds <= 0) {
+            return $this->freeTierSpendTodayUsd();
+        }
+
+        return (float) Cache::remember(
+            'billing:free-tier-spend-usd:'.now()->toDateString(),
+            $seconds,
+            fn (): float => $this->freeTierSpendTodayUsd(),
+        );
+    }
+
+    /**
      * What the workspace has spent since `$since`: the larger of its credits
      * at `billing.credit_value_usd` and what its calls actually cost the
      * platform (`ai_call_events`), so a model whose price is missing or wrong
@@ -196,7 +218,7 @@ class CostGuard
             return;
         }
 
-        $spent = $this->freeTierSpendTodayUsd();
+        $spent = $this->cachedFreeTierSpendTodayUsd();
 
         if ($spent < (float) $budget) {
             return;

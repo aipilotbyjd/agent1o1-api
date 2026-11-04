@@ -10,6 +10,8 @@ use App\Models\Runs\Run;
 use App\Models\User;
 use App\Models\Workflows\Workflow;
 use App\Services\Billing\CreditGate;
+use Closure;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Creates a `runs` row pinned to the workflow's `current_version_id`, never
@@ -50,29 +52,42 @@ class StartWorkflowRunAction
         // Only top-level runs are gated. A sub-workflow/loop child run is part
         // of work the parent already passed the gate for, and refusing it
         // mid-flight would strand the parent run rather than save any spend.
-        if ($parentNode === null) {
-            $this->creditGate->assertCanStartWorkflowRun($workflow->workspace);
-        }
+        //
+        // The gate's checks (concurrent runs, dollar caps) only see runs that
+        // already exist, so the check and the insert run under one
+        // per-workspace lock: parallel starts can't all pass the gate before
+        // any of them has created its run.
+        $createRun = function () use ($workflow, $input, $triggeredBy, $triggerType, $parentNode, $loopIndex, $entryNodeKey): Run {
+            if ($parentNode === null) {
+                $this->creditGate->assertCanStartWorkflowRun($workflow->workspace);
+            }
 
-        // `status`/`started_at` aren't in Run's #[Fillable] list (engine-
-        // managed, not user-mass-assignable): create() would silently drop
-        // them, so create first, then forceFill the status transition.
-        $run = $workflow->runs()->create([
-            'workspace_id' => $workflow->workspace_id,
-            'runnable_type' => $workflow->getMorphClass(),
-            'runnable_id' => $workflow->id,
-            'workflow_id' => $workflow->id,
-            'workflow_version_id' => $workflow->current_version_id,
-            'trigger_type' => $triggerType,
-            'entry_node_key' => $entryNodeKey,
-            'input' => $input,
-            'triggered_by' => $triggeredBy?->id,
-            'parent_run_id' => $parentNode?->run_id,
-            'parent_node_id' => $parentNode?->id,
-            'loop_index' => $loopIndex,
-        ]);
+            // `status`/`started_at` aren't in Run's #[Fillable] list (engine-
+            // managed, not user-mass-assignable): create() would silently drop
+            // them, so create first, then forceFill the status transition.
+            $run = $workflow->runs()->create([
+                'workspace_id' => $workflow->workspace_id,
+                'runnable_type' => $workflow->getMorphClass(),
+                'runnable_id' => $workflow->id,
+                'workflow_id' => $workflow->id,
+                'workflow_version_id' => $workflow->current_version_id,
+                'trigger_type' => $triggerType,
+                'entry_node_key' => $entryNodeKey,
+                'input' => $input,
+                'triggered_by' => $triggeredBy?->id,
+                'parent_run_id' => $parentNode?->run_id,
+                'parent_node_id' => $parentNode?->id,
+                'loop_index' => $loopIndex,
+            ]);
 
-        $run->forceFill(['status' => RunStatus::Running, 'started_at' => now()])->save();
+            $run->forceFill(['status' => RunStatus::Running, 'started_at' => now()])->save();
+
+            return $run;
+        };
+
+        $run = $parentNode === null
+            ? $this->underStartLock($workflow->workspace_id, $createRun)
+            : $createRun();
 
         DispatchNextNodesJob::dispatch($run->id);
 
@@ -81,5 +96,13 @@ class StartWorkflowRunAction
         // so callers (controllers building a response right away) see the
         // current state instead of the "running" snapshot from above.
         return $run->fresh();
+    }
+
+    /**
+     * @param  Closure(): Run  $callback
+     */
+    private function underStartLock(int|string $workspaceId, Closure $callback): Run
+    {
+        return Cache::lock("workflow-run-start:{$workspaceId}", 10)->block(5, $callback);
     }
 }
