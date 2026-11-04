@@ -264,6 +264,78 @@ return [
             ],
         ],
 
+        // --- Vyce (OpenAI-compatible proxy): routes seeded disabled until
+        // VYCE_API_KEY is configured; enable with `model-catalog:add-route`.
+        [
+            'slug' => 'gpt-6-luna',
+            'display_name' => 'GPT-6 Luna',
+            'brand' => 'openai',
+            'capabilities' => ['context_window' => 270000, 'vision' => true, 'tool_use' => true],
+            'routes' => [
+                ['execution_provider' => 'vyce', 'execution_model_id' => 'gpt-6-luna', 'priority' => 0, 'is_enabled' => false],
+            ],
+        ],
+
+        [
+            'slug' => 'claude-sonnet-4-6',
+            'display_name' => 'Claude Sonnet 4.6',
+            'brand' => 'anthropic',
+            'capabilities' => ['context_window' => 270000, 'vision' => true, 'tool_use' => true],
+            'routes' => [
+                ['execution_provider' => 'vyce', 'execution_model_id' => 'claude-sonnet-4-6', 'priority' => 0, 'is_enabled' => false],
+            ],
+        ],
+
+        [
+            'slug' => 'deepseek-v4.1',
+            'display_name' => 'DeepSeek V4.1',
+            'brand' => 'deepseek',
+            'capabilities' => ['context_window' => 260000, 'vision' => false, 'tool_use' => true],
+            'routes' => [
+                ['execution_provider' => 'vyce', 'execution_model_id' => 'deepseek-v4.1', 'priority' => 0, 'is_enabled' => false],
+            ],
+        ],
+
+        [
+            'slug' => 'deepseek-v4-flash-lr',
+            'display_name' => 'DeepSeek V4 Flash LR',
+            'brand' => 'deepseek',
+            'capabilities' => ['context_window' => 270000, 'vision' => false, 'tool_use' => true],
+            'routes' => [
+                ['execution_provider' => 'vyce', 'execution_model_id' => 'deepseek-v4-flash-lr', 'priority' => 0, 'is_enabled' => false],
+            ],
+        ],
+
+        [
+            'slug' => 'agnes-3.0-flash',
+            'display_name' => 'Agnes 3.0 Flash',
+            'brand' => 'agnes',
+            'capabilities' => ['context_window' => 512000, 'vision' => false, 'tool_use' => true],
+            'routes' => [
+                ['execution_provider' => 'vyce', 'execution_model_id' => 'agnes-3.0-flash', 'priority' => 0, 'is_enabled' => false],
+            ],
+        ],
+
+        [
+            'slug' => 'glm-5.3-flash',
+            'display_name' => 'GLM-5.3 Flash',
+            'brand' => 'zhipu',
+            'capabilities' => ['context_window' => 500000, 'vision' => false, 'tool_use' => true],
+            'routes' => [
+                ['execution_provider' => 'vyce', 'execution_model_id' => 'glm-5.3-flash', 'priority' => 0, 'is_enabled' => false],
+            ],
+        ],
+
+        [
+            'slug' => 'beam-1.0',
+            'display_name' => 'Beam 1.0',
+            'brand' => 'reflection',
+            'capabilities' => ['context_window' => 1000000, 'vision' => false, 'tool_use' => true],
+            'routes' => [
+                ['execution_provider' => 'vyce', 'execution_model_id' => 'beam-1.0', 'priority' => 0, 'is_enabled' => false],
+            ],
+        ],
+
         // Internal-only, never shown in the public model picker (see
         // `ModelCatalog::is_internal`/`ModelCatalogController::index()`).
         // Powers the workflow-builder chat (`ProcessWorkflowBuilderMessageJob`) and its assist helpers (`WorkflowBuilderAssistant`).
@@ -327,5 +399,12 @@ return [
         'glm-5.2' => ['description' => 'Zhipu\'s GLM model for reasoning and tool use.', 'strengths' => ['Reasoning', 'Tool use', 'Long context'], 'speed' => 'balanced', 'cost_tier' => 1],
         'minimax-m3' => ['description' => 'MiniMax\'s long-context model for agents and documents.', 'strengths' => ['Long context', 'Agents'], 'speed' => 'balanced', 'cost_tier' => 1],
         'qwen3.6' => ['description' => 'Alibaba\'s Qwen model: capable and inexpensive.', 'strengths' => ['Low cost', 'Multilingual', 'Coding'], 'speed' => 'balanced', 'cost_tier' => 1],
+        'gpt-6-luna' => ['description' => 'A fast, lightweight OpenAI GPT-6 tier for quick, low-cost tasks.', 'strengths' => ['Speed', 'Low cost', 'Summaries'], 'speed' => 'fast', 'cost_tier' => 1],
+        'claude-sonnet-4-6' => ['description' => 'An earlier balanced Anthropic model: strong quality at a moderate cost.', 'strengths' => ['All-round', 'Coding', 'Tool use'], 'speed' => 'balanced', 'cost_tier' => 2],
+        'deepseek-v4.1' => ['description' => 'DeepSeek\'s updated model for reasoning and coding.', 'strengths' => ['Reasoning', 'Coding', 'Long context'], 'speed' => 'balanced', 'cost_tier' => 1],
+        'deepseek-v4-flash-lr' => ['description' => 'A fast, low-cost DeepSeek Flash variant for everyday tasks.', 'strengths' => ['Speed', 'Low cost', 'Coding'], 'speed' => 'fast', 'cost_tier' => 1],
+        'agnes-3.0-flash' => ['description' => 'A fast model with a very long context window at low cost.', 'strengths' => ['Speed', 'Long context', 'Low cost'], 'speed' => 'fast', 'cost_tier' => 1],
+        'glm-5.3-flash' => ['description' => 'Zhipu\'s fast GLM model with a long context window.', 'strengths' => ['Speed', 'Tool use', 'Long context'], 'speed' => 'fast', 'cost_tier' => 1],
+        'beam-1.0' => ['description' => 'Reflection\'s model with a one-million-token context window.', 'strengths' => ['Very long context', 'Agents'], 'speed' => 'balanced', 'cost_tier' => 1],
     ],
 ];
