@@ -7,6 +7,7 @@ use App\Models\Ai\ModelCatalog;
 use App\Models\Ai\ModelRoute;
 use App\Models\Ai\WorkspaceAiKeyPolicy;
 use App\Models\Ai\WorkspaceModelSettings;
+use App\Models\Billing\Plan;
 use App\Services\Billing\CreditMeter;
 
 /**
@@ -28,7 +29,9 @@ class WorkspaceModelView
         private readonly PlatformKeyUsage $platformUsage,
         private readonly ?WorkspaceModelSettings $settings,
         private readonly CreditMeter $meter,
-        private readonly ?int $planCredits = null,
+        private readonly WorkspaceModels $models,
+        private readonly bool $limitedByPlan = false,
+        private readonly ?Plan $plan = null,
     ) {}
 
     public static function forMember(string $workspaceId, string $userId): self
@@ -38,7 +41,9 @@ class WorkspaceModelView
             WorkspaceAiKeyPolicy::forWorkspace($workspaceId)->platform_usage,
             WorkspaceModelSettings::forWorkspace($workspaceId),
             app(CreditMeter::class),
-            WorkspaceModels::planCredits($workspaceId),
+            app(WorkspaceModels::class),
+            limitedByPlan: true,
+            plan: WorkspaceModels::planFor($workspaceId),
         );
     }
 
@@ -47,7 +52,7 @@ class WorkspaceModelView
      */
     public static function platform(): self
     {
-        return new self([], PlatformKeyUsage::Fallback, null, app(CreditMeter::class));
+        return new self([], PlatformKeyUsage::Fallback, null, app(CreditMeter::class), app(WorkspaceModels::class));
     }
 
     /**
@@ -78,8 +83,10 @@ class WorkspaceModelView
             || ($platformAllowed && ModelCatalogResolver::providerIsConfigured($route->execution_provider)));
 
         $isAllowed = $this->settings?->allows($entry->id) ?? true;
-        $requiredPlan = $entry->minPlan;
-        $planBlocked = $requiredPlan !== null && $this->planCredits !== null && $this->planCredits < $requiredPlan->creditsMonthly();
+        // Same rule `WorkspaceModels` enforces on save and on run, cost-tier
+        // fallback included, so the picker never offers a model that 422s.
+        $requiredPlan = $this->models->requiredPlanFor($entry);
+        $planBlocked = $this->limitedByPlan && ! $this->models->planAllowsModel($this->plan, $entry);
 
         $connectable = $routes
             ->pluck('execution_provider')

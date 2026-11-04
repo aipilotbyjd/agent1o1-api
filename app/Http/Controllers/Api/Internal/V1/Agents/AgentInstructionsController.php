@@ -18,6 +18,7 @@ use App\Models\Workspaces\Workspace;
 use App\Services\Agents\ToolRegistry;
 use App\Services\Ai\ByokProviderRegistrar;
 use App\Services\Ai\ModelCatalogResolver;
+use App\Services\Ai\WorkspaceModels;
 use App\Services\Billing\CreditGate;
 use App\Services\Billing\CreditMeter;
 use Illuminate\Support\Str;
@@ -46,10 +47,12 @@ class AgentInstructionsController extends Controller
         CreditGate $creditGate,
         CreditMeter $meter,
         DeductCreditsAction $deductCredits,
+        WorkspaceModels $models,
     ) {
         $this->requirePermission(Permission::AgentManage);
         $this->ensureBelongsToWorkspace($workspace, $agent);
         $creditGate->assertCanStartRun($workspace);
+        $models->ensurePlanAllows($workspace->id, $agent->modelCatalog);
 
         [$provider, $model] = $byok->apply(...$modelCatalog->forAgent($agent), workspaceId: $workspace->id, userId: $request->user()->id);
 

@@ -18,6 +18,7 @@ use App\Events\Agents\AgentActionsRequested;
 use App\Events\Runs\RunCompleted;
 use App\Events\Runs\RunFailed;
 use App\Exceptions\AgentTurnPausedException;
+use App\Exceptions\ModelNotOnPlanException;
 use App\Exceptions\RunStateException;
 use App\Models\Agents\Agent as AgentModel;
 use App\Models\Agents\AgentAction;
@@ -32,6 +33,7 @@ use App\Services\Agents\Approvals\AutonomyResolver;
 use App\Services\Agents\Approvals\Resumption;
 use App\Services\Ai\ByokProviderRegistrar;
 use App\Services\Ai\ModelCatalogResolver;
+use App\Services\Ai\WorkspaceModels;
 use App\Services\Billing\CreditGate;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
@@ -81,6 +83,7 @@ class AgentRunner
         private readonly AgentActionExecutor $executor,
         private readonly SubagentTaskTracker $subagentTasks,
         private readonly KnowledgeCitations $citations,
+        private readonly WorkspaceModels $workspaceModels,
     ) {}
 
     /**
@@ -325,12 +328,17 @@ class AgentRunner
 
     /**
      * The agent's model, on the workspace's own provider key where it has
-     * one for whoever started the run: see `ByokProviderRegistrar`.
+     * one for whoever started the run: see `ByokProviderRegistrar`. Stops
+     * the turn when the workspace's plan no longer includes the model.
      *
      * @return array{0: string|array<string, string>|null, 1: ?string}
+     *
+     * @throws ModelNotOnPlanException
      */
     private function modelFor(AgentModel $agent, Run $run): array
     {
+        $this->workspaceModels->ensurePlanAllows($run->workspace_id, $agent->modelCatalog);
+
         [$provider, $model] = $this->modelCatalog->forAgent($agent);
 
         return $this->byok->apply($provider, $model, $run->workspace_id, $run->triggered_by);

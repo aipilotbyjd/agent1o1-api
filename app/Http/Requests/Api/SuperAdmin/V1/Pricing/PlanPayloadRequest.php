@@ -33,6 +33,7 @@ abstract class PlanPayloadRequest extends FormRequest
             'name' => [$presence, 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:1000'],
             'credits_monthly' => [$presence, 'integer', 'min:0', 'max:100000000'],
+            'tier' => ['nullable', 'integer', 'min:1', 'max:1000'],
             'limits' => ['sometimes', 'array:'.implode(',', $limitKeys)],
             'limits.*' => ['numeric', 'min:-1', 'max:100000000'],
             ...collect($limitKeys)->diff(Plan::DOLLAR_LIMIT_KEYS)->mapWithKeys(fn (string $key): array => ["limits.{$key}" => ['integer']])->all(),
