@@ -103,3 +103,9 @@ it('keeps a spreadsheet value that starts with = as text, not a formula', functi
     expect($sheet->getCell('A2')->getValue())->toBe('=HYPERLINK("https://evil.test","Click")');
     expect($sheet->getCell('B2')->getValue())->toBe(42);
 });
+
+it('builds a Word document from a Markdown task list instead of failing on checkboxes', function () {
+    $docx = app(DocumentRenderer::class)->docx("# Forms\n\n- [ ] Intake form\n- [x] Insurance card\n");
+
+    expect(substr($docx, 0, 2))->toBe('PK');
+});

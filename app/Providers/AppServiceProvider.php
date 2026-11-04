@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Ai\Observability\AiActivityCard;
 use App\Ai\Observability\AiCallContext;
 use App\Ai\Observability\AiCallRecorder;
+use App\Ai\Support\RetriesProviderConnections;
 use App\Authorization\WorkspaceContext;
 use App\Contracts\Triggers\RunStarter;
 use App\Enums\Triggers\TriggerTargetType;
@@ -63,6 +64,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -109,6 +111,16 @@ class AppServiceProvider extends ServiceProvider
         $this->configureCashier();
         $this->configureSchedulerRecording();
         $this->configureAiCallLedger();
+        $this->configureAiProviderRetries();
+    }
+
+    /**
+     * A dropped connection to an AI provider is retried a couple of times
+     * before the turn fails: see `RetriesProviderConnections`.
+     */
+    private function configureAiProviderRetries(): void
+    {
+        Http::globalMiddleware(RetriesProviderConnections::middleware());
     }
 
     /**

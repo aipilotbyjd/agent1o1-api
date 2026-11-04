@@ -24,7 +24,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * `step_limit` on a reply whose turn ran out of steps before it finished:
  * see `Ai\Runtime\StepLimit`. `origin` (who sent a user-role message no
  * person typed) and `citations` (the sources a reply cites,
- * `Services\Agents\KnowledgeCitations`) are engine-managed the same way.
+ * `Services\Agents\KnowledgeCitations`) are engine-managed the same way,
+ * as is `reasoning`: the model's thinking behind a reply, kept for the chat to
+ * show. It is never sent back to the model or to email, Slack or Teams.
  */
 #[Fillable(['agent_session_id', 'role', 'content', 'skill_id', 'tool_calls', 'tool_results', 'tool_call_id'])]
 class AgentMessage extends Model

@@ -121,9 +121,23 @@ class DocumentRenderer
     public function docx(string $content): string
     {
         $word = new PhpWord;
-        Html::addHtml($word->addSection(), $this->markdown($content, allowHtml: false));
+        Html::addHtml($word->addSection(), $this->withoutCheckboxInputs($this->markdown($content, allowHtml: false)));
 
         return $this->capture(fn (string $path) => WordIOFactory::createWriter($word, 'Word2007')->save($path));
+    }
+
+    /**
+     * Markdown task lists (`- [ ]`) come out as `<input type="checkbox">`,
+     * which PhpWord's HTML reader can't parse and fails the whole export on.
+     * They become ballot-box characters instead.
+     */
+    private function withoutCheckboxInputs(string $html): string
+    {
+        return (string) preg_replace_callback(
+            '/<input\b[^>]*\btype="checkbox"[^>]*>/i',
+            fn (array $match): string => preg_match('/\bchecked\b/i', $match[0]) ? '☑' : '☐',
+            $html,
+        );
     }
 
     /**
