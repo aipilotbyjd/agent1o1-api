@@ -6,6 +6,7 @@ use App\Exceptions\CostLimitReachedException;
 use App\Exceptions\FeatureNotAvailableException;
 use App\Exceptions\InsufficientCreditsException;
 use App\Exceptions\ModelBusyException;
+use App\Exceptions\ModelNotOnPlanException;
 use App\Exceptions\ModelSubmissionException;
 use App\Exceptions\OwnAiKeyRequiredException;
 use App\Exceptions\PlanLimitExceededException;
@@ -163,6 +164,16 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (PlanLimitExceededException $e, Request $request) {
             if ($request->is('api/*')) {
                 return ApiResponse::error($e->getMessage(), 402);
+            }
+        });
+
+        $exceptions->render(function (ModelNotOnPlanException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return ApiResponse::error($e->getMessage(), 402, [
+                    'reason' => 'plan_required',
+                    'model' => $e->model->slug,
+                    'required_plan' => ['slug' => $e->requiredPlan->slug, 'name' => $e->requiredPlan->name],
+                ]);
             }
         });
 
