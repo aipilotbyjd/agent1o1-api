@@ -2,6 +2,7 @@
 
 namespace App\Services\Ai;
 
+use App\Exceptions\ModelNotOnPlanException;
 use App\Models\Ai\ModelCatalog;
 use App\Models\Ai\WorkspaceModelSettings;
 use App\Models\Billing\Plan;
@@ -12,7 +13,11 @@ use App\Models\Workspaces\Workspace;
  * or validates a model needs them. A model is allowed when the workspace's
  * admin has not narrowed the list to exclude it (see `WorkspaceModelSettings`)
  * and, if the model is limited to a plan, the workspace's plan is at least that
- * generous.
+ * high (see `Plan::reaches()`).
+ *
+ * Picking is checked by the `AllowedModel` rule; running is checked again by
+ * `ensurePlanAllows()`, so a workspace that downgrades loses a model it can no
+ * longer pay for even in agents and workflows saved before the downgrade.
  */
 class WorkspaceModels
 {
@@ -49,28 +54,66 @@ class WorkspaceModels
     }
 
     /**
-     * Whether the workspace's plan reaches the model's minimum plan. Plans are
-     * compared by monthly credits, the measure `Workspace::currentPlan()` uses
-     * to pick the more generous of a subscription and a grant. A model with no
-     * minimum of its own takes its cost tier's minimum
-     * (`billing.model_access.min_plan_by_cost_tier`); with neither, it is open
-     * to every plan.
+     * Whether the workspace's plan reaches the model's minimum plan.
      */
     public function planAllows(string $workspaceId, string $modelCatalogId): bool
     {
         $model = ModelCatalog::query()->with('minPlan')->find($modelCatalogId);
 
-        if ($model === null) {
-            return true;
-        }
+        return $model === null || $this->planAllowsModel(self::planFor($workspaceId), $model);
+    }
 
-        $minimum = $model->minPlan ?? $this->minimumPlanForCostTier($model->cost_tier);
+    /**
+     * Whether `$plan` (the workspace's current plan, null when it has none)
+     * may use `$model`.
+     */
+    public function planAllowsModel(?Plan $plan, ModelCatalog $model): bool
+    {
+        $minimum = $this->requiredPlanFor($model);
 
         if ($minimum === null) {
             return true;
         }
 
-        return self::planCredits($workspaceId) >= $minimum->creditsMonthly();
+        return $plan === null
+            ? $minimum->creditsMonthly() <= 0
+            : $plan->reaches($minimum);
+    }
+
+    /**
+     * Throws when the workspace's plan does not include the model, for the
+     * places that run a model (workflow AI steps, agent turns, the assistant)
+     * rather than pick one. Internal entries (the platform's own helpers) and
+     * slugs that match no catalog entry (raw provider model ids) are not
+     * limited by plan.
+     *
+     * @throws ModelNotOnPlanException
+     */
+    public function ensurePlanAllows(string $workspaceId, ModelCatalog|string|null $model): void
+    {
+        $model = is_string($model)
+            ? ModelCatalog::query()->with('minPlan')->where('slug', $model)->first()
+            : $model;
+
+        if ($model === null || $model->is_internal) {
+            return;
+        }
+
+        $plan = self::planFor($workspaceId);
+
+        if (! $this->planAllowsModel($plan, $model)) {
+            throw new ModelNotOnPlanException($model, $this->requiredPlanFor($model));
+        }
+    }
+
+    /**
+     * The cheapest plan allowed to use `$model`: its own minimum plan, else
+     * its cost tier's (`billing.model_access.min_plan_by_cost_tier`), else
+     * null when every plan may use it.
+     */
+    public function requiredPlanFor(ModelCatalog $model): ?Plan
+    {
+        return $model->minPlan ?? $this->minimumPlanForCostTier($model->cost_tier);
     }
 
     /**
@@ -89,11 +132,11 @@ class WorkspaceModels
     }
 
     /**
-     * The monthly credits of the plan that applies to the workspace right now,
-     * or zero when it has none.
+     * The plan that applies to the workspace right now, or null when it has
+     * none.
      */
-    public static function planCredits(string $workspaceId): int
+    public static function planFor(string $workspaceId): ?Plan
     {
-        return Workspace::query()->find($workspaceId)?->currentPlan()?->creditsMonthly() ?? 0;
+        return Workspace::query()->find($workspaceId)?->currentPlan();
     }
 }

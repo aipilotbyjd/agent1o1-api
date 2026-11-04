@@ -6,6 +6,7 @@ use App\Models\Ai\ModelCatalog;
 use App\Models\Assistant\Assistant;
 use App\Services\Ai\ByokProviderRegistrar;
 use App\Services\Ai\ModelCatalogResolver;
+use App\Services\Ai\WorkspaceModels;
 use RuntimeException;
 
 /**
@@ -20,6 +21,7 @@ class AssistantModel
     public function __construct(
         private readonly ModelCatalogResolver $resolver,
         private readonly ByokProviderRegistrar $byok,
+        private readonly WorkspaceModels $workspaceModels,
     ) {}
 
     /**
@@ -40,6 +42,10 @@ class AssistantModel
         $catalog = $this->catalogFor($assistant);
 
         if ($catalog !== null) {
+            // The owner's pick stops working once the plan no longer
+            // includes it; the operator's internal entry is never limited.
+            $this->workspaceModels->ensurePlanAllows($assistant->workspace_id, $catalog);
+
             try {
                 return [$this->resolver->providerChain($catalog->slug), null];
             } catch (RuntimeException) {

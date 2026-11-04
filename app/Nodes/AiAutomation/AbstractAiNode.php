@@ -80,6 +80,10 @@ abstract class AbstractAiNode implements DeclaresEffect, DeclaresOutputSchema, N
             : (filled($config['provider'] ?? null) || filled($config['model'] ?? null) ? null : $this->workspaceModels->default($run->workspace_id)?->slug);
 
         if ($slug !== null) {
+            // A step saved before a downgrade must not keep running a model
+            // the plan no longer includes.
+            $this->workspaceModels->ensurePlanAllows($run->workspace_id, $slug);
+
             $provider = $this->modelCatalog->providerChain($slug);
             $model = null;
         } else {

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'slug', 'description', 'price_monthly', 'price_quarterly', 'price_yearly', 'price_lifetime', 'credits_monthly', 'limits', 'features', 'stripe_product_id', 'stripe_price_id_monthly', 'stripe_price_id_quarterly', 'stripe_price_id_yearly', 'stripe_price_id_lifetime', 'enabled_intervals', 'trial_days', 'is_active', 'archived_at', 'is_public', 'badge', 'updated_by', 'sort_order'])]
+#[Fillable(['name', 'slug', 'description', 'price_monthly', 'price_quarterly', 'price_yearly', 'price_lifetime', 'credits_monthly', 'tier', 'limits', 'features', 'stripe_product_id', 'stripe_price_id_monthly', 'stripe_price_id_quarterly', 'stripe_price_id_yearly', 'stripe_price_id_lifetime', 'enabled_intervals', 'trial_days', 'is_active', 'archived_at', 'is_public', 'badge', 'updated_by', 'sort_order'])]
 class Plan extends Model
 {
     /** @use HasFactory<PlanFactory> */
@@ -25,6 +25,7 @@ class Plan extends Model
     protected function casts(): array
     {
         return [
+            'tier' => 'integer',
             'limits' => 'array',
             'features' => 'array',
             'enabled_intervals' => 'array',
@@ -101,6 +102,22 @@ class Plan extends Model
     public function creditsMonthly(): int
     {
         return $this->credits_monthly;
+    }
+
+    /**
+     * Whether this plan is at least as high as `$minimum`, as models limited
+     * to a plan need. Compared by `tier` (the plan's level: Free 1, Starter
+     * 2, Pro 3, ...) so a cheap plan given extra credits does not climb above
+     * a dearer one. A plan without a tier yet (an admin draft, a factory row)
+     * falls back to monthly credits, the measure used before tiers existed.
+     */
+    public function reaches(self $minimum): bool
+    {
+        if ($this->tier !== null && $minimum->tier !== null) {
+            return $this->tier >= $minimum->tier;
+        }
+
+        return $this->creditsMonthly() >= $minimum->creditsMonthly();
     }
 
     public function hasFeature(Feature $feature): bool
