@@ -55,6 +55,8 @@ class AgentMessageResource extends JsonResource
             'pending_tool_call_ids' => $this->paused_state['pending_tool_call_ids'] ?? [],
             // `step_limit`: the turn ran out of steps before it finished.
             'stop_reason' => $this->stop_reason,
+            // The model's thinking behind the reply, for the chat to show.
+            'reasoning' => $this->reasoning,
             'actions' => AgentActionResource::collection($this->whenLoaded('actions')),
             // Where a user-role message no person typed came from, e.g. a
             // follow-up the agent scheduled itself: `{type: "follow_up", ...}`.

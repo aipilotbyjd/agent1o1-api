@@ -2,14 +2,18 @@
 
 namespace App\Services\Agents;
 
+use App\Ai\Support\ToolCallMarkup;
 use App\Ai\Tools\Workspace\InvokeAgentTool;
 use App\Events\Agents\AgentTurnChanged;
 use App\Events\Agents\AgentTurnDelta;
+use App\Events\Agents\AgentTurnReasoning;
 use App\Events\Agents\AgentTurnToolActivity;
 use App\Models\Agents\AgentSession;
 use App\Models\Runs\Run;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Laravel\Ai\Streaming\Events\ReasoningDelta;
+use Laravel\Ai\Streaming\Events\StreamStart;
 use Laravel\Ai\Streaming\Events\TextDelta;
 use Laravel\Ai\Streaming\Events\ToolCall;
 use Laravel\Ai\Streaming\Events\ToolResult;
@@ -25,6 +29,8 @@ use Throwable;
  *   finished (`completed`) or failed. Anything but `running` is the cue to
  *   fetch the stored message.
  * - `turn.delta`: a chunk of assistant text; concatenate in order received.
+ * - `turn.reasoning`: a chunk of the model's reasoning, to show while it
+ *   thinks. The finished text is stored on the reply by `AgentRunner`.
  * - `turn.tool`: a tool call started or finished.
  *
  * The persisted transcript is written by `AgentRunner` regardless of who is
@@ -38,6 +44,11 @@ class AgentTurnBroadcaster
     private const int DELTA_FLUSH_CHARS = 120;
 
     private const float DELTA_FLUSH_SECONDS = 0.25;
+
+    /**
+     * Longest text value kept when a tool call's arguments are cut down.
+     */
+    private const int ARGUMENT_PREVIEW_CHARS = 200;
 
     public function __construct(private readonly AgentRunner $runner) {}
 
@@ -58,9 +69,23 @@ class AgentTurnBroadcaster
         }
 
         $buffer = '';
+        $reasoning = '';
         $lastFlush = microtime(true);
+        $markup = new ToolCallMarkup;
+        $sentText = '';
+        $needsBreak = false;
 
-        $flush = function () use ($session, $turn, &$buffer, &$lastFlush): void {
+        $flush = function (bool $final = false) use ($session, $turn, &$buffer, &$reasoning, &$lastFlush, $markup): void {
+            if ($final) {
+                $buffer .= $markup->finish();
+            }
+
+            // Reasoning always precedes the text it led to.
+            if ($reasoning !== '') {
+                AgentTurnReasoning::dispatch($session, $turn->run, $reasoning);
+                $reasoning = '';
+            }
+
             if ($buffer !== '') {
                 AgentTurnDelta::dispatch($session, $turn->run, $buffer);
                 $buffer = '';
@@ -73,13 +98,39 @@ class AgentTurnBroadcaster
 
         try {
             foreach ($turn->response as $event) {
-                if ($event instanceof TextDelta) {
-                    $buffer .= $event->delta;
+                if ($event instanceof StreamStart) {
+                    $needsBreak = true;
+                } elseif ($event instanceof ReasoningDelta) {
+                    $reasoning .= $event->delta;
+
+                    if (mb_strlen($reasoning) >= self::DELTA_FLUSH_CHARS || microtime(true) - $lastFlush >= self::DELTA_FLUSH_SECONDS) {
+                        $flush();
+                    }
+                } elseif ($event instanceof TextDelta) {
+                    $visible = $markup->push($event->delta);
+
+                    if ($reasoning !== '') {
+                        $flush();
+                    }
+
+                    // Text from a new step, or after a tool ran, is a new
+                    // paragraph: the stored reply joins steps the same way.
+                    if ($visible !== '' && $needsBreak) {
+                        $needsBreak = false;
+
+                        if ($sentText !== '' && ! preg_match('/\s$/', $sentText) && ! preg_match('/^\s/', $visible)) {
+                            $visible = "\n\n".$visible;
+                        }
+                    }
+
+                    $buffer .= $visible;
+                    $sentText = $visible !== '' ? $visible : $sentText;
 
                     if (mb_strlen($buffer) >= self::DELTA_FLUSH_CHARS || microtime(true) - $lastFlush >= self::DELTA_FLUSH_SECONDS) {
                         $flush();
                     }
                 } elseif ($event instanceof ToolCall) {
+                    $needsBreak = true;
                     $flush();
 
                     AgentTurnToolActivity::dispatch(
@@ -91,6 +142,7 @@ class AgentTurnBroadcaster
                         arguments: $this->smallEnough($event->toolCall->arguments),
                     );
                 } elseif ($event instanceof ToolResult) {
+                    $needsBreak = true;
                     $flush();
 
                     AgentTurnToolActivity::dispatch(
@@ -107,13 +159,13 @@ class AgentTurnBroadcaster
                 }
             }
 
-            $flush();
+            $flush(final: true);
 
             // The `then()` callback that persists the reply has run by now,
             // so the run's output holds the message id.
             AgentTurnChanged::dispatch($session, $turn->run->fresh());
         } catch (Throwable $e) {
-            $flush();
+            $flush(final: true);
 
             $this->fail($turn->run, $e);
         }
@@ -138,14 +190,34 @@ class AgentTurnBroadcaster
     }
 
     /**
-     * Tool arguments, or null when they would make the event too big to send.
+     * Tool arguments for the live event. When they would make it too big to
+     * send, long text values (a document's `content`, say) are cut short so
+     * the short ones that label the call (`filename`) still get through; null
+     * only when even that is too big.
      *
      * @param  array<string, mixed>  $arguments
      * @return array<string, mixed>|null
      */
     private function smallEnough(array $arguments): ?array
     {
-        return strlen((string) json_encode($arguments)) <= AgentTurnToolActivity::MAX_ARGUMENTS_BYTES ? $arguments : null;
+        if ($this->fits($arguments)) {
+            return $arguments;
+        }
+
+        $shortened = array_map(
+            fn (mixed $value): mixed => is_string($value) ? Str::limit($value, self::ARGUMENT_PREVIEW_CHARS) : $value,
+            $arguments,
+        );
+
+        return $this->fits($shortened) ? $shortened : null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $arguments
+     */
+    private function fits(array $arguments): bool
+    {
+        return strlen((string) json_encode($arguments)) <= AgentTurnToolActivity::MAX_ARGUMENTS_BYTES;
     }
 
     /**

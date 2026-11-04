@@ -9,6 +9,7 @@ use App\Ai\Agents\Workspace\WorkspaceAgent;
 use App\Ai\Runtime\ContextBudget;
 use App\Ai\Runtime\PauseState;
 use App\Ai\Runtime\StepLimit;
+use App\Ai\Support\ToolCallMarkup;
 use App\Ai\Usage\ResponseUsage;
 use App\Enums\Agents\AgentActionStatus;
 use App\Enums\Agents\AgentMessageRole;
@@ -70,6 +71,11 @@ class AgentRunner
      * than left to lock the conversation forever.
      */
     public const int TURN_STALE_AFTER_MINUTES = 15;
+
+    /**
+     * Most characters of a reply's reasoning that are kept.
+     */
+    private const int REASONING_LIMIT = 20_000;
 
     public function __construct(
         private readonly ToolRegistry $tools,
@@ -763,13 +769,27 @@ class AgentRunner
     {
         $message = $session->messages()->create([
             'role' => AgentMessageRole::Assistant,
-            'content' => $response->text,
+            'content' => ToolCallMarkup::strip($response->text),
             'tool_calls' => $response->toolCalls->isNotEmpty() ? $response->toolCalls->toArray() : null,
             'tool_results' => $response->toolResults->isNotEmpty() ? $response->toolResults->toArray() : null,
         ]);
-        $message->forceFill(['usage' => $usage])->save();
+        $message->forceFill([
+            'usage' => $usage,
+            'reasoning' => $this->reasoningOf($response),
+        ])->save();
 
         return $this->citations->attachTo($message, $session->agent);
+    }
+
+    /**
+     * The model's reasoning for a reply, cut to a sane size, or null when it
+     * gave none.
+     */
+    private function reasoningOf(AgentResponse $response): ?string
+    {
+        $reasoning = trim($response->reasoning);
+
+        return $reasoning === '' ? null : Str::limit($reasoning, self::REASONING_LIMIT, '');
     }
 
     /**

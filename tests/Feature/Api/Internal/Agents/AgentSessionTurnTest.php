@@ -6,6 +6,7 @@ use App\Enums\Agents\AgentMessageRole;
 use App\Enums\RunStatus;
 use App\Events\Agents\AgentTurnChanged;
 use App\Events\Agents\AgentTurnDelta;
+use App\Events\Agents\AgentTurnReasoning;
 use App\Events\Agents\AgentTurnToolActivity;
 use App\Jobs\Agents\RunAgentTurnJob;
 use App\Models\Agents\Agent;
@@ -18,6 +19,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
+use Laravel\Ai\Responses\AgentResponse;
 use Laravel\Ai\Responses\Data\ToolCall;
 use Laravel\Passport\Passport;
 
@@ -119,7 +121,7 @@ it('broadcasts each tool call with its small arguments and output, and keeps the
         ]);
 });
 
-it('leaves oversized tool arguments and output off the wire', function () {
+it('cuts oversized tool arguments down to a preview and keeps the short ones', function () {
     Event::fake([AgentTurnToolActivity::class]);
     WorkspaceAgent::fake([
         new ToolCall('call-1', 'remember', ['key' => 'notes', 'value' => str_repeat('x', 5000)]),
@@ -128,8 +130,13 @@ it('leaves oversized tool arguments and output off the wire', function () {
 
     $this->postJson($this->turnsUrl, ['message' => 'Remember this.'])->assertAccepted();
 
-    Event::assertDispatched(AgentTurnToolActivity::class, fn (AgentTurnToolActivity $event): bool => $event->phase === AgentTurnToolActivity::STARTED
-        && ! array_key_exists('arguments', $event->broadcastWith()));
+    Event::assertDispatched(AgentTurnToolActivity::class, function (AgentTurnToolActivity $event): bool {
+        $arguments = $event->broadcastWith()['arguments'] ?? null;
+
+        return $event->phase === AgentTurnToolActivity::STARTED
+            && $arguments['key'] === 'notes'
+            && strlen($arguments['value']) < 300;
+    });
 
     Event::dispatched(AgentTurnToolActivity::class)->each(fn (array $args) => expect(strlen(json_encode($args[0]->broadcastWith())))->toBeLessThan(10_000));
 });
@@ -263,4 +270,30 @@ it('fails the turn from the stream itself when a caller iterates it without hand
     expect(fn () => iterator_to_array($stream))->toThrow(RuntimeException::class, 'provider unavailable');
 
     expect($run->fresh())->status->toBe(RunStatus::Failed)->error->toContain('provider unavailable');
+});
+
+it('streams the model\'s reasoning live and keeps it on the reply, apart from the answer', function () {
+    Event::fake([AgentTurnReasoning::class, AgentTurnDelta::class]);
+    WorkspaceAgent::fake([
+        AgentResponse::fakeWithReasoning('First I will think this through carefully.', 'Here is the answer.'),
+    ]);
+
+    $this->postJson($this->turnsUrl, ['message' => 'Think first.'])->assertAccepted();
+
+    $run = Run::query()->where('runnable_id', $this->session->id)->where('runnable_type', 'agent_session')->sole();
+
+    Event::assertDispatched(AgentTurnReasoning::class, fn (AgentTurnReasoning $event): bool => $event->broadcastAs() === 'turn.reasoning'
+        && $event->broadcastWith()['run_id'] === $run->id);
+
+    expect(Event::dispatched(AgentTurnReasoning::class)->map(fn (array $args): string => $args[0]->text)->implode(''))
+        ->toBe('First I will think this through carefully.');
+
+    $reply = $this->session->messages()->where('role', AgentMessageRole::Assistant)->sole();
+    expect($reply->content)->toBe('Here is the answer.');
+    expect($reply->reasoning)->toBe('First I will think this through carefully.');
+
+    $this->getJson("/api/v1/workspaces/{$this->workspace->id}/agents/{$this->agent->id}/sessions/{$this->session->id}")
+        ->assertOk()
+        ->assertJsonPath('data.session.messages.1.reasoning', 'First I will think this through carefully.')
+        ->assertJsonPath('data.session.messages.1.content', 'Here is the answer.');
 });
