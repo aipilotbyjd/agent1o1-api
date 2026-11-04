@@ -72,6 +72,7 @@ return [
     'guardrails' => [
         'enabled' => (bool) env('BILLING_GUARDRAILS_ENABLED', true),
         'free_tier_daily_budget_usd' => env('FREE_TIER_DAILY_BUDGET_USD') === null ? null : (float) env('FREE_TIER_DAILY_BUDGET_USD'),
+        'free_tier_spend_cache_seconds' => (int) env('BILLING_FREE_TIER_SPEND_CACHE_SECONDS', 30),
         'kill_switch' => env('BILLING_KILL_SWITCH', 'off'),
         'platform_daily_budget_usd' => env('PLATFORM_DAILY_AI_BUDGET_USD') === null ? null : (float) env('PLATFORM_DAILY_AI_BUDGET_USD'),
         'platform_hard_stop_ratio' => (float) env('PLATFORM_AI_HARD_STOP_RATIO', 1.5),
