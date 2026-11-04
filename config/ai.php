@@ -134,6 +134,12 @@ return [
             'key' => env('VERBOO_API_KEY'),
         ],
 
+        'vyce' => [
+            'driver' => 'openai-compatible',
+            'url' => env('VYCE_URL', 'https://vyceai.com/v1'),
+            'key' => env('VYCE_API_KEY'),
+        ],
+
         'xkiro' => [
             'driver' => 'openai-compatible',
             'url' => env('XKIRO_URL', 'https://api.xkiro.com/v1'),
