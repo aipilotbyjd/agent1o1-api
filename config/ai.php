@@ -136,7 +136,7 @@ return [
 
         'vyce' => [
             'driver' => 'openai-compatible',
-            'url' => env('VYCE_URL'),
+            'url' => env('VYCE_URL', 'https://vyceai.com/v1'),
             'key' => env('VYCE_API_KEY'),
         ],
 
