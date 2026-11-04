@@ -14,7 +14,7 @@ class PlanSnapshot
      * @var list<string>
      */
     public const array FIELDS = [
-        'name', 'description', 'credits_monthly', 'limits', 'features', 'trial_days', 'badge',
+        'name', 'description', 'credits_monthly', 'tier', 'limits', 'features', 'trial_days', 'badge',
         'is_public', 'is_active', 'enabled_intervals', 'sort_order',
         'price_monthly', 'price_quarterly', 'price_yearly', 'price_lifetime',
         'stripe_product_id', 'stripe_price_id_monthly', 'stripe_price_id_quarterly',

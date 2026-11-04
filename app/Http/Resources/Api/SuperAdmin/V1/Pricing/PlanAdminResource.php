@@ -35,6 +35,7 @@ class PlanAdminResource extends JsonResource
             'description' => $this->description,
             'prices' => $prices,
             'credits_monthly' => $this->credits_monthly,
+            'tier' => $this->tier,
             'limits' => $this->limits,
             'features' => array_keys(array_filter((array) $this->features)),
             'trial_days' => $this->trial_days,

@@ -27,7 +27,7 @@ class SuperAdminPlanService
      * @var list<string>
      */
     public const array EDITABLE = [
-        'name', 'description', 'credits_monthly', 'limits', 'features', 'trial_days', 'badge',
+        'name', 'description', 'credits_monthly', 'tier', 'limits', 'features', 'trial_days', 'badge',
         'is_public', 'enabled_intervals',
     ];
 
@@ -52,6 +52,7 @@ class SuperAdminPlanService
                 'price_yearly' => $data['price_yearly'] ?? 0,
                 'price_lifetime' => $data['price_lifetime'] ?? 0,
                 'credits_monthly' => $data['credits_monthly'] ?? 0,
+                'tier' => $data['tier'] ?? null,
                 'limits' => $data['limits'] ?? [],
                 'features' => $data['features'] ?? [],
                 'enabled_intervals' => $data['enabled_intervals'] ?? [],

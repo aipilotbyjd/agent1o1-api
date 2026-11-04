@@ -1,14 +1,20 @@
 <?php
 
+use App\Actions\Workflows\StartWorkflowRunAction;
+use App\Ai\Agents\Workspace\AdHocPromptAgent;
+use App\Enums\NodeRunStatus;
+use App\Exceptions\ModelNotOnPlanException;
 use App\Models\Ai\ModelCatalog;
 use App\Models\Ai\ModelRoute;
 use App\Models\Ai\WorkspaceModelSettings;
 use App\Models\Billing\Plan;
 use App\Models\Billing\PlanGrant;
 use App\Models\User;
+use App\Models\Workflows\Workflow;
 use App\Services\Ai\WorkspaceModels;
 use App\Services\Ai\WorkspaceModelView;
 use App\Services\Workspaces\WorkspaceService;
+use Illuminate\Support\Facades\Route;
 use Laravel\Passport\Passport;
 
 beforeEach(function () {
@@ -147,4 +153,92 @@ it('leaves a cost tier open when its configured plan does not exist', function (
     $model = ModelCatalog::factory()->create(['slug' => 'mid', 'cost_tier' => 2]);
 
     expect(app(WorkspaceModels::class)->planAllows($this->workspace->id, $model->id))->toBeTrue();
+});
+
+it('describes a model gated only by its cost tier the same way it enforces it', function () {
+    config(['billing.model_access.min_plan_by_cost_tier' => [3 => 'pro']]);
+    $frontier = ModelCatalog::factory()->create(['slug' => 'frontier', 'cost_tier' => 3]);
+    ModelRoute::factory()->forCatalog($frontier)->create(['execution_provider' => 'openai', 'execution_model_id' => 'frontier']);
+
+    $view = WorkspaceModelView::forMember($this->workspace->id, $this->owner->id)->describe($frontier->load(['routes', 'minPlan']));
+
+    expect($view['is_available'])->toBeFalse()
+        ->and($view['unavailable_reason'])->toBe('plan_required')
+        ->and($view['required_plan'])->toBe(['slug' => 'pro', 'name' => 'Pro'])
+        ->and(app(WorkspaceModels::class)->allows($this->workspace->id, $frontier->id))->toBeFalse();
+});
+
+it('ranks plans by tier, so a lower plan given more credits does not unlock a higher plan\'s models', function () {
+    $this->free->update(['tier' => 1]);
+    $this->pro->update(['tier' => 3]);
+    $promo = Plan::factory()->create(['slug' => 'promo', 'tier' => 2, 'credits_monthly' => 90000]);
+    givePlan($promo);
+
+    expect(app(WorkspaceModels::class)->allows($this->workspace->id, $this->gated->id))->toBeFalse();
+
+    $this->pro->update(['tier' => 2]);
+
+    expect(app(WorkspaceModels::class)->allows($this->workspace->id, $this->gated->id))->toBeTrue();
+});
+
+it('falls back to monthly credits when a plan has no tier', function () {
+    $this->pro->update(['tier' => 3]);
+    $untiered = Plan::factory()->create(['slug' => 'draft', 'tier' => null, 'credits_monthly' => 5000]);
+
+    expect($untiered->reaches($this->pro))->toBeTrue()
+        ->and($this->free->reaches($this->pro))->toBeFalse();
+});
+
+it('stops running a model the plan no longer includes', function () {
+    givePlan($this->pro);
+    $models = app(WorkspaceModels::class);
+
+    $models->ensurePlanAllows($this->workspace->id, 'gated');
+
+    PlanGrant::query()->update(['status' => 'revoked']);
+
+    expect(fn () => $models->ensurePlanAllows($this->workspace->id, 'gated'))
+        ->toThrow(ModelNotOnPlanException::class, 'needs the Pro plan or higher');
+});
+
+it('never limits internal models or raw model ids at run time', function () {
+    $internal = ModelCatalog::factory()->create(['slug' => 'helper', 'is_internal' => true, 'min_plan_id' => $this->pro->id]);
+    $models = app(WorkspaceModels::class);
+
+    expect(fn () => $models->ensurePlanAllows($this->workspace->id, $internal))->not->toThrow(ModelNotOnPlanException::class)
+        ->and(fn () => $models->ensurePlanAllows($this->workspace->id, 'gpt-raw-model-id'))->not->toThrow(ModelNotOnPlanException::class)
+        ->and(fn () => $models->ensurePlanAllows($this->workspace->id, null))->not->toThrow(ModelNotOnPlanException::class);
+});
+
+it('fails a workflow AI step saved before a downgrade instead of running the gated model', function () {
+    AdHocPromptAgent::fake(['ok']);
+
+    $workflow = Workflow::factory()->forWorkspace($this->workspace)->create();
+    $workflow->replaceGraph([
+        'nodes' => [
+            ['key' => 'ask', 'type' => 'ask_ai', 'config' => ['prompt' => 'Say hi', 'model_catalog_slug' => 'gated']],
+        ],
+        'edges' => [],
+    ]);
+    $workflow->publishVersion(publisher: $this->owner);
+
+    $run = app(StartWorkflowRunAction::class)->execute($workflow->fresh(), []);
+    $step = $run->fresh(['nodeRuns'])->nodeRuns->firstWhere('key', 'ask');
+
+    expect($step->status)->toBe(NodeRunStatus::Failed)
+        ->and($step->error)->toContain('needs the Pro plan or higher');
+
+    AdHocPromptAgent::assertNeverPrompted();
+});
+
+it('answers a gated model with a 402 that names the plan to upgrade to', function () {
+    Route::middleware('api')->get('/api/v1/__test-model-plan', function () {
+        app(WorkspaceModels::class)->ensurePlanAllows(test()->workspace->id, 'gated');
+    });
+
+    $this->getJson('/api/v1/__test-model-plan')
+        ->assertStatus(402)
+        ->assertJsonPath('errors.reason', 'plan_required')
+        ->assertJsonPath('errors.model', 'gated')
+        ->assertJsonPath('errors.required_plan.slug', 'pro');
 });
