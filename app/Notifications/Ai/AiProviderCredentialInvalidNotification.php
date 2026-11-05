@@ -13,12 +13,24 @@ class AiProviderCredentialInvalidNotification extends WorkspaceEventNotification
     {
         $whose = $credential->scope === ConnectorCredentialScope::Personal ? 'Your personal' : 'The workspace\'s';
         $name = $credential->name ? " \"{$credential->name}\"" : '';
+        // What happens to calls meanwhile depends on the workspace's key policy.
+        $meanwhile = 'Until then, AI calls that relied on it use the platform\'s key (and credits) where the workspace allows it, or stop.';
+
+        [$title, $body] = $credential->isOAuth()
+            ? [
+                "{$label} connection{$name} stopped working",
+                "{$whose} {$label} connection expired and couldn't be renewed. Reconnect it in Settings → AI Providers. {$meanwhile}",
+            ]
+            : [
+                "{$label} key{$name} stopped working",
+                "{$whose} {$label} key ({$credential->key_hint}) was rejected by {$label}. Replace it in Settings → AI Providers. {$meanwhile}",
+            ];
 
         parent::__construct(
             workspace: $credential->workspace,
             event: NotificationEvent::AiProviderCredentialInvalid,
-            title: "{$label} key{$name} stopped working",
-            body: "{$whose} {$label} key ({$credential->key_hint}) was rejected by {$label}, so AI calls are back on the platform's key and use credits. Replace the key in Settings → AI Providers to keep using your own.",
+            title: $title,
+            body: $body,
             data: [
                 'ai_provider_credential_id' => $credential->id,
                 'execution_provider' => $credential->execution_provider,

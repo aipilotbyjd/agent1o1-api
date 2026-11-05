@@ -176,6 +176,10 @@ return [
                 ['execution_provider' => 'deepseek', 'execution_model_id' => 'deepseek-v4-pro', 'priority' => 0, 'is_enabled' => true],
                 ['execution_provider' => 'fireworks', 'execution_model_id' => 'accounts/fireworks/models/deepseek-v4p', 'priority' => 1, 'is_enabled' => false],
                 ['execution_provider' => 'openrouter', 'execution_model_id' => 'deepseek/deepseek-v4-pro', 'priority' => 2, 'is_enabled' => false],
+                // Hugging Face Inference Providers, only ever on a workspace's own
+                // connection (no platform key): verify the exact Hugging Face
+                // model id on huggingface.co/models?inference_provider=all before enabling.
+                ['execution_provider' => 'huggingface', 'execution_model_id' => 'deepseek-ai/DeepSeek-V4-Pro', 'priority' => 3, 'is_enabled' => false],
             ],
         ],
 
@@ -200,6 +204,7 @@ return [
                 ['execution_provider' => 'fireworks', 'execution_model_id' => 'accounts/fireworks/models/llama4-maverick-instruct-basic', 'priority' => 0, 'is_enabled' => false],
                 ['execution_provider' => 'together', 'execution_model_id' => 'meta-llama/Llama-4-Maverick-17B-128E-Instruct', 'priority' => 1, 'is_enabled' => false],
                 ['execution_provider' => 'openrouter', 'execution_model_id' => 'meta-llama/llama-4-maverick', 'priority' => 2, 'is_enabled' => false],
+                ['execution_provider' => 'huggingface', 'execution_model_id' => 'meta-llama/Llama-4-Maverick-17B-128E-Instruct', 'priority' => 3, 'is_enabled' => false],
             ],
         ],
 
@@ -212,6 +217,7 @@ return [
                 ['execution_provider' => 'fireworks', 'execution_model_id' => 'accounts/fireworks/models/llama-v3p1-405b-instruct', 'priority' => 0, 'is_enabled' => false],
                 ['execution_provider' => 'together', 'execution_model_id' => 'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo', 'priority' => 1, 'is_enabled' => false],
                 ['execution_provider' => 'openrouter', 'execution_model_id' => 'meta-llama/llama-3.1-405b-instruct', 'priority' => 2, 'is_enabled' => false],
+                ['execution_provider' => 'huggingface', 'execution_model_id' => 'meta-llama/Llama-3.1-405B-Instruct', 'priority' => 3, 'is_enabled' => false],
             ],
         ],
 
@@ -225,6 +231,7 @@ return [
                 ['execution_provider' => 'fireworks', 'execution_model_id' => 'accounts/fireworks/models/kimi-k3', 'priority' => 0, 'is_enabled' => false],
                 ['execution_provider' => 'together', 'execution_model_id' => 'moonshotai/Kimi-K3', 'priority' => 1, 'is_enabled' => false],
                 ['execution_provider' => 'openrouter', 'execution_model_id' => 'moonshotai/kimi-k3', 'priority' => 2, 'is_enabled' => false],
+                ['execution_provider' => 'huggingface', 'execution_model_id' => 'moonshotai/Kimi-K3', 'priority' => 3, 'is_enabled' => false],
             ],
         ],
 
@@ -237,6 +244,7 @@ return [
             'routes' => [
                 ['execution_provider' => 'fireworks', 'execution_model_id' => 'accounts/fireworks/models/glm-5p2', 'priority' => 0, 'is_enabled' => false],
                 ['execution_provider' => 'openrouter', 'execution_model_id' => 'z-ai/glm-5.2', 'priority' => 1, 'is_enabled' => false],
+                ['execution_provider' => 'huggingface', 'execution_model_id' => 'zai-org/GLM-5.2', 'priority' => 2, 'is_enabled' => false],
             ],
         ],
 
@@ -261,6 +269,7 @@ return [
             'routes' => [
                 ['execution_provider' => 'fireworks', 'execution_model_id' => 'accounts/fireworks/models/qwen3p6-235b-a22b-instruct', 'priority' => 0, 'is_enabled' => false],
                 ['execution_provider' => 'openrouter', 'execution_model_id' => 'qwen/qwen3.6-235b-a22b', 'priority' => 1, 'is_enabled' => false],
+                ['execution_provider' => 'huggingface', 'execution_model_id' => 'Qwen/Qwen3.6-235B-A22B-Instruct', 'priority' => 2, 'is_enabled' => false],
             ],
         ],
 

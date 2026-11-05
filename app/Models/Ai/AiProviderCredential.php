@@ -2,6 +2,7 @@
 
 namespace App\Models\Ai;
 
+use App\Enums\Ai\AiProviderAuthMethod;
 use App\Enums\Ai\AiProviderCredentialStatus;
 use App\Enums\Connectors\ConnectorCredentialScope;
 use App\Models\Concerns\HasScopedVisibility;
@@ -24,11 +25,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * platform's own key whenever a call is made on the workspace's behalf.
  *
  * `data` (`{api_key}`) is encrypted at rest and `#[Hidden]`; `key_hint` is
- * the masked form the UI shows instead. Personal/Team visibility and the
+ * the masked form the UI shows instead. A credential from one-click connect
+ * with an expiring OAuth token (`auth_method` = `oauth`) keeps the current
+ * access token in `api_key`, so every caller uses it like any key, and its
+ * `refresh_token` beside it: `AiProviderTokenRefresher` renews it before
+ * `token_expires_at`. Personal/Team visibility and the
  * per-group default work exactly as for `ConnectorCredential`: see
  * `HasScopedVisibility`.
  */
-#[Fillable(['workspace_id', 'created_by', 'execution_provider', 'scope', 'is_default', 'name', 'data', 'key_hint', 'validation_status', 'validation_message', 'last_validated_at', 'last_used_at'])]
+#[Fillable(['workspace_id', 'created_by', 'execution_provider', 'scope', 'is_default', 'name', 'data', 'auth_method', 'token_expires_at', 'key_hint', 'validation_status', 'validation_message', 'last_validated_at', 'last_used_at'])]
 #[Hidden(['data'])]
 class AiProviderCredential extends Model
 {
@@ -40,6 +45,7 @@ class AiProviderCredential extends Model
      */
     protected $attributes = [
         'scope' => 'team',
+        'auth_method' => 'api_key',
         'is_default' => false,
         'validation_status' => 'unvalidated',
     ];
@@ -53,6 +59,8 @@ class AiProviderCredential extends Model
             'scope' => ConnectorCredentialScope::class,
             'is_default' => 'boolean',
             'data' => 'encrypted:array',
+            'auth_method' => AiProviderAuthMethod::class,
+            'token_expires_at' => 'datetime',
             'validation_status' => AiProviderCredentialStatus::class,
             'last_validated_at' => 'datetime',
             'last_used_at' => 'datetime',
@@ -72,6 +80,29 @@ class AiProviderCredential extends Model
     public function apiKey(): string
     {
         return (string) ($this->data['api_key'] ?? '');
+    }
+
+    public function refreshToken(): ?string
+    {
+        $refreshToken = $this->data['refresh_token'] ?? null;
+
+        return is_string($refreshToken) && $refreshToken !== '' ? $refreshToken : null;
+    }
+
+    public function isOAuth(): bool
+    {
+        return $this->auth_method === AiProviderAuthMethod::OAuth;
+    }
+
+    /**
+     * Whether this is an OAuth token that has expired, or will within
+     * `$seconds`, and so should be refreshed before it is used.
+     */
+    public function tokenExpiresWithin(int $seconds): bool
+    {
+        return $this->isOAuth()
+            && $this->token_expires_at !== null
+            && $this->token_expires_at->lte(now()->addSeconds($seconds));
     }
 
     public function isValid(): bool

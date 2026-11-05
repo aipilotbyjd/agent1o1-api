@@ -47,11 +47,16 @@ it('walks through all seven onboarding steps in order', function () {
     // Step 4: choose_plan
     $client->postJson('/api/v1/onboarding/plan', ['plan_slug' => 'free'])
         ->assertOk()
+        ->assertJsonPath('data.current_step', 'connect_ai');
+
+    // Step 5: connect_ai is skippable; the member starts on the free model.
+    $client->postJson('/api/v1/onboarding/skip', ['step' => 'connect_ai'])
+        ->assertOk()
         ->assertJsonPath('data.current_step', 'connect_apps');
 
-    // Step 5: connect_apps has no backend call; jump straight to discovery.
+    // Step 6: connect_apps has no backend call; jump straight to discovery.
 
-    // Step 6: discovery_survey
+    // Step 7: discovery_survey
     $response = $client->postJson('/api/v1/onboarding/discovery', ['discovery_source' => 'google_search'])
         ->assertOk()
         ->assertJsonPath('data.current_step', 'discovery_survey');

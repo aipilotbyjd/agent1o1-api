@@ -31,6 +31,9 @@ class AiProviderCredentialResource extends JsonResource
             'is_default' => $this->is_default,
             'name' => $this->name,
             'key_hint' => $this->key_hint,
+            // `oauth`: a one-click connection whose token renews itself.
+            'auth_method' => $this->auth_method->value,
+            'token_expires_at' => $this->token_expires_at,
             'validation_status' => $this->validation_status->value,
             'validation_message' => $this->validation_message,
             'last_validated_at' => $this->last_validated_at,

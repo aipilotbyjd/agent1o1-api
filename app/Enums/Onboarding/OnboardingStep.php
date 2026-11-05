@@ -9,6 +9,7 @@ enum OnboardingStep: string
     case InviteTeam = 'invite_team';
     case RoleSelection = 'role_selection';
     case ChoosePlan = 'choose_plan';
+    case ConnectAi = 'connect_ai';
     case ConnectApps = 'connect_apps';
     case DiscoverySurvey = 'discovery_survey';
 
@@ -20,6 +21,7 @@ enum OnboardingStep: string
             self::InviteTeam => 'Invite Team',
             self::RoleSelection => 'Role Selection',
             self::ChoosePlan => 'Choose Plan',
+            self::ConnectAi => 'Connect AI',
             self::ConnectApps => 'Connect Apps',
             self::DiscoverySurvey => 'Discovery Survey',
         };
@@ -33,6 +35,7 @@ enum OnboardingStep: string
             self::InviteTeam => 'Invite teammates to collaborate with you.',
             self::RoleSelection => 'Tell us your role so we can tailor your experience.',
             self::ChoosePlan => 'Choose the plan that fits your team.',
+            self::ConnectAi => 'Connect your own AI provider in one click, or start on the free model.',
             self::ConnectApps => 'Connect the apps you use every day.',
             self::DiscoverySurvey => 'Let us know how you found us.',
         };

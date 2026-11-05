@@ -12,6 +12,8 @@ use App\Exceptions\OwnAiKeyRequiredException;
 use App\Exceptions\ProviderPausedException;
 use App\Models\Ai\AiProviderCredential;
 use App\Models\Ai\WorkspaceAiKeyPolicy;
+use App\Services\Ai\Connect\AiProviderConnectors;
+use App\Services\Ai\Connect\AiProviderTokenRefresher;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Collection;
 use Laravel\Ai\AiManager;
@@ -82,7 +84,7 @@ class ByokProviderRegistrar
 
         $chain = is_array($provider) ? $provider : [$provider => $model];
         $policy = WorkspaceAiKeyPolicy::forWorkspace($workspaceId);
-        $credentials = $this->credentialsFor($workspaceId, $policy->allow_personal_keys ? $userId : null, array_keys($chain));
+        $credentials = $this->usable($this->credentialsFor($workspaceId, $policy->allow_personal_keys ? $userId : null, array_keys($chain)));
         $platformAllowed = match ($policy->platform_usage) {
             PlatformKeyUsage::Fallback => true,
             PlatformKeyUsage::WhenNoKey => $credentials->isEmpty(),
@@ -256,6 +258,21 @@ class ByokProviderRegistrar
     }
 
     /**
+     * Renews a one-click connection whose token is about to run out before it
+     * is put in front of a call; one that can't be renewed is left out (and
+     * out of rotation until reconnected), so the call goes where it would
+     * without it.
+     *
+     * @param  Collection<string, AiProviderCredential>  $credentials
+     * @return Collection<string, AiProviderCredential>
+     */
+    private function usable(Collection $credentials): Collection
+    {
+        return $credentials->filter(fn (AiProviderCredential $credential): bool => ! $credential->tokenExpiresWithin(60)
+            || app(AiProviderTokenRefresher::class)->refresh($credential));
+    }
+
+    /**
      * The one usable key per provider: the member's personal key before the
      * team's, a group's default before its other keys, oldest first.
      *
@@ -303,6 +320,8 @@ class ByokProviderRegistrar
 
         $this->ai->build([
             ...(array) config("ai.providers.{$provider}", ['driver' => $provider]),
+            // e.g. Sign in with ChatGPT calls must not be stored by OpenAI.
+            ...($credential->isOAuth() ? (app(AiProviderConnectors::class)->for($provider)?->providerOverrides() ?? []) : []),
             'name' => $name,
             'key' => $credential->apiKey(),
         ]);

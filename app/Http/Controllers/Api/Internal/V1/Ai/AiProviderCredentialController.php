@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Internal\V1\Ai;
 
+use App\Actions\Ai\StoreAiProviderCredentialAction;
+use App\Enums\Ai\AiProviderAuthMethod;
 use App\Enums\Ai\AiProviderCredentialStatus;
 use App\Enums\Connectors\ConnectorCredentialScope;
 use App\Enums\Workspaces\AuditAction;
@@ -17,6 +19,7 @@ use App\Models\Ai\ModelRoute;
 use App\Models\Ai\WorkspaceAiKeyPolicy;
 use App\Models\Workspaces\Workspace;
 use App\Services\Ai\AiProviderKeyChecker;
+use App\Services\Ai\Connect\AiProviderConnectors;
 use App\Services\Workspaces\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -39,9 +42,10 @@ class AiProviderCredentialController extends Controller
     /**
      * The providers a key can be added for, with the catalog models each
      * would run (plus knowledge-base embeddings for the platform's embeddings
-     * provider), and what the asking member may add.
+     * provider), whether it has a free tier or one-click connect, and what
+     * the asking member may add.
      */
-    public function providers(Request $request, Workspace $workspace)
+    public function providers(Request $request, Workspace $workspace, AiProviderConnectors $connectors)
     {
         $this->requirePermission(Permission::AiCredentialView);
 
@@ -70,6 +74,9 @@ class AiProviderCredentialController extends Controller
                 'key_guide' => $provider['key_guide'] ?? [],
                 'models' => $modelsByProvider->get($key, []),
                 'covers_knowledge_base' => $key === config('ai.default_for_embeddings'),
+                'free_tier' => $provider['free_tier'] ?? null,
+                // One-click connect, when it is switched on here.
+                'connect' => ($connector = $connectors->enabled($key)) === null ? null : ['label' => $connector->label()],
             ])
             ->values();
 
@@ -95,7 +102,7 @@ class AiProviderCredentialController extends Controller
         return ApiResponse::success(['ai_provider_credentials' => AiProviderCredentialResource::collection($credentials)]);
     }
 
-    public function store(StoreAiProviderCredentialRequest $request, Workspace $workspace)
+    public function store(StoreAiProviderCredentialRequest $request, Workspace $workspace, StoreAiProviderCredentialAction $store)
     {
         $scope = ConnectorCredentialScope::tryFrom((string) $request->validated('scope', ConnectorCredentialScope::Team->value));
         $this->requireScopePermission($scope);
@@ -104,29 +111,17 @@ class AiProviderCredentialController extends Controller
             throw ValidationException::withMessages(['scope' => 'Personal keys are turned off in this workspace. Ask an admin to add a team key.']);
         }
 
-        $provider = $request->validated('execution_provider');
-        $apiKey = trim($request->validated('api_key'));
-        $result = $this->checkOrRefuse($provider, $apiKey);
+        $stored = $store->execute(
+            $workspace,
+            $request->user()->id,
+            $request->validated('execution_provider'),
+            $scope,
+            StoreAiProviderCredentialAction::pastedKey($request->validated('api_key')),
+            $request->validated('name'),
+            $request->boolean('is_default'),
+        );
 
-        $credential = $workspace->aiProviderCredentials()->create([
-            'created_by' => $request->user()->id,
-            'execution_provider' => $provider,
-            'scope' => $scope,
-            'name' => $request->validated('name') ?: null,
-            'data' => ['api_key' => $apiKey],
-            'key_hint' => AiProviderCredential::hintFor($apiKey),
-            'validation_status' => $result['ok'] ? AiProviderCredentialStatus::Valid : AiProviderCredentialStatus::Unvalidated,
-            'validation_message' => Str::limit($result['message'], 497),
-            'last_validated_at' => now(),
-        ]);
-
-        // The first key in its group becomes the one that's used, so adding a
-        // key is all it takes to start using it.
-        if ($request->boolean('is_default') || ! $credential->groupHasDefault()) {
-            $credential->markAsDefault();
-        }
-
-        return ApiResponse::created(['ai_provider_credential' => AiProviderCredentialResource::make($credential->fresh())], $result['message']);
+        return ApiResponse::created(['ai_provider_credential' => AiProviderCredentialResource::make($stored['credential'])], $stored['message']);
     }
 
     public function update(UpdateAiProviderCredentialRequest $request, Workspace $workspace, AiProviderCredential $aiProviderCredential)
@@ -141,7 +136,10 @@ class AiProviderCredentialController extends Controller
 
             $attributes = [
                 ...$attributes,
+                // A key pasted over a one-click connection replaces its token outright.
                 'data' => ['api_key' => $apiKey],
+                'auth_method' => AiProviderAuthMethod::ApiKey,
+                'token_expires_at' => null,
                 'key_hint' => AiProviderCredential::hintFor($apiKey),
                 'validation_status' => $result['ok'] ? AiProviderCredentialStatus::Valid : AiProviderCredentialStatus::Unvalidated,
                 'validation_message' => Str::limit($result['message'], 497),

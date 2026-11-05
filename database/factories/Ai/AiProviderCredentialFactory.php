@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Ai;
 
+use App\Enums\Ai\AiProviderAuthMethod;
 use App\Enums\Ai\AiProviderCredentialStatus;
 use App\Enums\Connectors\ConnectorCredentialScope;
 use App\Models\Ai\AiProviderCredential;
@@ -9,6 +10,7 @@ use App\Models\User;
 use App\Models\Workspaces\Workspace;
 use App\Services\Workspaces\WorkspaceService;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
 
 /**
  * @extends Factory<AiProviderCredential>
@@ -50,6 +52,18 @@ class AiProviderCredentialFactory extends Factory
     public function personal(User $owner): static
     {
         return $this->state(fn (): array => ['scope' => ConnectorCredentialScope::Personal, 'created_by' => $owner->id]);
+    }
+
+    /**
+     * A one-click connection holding an OAuth access token.
+     */
+    public function oauth(?string $refreshToken = 'refresh-token', ?Carbon $expiresAt = null): static
+    {
+        return $this->state(fn (): array => [
+            'data' => array_filter(['api_key' => 'oauth-access-token', 'refresh_token' => $refreshToken]),
+            'auth_method' => AiProviderAuthMethod::OAuth,
+            'token_expires_at' => $expiresAt ?? now()->addHour(),
+        ]);
     }
 
     public function invalid(): static
