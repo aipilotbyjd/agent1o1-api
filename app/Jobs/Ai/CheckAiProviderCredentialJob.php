@@ -3,12 +3,11 @@
 namespace App\Jobs\Ai;
 
 use App\Enums\Ai\AiProviderCredentialStatus;
-use App\Enums\Connectors\ConnectorCredentialScope;
 use App\Enums\Queue;
 use App\Models\Ai\AiProviderCredential;
-use App\Notifications\Ai\AiProviderCredentialInvalidNotification;
+use App\Services\Ai\AiProviderCredentialAlerts;
 use App\Services\Ai\AiProviderKeyChecker;
-use App\Services\Notifications\NotificationDispatcher;
+use App\Services\Ai\Connect\AiProviderTokenRefresher;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -19,8 +18,9 @@ use Illuminate\Queue\SerializesModels;
  * Background re-check of a workspace's own AI provider key. A rejected key
  * is not something the SDK fails over from, so this is what takes a revoked
  * key out of rotation before it keeps failing calls. Whoever relies on it
- * is told the moment a working key stops working: its owner for a personal
- * key, the owners/admins (and whoever added it) for a team key.
+ * is told the moment a working key stops working (`AiProviderCredentialAlerts`).
+ * A one-click connection whose token has run out is renewed first, so an
+ * expired token is not mistaken for a revoked one.
  */
 class CheckAiProviderCredentialJob implements ShouldQueue
 {
@@ -33,9 +33,17 @@ class CheckAiProviderCredentialJob implements ShouldQueue
         $this->onQueue(Queue::Maintenance->value);
     }
 
-    public function handle(AiProviderKeyChecker $checker, NotificationDispatcher $notifications): void
+    public function handle(AiProviderKeyChecker $checker, AiProviderTokenRefresher $refresher, AiProviderCredentialAlerts $alerts): void
     {
         $wasValid = $this->credential->isValid();
+
+        if ($this->credential->tokenExpiresWithin(60) && ! $refresher->refresh($this->credential)) {
+            if ($wasValid) {
+                $alerts->stoppedWorking($this->credential);
+            }
+
+            return;
+        }
 
         $checker->validate($this->credential);
 
@@ -43,18 +51,6 @@ class CheckAiProviderCredentialJob implements ShouldQueue
             return;
         }
 
-        $this->credential->loadMissing(['workspace', 'creator']);
-
-        $recipients = $this->credential->scope === ConnectorCredentialScope::Personal
-            ? collect([$this->credential->creator])->filter()
-            : $notifications->ownersAndAdmins($this->credential->workspace)
-                ->push($this->credential->creator)
-                ->filter()
-                ->unique('id');
-
-        $notifications->dispatch($recipients, new AiProviderCredentialInvalidNotification(
-            $this->credential,
-            $checker->label($this->credential->execution_provider),
-        ));
+        $alerts->stoppedWorking($this->credential);
     }
 }

@@ -162,6 +162,14 @@ return [
             'key' => env('GROQ_API_KEY'),
         ],
 
+        // Hugging Face Inference Providers (OpenAI-compatible router). With no
+        // platform key it only runs for workspaces that connect their own.
+        'huggingface' => [
+            'driver' => 'openai-compatible',
+            'url' => env('HUGGINGFACE_URL', 'https://router.huggingface.co/v1'),
+            'key' => env('HUGGINGFACE_API_KEY'),
+        ],
+
         'jina' => [
             'driver' => 'jina',
             'key' => env('JINA_API_KEY'),

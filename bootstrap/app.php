@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\AiProviderConnectException;
 use App\Exceptions\BillingAccountNotFoundException;
 use App\Exceptions\ConnectorException;
 use App\Exceptions\CostLimitReachedException;
@@ -190,6 +191,12 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (OwnAiKeyRequiredException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return ApiResponse::error($e->getMessage(), 422);
+            }
+        });
+
+        $exceptions->render(function (AiProviderConnectException $e, Request $request) {
             if ($request->is('api/*')) {
                 return ApiResponse::error($e->getMessage(), 422);
             }

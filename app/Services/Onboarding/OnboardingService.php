@@ -2,11 +2,14 @@
 
 namespace App\Services\Onboarding;
 
+use App\Enums\Ai\AiProviderCredentialStatus;
+use App\Enums\Connectors\ConnectorCredentialScope;
 use App\Enums\Onboarding\DiscoverySource;
 use App\Enums\Onboarding\JobRole;
 use App\Enums\Onboarding\OnboardingStep;
 use App\Enums\Workspaces\Role;
 use App\Http\Resources\Api\Internal\V1\Billing\PlanResource;
+use App\Models\Ai\AiProviderCredential;
 use App\Models\Billing\Plan;
 use App\Models\User;
 use App\Services\Workspaces\WorkspaceInvitationService;
@@ -190,6 +193,25 @@ class OnboardingService
             || $workspace->activePlanGrant() !== null;
     }
 
+    /**
+     * Whether the member's workspace already runs AI on a key of its own
+     * that they can use: a team key, or a personal key of theirs.
+     */
+    private function hasAiKey(User $user): bool
+    {
+        if ($user->current_workspace_id === null) {
+            return false;
+        }
+
+        return AiProviderCredential::query()
+            ->where('workspace_id', $user->current_workspace_id)
+            ->where('validation_status', '!=', AiProviderCredentialStatus::Invalid->value)
+            ->where(fn ($query) => $query
+                ->where('scope', ConnectorCredentialScope::Team->value)
+                ->orWhere('created_by', $user->id))
+            ->exists();
+    }
+
     private function isStepCompleted(User $user, OnboardingStep $step, OnboardingStep $currentStep): bool
     {
         if ($user->hasCompletedOnboarding()) {
@@ -206,6 +228,7 @@ class OnboardingService
             OnboardingStep::RoleSelection => $user->job_role !== null,
             OnboardingStep::DiscoverySurvey => $user->discovery_source !== null,
             OnboardingStep::ChoosePlan => $this->ordinal($step) < $this->ordinal($currentStep) || $this->hasPlan($user),
+            OnboardingStep::ConnectAi => $this->ordinal($step) < $this->ordinal($currentStep) || $this->hasAiKey($user),
             default => $this->ordinal($step) < $this->ordinal($currentStep),
         };
     }
