@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Internal\V1\Ai\AiProviderConnectController;
 use App\Http\Controllers\Api\Internal\V1\Ai\AiProviderCredentialController;
 use App\Http\Controllers\Api\Internal\V1\Ai\WorkspaceAiKeyPolicyController;
 use Illuminate\Support\Facades\Route;
@@ -8,6 +9,7 @@ Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}')
     ->group(function () {
         Route::get('ai-providers', [AiProviderCredentialController::class, 'providers'])->name('ai-providers.index');
+        Route::post('ai-providers/{provider}/connect', [AiProviderConnectController::class, 'start'])->middleware('throttle:ai-credential-checks')->name('ai-providers.connect');
         Route::get('ai-key-policy', [WorkspaceAiKeyPolicyController::class, 'show'])->name('ai-key-policy.show');
         Route::put('ai-key-policy', [WorkspaceAiKeyPolicyController::class, 'update'])->name('ai-key-policy.update');
         Route::post('ai-key-policy/preview', [WorkspaceAiKeyPolicyController::class, 'preview'])->name('ai-key-policy.preview');

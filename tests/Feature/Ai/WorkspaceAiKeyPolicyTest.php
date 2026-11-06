@@ -25,7 +25,17 @@ function setAiKeyPolicy(string $workspaceId, array $attributes): void
     WorkspaceAiKeyPolicy::query()->updateOrCreate(['workspace_id' => $workspaceId], $attributes);
 }
 
-it('keeps the platform key behind the workspace key by default', function () {
+it('uses the platform keys only for models no workspace key covers by default', function () {
+    $key = AiProviderCredential::factory()->forWorkspace($this->workspace)->create();
+
+    [$covered] = $this->registrar->apply(['openai' => 'gpt-4o', 'anthropic' => 'claude'], null, $this->workspace->id, null);
+
+    expect(WorkspaceAiKeyPolicy::forWorkspace($this->workspace->id)->platform_usage->value)->toBe('when_no_key')
+        ->and($covered)->toBe(["byok-{$key->id}" => 'gpt-4o']);
+});
+
+it('keeps the platform key behind the workspace key when set to fallback', function () {
+    setAiKeyPolicy($this->workspace->id, ['platform_usage' => 'fallback']);
     $key = AiProviderCredential::factory()->forWorkspace($this->workspace)->create();
 
     [$provider] = $this->registrar->apply(['openai' => 'gpt-4o', 'anthropic' => 'claude'], null, $this->workspace->id, null);
@@ -120,7 +130,7 @@ it('lets anyone read the policy but only admins change it, and audits the change
 
     Passport::actingAs($member);
     $this->getJson($url)->assertOk()
-        ->assertJsonPath('data.policy.platform_usage', 'fallback')
+        ->assertJsonPath('data.policy.platform_usage', 'when_no_key')
         ->assertJsonPath('data.policy.allow_personal_keys', true)
         ->assertJsonPath('data.policy.can_manage', false);
     $this->putJson($url, ['platform_usage' => 'never'])->assertForbidden();

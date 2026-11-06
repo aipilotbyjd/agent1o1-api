@@ -5,6 +5,7 @@ namespace App\Console\Commands\Ai;
 use App\Enums\Ai\AiProviderCredentialStatus;
 use App\Jobs\Ai\CheckAiProviderCredentialJob;
 use App\Models\Ai\AiProviderCredential;
+use App\Services\Ai\AiProviderSettings;
 use Illuminate\Console\Command;
 
 class CheckAiProviderCredentialsCommand extends Command
@@ -15,7 +16,8 @@ class CheckAiProviderCredentialsCommand extends Command
 
     /**
      * Skips keys already known to be rejected: they can't pass until someone
-     * replaces them, and whoever relies on them has been told.
+     * replaces them, and whoever relies on them has been told. Skips keys for
+     * a provider a super admin has switched off: they aren't being used.
      */
     public function handle(): int
     {
@@ -25,6 +27,7 @@ class CheckAiProviderCredentialsCommand extends Command
 
         AiProviderCredential::query()
             ->where('validation_status', '!=', AiProviderCredentialStatus::Invalid->value)
+            ->whereIn('execution_provider', app(AiProviderSettings::class)->enabledProviders())
             ->where(fn ($query) => $query->whereNull('last_validated_at')->orWhere('last_validated_at', '<', $staleBefore))
             ->each(function (AiProviderCredential $credential) use (&$count): void {
                 CheckAiProviderCredentialJob::dispatch($credential);

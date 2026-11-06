@@ -91,7 +91,7 @@ class WorkspaceModelView
         $connectable = $routes
             ->pluck('execution_provider')
             ->unique()
-            ->filter(fn (string $provider): bool => config("byok.providers.{$provider}") !== null)
+            ->filter(fn (string $provider): bool => app(AiProviderSettings::class)->byokEnabled($provider))
             ->map(fn (string $provider): array => ['key' => $provider, 'label' => (string) config("byok.providers.{$provider}.label")])
             ->values()
             ->all();

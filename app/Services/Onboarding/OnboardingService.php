@@ -2,13 +2,18 @@
 
 namespace App\Services\Onboarding;
 
+use App\Enums\Ai\AiProviderCredentialStatus;
+use App\Enums\Connectors\ConnectorCredentialScope;
 use App\Enums\Onboarding\DiscoverySource;
 use App\Enums\Onboarding\JobRole;
 use App\Enums\Onboarding\OnboardingStep;
 use App\Enums\Workspaces\Role;
 use App\Http\Resources\Api\Internal\V1\Billing\PlanResource;
+use App\Models\Ai\AiProviderCredential;
+use App\Models\Ai\WorkspaceAiKeyPolicy;
 use App\Models\Billing\Plan;
 use App\Models\User;
+use App\Services\Ai\AiProviderSettings;
 use App\Services\Workspaces\WorkspaceInvitationService;
 use App\Services\Workspaces\WorkspaceService;
 
@@ -190,6 +195,31 @@ class OnboardingService
             || $workspace->activePlanGrant() !== null;
     }
 
+    /**
+     * Whether the member's workspace already runs AI on a key of its own
+     * that their calls would use: a working team key, or a working personal
+     * key of theirs while the workspace allows personal keys.
+     */
+    private function hasAiKey(User $user): bool
+    {
+        if ($user->current_workspace_id === null) {
+            return false;
+        }
+
+        $personalAllowed = WorkspaceAiKeyPolicy::forWorkspace($user->current_workspace_id)->allow_personal_keys;
+
+        return AiProviderCredential::query()
+            ->where('workspace_id', $user->current_workspace_id)
+            ->where('validation_status', AiProviderCredentialStatus::Valid->value)
+            ->whereIn('execution_provider', app(AiProviderSettings::class)->enabledProviders())
+            ->where(fn ($query) => $query
+                ->where('scope', ConnectorCredentialScope::Team->value)
+                ->when($personalAllowed, fn ($query) => $query->orWhere(fn ($query) => $query
+                    ->where('scope', ConnectorCredentialScope::Personal->value)
+                    ->where('created_by', $user->id))))
+            ->exists();
+    }
+
     private function isStepCompleted(User $user, OnboardingStep $step, OnboardingStep $currentStep): bool
     {
         if ($user->hasCompletedOnboarding()) {
@@ -206,6 +236,7 @@ class OnboardingService
             OnboardingStep::RoleSelection => $user->job_role !== null,
             OnboardingStep::DiscoverySurvey => $user->discovery_source !== null,
             OnboardingStep::ChoosePlan => $this->ordinal($step) < $this->ordinal($currentStep) || $this->hasPlan($user),
+            OnboardingStep::ConnectAi => $this->ordinal($step) < $this->ordinal($currentStep) || $this->hasAiKey($user),
             default => $this->ordinal($step) < $this->ordinal($currentStep),
         };
     }

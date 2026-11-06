@@ -45,6 +45,7 @@ use App\Observers\NodeRunObserver;
 use App\Observers\RunObserver;
 use App\Observers\WorkflowObserver;
 use App\Observers\WorkspaceMemberObserver;
+use App\Services\Ai\AiProviderSettings;
 use App\Services\Ai\OperatorEndpoints;
 use App\Services\Assistant\Branding\BrandRepository;
 use App\Services\Assistant\Branding\ConfigBrandRepository;
@@ -85,6 +86,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(RunStarter::class, TargetRunStarter::class);
         $this->app->singleton(OperatorEndpoints::class);
         $this->app->scoped(AiCallContext::class);
+        $this->app->scoped(AiProviderSettings::class);
         $this->app->bind(BrandRepository::class, ConfigBrandRepository::class);
         $this->app->bind(SandboxDriver::class, E2BSandboxDriver::class);
         $this->app->tag([ConnectorToolProvider::class, KnowledgeToolProvider::class, ComputerToolProvider::class], ToolCatalog::TAG);

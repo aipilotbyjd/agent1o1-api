@@ -2,6 +2,7 @@
 
 use App\Ai\Agents\Workspace\AdHocPromptAgent;
 use App\Models\Ai\AiProviderCredential;
+use App\Models\Ai\WorkspaceAiKeyPolicy;
 use App\Models\User;
 use App\Models\Workspaces\Workspace;
 use App\Services\Ai\ByokProviderRegistrar;
@@ -13,6 +14,16 @@ use Laravel\Ai\AiManager;
 function byokRegistrarWorkspace(): Workspace
 {
     return app(WorkspaceService::class)->create(User::factory()->create(), ['name' => 'Acme']);
+}
+
+/**
+ * Keeps the platform's hops behind the workspace's keys (`fallback`), which
+ * is no longer the default (`when_no_key`), for tests about how the chain
+ * is put together.
+ */
+function byokRegistrarFallbackPolicy(Workspace $workspace): void
+{
+    WorkspaceAiKeyPolicy::query()->create(['workspace_id' => $workspace->id, 'platform_usage' => 'fallback']);
 }
 
 beforeEach(function () {
@@ -30,6 +41,7 @@ it('leaves the chain alone when the workspace has no key', function () {
 it('puts a team key ahead of the platform hop it stands in for', function () {
     config(['ai.providers.openrouter.key' => 'platform-openrouter-key']);
     $workspace = byokRegistrarWorkspace();
+    byokRegistrarFallbackPolicy($workspace);
     $credential = AiProviderCredential::factory()->forWorkspace($workspace)->default()->create(['data' => ['api_key' => 'sk-team']]);
 
     [$provider, $model] = app(ByokProviderRegistrar::class)->apply(['openai' => 'gpt-4o', 'openrouter' => 'openai/gpt-4o'], null, $workspace->id, null);
@@ -100,6 +112,7 @@ it('falls back to a working sibling when the group default is invalid', function
 
 it('expands an agent\'s own provider and model columns into a chain', function () {
     $workspace = byokRegistrarWorkspace();
+    byokRegistrarFallbackPolicy($workspace);
     $credential = AiProviderCredential::factory()->forWorkspace($workspace)->create();
 
     expect(app(ByokProviderRegistrar::class)->apply('openai', 'gpt-4o-mini', $workspace->id, null))
@@ -175,6 +188,7 @@ it('skips a hop nobody has a key for, so a workspace without one goes straight t
 it('runs a route the platform has no key for on a workspace that brought one', function () {
     config(['ai.providers.openrouter.key' => null]);
     $workspace = byokRegistrarWorkspace();
+    byokRegistrarFallbackPolicy($workspace);
     $credential = AiProviderCredential::factory()->forWorkspace($workspace)->provider('openrouter')->create();
 
     [$provider] = app(ByokProviderRegistrar::class)->apply(['openrouter' => 'mistralai/mistral-small-2603', 'openai' => 'gpt-4o'], null, $workspace->id, null);
