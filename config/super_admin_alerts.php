@@ -54,6 +54,7 @@ return [
         'model_price_drift' => true,
         'unit_economics' => true,
         'provider_paused' => true,
+        'provider_byok_switched' => true,
         'audit_tampering' => true,
         'lockdown' => true,
     ],

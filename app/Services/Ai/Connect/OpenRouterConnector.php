@@ -6,6 +6,7 @@ use App\Contracts\Ai\AiProviderConnector;
 use App\Enums\Ai\AiProviderAuthMethod;
 use App\Exceptions\AiProviderConnectException;
 use App\Models\Ai\AiProviderCredential;
+use App\Services\Ai\AiProviderSettings;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -28,7 +29,15 @@ class OpenRouterConnector implements AiProviderConnector
 
     public function isEnabled(): bool
     {
-        return (bool) $this->config('enabled', false);
+        return app(AiProviderSettings::class)->connectEnabled(self::PROVIDER);
+    }
+
+    /**
+     * OpenRouter needs no app registration.
+     */
+    public function isConfigured(): bool
+    {
+        return true;
     }
 
     public function label(): string

@@ -6,6 +6,7 @@ use App\Enums\Ai\AiProviderAuthMethod;
 use App\Enums\Ai\AiProviderCredentialStatus;
 use App\Jobs\Ai\RefreshAiProviderTokenJob;
 use App\Models\Ai\AiProviderCredential;
+use App\Services\Ai\AiProviderSettings;
 use Illuminate\Console\Command;
 
 class RefreshAiProviderTokensCommand extends Command
@@ -16,7 +17,8 @@ class RefreshAiProviderTokensCommand extends Command
 
     /**
      * Skips connections already known to be broken: they need reconnecting,
-     * and whoever relies on them has been told.
+     * and whoever relies on them has been told. Skips connections for a
+     * provider a super admin has switched off: they aren't being used.
      */
     public function handle(): int
     {
@@ -25,6 +27,7 @@ class RefreshAiProviderTokensCommand extends Command
         AiProviderCredential::query()
             ->where('auth_method', AiProviderAuthMethod::OAuth->value)
             ->where('validation_status', '!=', AiProviderCredentialStatus::Invalid->value)
+            ->whereIn('execution_provider', app(AiProviderSettings::class)->enabledProviders())
             ->whereNotNull('token_expires_at')
             ->where('token_expires_at', '<=', now()->addSeconds((int) config('byok.connect.refresh_before_seconds', 900)))
             ->each(function (AiProviderCredential $credential) use (&$count): void {

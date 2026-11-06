@@ -2,8 +2,12 @@
 
 namespace App\Services\Ai\Operations;
 
+use App\Enums\Ai\AiProviderCredentialStatus;
 use App\Models\Ai\AiEndpoint;
+use App\Models\Ai\AiProviderCredential;
 use App\Models\Ai\ModelRoute;
+use App\Services\Ai\AiProviderSettings;
+use App\Services\Ai\Connect\AiProviderConnectors;
 use App\Services\Ai\ModelCatalogResolver;
 use App\Services\Ai\ProviderPauses;
 
@@ -11,7 +15,9 @@ use App\Services\Ai\ProviderPauses;
  * Every provider the platform could send a model call to, and whether it
  * can: the ones `config/ai.php` defines (with or without a key), the
  * operator's own endpoints, and the providers only a workspace's own key can
- * serve. Reports whether a key exists, never the key.
+ * serve. Reports whether a key exists, never the key, and for a provider
+ * customers can bring a key for, the super admin's switches for it and how
+ * many keys customers have added.
  */
 class ModelProviderOverview
 {
@@ -23,6 +29,13 @@ class ModelProviderOverview
         $pauses = app(ProviderPauses::class)->all();
         $endpoints = AiEndpoint::query()->get()->keyBy('slug');
         $routes = ModelRoute::query()->get(['execution_provider', 'is_enabled'])->groupBy('execution_provider');
+        $settings = app(AiProviderSettings::class);
+        $connectors = app(AiProviderConnectors::class);
+        $keys = AiProviderCredential::query()
+            ->selectRaw('execution_provider, count(*) as total, sum(case when validation_status = ? then 1 else 0 end) as valid', [AiProviderCredentialStatus::Valid->value])
+            ->groupBy('execution_provider')
+            ->get()
+            ->keyBy('execution_provider');
 
         $names = collect([
             ...array_keys(array_filter((array) config('ai.providers'))),
@@ -31,7 +44,7 @@ class ModelProviderOverview
             ...$routes->keys()->all(),
         ])->unique()->sort()->values();
 
-        return $names->map(function (string $name) use ($endpoints, $routes, $pauses): array {
+        return $names->map(function (string $name) use ($endpoints, $routes, $pauses, $settings, $connectors, $keys): array {
             $endpoint = $endpoints->get($name);
             $byok = config("byok.providers.{$name}");
             $own = $routes->get($name, collect());
@@ -51,6 +64,21 @@ class ModelProviderOverview
                 'is_enabled' => $endpoint?->is_enabled ?? true,
                 'routes' => $own->count(),
                 'enabled_routes' => $own->where('is_enabled', true)->count(),
+                // Customers' own keys (`AiProviderSettings`); null for a provider they can't bring a key for.
+                'byok' => $byok === null ? null : [
+                    'enabled' => $settings->byokEnabled($name),
+                    'featured' => $settings->featured($name),
+                    'sort_order' => $settings->sortOrder($name),
+                    'free_tier_note' => $settings->freeTierNote($name),
+                    'disabled_message' => $settings->disabledMessage($name),
+                    'keys' => ['total' => (int) ($keys[$name]->total ?? 0), 'valid' => (int) ($keys[$name]->valid ?? 0)],
+                    'connect' => ($connector = $connectors->for($name)) === null ? null : [
+                        'enabled' => $settings->connectEnabled($name),
+                        'configured' => $connector->isConfigured(),
+                        'needs_login_app' => config("byok.providers.{$name}.connect.driver") === 'oauth',
+                        'login_app_stored' => $settings->hasStoredConnectClient($name),
+                    ],
+                ],
             ];
         })->all();
     }

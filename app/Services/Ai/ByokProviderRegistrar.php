@@ -243,7 +243,7 @@ class ByokProviderRegistrar
     {
         $userId = WorkspaceAiKeyPolicy::forWorkspace($workspaceId)->allow_personal_keys ? $userId : null;
 
-        return $this->credentialsFor($workspaceId, $userId, array_keys((array) config('byok.providers')))->keys()->all();
+        return $this->credentialsFor($workspaceId, $userId, app(AiProviderSettings::class)->enabledProviders())->keys()->all();
     }
 
     /**
@@ -253,7 +253,7 @@ class ByokProviderRegistrar
     {
         return OwnAiKeyRequiredException::forProviders(array_values(array_map(
             fn (string $hop): string => (string) config("byok.providers.{$hop}.label"),
-            array_filter(array_keys($chain), fn (string $hop): bool => config("byok.providers.{$hop}") !== null),
+            array_filter(array_keys($chain), fn (string $hop): bool => app(AiProviderSettings::class)->byokEnabled($hop)),
         )));
     }
 
@@ -281,7 +281,8 @@ class ByokProviderRegistrar
      */
     private function credentialsFor(string $workspaceId, ?string $userId, array $providers): Collection
     {
-        $providers = array_values(array_intersect($providers, array_keys((array) config('byok.providers'))));
+        // A provider a super admin has switched off keeps its keys, unused.
+        $providers = array_values(array_intersect($providers, app(AiProviderSettings::class)->enabledProviders()));
 
         if ($providers === []) {
             return collect();

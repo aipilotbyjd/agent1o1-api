@@ -21,6 +21,7 @@ enum NotificationEvent: string
     case ConnectorCredentialExpired = 'connector.credential_expired';
     case TriggerDisabled = 'trigger.disabled';
     case AiProviderCredentialInvalid = 'ai.provider_credential_invalid';
+    case AiProviderAvailabilityChanged = 'ai.provider_availability_changed';
     case PaymentFailed = 'billing.payment_failed';
     case PaymentRecovered = 'billing.payment_recovered';
     case SubscriptionCanceled = 'billing.subscription_canceled';
@@ -56,6 +57,7 @@ enum NotificationEvent: string
             self::ConnectorCredentialExpired => 'Connector credential expired',
             self::TriggerDisabled => 'Trigger switched off',
             self::AiProviderCredentialInvalid => 'AI provider key stopped working',
+            self::AiProviderAvailabilityChanged => 'AI provider turned off or back on',
             self::PaymentFailed => 'Payment failed',
             self::PaymentRecovered => 'Payment recovered',
             self::SubscriptionCanceled => 'Subscription canceled',
@@ -89,6 +91,7 @@ enum NotificationEvent: string
             self::ConnectorCredentialExpired => 'A connector credential expires and could not be automatically refreshed.',
             self::TriggerDisabled => 'A trigger failed too many times in a row and was switched off.',
             self::AiProviderCredentialInvalid => 'An AI provider key or connection you rely on is rejected by its provider or can\'t be renewed.',
+            self::AiProviderAvailabilityChanged => 'We turned off, or turned back on, an AI provider your workspace has a key for.',
             self::PaymentFailed => 'A subscription invoice charge fails.',
             self::PaymentRecovered => 'A previously failed subscription charge succeeds and the plan is restored.',
             self::SubscriptionCanceled => 'A subscription ends, including when Stripe gives up after repeated failed charges.',
