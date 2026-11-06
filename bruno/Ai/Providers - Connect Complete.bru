@@ -1,0 +1,33 @@
+meta {
+  name: Providers - Connect Complete
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrl}}/v1/ai-providers/connect/complete
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "state": "{{aiConnectState}}",
+    "code": "auth-code-123"
+  }
+}
+
+docs {
+  Finishes a one-click AI provider connection started with
+  `POST /v1/workspaces/{workspace}/ai-providers/{provider}/connect`.
+  Called by the frontend page the provider redirected the member to
+  (`/oauth/ai-provider-complete`), with the `state` and `code` from its
+  query string.
+
+  Signed in, and only as the member who started the connection: a `state`
+  from anyone else is refused (422) and burnt, so a sign-in link can't put
+  a key on someone else's provider account into your workspace.
+
+  Response is wrapped (201):
+  `{ success, statusCode, message, data: { ai_provider_credential } }`.
+}
