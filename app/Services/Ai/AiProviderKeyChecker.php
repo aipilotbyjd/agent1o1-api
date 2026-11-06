@@ -4,6 +4,7 @@ namespace App\Services\Ai;
 
 use App\Enums\Ai\AiProviderCredentialStatus;
 use App\Models\Ai\AiProviderCredential;
+use App\Services\Ai\Connect\AiProviderTokenRefresher;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
@@ -55,12 +56,26 @@ class AiProviderKeyChecker
 
     /**
      * Checks a stored key and records the result on it. A key the provider
-     * couldn't be reached about keeps its previous status.
+     * couldn't be reached about keeps its previous status. A one-click
+     * connection whose token has run out is renewed first, so an expired
+     * token is never recorded as a revoked one.
      *
      * @return array{ok: bool, rejected: bool, message: string}
      */
     public function validate(AiProviderCredential $credential): array
     {
+        if ($credential->tokenExpiresWithin(60) && ! app(AiProviderTokenRefresher::class)->refresh($credential)) {
+            $rejected = $credential->validation_status === AiProviderCredentialStatus::Invalid;
+
+            return [
+                'ok' => false,
+                'rejected' => $rejected,
+                'message' => $rejected
+                    ? (string) $credential->validation_message
+                    : "Couldn't reach {$this->label($credential->execution_provider)} to renew the connection. We'll try again shortly.",
+            ];
+        }
+
         $result = $this->check($credential->execution_provider, $credential->apiKey());
 
         $status = match (true) {

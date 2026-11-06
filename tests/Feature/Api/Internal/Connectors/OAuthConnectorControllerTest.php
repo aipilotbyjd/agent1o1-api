@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Connectors\ConnectorAuthType;
+use App\Enums\Workspaces\Role;
 use App\Models\Connectors\Connector;
 use App\Models\Connectors\ConnectorCredential;
 use App\Models\Connectors\OAuthConnectorState;
@@ -66,10 +67,12 @@ it('exchanges the callback code for tokens and stores a connector credential', f
         'expires_at' => now()->addMinutes(10),
     ]);
 
-    $response = $this->getJson('/api/oauth/connectors/callback?'.http_build_query([
+    Passport::actingAs($owner);
+
+    $response = $this->postJson('/api/v1/connector-credentials/oauth/complete', [
         'state' => $state->state,
         'code' => 'auth-code-123',
-    ]));
+    ]);
 
     $response->assertCreated();
     Http::assertSent(fn ($request) => $request->hasHeader('Accept', 'application/json')
@@ -87,10 +90,12 @@ it('exchanges the callback code for tokens and stores a connector credential', f
 });
 
 it('rejects an unknown or expired oauth state on callback', function () {
-    $response = $this->getJson('/api/oauth/connectors/callback?'.http_build_query([
+    Passport::actingAs(User::factory()->create());
+
+    $response = $this->postJson('/api/v1/connector-credentials/oauth/complete', [
         'state' => 'does-not-exist',
         'code' => 'auth-code-123',
-    ]));
+    ]);
 
     $response->assertStatus(422);
 });
@@ -117,11 +122,12 @@ it('rejects invalid token responses without saving a credential', function (mixe
         'redirect_uri' => 'https://app.test/callback',
         'expires_at' => now()->addMinutes(10),
     ]);
+    Passport::actingAs($owner);
 
-    $this->getJson('/api/oauth/connectors/callback?'.http_build_query([
+    $this->postJson('/api/v1/connector-credentials/oauth/complete', [
         'state' => $state->state,
         'code' => 'auth-code',
-    ]))->assertUnprocessable();
+    ])->assertUnprocessable();
 
     expect(ConnectorCredential::where('workspace_id', $workspace->id)->exists())->toBeFalse();
 })->with([
@@ -167,11 +173,12 @@ it('fails the callback cleanly when the connector lost its client credentials', 
         'redirect_uri' => 'https://app.test/callback',
         'expires_at' => now()->addMinutes(10),
     ]);
+    Passport::actingAs($owner);
 
-    $this->getJson('/api/oauth/connectors/callback?'.http_build_query([
+    $this->postJson('/api/v1/connector-credentials/oauth/complete', [
         'state' => $state->state,
         'code' => 'auth-code-123',
-    ]))->assertUnprocessable();
+    ])->assertUnprocessable();
 
     expect(ConnectorCredential::query()->exists())->toBeFalse();
 });
@@ -193,12 +200,13 @@ it('keeps the provider\'s error body out of the callback response and refuses a 
         'expires_at' => now()->addMinutes(10),
     ]);
 
-    $query = '/api/oauth/connectors/callback?'.http_build_query(['state' => 'replayed-state', 'code' => 'auth-code-123']);
+    Passport::actingAs($owner);
+    $payload = ['state' => 'replayed-state', 'code' => 'auth-code-123'];
 
-    $first = $this->getJson($query)->assertUnprocessable();
+    $first = $this->postJson('/api/v1/connector-credentials/oauth/complete', $payload)->assertUnprocessable();
     expect($first->getContent())->not->toContain('secret-123');
 
-    $this->getJson($query)->assertUnprocessable();
+    $this->postJson('/api/v1/connector-credentials/oauth/complete', $payload)->assertUnprocessable();
     Http::assertSentCount(1);
 });
 
@@ -225,10 +233,10 @@ it('reconnects an existing account in place instead of creating a second one', f
 
     Http::fake([$connector->oauth['token_url'] => Http::response(['access_token' => 'fresh-token', 'refresh_token' => 'fresh-refresh', 'expires_in' => 3600])]);
 
-    $this->getJson('/api/oauth/connectors/callback?'.http_build_query([
+    $this->postJson('/api/v1/connector-credentials/oauth/complete', [
         'state' => $initiate->json('data.state'),
         'code' => 'auth-code-123',
-    ]))->assertCreated()->assertJsonPath('data.connector_credential.id', $credential->id);
+    ])->assertCreated()->assertJsonPath('data.connector_credential.id', $credential->id);
 
     $credential->refresh();
     expect(ConnectorCredential::query()->where('workspace_id', $workspace->id)->count())->toBe(1)
@@ -259,4 +267,62 @@ it('refuses to reconnect a credential from another workspace or connector', func
     }
 
     expect(OAuthConnectorState::query()->count())->toBe(0);
+});
+
+it('refuses to finish a sign-in started by someone else, and burns it', function () {
+    [$workspace, $owner] = ownerWorkspaceForOAuth();
+    $connector = Connector::factory()->oauth()->create(['key' => 'github']);
+    config(['services.github.client_id' => 'client-123', 'services.github.client_secret' => 'secret-123']);
+    Http::fake();
+
+    OAuthConnectorState::create([
+        'workspace_id' => $workspace->id,
+        'user_id' => $owner->id,
+        'connector_id' => $connector->id,
+        'state' => 'someone-elses-state',
+        'name' => 'My GitHub',
+        'redirect_uri' => 'https://app.test/callback',
+        'expires_at' => now()->addMinutes(10),
+    ]);
+
+    Passport::actingAs(User::factory()->create());
+
+    $this->postJson('/api/v1/connector-credentials/oauth/complete', ['state' => 'someone-elses-state', 'code' => 'victim-code'])
+        ->assertUnprocessable()
+        ->assertJsonPath('message', 'This sign-in was started from a different account. Sign in as that account, or start the connection again.');
+
+    Http::assertNothingSent();
+    expect(ConnectorCredential::query()->exists())->toBeFalse()
+        ->and(OAuthConnectorState::query()->exists())->toBeFalse();
+});
+
+it('requires a signed-in member to finish a sign-in', function () {
+    $this->postJson('/api/v1/connector-credentials/oauth/complete', ['state' => 'any', 'code' => 'any'])->assertUnauthorized();
+});
+
+it('refuses to finish once the member can no longer connect apps', function () {
+    [$workspace] = ownerWorkspaceForOAuth();
+    $member = User::factory()->create();
+    $workspace->members()->create(['user_id' => $member->id, 'role' => Role::Viewer, 'joined_at' => now()]);
+    $connector = Connector::factory()->oauth()->create(['key' => 'github']);
+    config(['services.github.client_id' => 'client-123', 'services.github.client_secret' => 'secret-123']);
+    Http::fake();
+
+    OAuthConnectorState::create([
+        'workspace_id' => $workspace->id,
+        'user_id' => $member->id,
+        'connector_id' => $connector->id,
+        'state' => 'demoted-state',
+        'name' => 'My GitHub',
+        'redirect_uri' => 'https://app.test/callback',
+        'expires_at' => now()->addMinutes(10),
+    ]);
+
+    Passport::actingAs($member);
+
+    $this->postJson('/api/v1/connector-credentials/oauth/complete', ['state' => 'demoted-state', 'code' => 'auth-code'])
+        ->assertUnprocessable();
+
+    Http::assertNothingSent();
+    expect(ConnectorCredential::query()->exists())->toBeFalse();
 });
