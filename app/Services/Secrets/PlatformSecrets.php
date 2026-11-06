@@ -26,13 +26,6 @@ use Throwable;
 class PlatformSecrets
 {
     /**
-     * Config trees that hold the platform's credentials.
-     *
-     * @var array<int, string>
-     */
-    private const array CONFIG_ROOTS = ['ai.providers', 'byok', 'services', 'broadcasting.connections', 'filesystems.disks', 'mail.mailers', 'database.connections', 'database.redis', 'cashier', 'reverb'];
-
-    /**
      * A config entry whose last segment matches is a credential.
      */
     private const string SECRET_KEY_PATTERN = '/(?:^|[_.-])(?:key|secret|token|password|access_key_id|secret_access_key|session_token|client_secret|webhook_secret|signing_secret)$/i';
@@ -69,7 +62,10 @@ class PlatformSecrets
     public function __construct(private readonly SecretRedactor $redactor) {}
 
     /**
-     * Every credential value the platform holds, longest first.
+     * Every credential value the platform holds: anything in the whole
+     * config tree stored under a credential-like name, so a secret added
+     * under a new config file (`assistant.sandbox.api_key`, say) is
+     * covered without a change here.
      *
      * @return array<int, string>
      */
@@ -77,11 +73,9 @@ class PlatformSecrets
     {
         $values = [(string) config('app.key'), ...array_map('strval', (array) config('app.previous_keys', []))];
 
-        foreach (self::CONFIG_ROOTS as $root) {
-            foreach (Arr::dot((array) config($root, [])) as $path => $value) {
-                if (is_string($value) && preg_match(self::SECRET_KEY_PATTERN, (string) $path) === 1) {
-                    $values[] = $value;
-                }
+        foreach (Arr::dot((array) config()->all()) as $path => $value) {
+            if (is_string($value) && preg_match(self::SECRET_KEY_PATTERN, (string) $path) === 1) {
+                $values[] = $value;
             }
         }
 
