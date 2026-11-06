@@ -10,6 +10,7 @@ use App\Models\Agents\Agent;
 use App\Models\Agents\Skill;
 use App\Models\User;
 use App\Services\Agents\Skills\SkillSources;
+use App\Services\Secrets\PlatformSecrets;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -96,7 +97,7 @@ class ImportSkillsTool implements Approvable, Tool
         } catch (ValidationException $e) {
             return 'Not imported: '.collect($e->errors())->flatten()->implode(' ');
         } catch (RuntimeException $e) {
-            return 'Not imported: '.$e->getMessage();
+            return 'Not imported: '.app(PlatformSecrets::class)->redact($e->getMessage());
         }
 
         $wanted = collect($request['skills'] ?? [])->map(fn ($name): string => Str::lower(trim((string) $name)))->filter();
