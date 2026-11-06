@@ -9,6 +9,7 @@ use App\Exceptions\UsageBlockedException;
 use App\Models\Assistant\AssistantAction;
 use App\Models\Assistant\AssistantToolRule as ToolRuleModel;
 use App\Models\Assistant\AssistantTurn;
+use App\Services\Secrets\PlatformSecrets;
 use Closure;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
@@ -126,7 +127,7 @@ class ToolGate
             $this->failures[$tool->name()] = ($this->failures[$tool->name()] ?? 0) + 1;
 
             $result = json_encode([
-                'error' => $e instanceof QueryException ? 'An internal error occurred.' : $e->getMessage(),
+                'error' => $e instanceof QueryException ? 'An internal error occurred.' : app(PlatformSecrets::class)->redact($e->getMessage()),
                 'note' => 'The tool call failed. Check the arguments and try again, or tell the person what went wrong.',
             ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: '{}';
 

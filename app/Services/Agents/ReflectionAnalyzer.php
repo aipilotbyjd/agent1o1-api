@@ -27,6 +27,7 @@ use App\Services\Ai\ByokProviderRegistrar;
 use App\Services\Ai\ModelCatalogResolver;
 use App\Services\Billing\CreditGate;
 use App\Services\Notifications\NotificationDispatcher;
+use App\Services\Secrets\PlatformSecrets;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -130,11 +131,11 @@ class ReflectionAnalyzer
             $reflectionRun->forceFill([
                 'status' => ReflectionRunStatus::Failed,
                 'sessions_analyzed_count' => $sessions->count(),
-                'skip_reason' => $e->getMessage(),
+                'skip_reason' => $message = app(PlatformSecrets::class)->redact($e->getMessage()),
                 'finished_at' => now(),
             ])->save();
 
-            $run->forceFill(['status' => RunStatus::Failed, 'error' => $e->getMessage(), 'finished_at' => now()])->save();
+            $run->forceFill(['status' => RunStatus::Failed, 'error' => $message, 'finished_at' => now()])->save();
 
             event(new RunFailed($run));
         }

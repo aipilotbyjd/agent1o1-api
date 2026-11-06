@@ -15,6 +15,7 @@ use App\Models\Ai\WorkspaceAiKeyPolicy;
 use App\Services\Ai\Connect\AiProviderConnectors;
 use App\Services\Ai\Connect\AiProviderTokenRefresher;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Laravel\Ai\AiManager;
 use Throwable;
@@ -61,6 +62,16 @@ class ByokProviderRegistrar
      * write per key per few minutes rather than one per call.
      */
     private const int LAST_USED_RESOLUTION_SECONDS = 300;
+
+    /**
+     * The only parts of the platform's provider config a workspace key is
+     * built with: where and how to call, never with what. Anything else
+     * (the platform's key, AWS credentials, custom headers) stays out, so a
+     * workspace's call can never run on, or carry, a platform credential.
+     *
+     * @var array<int, string>
+     */
+    private const array SHARED_CONFIG_KEYS = ['driver', 'url', 'api_version', 'deployment', 'embedding_deployment', 'image_deployment', 'store', 'models', 'region'];
 
     public function __construct(private readonly AiManager $ai) {}
 
@@ -313,14 +324,16 @@ class ByokProviderRegistrar
      * not show up in provider lists, and the SDK forgets it between queue
      * jobs, so a worker never keeps calling with a key that has since been
      * replaced or reuses one workspace's key for another's job. Building it
-     * again replaces the instance with the current key.
+     * again replaces the instance with the current key. Only the platform
+     * config's `SHARED_CONFIG_KEYS` are carried over.
      */
     private function register(AiProviderCredential $credential, string $provider): string
     {
         $name = self::PREFIX.$credential->id;
 
         $this->ai->build([
-            ...(array) config("ai.providers.{$provider}", ['driver' => $provider]),
+            'driver' => $provider,
+            ...Arr::only((array) config("ai.providers.{$provider}", []), self::SHARED_CONFIG_KEYS),
             // e.g. Sign in with ChatGPT calls must not be stored by OpenAI.
             ...($credential->isOAuth() ? (app(AiProviderConnectors::class)->for($provider)?->providerOverrides() ?? []) : []),
             'name' => $name,

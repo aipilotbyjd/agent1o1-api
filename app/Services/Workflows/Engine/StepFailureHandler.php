@@ -12,7 +12,7 @@ use App\Jobs\Workflows\ExecuteNodeJob;
 use App\Models\Runs\NodeRun;
 use App\Models\Runs\Run;
 use App\Models\Workflows\WorkflowEdge;
-use App\Services\Secrets\SecretRedactor;
+use App\Services\Secrets\PlatformSecrets;
 use App\Services\Workflows\StepOptions;
 use Throwable;
 
@@ -25,7 +25,7 @@ use Throwable;
 class StepFailureHandler
 {
     public function __construct(
-        private readonly SecretRedactor $secretRedactor,
+        private readonly PlatformSecrets $platformSecrets,
         private readonly RunCanceller $canceller,
     ) {}
 
@@ -159,24 +159,14 @@ class StepFailureHandler
     }
 
     /**
-     * Minimal secret redaction: strips common credential-shaped substrings
-     * before a message is ever persisted. Not the full `RunLogger::redact()`
-     * port (docs/WORKFLOWS_PLAN.md); revisit once real credentials
-     * (docs/PLAN.md Phase 6) flow through node execution.
-     */
-    /**
-     * Two passes: the plaintext of the secrets this step actually resolved
-     * (exact, and the only thing that catches a secret that isn't key-shaped),
-     * then the key-shaped-string pattern, which still catches values the
-     * engine never stored: a token pasted into a config by hand, or one an
-     * upstream API handed back.
+     * The plaintext of the secrets this step actually resolved (the only
+     * thing that catches a secret that isn't key-shaped), the platform's own
+     * credentials, and anything key-shaped: see `PlatformSecrets`.
      *
      * @param  array<int, string>  $secretValues
      */
     private function redact(string $message, array $secretValues = []): string
     {
-        $message = $this->secretRedactor->redactString($message, $secretValues);
-
-        return preg_replace('/\b(?:sk|pk|rk)_[A-Za-z0-9_]{8,}\b/', SecretRedactor::PLACEHOLDER, $message) ?? $message;
+        return $this->platformSecrets->redact($message, $secretValues);
     }
 }
