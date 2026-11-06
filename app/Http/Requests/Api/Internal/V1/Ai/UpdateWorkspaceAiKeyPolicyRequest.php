@@ -21,6 +21,7 @@ class UpdateWorkspaceAiKeyPolicyRequest extends FormRequest
         return [
             'platform_usage' => ['sometimes', new Enum(PlatformKeyUsage::class)],
             'allow_personal_keys' => ['sometimes', 'boolean'],
+            'team_keys_cover_personal_assistants' => ['sometimes', 'boolean'],
         ];
     }
 }
