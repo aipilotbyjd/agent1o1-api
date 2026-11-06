@@ -11,6 +11,10 @@ namespace App\Ai\Support;
  * can be split across chunks (`push()` / `finish()`): text inside an open block
  * is held back and dropped, and a chunk that ends partway through the opening
  * tag is held until the next chunk shows whether it is one.
+ *
+ * A `<tool_call>` that is never closed is only dropped when what follows it
+ * looks like a call (`<arg_key>` / `<arg_value>`): a reply that merely
+ * mentions the tag keeps the rest of its text, released when the stream ends.
  */
 class ToolCallMarkup
 {
@@ -18,9 +22,20 @@ class ToolCallMarkup
 
     private const string CLOSE = '</tool_call>';
 
+    /**
+     * @var list<string>
+     */
+    private const array CALL_MARKERS = ['<arg_key>', '<arg_value>'];
+
     private bool $inside = false;
 
     private string $pending = '';
+
+    /**
+     * Everything read since the open block's `<tool_call>`, kept in case the
+     * block is never closed and turns out not to be a call.
+     */
+    private string $held = '';
 
     public static function strip(string $text): string
     {
@@ -44,12 +59,14 @@ class ToolCallMarkup
 
                 if ($end === false) {
                     $this->pending = $this->partialSuffix($text, self::CLOSE);
+                    $this->held .= substr($text, 0, strlen($text) - strlen($this->pending));
 
                     return $visible;
                 }
 
                 $text = ltrim(substr($text, $end + strlen(self::CLOSE)), "\r\n");
                 $this->inside = false;
+                $this->held = '';
 
                 continue;
             }
@@ -72,15 +89,33 @@ class ToolCallMarkup
     }
 
     /**
-     * What is left once the stream ends. An unclosed block is dropped.
+     * What is left once the stream ends. An unclosed block is dropped when it
+     * looks like a call, and given back as text when it was only a mention.
      */
     public function finish(): string
     {
-        $rest = $this->inside ? '' : $this->pending;
+        $rest = match (true) {
+            ! $this->inside => $this->pending,
+            $this->looksLikeCall($this->held.$this->pending) => '',
+            default => self::OPEN.$this->held.$this->pending,
+        };
+
         $this->pending = '';
+        $this->held = '';
         $this->inside = false;
 
         return $rest;
+    }
+
+    private function looksLikeCall(string $text): bool
+    {
+        foreach (self::CALL_MARKERS as $marker) {
+            if (str_contains($text, $marker)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

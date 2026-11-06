@@ -139,6 +139,12 @@ class OAuthAiProviderConnector implements AiProviderConnector
                 'body' => Str::limit($response->body(), 500),
             ]);
 
+            // An outage or rate limit is not a refusal: a renewal must not
+            // take a working connection out of rotation over it.
+            if ($response->serverError() || $response->status() === 429) {
+                throw AiProviderConnectException::unreachable($this->providerLabel());
+            }
+
             throw $refused !== null ? $refused() : AiProviderConnectException::refused($this->providerLabel(), $response->status());
         }
 
