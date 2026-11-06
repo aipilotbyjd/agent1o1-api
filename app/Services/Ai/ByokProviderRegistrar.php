@@ -68,10 +68,11 @@ class ByokProviderRegistrar
      * built with: where and how to call, never with what. Anything else
      * (the platform's key, AWS credentials, custom headers) stays out, so a
      * workspace's call can never run on, or carry, a platform credential.
+     * `store` is not shared either: see `register()`.
      *
      * @var array<int, string>
      */
-    private const array SHARED_CONFIG_KEYS = ['driver', 'url', 'api_version', 'deployment', 'embedding_deployment', 'image_deployment', 'store', 'models', 'region'];
+    private const array SHARED_CONFIG_KEYS = ['driver', 'url', 'api_version', 'deployment', 'embedding_deployment', 'image_deployment', 'models', 'region'];
 
     public function __construct(private readonly AiManager $ai) {}
 
@@ -326,6 +327,14 @@ class ByokProviderRegistrar
      * replaced or reuses one workspace's key for another's job. Building it
      * again replaces the instance with the current key. Only the platform
      * config's `SHARED_CONFIG_KEYS` are carried over.
+     *
+     * A workspace key is always built with `store` off. Whoever owns the key
+     * can read whatever their provider keeps for it (OpenAI shows stored
+     * responses in the key owner's dashboard), and a stored call would hand
+     * them the platform's system prompts, tool definitions and context. With
+     * `store` off the SDK sends the full history on every call instead.
+     * This narrows what the provider keeps; it does not hide the request
+     * from the key's owner, so no prompt may ever carry a platform secret.
      */
     private function register(AiProviderCredential $credential, string $provider): string
     {
@@ -336,6 +345,7 @@ class ByokProviderRegistrar
             ...Arr::only((array) config("ai.providers.{$provider}", []), self::SHARED_CONFIG_KEYS),
             // e.g. Sign in with ChatGPT calls must not be stored by OpenAI.
             ...($credential->isOAuth() ? (app(AiProviderConnectors::class)->for($provider)?->providerOverrides() ?? []) : []),
+            'store' => false,
             'name' => $name,
             'key' => $credential->apiKey(),
         ]);
