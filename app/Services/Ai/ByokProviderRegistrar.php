@@ -47,7 +47,10 @@ use Throwable;
  * switched off are skipped, and the platform's hops are dropped once the
  * workspace has a key for the call (`WhenNoKey`) or always (`Never`: a
  * call nothing of the workspace's covers then throws
- * `OwnAiKeyRequiredException`).
+ * `OwnAiKeyRequiredException`). A `personal` call (a member's own assistant,
+ * which reads their mail, inbox and calendar) skips the team's keys unless
+ * the policy's `team_keys_cover_personal_assistants` allows them: whoever
+ * owns a team key's provider account may be able to see what is sent on it.
  *
  * The SDK reports the serving provider's config name back on every
  * response, so `isByok()` on a usage record says whose key ran the call,
@@ -79,12 +82,14 @@ class ByokProviderRegistrar
     /**
      * `$provider`/`$model` exactly as `ModelCatalogResolver` (or an agent's
      * own columns) hand them over; the result is the same shape, ready for
-     * `->prompt(provider:, model:)`.
+     * `->prompt(provider:, model:)`. `$personal` marks a call made for one
+     * member's private data, which runs on the team's keys only when the
+     * workspace's policy says they cover personal assistants.
      *
      * @param  string|array<string, string>|null  $provider
      * @return array{0: string|array<string, string>|null, 1: ?string}
      */
-    public function apply(string|array|null $provider, ?string $model, string $workspaceId, ?string $userId): array
+    public function apply(string|array|null $provider, ?string $model, string $workspaceId, ?string $userId, bool $personal = false): array
     {
         // Every model call passes through here first, so this is where the
         // call ledger learns who is paying when the caller did not say.
@@ -96,7 +101,8 @@ class ByokProviderRegistrar
 
         $chain = is_array($provider) ? $provider : [$provider => $model];
         $policy = WorkspaceAiKeyPolicy::forWorkspace($workspaceId);
-        $credentials = $this->usable($this->candidates($workspaceId, $policy->allow_personal_keys ? $userId : null, array_keys($chain)));
+        $includeTeamKeys = ! $personal || $policy->team_keys_cover_personal_assistants;
+        $credentials = $this->usable($this->candidates($workspaceId, $policy->allow_personal_keys ? $userId : null, array_keys($chain), $includeTeamKeys));
         $platformAllowed = match ($policy->platform_usage) {
             PlatformKeyUsage::Fallback => true,
             PlatformKeyUsage::WhenNoKey => $credentials->isEmpty(),
@@ -298,14 +304,15 @@ class ByokProviderRegistrar
 
     /**
      * The one usable key per provider: the member's personal key before the
-     * team's, a group's default before its other keys, oldest first.
+     * team's, a group's default before its other keys, oldest first. With
+     * `$includeTeamKeys` off only the member's personal keys count.
      *
      * @param  array<int, string>  $providers
      * @return Collection<string, AiProviderCredential>
      */
-    private function credentialsFor(string $workspaceId, ?string $userId, array $providers): Collection
+    private function credentialsFor(string $workspaceId, ?string $userId, array $providers, bool $includeTeamKeys = true): Collection
     {
-        return $this->candidates($workspaceId, $userId, $providers)
+        return $this->candidates($workspaceId, $userId, $providers, $includeTeamKeys)
             ->unique('execution_provider')
             ->keyBy('execution_provider');
     }
@@ -313,17 +320,18 @@ class ByokProviderRegistrar
     /**
      * Every working key the member's calls could use for these providers, in
      * preference order: the member's personal keys before the team's, a
-     * group's default before its other keys, oldest first.
+     * group's default before its other keys, oldest first. With
+     * `$includeTeamKeys` off only the member's personal keys count.
      *
      * @param  array<int, string>  $providers
      * @return Collection<int, AiProviderCredential>
      */
-    private function candidates(string $workspaceId, ?string $userId, array $providers): Collection
+    private function candidates(string $workspaceId, ?string $userId, array $providers, bool $includeTeamKeys = true): Collection
     {
         // A provider a super admin has switched off keeps its keys, unused.
         $providers = array_values(array_intersect($providers, app(AiProviderSettings::class)->enabledProviders()));
 
-        if ($providers === []) {
+        if ($providers === [] || (! $includeTeamKeys && $userId === null)) {
             return collect();
         }
 
@@ -332,7 +340,7 @@ class ByokProviderRegistrar
             ->whereIn('execution_provider', $providers)
             ->where('validation_status', AiProviderCredentialStatus::Valid->value)
             ->where(fn ($query) => $query
-                ->where('scope', ConnectorCredentialScope::Team->value)
+                ->when($includeTeamKeys, fn ($query) => $query->where('scope', ConnectorCredentialScope::Team->value))
                 ->when($userId !== null, fn ($query) => $query->orWhere(fn ($query) => $query
                     ->where('scope', ConnectorCredentialScope::Personal->value)
                     ->where('created_by', $userId))))

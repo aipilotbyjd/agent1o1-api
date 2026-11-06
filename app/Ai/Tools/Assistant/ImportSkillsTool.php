@@ -7,6 +7,7 @@ use App\Enums\Assistant\AssistantToolEffect;
 use App\Enums\Workspaces\Permission;
 use App\Models\Assistant\Assistant;
 use App\Services\Agents\Skills\SkillSources;
+use App\Services\Secrets\PlatformSecrets;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Validation\ValidationException;
 use Laravel\Ai\Tools\Request;
@@ -67,7 +68,7 @@ class ImportSkillsTool extends AssistantTool
         } catch (ValidationException $e) {
             return 'Could not import: '.collect($e->errors())->flatten()->implode(' ');
         } catch (RuntimeException $e) {
-            return 'Could not import: '.$e->getMessage();
+            return 'Could not import: '.app(PlatformSecrets::class)->redact($e->getMessage());
         }
 
         $names = $source->skills()->pluck('name');

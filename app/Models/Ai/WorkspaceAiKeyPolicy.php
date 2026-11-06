@@ -13,11 +13,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * An admin's rules for the workspace's own AI provider keys: when the
  * platform's keys may still be used (`platform_usage`), and whether members
  * may add keys only they use (`allow_personal_keys`, when off, existing
- * personal keys are kept but never used). Applied by
+ * personal keys are kept but never used), and whether a member's personal
+ * assistant may run on the team's keys (`team_keys_cover_personal_assistants`,
+ * off by default: the assistant reads the member's own mail, inbox and
+ * calendar, and whoever owns a team key's provider account may be able to
+ * see what is sent on it; when off, the assistant uses the member's personal
+ * key or the platform's). Applied by
  * `ByokProviderRegistrar`. `forWorkspace()` returns an unsaved default when
  * none has been set, so callers never branch on "no policy".
  */
-#[Fillable(['workspace_id', 'platform_usage', 'allow_personal_keys'])]
+#[Fillable(['workspace_id', 'platform_usage', 'allow_personal_keys', 'team_keys_cover_personal_assistants'])]
 class WorkspaceAiKeyPolicy extends Model
 {
     use HasUuids;
@@ -28,6 +33,7 @@ class WorkspaceAiKeyPolicy extends Model
     protected $attributes = [
         'platform_usage' => 'when_no_key',
         'allow_personal_keys' => true,
+        'team_keys_cover_personal_assistants' => false,
     ];
 
     /**
@@ -38,6 +44,7 @@ class WorkspaceAiKeyPolicy extends Model
         return [
             'platform_usage' => PlatformKeyUsage::class,
             'allow_personal_keys' => 'boolean',
+            'team_keys_cover_personal_assistants' => 'boolean',
         ];
     }
 

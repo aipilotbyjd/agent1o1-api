@@ -8,6 +8,7 @@ use App\Exceptions\PlanLimitExceededException;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentSession;
 use App\Services\Agents\AgentFollowUps;
+use App\Services\Secrets\PlatformSecrets;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Validation\ValidationException;
 use Laravel\Ai\Contracts\Approvable;
@@ -104,7 +105,7 @@ class ScheduleFollowUpTool implements Approvable, Tool
             ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: '{}';
         } catch (PlanLimitExceededException $e) {
             return json_encode([
-                'error' => 'The follow-up was not scheduled: '.$e->getMessage(),
+                'error' => 'The follow-up was not scheduled: '.app(PlatformSecrets::class)->redact($e->getMessage()),
                 'note' => 'Tell the user their plan has no room for another active trigger.',
             ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: '{}';
         }
