@@ -149,7 +149,7 @@ it('learns the account identity right after an oauth connect', function () {
         'expires_at' => now()->addMinutes(10),
     ]);
 
-    $this->getJson('/api/oauth/connectors/callback?state=identity-state&code=abc')
+    $this->postJson('/api/v1/connector-credentials/oauth/complete', ['state' => 'identity-state', 'code' => 'abc'])
         ->assertCreated()
         ->assertJsonPath('data.connector_credential.account_label', 'new@example.com');
 });

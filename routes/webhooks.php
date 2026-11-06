@@ -1,7 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\Internal\V1\Ai\AiProviderConnectController;
-use App\Http\Controllers\Api\Internal\V1\Connectors\OAuthConnectorController;
 use App\Http\Controllers\Webhooks\AssistantEmailWebhookController;
 use App\Http\Controllers\Webhooks\AssistantSlackEventsController;
 use App\Http\Controllers\Webhooks\AssistantSlackOAuthController;
@@ -80,25 +78,6 @@ Route::prefix('hooks')->name('hooks.')->group(function (): void {
         ->middleware('throttle:assistant-hooks')
         ->name('assistant');
 });
-
-/*
-|--------------------------------------------------------------------------
-| OAuth Callbacks
-|--------------------------------------------------------------------------
-|
-| The provider redirects the user's browser here after the consent screen,
-| so no session or API key is available. Tenant safety comes from the
-| unguessable `state` query param OAuthConnectorController looks up.
-|
-*/
-
-Route::get('oauth/connectors/callback', [OAuthConnectorController::class, 'callback'])
-    ->name('oauth.connectors.callback');
-
-// One-click AI provider connect (bring your own key): see AiProviderConnectFlow.
-Route::get('oauth/ai-providers/callback', [AiProviderConnectController::class, 'callback'])
-    ->middleware('throttle:ai-credential-checks')
-    ->name('oauth.ai-providers.callback');
 
 /*
 |--------------------------------------------------------------------------

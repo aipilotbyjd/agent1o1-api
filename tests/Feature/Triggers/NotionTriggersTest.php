@@ -113,7 +113,7 @@ describe('connecting', function () {
             'state' => 'st', 'name' => 'Notion', 'redirect_uri' => 'https://app.test/cb', 'expires_at' => now()->addMinutes(10),
         ]);
 
-        $credential = app(OAuthConnectorFlowService::class)->handleCallback('st', 'code-1');
+        $credential = app(OAuthConnectorFlowService::class)->handleCallback('st', 'code-1', $owner);
 
         expect($credential->data)->toMatchArray(['access_token' => 'secret_new', 'workspace_id' => 'W1', 'workspace_name' => 'Acme HQ']);
 

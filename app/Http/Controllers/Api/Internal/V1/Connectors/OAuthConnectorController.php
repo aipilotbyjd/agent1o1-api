@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Internal\V1\Connectors;
 
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Internal\V1\Connectors\CompleteOAuthConnectorRequest;
 use App\Http\Requests\Api\Internal\V1\Connectors\InitiateOAuthConnectorRequest;
 use App\Http\Resources\Api\Internal\V1\Connectors\ConnectorCredentialResource;
 use App\Http\Responses\ApiResponse;
@@ -12,7 +13,6 @@ use App\Models\Connectors\ConnectorCredential;
 use App\Models\Workspaces\Workspace;
 use App\Services\Connectors\ConnectorCredentialTester;
 use App\Services\Connectors\OAuthConnectorFlowService;
-use Illuminate\Http\Request;
 
 class OAuthConnectorController extends Controller
 {
@@ -44,16 +44,17 @@ class OAuthConnectorController extends Controller
     }
 
     /**
-     * The provider's redirect target after the user approves/denies access.
-     * Not workspace-scoped in the URL: the workspace comes from the `state`
-     * row `initiate()` created, which is how this stays tenant-safe without
-     * requiring the provider to round-trip a workspace id.
+     * Called by the frontend page the provider redirected the member to,
+     * signed in as that member. Not workspace-scoped in the URL: the
+     * workspace comes from the `state` row `initiate()` created, and only
+     * the member who started the flow can finish it.
      */
-    public function callback(Request $request, ConnectorCredentialTester $tester)
+    public function complete(CompleteOAuthConnectorRequest $request, ConnectorCredentialTester $tester)
     {
         $credential = $this->flow->handleCallback(
-            $request->query('state', ''),
-            $request->query('code', ''),
+            $request->validated('state'),
+            $request->validated('code'),
+            $request->user(),
         );
 
         // Learns whose account this is (an email, a username) so it can be
