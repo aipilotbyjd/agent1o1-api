@@ -46,6 +46,12 @@ it('scrubs cloud credentials, OAuth client secrets and the app key', function ()
         ->and($message)->not->toContain($appKey);
 });
 
+it('scrubs credentials from any config file, such as the assistant sandbox key', function () {
+    config(['assistant.sandbox.api_key' => 'e2b-sandbox-key-value']);
+
+    expect(app(PlatformSecrets::class)->redact('Sandbox refused e2b-sandbox-key-value'))->not->toContain('e2b-sandbox-key-value');
+});
+
 it('scrubs the key of an operator endpoint', function () {
     AiEndpoint::factory()->create(['api_key' => 'operator-endpoint-key-value']);
 
@@ -67,7 +73,7 @@ it('scrubs key-shaped strings and credentials in a query string', function (stri
     'xai key' => 'xai-abcdefghijklmnopqrstuvwxyz0123',
     'hugging face token' => 'hf_abcdefghijklmnopqrstuvwxyz0123',
     'stripe secret key' => 'sk_live_abcdefghijklmnop',
-    'bearer token' => 'Bearer eyJhbGciOiJIUzI1NiJ9.abcdefghij',
+    'bearer token' => 'Bearer test-token-not-a-real-one-0000',
     'query string key' => '?key=AnyValueAtAll123',
 ]);
 
@@ -93,8 +99,18 @@ it('builds a workspace key without any of the platform provider\'s credentials',
 
     $built = app(AiManager::class)->getInstanceConfig("byok-{$credential->id}");
 
-    expect($built)->toMatchArray(['driver' => 'openai', 'key' => 'sk-workspace', 'url' => 'https://api.openai.com/v1', 'store' => true])
+    expect($built)->toMatchArray(['driver' => 'openai', 'key' => 'sk-workspace', 'url' => 'https://api.openai.com/v1', 'store' => false])
         ->and($built)->not->toHaveKey('headers')
         ->and($built)->not->toHaveKey('access_key_id')
         ->and(json_encode($built))->not->toContain('platform-');
+});
+
+it('never lets the provider store a call made on a workspace key', function () {
+    config(['ai.providers.openai.store' => true]);
+    $workspace = platformSecretsWorkspace();
+    $credential = AiProviderCredential::factory()->forWorkspace($workspace)->default()->create();
+
+    app(ByokProviderRegistrar::class)->apply(['openai' => 'gpt-4o'], null, $workspace->id, null);
+
+    expect(app(AiManager::class)->getInstanceConfig("byok-{$credential->id}")['store'])->toBeFalse();
 });
