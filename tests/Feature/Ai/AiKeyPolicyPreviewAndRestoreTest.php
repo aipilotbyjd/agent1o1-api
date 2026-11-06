@@ -26,6 +26,7 @@ it('previews which models, agents and personal keys a stricter policy would affe
     AiProviderCredential::factory()->forWorkspace($this->workspace)->create();
     AiProviderCredential::factory()->forWorkspace($this->workspace)->personal($this->owner)->provider('anthropic')->create();
     $agent = Agent::factory()->create(['workspace_id' => $this->workspace->id, 'name' => 'Recap bot', 'model_catalog_id' => $claude->id]);
+    WorkspaceAiKeyPolicy::query()->create(['workspace_id' => $this->workspace->id, 'platform_usage' => 'fallback']);
 
     Passport::actingAs($this->owner);
 
@@ -37,7 +38,8 @@ it('previews which models, agents and personal keys a stricter policy would affe
         ->and($impact['affected_agents'])->toBe([['id' => $agent->id, 'name' => 'Recap bot', 'model' => 'Claude']])
         ->and($impact['models_losing_backup'])->toBe([['id' => $gpt->id, 'display_name' => 'GPT-4o']])
         ->and($impact['ignored_personal_keys'])->toBe(1)
-        ->and(WorkspaceAiKeyPolicy::query()->exists())->toBeFalse();
+        ->and(WorkspaceAiKeyPolicy::forWorkspace($this->workspace->id)->platform_usage->value)->toBe('fallback')
+        ->and(WorkspaceAiKeyPolicy::forWorkspace($this->workspace->id)->allow_personal_keys)->toBeTrue();
 });
 
 it('previews nothing for a policy that changes nothing', function () {

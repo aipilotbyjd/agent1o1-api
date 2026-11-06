@@ -1,0 +1,30 @@
+meta {
+  name: Providers - Remove Login App
+  type: http
+  seq: 34
+}
+
+delete {
+  url: {{baseUrl}}/super-admin/v1/models/providers/:provider/connect-credentials
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  provider: huggingface
+}
+
+body:json {
+  {
+    "reason": "Rotating the Hugging Face app",
+    "totp_code": "123456"
+  }
+}
+
+docs {
+  Forgets the stored login app, so the `.env` values (if any) are used again. Needs a reason and a fresh code.
+}

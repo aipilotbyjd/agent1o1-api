@@ -26,7 +26,7 @@ class WorkspaceAiKeyPolicy extends Model
      * @var array<string, mixed>
      */
     protected $attributes = [
-        'platform_usage' => 'fallback',
+        'platform_usage' => 'when_no_key',
         'allow_personal_keys' => true,
     ];
 

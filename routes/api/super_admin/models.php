@@ -29,6 +29,7 @@ Route::prefix('models')->as('models.')->group(function () use ($base) {
         Route::get('/', [SuperAdminModelController::class, 'index'])->name('index');
         Route::get('health', [SuperAdminModelInsightController::class, 'health'])->name('health');
         Route::get('providers', [SuperAdminModelInsightController::class, 'providers'])->name('providers');
+        Route::get('providers/{provider}/impact', [SuperAdminProviderController::class, 'impact'])->where('provider', '[A-Za-z0-9._-]+')->name('providers.impact');
         Route::get('byok', [SuperAdminModelInsightController::class, 'byok'])->name('byok');
         Route::get('usage', [SuperAdminModelInsightController::class, 'usage'])->name('usage');
         Route::get('usage/workspaces', [SuperAdminModelInsightController::class, 'topSpenders'])->name('usage.workspaces');
@@ -50,6 +51,9 @@ Route::prefix('models')->as('models.')->group(function () use ($base) {
 
         Route::post('providers/{provider}/pause', [SuperAdminProviderController::class, 'pause'])->middleware('throttle:super-admin-sensitive')->where('provider', '[A-Za-z0-9._-]+')->name('providers.pause');
         Route::post('providers/{provider}/resume', [SuperAdminProviderController::class, 'resume'])->middleware('throttle:super-admin-sensitive')->where('provider', '[A-Za-z0-9._-]+')->name('providers.resume');
+        Route::patch('providers/{provider}', [SuperAdminProviderController::class, 'update'])->middleware('throttle:super-admin-sensitive')->where('provider', '[A-Za-z0-9._-]+')->name('providers.update');
+        Route::put('providers/{provider}/connect-credentials', [SuperAdminProviderController::class, 'setConnectCredentials'])->middleware('throttle:super-admin-sensitive')->where('provider', '[A-Za-z0-9._-]+')->name('providers.connect-credentials.update');
+        Route::delete('providers/{provider}/connect-credentials', [SuperAdminProviderController::class, 'clearConnectCredentials'])->middleware('throttle:super-admin-sensitive')->where('provider', '[A-Za-z0-9._-]+')->name('providers.connect-credentials.destroy');
 
         Route::post('/', [SuperAdminModelController::class, 'store'])->name('store');
         Route::patch('{model}', [SuperAdminModelController::class, 'update'])->whereUuid('model')->name('update');

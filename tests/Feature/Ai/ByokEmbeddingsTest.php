@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Ai\AiProviderCredential;
+use App\Models\Ai\WorkspaceAiKeyPolicy;
 use App\Models\Billing\CreditTransaction;
 use App\Models\User;
 use App\Models\Workspaces\Workspace;
@@ -71,6 +72,7 @@ it('keeps embedding on the platform key and billing credits when the workspace h
 
 it('only ever stands in for the platform\'s own embeddings provider, never switches models', function () {
     $workspace = Workspace::find($this->workspace->id);
+    WorkspaceAiKeyPolicy::query()->create(['workspace_id' => $workspace->id, 'platform_usage' => 'fallback']);
     AiProviderCredential::factory()->forWorkspace($workspace)->provider('anthropic')->create();
     $credential = AiProviderCredential::factory()->forWorkspace($workspace)->create();
     $registrar = app(ByokProviderRegistrar::class);

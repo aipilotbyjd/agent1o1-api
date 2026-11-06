@@ -12,6 +12,8 @@ use App\Exceptions\OwnAiKeyRequiredException;
 use App\Exceptions\ProviderPausedException;
 use App\Models\Ai\AiProviderCredential;
 use App\Models\Ai\WorkspaceAiKeyPolicy;
+use App\Services\Ai\Connect\AiProviderConnectors;
+use App\Services\Ai\Connect\AiProviderTokenRefresher;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Collection;
 use Laravel\Ai\AiManager;
@@ -82,7 +84,7 @@ class ByokProviderRegistrar
 
         $chain = is_array($provider) ? $provider : [$provider => $model];
         $policy = WorkspaceAiKeyPolicy::forWorkspace($workspaceId);
-        $credentials = $this->credentialsFor($workspaceId, $policy->allow_personal_keys ? $userId : null, array_keys($chain));
+        $credentials = $this->usable($this->credentialsFor($workspaceId, $policy->allow_personal_keys ? $userId : null, array_keys($chain)));
         $platformAllowed = match ($policy->platform_usage) {
             PlatformKeyUsage::Fallback => true,
             PlatformKeyUsage::WhenNoKey => $credentials->isEmpty(),
@@ -241,7 +243,7 @@ class ByokProviderRegistrar
     {
         $userId = WorkspaceAiKeyPolicy::forWorkspace($workspaceId)->allow_personal_keys ? $userId : null;
 
-        return $this->credentialsFor($workspaceId, $userId, array_keys((array) config('byok.providers')))->keys()->all();
+        return $this->credentialsFor($workspaceId, $userId, app(AiProviderSettings::class)->enabledProviders())->keys()->all();
     }
 
     /**
@@ -251,8 +253,23 @@ class ByokProviderRegistrar
     {
         return OwnAiKeyRequiredException::forProviders(array_values(array_map(
             fn (string $hop): string => (string) config("byok.providers.{$hop}.label"),
-            array_filter(array_keys($chain), fn (string $hop): bool => config("byok.providers.{$hop}") !== null),
+            array_filter(array_keys($chain), fn (string $hop): bool => app(AiProviderSettings::class)->byokEnabled($hop)),
         )));
+    }
+
+    /**
+     * Renews a one-click connection whose token is about to run out before it
+     * is put in front of a call; one that can't be renewed is left out (and
+     * out of rotation until reconnected), so the call goes where it would
+     * without it.
+     *
+     * @param  Collection<string, AiProviderCredential>  $credentials
+     * @return Collection<string, AiProviderCredential>
+     */
+    private function usable(Collection $credentials): Collection
+    {
+        return $credentials->filter(fn (AiProviderCredential $credential): bool => ! $credential->tokenExpiresWithin(60)
+            || app(AiProviderTokenRefresher::class)->refresh($credential));
     }
 
     /**
@@ -264,7 +281,8 @@ class ByokProviderRegistrar
      */
     private function credentialsFor(string $workspaceId, ?string $userId, array $providers): Collection
     {
-        $providers = array_values(array_intersect($providers, array_keys((array) config('byok.providers'))));
+        // A provider a super admin has switched off keeps its keys, unused.
+        $providers = array_values(array_intersect($providers, app(AiProviderSettings::class)->enabledProviders()));
 
         if ($providers === []) {
             return collect();
@@ -303,6 +321,8 @@ class ByokProviderRegistrar
 
         $this->ai->build([
             ...(array) config("ai.providers.{$provider}", ['driver' => $provider]),
+            // e.g. Sign in with ChatGPT calls must not be stored by OpenAI.
+            ...($credential->isOAuth() ? (app(AiProviderConnectors::class)->for($provider)?->providerOverrides() ?? []) : []),
             'name' => $name,
             'key' => $credential->apiKey(),
         ]);
