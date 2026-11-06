@@ -20,6 +20,7 @@ class WorkspaceAiKeyPolicyResource extends JsonResource
         return [
             'platform_usage' => $this->platform_usage->value,
             'allow_personal_keys' => $this->allow_personal_keys,
+            'team_keys_cover_personal_assistants' => $this->team_keys_cover_personal_assistants,
             'can_manage' => $request->user()->can(Permission::AiCredentialManage->value),
             'updated_at' => $this->updated_at,
         ];
