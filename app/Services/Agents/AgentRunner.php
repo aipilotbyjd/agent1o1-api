@@ -36,6 +36,7 @@ use App\Services\Ai\ByokProviderRegistrar;
 use App\Services\Ai\ModelCatalogResolver;
 use App\Services\Ai\WorkspaceModels;
 use App\Services\Billing\CreditGate;
+use App\Services\Secrets\PlatformSecrets;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -819,7 +820,7 @@ class AgentRunner
 
         $run->forceFill([
             'status' => RunStatus::Failed,
-            'error' => $e->getMessage(),
+            'error' => app(PlatformSecrets::class)->redact($e->getMessage()),
             'finished_at' => now(),
         ])->save();
 
