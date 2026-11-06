@@ -7,6 +7,7 @@ use App\Models\Agents\Agent;
 use App\Models\Agents\AgentSession;
 use App\Models\Runs\Run;
 use App\Services\Artifacts\DocumentRenderer;
+use App\Services\Secrets\PlatformSecrets;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Tools\Request;
@@ -85,7 +86,7 @@ class ExportArtifactTool implements Tool
             try {
                 $decoded = $this->renderer->render($format, $decoded);
             } catch (Throwable $e) {
-                return json_encode(['error' => "Could not build the {$format} file: {$e->getMessage()}"]);
+                return json_encode(['error' => "Could not build the {$format} file: ".app(PlatformSecrets::class)->redact($e->getMessage())]);
             }
         }
 
