@@ -10,6 +10,7 @@ use App\Enums\Onboarding\OnboardingStep;
 use App\Enums\Workspaces\Role;
 use App\Http\Resources\Api\Internal\V1\Billing\PlanResource;
 use App\Models\Ai\AiProviderCredential;
+use App\Models\Ai\WorkspaceAiKeyPolicy;
 use App\Models\Billing\Plan;
 use App\Models\User;
 use App\Services\Workspaces\WorkspaceInvitationService;
@@ -195,7 +196,8 @@ class OnboardingService
 
     /**
      * Whether the member's workspace already runs AI on a key of its own
-     * that they can use: a team key, or a personal key of theirs.
+     * that their calls would use: a working team key, or a working personal
+     * key of theirs while the workspace allows personal keys.
      */
     private function hasAiKey(User $user): bool
     {
@@ -203,12 +205,16 @@ class OnboardingService
             return false;
         }
 
+        $personalAllowed = WorkspaceAiKeyPolicy::forWorkspace($user->current_workspace_id)->allow_personal_keys;
+
         return AiProviderCredential::query()
             ->where('workspace_id', $user->current_workspace_id)
-            ->where('validation_status', '!=', AiProviderCredentialStatus::Invalid->value)
+            ->where('validation_status', AiProviderCredentialStatus::Valid->value)
             ->where(fn ($query) => $query
                 ->where('scope', ConnectorCredentialScope::Team->value)
-                ->orWhere('created_by', $user->id))
+                ->when($personalAllowed, fn ($query) => $query->orWhere(fn ($query) => $query
+                    ->where('scope', ConnectorCredentialScope::Personal->value)
+                    ->where('created_by', $user->id))))
             ->exists();
     }
 

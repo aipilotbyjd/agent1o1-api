@@ -11,6 +11,12 @@ use RuntimeException;
  */
 class AiProviderConnectException extends RuntimeException
 {
+    /**
+     * Whether trying again later may work (the provider couldn't be reached),
+     * as opposed to the provider having said no.
+     */
+    public bool $retryable = false;
+
     public static function notAvailable(string $providerLabel): self
     {
         return new self("One-click connect isn't available for {$providerLabel}. Paste a key instead.");
@@ -33,7 +39,10 @@ class AiProviderConnectException extends RuntimeException
 
     public static function unreachable(string $providerLabel): self
     {
-        return new self("Couldn't reach {$providerLabel} to complete the connection. Try again in a moment.");
+        $exception = new self("Couldn't reach {$providerLabel} to complete the connection. Try again in a moment.");
+        $exception->retryable = true;
+
+        return $exception;
     }
 
     public static function cannotRefresh(string $providerLabel): self

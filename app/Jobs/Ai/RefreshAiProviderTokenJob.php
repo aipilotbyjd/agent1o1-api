@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Ai;
 
+use App\Enums\Ai\AiProviderCredentialStatus;
 use App\Enums\Queue;
 use App\Models\Ai\AiProviderCredential;
 use App\Services\Ai\AiProviderCredentialAlerts;
@@ -31,7 +32,7 @@ class RefreshAiProviderTokenJob implements ShouldQueue
     {
         $wasValid = $this->credential->isValid();
 
-        if (! $refresher->refresh($this->credential) && $wasValid) {
+        if (! $refresher->refresh($this->credential) && $wasValid && $this->credential->validation_status === AiProviderCredentialStatus::Invalid) {
             $alerts->stoppedWorking($this->credential);
         }
     }

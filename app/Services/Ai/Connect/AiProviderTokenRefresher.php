@@ -17,8 +17,10 @@ use Illuminate\Support\Str;
  *
  * One renewal per credential at a time: a provider that rotates refresh
  * tokens would reject the second of two simultaneous renewals. A renewal
- * that fails takes the credential out of rotation (`invalid`) until it is
- * connected again; the caller decides whether to tell anyone.
+ * the provider refuses takes the credential out of rotation (`invalid`)
+ * until it is connected again; one that fails because the provider couldn't
+ * be reached leaves it as it was, to be tried again. The caller decides
+ * whether to tell anyone.
  */
 class AiProviderTokenRefresher
 {
@@ -59,6 +61,12 @@ class AiProviderTokenRefresher
             $connected = $connector?->refresh($credential)
                 ?? throw AiProviderConnectException::cannotRefresh($credential->execution_provider);
         } catch (AiProviderConnectException $exception) {
+            // The provider couldn't be reached: keep the connection as it is
+            // and let the next renewal try again.
+            if ($exception->retryable) {
+                return false;
+            }
+
             $credential->forceFill([
                 'validation_status' => AiProviderCredentialStatus::Invalid,
                 'validation_message' => Str::limit($exception->getMessage(), 497),
