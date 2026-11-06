@@ -53,7 +53,7 @@ function startConnect(Workspace $workspace, string $provider): array
 
 function completeConnect(string $state, string $code = 'auth-code')
 {
-    return test()->getJson('/api/oauth/ai-providers/callback?'.http_build_query(['state' => $state, 'code' => $code]));
+    return test()->postJson('/api/v1/ai-providers/connect/complete', ['state' => $state, 'code' => $code]);
 }
 
 it('lists which providers offer one-click connect and a free tier', function () {
@@ -266,4 +266,37 @@ it('turns a one-click connection into a plain key when a key is pasted over it',
         ->auth_method->toBe(AiProviderAuthMethod::ApiKey)
         ->token_expires_at->toBeNull()
         ->and($credential->fresh()->refreshToken())->toBeNull();
+});
+
+it('refuses to finish a sign-in started by someone else, and burns it', function () {
+    Http::fake();
+    Passport::actingAs($this->owner);
+    $state = startConnect($this->workspace, 'openrouter')['query']['state'];
+
+    // The sign-in link reaches another person, who approves it at OpenRouter.
+    $victim = User::factory()->create();
+    app(WorkspaceService::class)->create($victim, ['name' => 'Victim Co']);
+    Passport::actingAs($victim);
+
+    completeConnect($state, 'victim-code')
+        ->assertUnprocessable()
+        ->assertJsonPath('message', 'This sign-in was started from a different account. Sign in as that account, or start the connection again.');
+
+    Http::assertNothingSent();
+    expect(AiProviderCredential::count())->toBe(0)
+        ->and(AiProviderConnectState::count())->toBe(0);
+
+    // Burnt: not even the member who started it can finish it now.
+    Passport::actingAs($this->owner);
+    completeConnect($state)->assertUnprocessable();
+});
+
+it('requires a signed-in member to finish a sign-in', function () {
+    Passport::actingAs($this->owner);
+    $state = startConnect($this->workspace, 'openrouter')['query']['state'];
+    app('auth')->forgetGuards();
+
+    $this->postJson('/api/v1/ai-providers/connect/complete', ['state' => $state, 'code' => 'auth-code'])->assertUnauthorized();
+
+    expect(AiProviderConnectState::count())->toBe(1);
 });

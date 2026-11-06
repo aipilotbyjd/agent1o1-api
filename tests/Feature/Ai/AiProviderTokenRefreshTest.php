@@ -6,6 +6,7 @@ use App\Jobs\Ai\RefreshAiProviderTokenJob;
 use App\Models\Ai\AiProviderCredential;
 use App\Models\User;
 use App\Notifications\Ai\AiProviderCredentialInvalidNotification;
+use App\Services\Ai\AiProviderKeyChecker;
 use App\Services\Ai\ByokProviderRegistrar;
 use App\Services\Workspaces\WorkspaceService;
 use Illuminate\Http\Client\ConnectionException;
@@ -118,4 +119,45 @@ it('keeps a connection in rotation when the provider cannot be reached to renew 
     expect($credential->fresh()->validation_status)->toBe(AiProviderCredentialStatus::Valid)
         ->and($credential->fresh()->refreshToken())->toBe('refresh-token');
     Notification::assertNothingSent();
+});
+
+it('keeps a connection in rotation when the provider is down or rate limiting', function (int $status) {
+    Notification::fake();
+    Http::fake(['huggingface.co/oauth/token' => Http::response('Service Unavailable', $status)]);
+    $credential = AiProviderCredential::factory()->forWorkspace($this->workspace)->provider('huggingface')
+        ->oauth(expiresAt: now()->addMinutes(5))->create(['created_by' => $this->owner->id]);
+
+    RefreshAiProviderTokenJob::dispatchSync($credential);
+
+    expect($credential->fresh()->validation_status)->toBe(AiProviderCredentialStatus::Valid);
+    Notification::assertNothingSent();
+})->with([500, 502, 503, 429]);
+
+it('renews an expired token before a manual check, instead of calling it revoked', function () {
+    Http::fake([
+        'huggingface.co/oauth/token' => Http::response(['access_token' => 'hf_oauth_checked2222', 'expires_in' => 3600]),
+        'huggingface.co/api/whoami-v2' => fn (HttpRequest $request) => $request->hasHeader('Authorization', 'Bearer hf_oauth_checked2222')
+            ? Http::response(['name' => 'jay'])
+            : Http::response(['error' => 'expired'], 401),
+    ]);
+    $credential = AiProviderCredential::factory()->forWorkspace($this->workspace)->provider('huggingface')
+        ->oauth(expiresAt: now()->subMinute())->create();
+
+    $result = app(AiProviderKeyChecker::class)->validate($credential);
+
+    expect($result['ok'])->toBeTrue()
+        ->and($credential->fresh()->validation_status)->toBe(AiProviderCredentialStatus::Valid)
+        ->and($credential->fresh()->apiKey())->toBe('hf_oauth_checked2222');
+});
+
+it('falls back to the next key for the provider when the preferred connection cannot be renewed', function () {
+    Http::fake(['huggingface.co/oauth/token' => Http::response(['error' => 'invalid_grant'], 400)]);
+    $teamKey = AiProviderCredential::factory()->forWorkspace($this->workspace)->provider('huggingface')->default()->create();
+    $personal = AiProviderCredential::factory()->forWorkspace($this->workspace)->provider('huggingface')
+        ->personal($this->owner)->oauth(expiresAt: now()->subMinute())->create();
+
+    [$provider] = app(ByokProviderRegistrar::class)->apply(['huggingface' => 'm'], null, $this->workspace->id, $this->owner->id);
+
+    expect($provider)->toBe(["byok-{$teamKey->id}" => 'm'])
+        ->and($personal->fresh()->validation_status)->toBe(AiProviderCredentialStatus::Invalid);
 });

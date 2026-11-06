@@ -6,6 +6,12 @@ use App\Http\Controllers\Api\Internal\V1\Connectors\OAuthConnectorController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:api')->group(function () {
+    // Finishes an OAuth connection (`OAuthConnectorFlowService`): the workspace
+    // comes from the sign-in's `state`, and only the member who started it can.
+    Route::post('connector-credentials/oauth/complete', [OAuthConnectorController::class, 'complete'])
+        ->middleware('throttle:60,1')
+        ->name('connector-credentials.oauth.complete');
+
     Route::get('connectors', [ConnectorController::class, 'index'])->name('connectors.index');
     Route::get('connectors/{connector}', [ConnectorController::class, 'show'])->name('connectors.show');
 });

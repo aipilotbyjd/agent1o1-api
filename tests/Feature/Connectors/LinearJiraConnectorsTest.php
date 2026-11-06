@@ -125,7 +125,7 @@ it('trades the code for atlassian tokens with a JSON body, and refreshes the sam
         'state' => 'st', 'name' => 'Jira', 'redirect_uri' => 'https://app.test/cb', 'expires_at' => now()->addMinutes(10),
     ]);
 
-    $credential = app(OAuthConnectorFlowService::class)->handleCallback('st', 'code-1');
+    $credential = app(OAuthConnectorFlowService::class)->handleCallback('st', 'code-1', $owner);
     $firstTokens = $credential->data;
     $refreshed = app(OAuthConnectorFlowService::class)->refresh($credential);
 
@@ -151,7 +151,7 @@ it('still trades the other connectors\' codes in a form body', function () {
         'state' => 'st', 'name' => 'Linear', 'redirect_uri' => 'https://app.test/cb', 'expires_at' => now()->addMinutes(10),
     ]);
 
-    app(OAuthConnectorFlowService::class)->handleCallback('st', 'code-1');
+    app(OAuthConnectorFlowService::class)->handleCallback('st', 'code-1', $owner);
 
     Http::assertSent(fn (Request $request): bool => $request->url() === 'https://api.linear.app/oauth/token'
         && $request->isForm()
