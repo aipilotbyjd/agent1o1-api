@@ -93,8 +93,18 @@ it('builds a workspace key without any of the platform provider\'s credentials',
 
     $built = app(AiManager::class)->getInstanceConfig("byok-{$credential->id}");
 
-    expect($built)->toMatchArray(['driver' => 'openai', 'key' => 'sk-workspace', 'url' => 'https://api.openai.com/v1', 'store' => true])
+    expect($built)->toMatchArray(['driver' => 'openai', 'key' => 'sk-workspace', 'url' => 'https://api.openai.com/v1', 'store' => false])
         ->and($built)->not->toHaveKey('headers')
         ->and($built)->not->toHaveKey('access_key_id')
         ->and(json_encode($built))->not->toContain('platform-');
+});
+
+it('never lets the provider store a call made on a workspace key', function () {
+    config(['ai.providers.openai.store' => true]);
+    $workspace = platformSecretsWorkspace();
+    $credential = AiProviderCredential::factory()->forWorkspace($workspace)->default()->create();
+
+    app(ByokProviderRegistrar::class)->apply(['openai' => 'gpt-4o'], null, $workspace->id, null);
+
+    expect(app(AiManager::class)->getInstanceConfig("byok-{$credential->id}")['store'])->toBeFalse();
 });
