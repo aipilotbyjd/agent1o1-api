@@ -19,6 +19,7 @@ use App\Models\Ai\ModelRoute;
 use App\Models\Ai\WorkspaceAiKeyPolicy;
 use App\Models\Workspaces\Workspace;
 use App\Services\Ai\AiProviderKeyChecker;
+use App\Services\Ai\AiProviderSettings;
 use App\Services\Ai\Connect\AiProviderConnectors;
 use App\Services\Workspaces\AuditLogger;
 use Illuminate\Http\Request;
@@ -43,15 +44,16 @@ class AiProviderCredentialController extends Controller
      * The providers a key can be added for, with the catalog models each
      * would run (plus knowledge-base embeddings for the platform's embeddings
      * provider), whether it has a free tier or one-click connect, and what
-     * the asking member may add.
+     * the asking member may add. Providers a super admin has switched off
+     * are left out (`AiProviderSettings`).
      */
-    public function providers(Request $request, Workspace $workspace, AiProviderConnectors $connectors)
+    public function providers(Request $request, Workspace $workspace, AiProviderConnectors $connectors, AiProviderSettings $settings)
     {
         $this->requirePermission(Permission::AiCredentialView);
 
         $modelsByProvider = ModelRoute::query()
             ->where('is_enabled', true)
-            ->whereIn('execution_provider', array_keys((array) config('byok.providers')))
+            ->whereIn('execution_provider', $settings->enabledProviders())
             ->whereHas('modelCatalog', fn ($query) => $query->where('is_active', true)->where('is_internal', false))
             ->with('modelCatalog:id,display_name,sort_order')
             ->get()
@@ -65,6 +67,7 @@ class AiProviderCredentialController extends Controller
                 ->all());
 
         $providers = collect((array) config('byok.providers'))
+            ->only($settings->enabledProviders())
             ->map(fn (array $provider, string $key): array => [
                 'key' => $key,
                 'label' => $provider['label'],
@@ -74,9 +77,16 @@ class AiProviderCredentialController extends Controller
                 'key_guide' => $provider['key_guide'] ?? [],
                 'models' => $modelsByProvider->get($key, []),
                 'covers_knowledge_base' => $key === config('ai.default_for_embeddings'),
-                'free_tier' => $provider['free_tier'] ?? null,
+                'free_tier' => $settings->freeTierNote($key),
+                'featured' => $settings->featured($key),
                 // One-click connect, when it is switched on here.
                 'connect' => ($connector = $connectors->enabled($key)) === null ? null : ['label' => $connector->label()],
+            ])
+            // Featured first, then the super admin's order, then config order.
+            ->sortBy(fn (array $provider, string $key): array => [
+                $provider['featured'] ? 0 : 1,
+                $settings->sortOrder($key) ?? PHP_INT_MAX,
+                array_search($key, array_keys((array) config('byok.providers')), true),
             ])
             ->values();
 

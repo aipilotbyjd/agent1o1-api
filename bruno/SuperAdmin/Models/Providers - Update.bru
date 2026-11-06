@@ -1,0 +1,35 @@
+meta {
+  name: Providers - Update
+  type: http
+  seq: 31
+}
+
+patch {
+  url: {{baseUrl}}/super-admin/v1/models/providers/:provider
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  provider: openai
+}
+
+body:json {
+  {
+    "byok_enabled": false,
+    "disabled_message": "OpenAI keys are paused for a cost review. Back soon.",
+    "notify": "email",
+    "reason": "Cost review for customer OpenAI keys",
+    "totp_code": "123456"
+  }
+}
+
+docs {
+  The switches for customers' own keys for one provider. Any of: `byok_enabled` (customers can add and use their own key; off hides it and keeps existing keys unused), `connect_enabled` (one-click connect; null for the config default), `featured`, `sort_order`, `free_tier_note`, `disabled_message`.
+
+  Always needs a reason. Turning `byok_enabled` off also needs a fresh `totp_code`. When customer keys are switched off or back on, `notify` says whether to tell the workspaces that have a key: `none` (default), `in_app`, or `email` (in-app and email). Switching raises an alert.
+}

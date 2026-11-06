@@ -1,0 +1,23 @@
+meta {
+  name: Providers - Impact
+  type: http
+  seq: 32
+}
+
+get {
+  url: {{baseUrl}}/super-admin/v1/models/providers/:provider/impact
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:path {
+  provider: openai
+}
+
+docs {
+  What turning customer keys for the provider off would touch: the workspaces and keys that have it, the catalog models that run on nothing else, and the agents using those models.
+}

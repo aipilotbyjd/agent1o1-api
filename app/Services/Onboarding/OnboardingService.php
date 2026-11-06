@@ -13,6 +13,7 @@ use App\Models\Ai\AiProviderCredential;
 use App\Models\Ai\WorkspaceAiKeyPolicy;
 use App\Models\Billing\Plan;
 use App\Models\User;
+use App\Services\Ai\AiProviderSettings;
 use App\Services\Workspaces\WorkspaceInvitationService;
 use App\Services\Workspaces\WorkspaceService;
 
@@ -210,6 +211,7 @@ class OnboardingService
         return AiProviderCredential::query()
             ->where('workspace_id', $user->current_workspace_id)
             ->where('validation_status', AiProviderCredentialStatus::Valid->value)
+            ->whereIn('execution_provider', app(AiProviderSettings::class)->enabledProviders())
             ->where(fn ($query) => $query
                 ->where('scope', ConnectorCredentialScope::Team->value)
                 ->when($personalAllowed, fn ($query) => $query->orWhere(fn ($query) => $query

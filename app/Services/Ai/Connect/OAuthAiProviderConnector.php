@@ -6,6 +6,7 @@ use App\Contracts\Ai\AiProviderConnector;
 use App\Enums\Ai\AiProviderAuthMethod;
 use App\Exceptions\AiProviderConnectException;
 use App\Models\Ai\AiProviderCredential;
+use App\Services\Ai\AiProviderSettings;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -17,7 +18,9 @@ use Illuminate\Support\Str;
  * API accepts the resulting access token as its bearer key: Hugging Face
  * (`inference-api` scope, billed to the member's Hugging Face account) and
  * Sign in with ChatGPT (billed to the member's ChatGPT plan). Everything
- * provider-specific is `config('byok.providers.{provider}.connect')`.
+ * provider-specific is `config('byok.providers.{provider}.connect')`; the
+ * login app's client id and secret can also be set by a super admin
+ * (`AiProviderSettings::connectClient()`).
  *
  * The access token is stored as the credential's key and renewed with its
  * refresh token before it expires (`AiProviderTokenRefresher`). A provider
@@ -34,7 +37,12 @@ class OAuthAiProviderConnector implements AiProviderConnector
 
     public function isEnabled(): bool
     {
-        return (bool) $this->config('enabled', false) && filled($this->config('client_id'));
+        return app(AiProviderSettings::class)->connectEnabled($this->provider) && $this->isConfigured();
+    }
+
+    public function isConfigured(): bool
+    {
+        return filled($this->client()['client_id']);
     }
 
     public function label(): string
@@ -46,7 +54,7 @@ class OAuthAiProviderConnector implements AiProviderConnector
     {
         return $this->config('authorize_url').'?'.http_build_query([
             'response_type' => 'code',
-            'client_id' => (string) $this->config('client_id'),
+            'client_id' => (string) $this->client()['client_id'],
             'redirect_uri' => $redirectUri,
             'scope' => implode(' ', (array) $this->config('scopes', [])),
             'state' => $state,
@@ -103,13 +111,13 @@ class OAuthAiProviderConnector implements AiProviderConnector
      */
     private function tokenRequest(array $params): Response
     {
-        $secret = $this->config('client_secret');
+        ['client_id' => $clientId, 'client_secret' => $secret] = $this->client();
 
         try {
             return Http::acceptJson()->asForm()->timeout(30)->connectTimeout(10)
                 ->post((string) $this->config('token_url'), [
                     ...$params,
-                    'client_id' => (string) $this->config('client_id'),
+                    'client_id' => (string) $clientId,
                     ...(filled($secret) ? ['client_secret' => (string) $secret] : []),
                 ]);
         } catch (ConnectionException) {
@@ -148,6 +156,16 @@ class OAuthAiProviderConnector implements AiProviderConnector
     private function providerLabel(): string
     {
         return (string) config("byok.providers.{$this->provider}.label", Str::headline($this->provider));
+    }
+
+    /**
+     * The login app: set by a super admin, else from `.env`.
+     *
+     * @return array{client_id: ?string, client_secret: ?string}
+     */
+    private function client(): array
+    {
+        return app(AiProviderSettings::class)->connectClient($this->provider);
     }
 
     private function config(string $key, mixed $default = null): mixed

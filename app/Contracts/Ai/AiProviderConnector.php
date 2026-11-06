@@ -22,9 +22,16 @@ interface AiProviderConnector
     public function provider(): string;
 
     /**
-     * Whether one-click connect is switched on and configured here.
+     * Whether one-click connect is switched on (`AiProviderSettings`) and
+     * configured here.
      */
     public function isEnabled(): bool;
+
+    /**
+     * Whether it could run if switched on: a login app is set, for a
+     * provider that needs one.
+     */
+    public function isConfigured(): bool;
 
     /**
      * What the button says, e.g. "Connect with OpenRouter".
