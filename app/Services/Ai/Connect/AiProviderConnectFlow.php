@@ -22,9 +22,15 @@ use Illuminate\Support\Str;
  *    a fresh PKCE verifier, and returns the provider's sign-in URL.
  * 2. The member signs in and approves; the provider sends their browser to
  *    the frontend's `byok.connect.redirect_path` page with `code` + `state`.
- * 3. That page calls the public callback, and `complete()` claims the state
- *    (once), checks the member may still add the key, trades the code for a
+ * 3. That page, signed in as the member, hands both to `complete()`, which
+ *    claims the state (once), checks it is the same member who started the
+ *    connection and that they may still add the key, trades the code for a
  *    credential, and stores it as the default key of its group.
+ *
+ * The same-member check is what stops a sign-in link being used against
+ * someone else: without it, a link started in one workspace and approved
+ * by another person would put a key on that person's provider account
+ * into the first workspace.
  *
  * Whose key: a member who can manage the workspace's keys (owner, admin)
  * adds a team key; anyone else adds a personal key, when the workspace
@@ -72,12 +78,19 @@ class AiProviderConnectFlow
     /**
      * @throws AiProviderConnectException
      */
-    public function complete(string $state, string $code): AiProviderCredential
+    public function complete(string $state, string $code, User $user): AiProviderCredential
     {
         $pending = $state === '' ? null : AiProviderConnectState::query()->where('state', $state)->first();
 
         if ($pending === null || $pending->expires_at->isPast() || $code === '') {
             throw AiProviderConnectException::expired();
+        }
+
+        // Someone else's sign-in link: burn it, so it can't be tried again.
+        if ($pending->user_id !== $user->id) {
+            AiProviderConnectState::query()->whereKey($pending->getKey())->delete();
+
+            throw AiProviderConnectException::startedByAnotherAccount();
         }
 
         // Single use, claimed before any network call: the delete only
@@ -87,9 +100,8 @@ class AiProviderConnectFlow
         }
 
         $workspace = $pending->workspace;
-        $user = $pending->user;
 
-        if ($workspace === null || $user === null) {
+        if ($workspace === null) {
             throw AiProviderConnectException::expired();
         }
 

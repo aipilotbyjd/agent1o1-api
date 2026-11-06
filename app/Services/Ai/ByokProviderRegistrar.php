@@ -102,7 +102,7 @@ class ByokProviderRegistrar
         $chain = is_array($provider) ? $provider : [$provider => $model];
         $policy = WorkspaceAiKeyPolicy::forWorkspace($workspaceId);
         $includeTeamKeys = ! $personal || $policy->team_keys_cover_personal_assistants;
-        $credentials = $this->usable($this->credentialsFor($workspaceId, $policy->allow_personal_keys ? $userId : null, array_keys($chain), $includeTeamKeys));
+        $credentials = $this->usable($this->candidates($workspaceId, $policy->allow_personal_keys ? $userId : null, array_keys($chain), $includeTeamKeys));
         $platformAllowed = match ($policy->platform_usage) {
             PlatformKeyUsage::Fallback => true,
             PlatformKeyUsage::WhenNoKey => $credentials->isEmpty(),
@@ -276,18 +276,30 @@ class ByokProviderRegistrar
     }
 
     /**
-     * Renews a one-click connection whose token is about to run out before it
-     * is put in front of a call; one that can't be renewed is left out (and
-     * out of rotation until reconnected), so the call goes where it would
-     * without it.
+     * The first usable key per provider, in preference order. A one-click
+     * connection whose token is about to run out is renewed before it is put
+     * in front of a call; one that can't be renewed is passed over (and out
+     * of rotation until reconnected when the provider refused), so the next
+     * key for that provider is used instead.
      *
-     * @param  Collection<string, AiProviderCredential>  $credentials
+     * @param  Collection<int, AiProviderCredential>  $candidates
      * @return Collection<string, AiProviderCredential>
      */
-    private function usable(Collection $credentials): Collection
+    private function usable(Collection $candidates): Collection
     {
-        return $credentials->filter(fn (AiProviderCredential $credential): bool => ! $credential->tokenExpiresWithin(60)
-            || app(AiProviderTokenRefresher::class)->refresh($credential));
+        $picked = collect();
+
+        foreach ($candidates as $credential) {
+            if ($picked->has($credential->execution_provider)) {
+                continue;
+            }
+
+            if (! $credential->tokenExpiresWithin(60) || app(AiProviderTokenRefresher::class)->refresh($credential)) {
+                $picked->put($credential->execution_provider, $credential);
+            }
+        }
+
+        return $picked;
     }
 
     /**
@@ -299,6 +311,22 @@ class ByokProviderRegistrar
      * @return Collection<string, AiProviderCredential>
      */
     private function credentialsFor(string $workspaceId, ?string $userId, array $providers, bool $includeTeamKeys = true): Collection
+    {
+        return $this->candidates($workspaceId, $userId, $providers, $includeTeamKeys)
+            ->unique('execution_provider')
+            ->keyBy('execution_provider');
+    }
+
+    /**
+     * Every working key the member's calls could use for these providers, in
+     * preference order: the member's personal keys before the team's, a
+     * group's default before its other keys, oldest first. With
+     * `$includeTeamKeys` off only the member's personal keys count.
+     *
+     * @param  array<int, string>  $providers
+     * @return Collection<int, AiProviderCredential>
+     */
+    private function candidates(string $workspaceId, ?string $userId, array $providers, bool $includeTeamKeys = true): Collection
     {
         // A provider a super admin has switched off keeps its keys, unused.
         $providers = array_values(array_intersect($providers, app(AiProviderSettings::class)->enabledProviders()));
@@ -322,8 +350,7 @@ class ByokProviderRegistrar
                 $credential->is_default ? 0 : 1,
                 $credential->created_at?->getTimestamp() ?? 0,
             ])
-            ->unique('execution_provider')
-            ->keyBy('execution_provider');
+            ->values();
     }
 
     /**

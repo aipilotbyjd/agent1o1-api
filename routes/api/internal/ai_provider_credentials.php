@@ -5,6 +5,12 @@ use App\Http\Controllers\Api\Internal\V1\Ai\AiProviderCredentialController;
 use App\Http\Controllers\Api\Internal\V1\Ai\WorkspaceAiKeyPolicyController;
 use Illuminate\Support\Facades\Route;
 
+// Finishes a one-click connection (`AiProviderConnectFlow`): the workspace
+// comes from the sign-in's `state`, and only the member who started it can.
+Route::post('ai-providers/connect/complete', [AiProviderConnectController::class, 'complete'])
+    ->middleware(['auth:api', 'throttle:ai-credential-checks'])
+    ->name('ai-providers.connect.complete');
+
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}')
     ->group(function () {
