@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Internal\V1\Ai;
 
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Internal\V1\Ai\CompleteAiProviderConnectRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Workspaces\Workspace;
 use App\Services\Ai\Connect\AiProviderConnectFlow;
@@ -30,15 +31,17 @@ class AiProviderConnectController extends Controller
     }
 
     /**
-     * Called by the frontend page the provider redirected the member to.
-     * Public: the workspace and member come from the single-use `state`
-     * `start()` stored, never from the request.
+     * Called by the frontend page the provider redirected the member to,
+     * signed in as that member. The workspace comes from the single-use
+     * `state` `start()` stored, and only the member who started the
+     * connection can finish it.
      */
-    public function callback(Request $request)
+    public function complete(CompleteAiProviderConnectRequest $request)
     {
         $credential = $this->flow->complete(
-            (string) $request->query('state', ''),
-            (string) $request->query('code', ''),
+            $request->validated('state'),
+            $request->validated('code'),
+            $request->user(),
         );
 
         return ApiResponse::created([

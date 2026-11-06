@@ -2,7 +2,9 @@
 
 namespace App\Services\Connectors;
 
+use App\Authorization\WorkspaceContext;
 use App\Enums\Connectors\ConnectorCredentialScope;
+use App\Enums\Workspaces\Permission;
 use App\Exceptions\ConnectorException;
 use App\Models\Connectors\Connector;
 use App\Models\Connectors\ConnectorCredential;
@@ -82,12 +84,25 @@ class OAuthConnectorFlowService
         ];
     }
 
-    public function handleCallback(string $state, string $code): ConnectorCredential
+    /**
+     * Finishes the flow for the member who started it, and only them: the
+     * page the provider redirects to calls this signed in. Without that
+     * check, a sign-in link started in one workspace and approved by someone
+     * else would connect that person's account to the first workspace.
+     */
+    public function handleCallback(string $state, string $code, User $user): ConnectorCredential
     {
-        $pending = OAuthConnectorState::where('state', $state)->first();
+        $pending = $state === '' ? null : OAuthConnectorState::where('state', $state)->first();
 
         if ($pending === null || $pending->expires_at->isPast()) {
             throw new ConnectorException('OAuth state is invalid or has expired.');
+        }
+
+        // Someone else's sign-in link: burn it, so it can't be tried again.
+        if ($pending->user_id !== $user->id) {
+            OAuthConnectorState::query()->whereKey($pending->getKey())->delete();
+
+            throw new ConnectorException('This sign-in was started from a different account. Sign in as that account, or start the connection again.');
         }
 
         $connector = $pending->connector;
@@ -96,6 +111,13 @@ class OAuthConnectorFlowService
         // succeeds for one of two simultaneous callbacks carrying the same state.
         if (OAuthConnectorState::query()->whereKey($pending->getKey())->delete() === 0) {
             throw new ConnectorException('OAuth state is invalid or has expired.');
+        }
+
+        // The member may have lost access while they were away at the provider.
+        $workspace = $pending->workspace;
+
+        if ($workspace === null || ! (WorkspaceContext::resolveRole($workspace, $user)?->has(Permission::ConnectorManage) ?? false)) {
+            throw new ConnectorException("You can't connect apps in this workspace any more. Ask an admin.");
         }
 
         $response = $this->tokenRequest($connector, [

@@ -27,6 +27,11 @@ class AiProviderConnectException extends RuntimeException
         return new self('This sign-in link has expired or was already used. Start the connection again.');
     }
 
+    public static function startedByAnotherAccount(): self
+    {
+        return new self('This sign-in was started from a different account. Sign in as that account, or start the connection again.');
+    }
+
     public static function notAllowed(): self
     {
         return new self("You can't add AI provider keys in this workspace. Ask an admin.");
