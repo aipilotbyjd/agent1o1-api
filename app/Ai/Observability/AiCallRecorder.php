@@ -5,6 +5,7 @@ namespace App\Ai\Observability;
 use App\Models\Ai\AiCallEvent;
 use App\Services\Ai\ByokProviderRegistrar;
 use App\Services\Billing\CreditMeter;
+use App\Services\Secrets\PlatformSecrets;
 use Illuminate\Support\Str;
 use Laravel\Ai\Events\AgentFailedOver;
 use Laravel\Ai\Events\AudioFailed;
@@ -263,7 +264,7 @@ class AiCallRecorder
     {
         return [
             'error_class' => $exception::class,
-            'error_message' => Str::limit($exception->getMessage(), 490),
+            'error_message' => Str::limit(app(PlatformSecrets::class)->redact($exception->getMessage()), 490),
         ];
     }
 

@@ -8,6 +8,7 @@ use App\Enums\RunStatus;
 use App\Models\Agents\SubagentTask;
 use App\Models\Runs\Run;
 use App\Services\Agents\AgentRunner;
+use App\Services\Secrets\PlatformSecrets;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -84,7 +85,7 @@ class RunSubagentTaskJob implements ShouldQueue
     {
         $task->forceFill([
             'status' => SubagentTaskStatus::Failed,
-            'error' => $e?->getMessage() ?: 'The subagent stopped before finishing.',
+            'error' => app(PlatformSecrets::class)->redact($e?->getMessage()) ?: 'The subagent stopped before finishing.',
             'finished_at' => now(),
         ])->save();
     }

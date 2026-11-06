@@ -9,6 +9,7 @@ use App\Exceptions\PlanLimitExceededException;
 use App\Exceptions\RunStateException;
 use App\Services\Agents\Approvals\ActionGuard;
 use App\Services\Agents\Approvals\ActionMessages;
+use App\Services\Secrets\PlatformSecrets;
 use Closure;
 use Illuminate\Database\QueryException;
 use Laravel\Ai\Approvals\Approval;
@@ -116,7 +117,7 @@ trait GatesActions
             $this->failedCalls++;
 
             return json_encode([
-                'error' => $e instanceof QueryException ? 'An internal error occurred.' : $e->getMessage(),
+                'error' => $e instanceof QueryException ? 'An internal error occurred.' : app(PlatformSecrets::class)->redact($e->getMessage()),
                 'note' => 'The tool call failed. Check the arguments and try again, or tell the user what went wrong.',
             ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: '{}';
         }

@@ -5,6 +5,7 @@ namespace App\Services\Ai\Connect;
 use App\Enums\Ai\AiProviderCredentialStatus;
 use App\Exceptions\AiProviderConnectException;
 use App\Models\Ai\AiProviderCredential;
+use App\Services\Secrets\PlatformSecrets;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -69,7 +70,7 @@ class AiProviderTokenRefresher
 
             $credential->forceFill([
                 'validation_status' => AiProviderCredentialStatus::Invalid,
-                'validation_message' => Str::limit($exception->getMessage(), 497),
+                'validation_message' => Str::limit(app(PlatformSecrets::class)->redact($exception->getMessage()), 497),
                 'last_validated_at' => now(),
             ])->save();
 
