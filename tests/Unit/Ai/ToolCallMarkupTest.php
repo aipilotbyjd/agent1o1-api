@@ -37,3 +37,20 @@ it('releases a held partial tag once it turns out not to be markup', function ()
 
     expect($out)->toBe('a <toolbox> b');
 });
+
+it('keeps the rest of a reply that only mentions the tag', function () {
+    $text = 'GLM writes `<tool_call>` into its text. The rest of this reply stays.';
+
+    expect(ToolCallMarkup::strip($text))->toBe($text);
+});
+
+it('releases a streamed mention of the tag once the stream ends', function () {
+    $filter = new ToolCallMarkup;
+
+    $out = $filter->push('Mention `<tool_call>` here');
+    $out .= $filter->push(' and more </tool');
+    $out .= $filter->push(' text');
+    $out .= $filter->finish();
+
+    expect($out)->toBe('Mention `<tool_call>` here and more </tool text');
+});
