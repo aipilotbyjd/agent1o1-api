@@ -5,9 +5,11 @@ use App\Exceptions\OwnAiKeyRequiredException;
 use App\Models\Ai\AiProviderCredential;
 use App\Models\Ai\ModelCatalog;
 use App\Models\Ai\WorkspaceAiKeyPolicy;
+use App\Models\Assistant\Assistant;
 use App\Models\User;
 use App\Models\Workspaces\AuditLog;
 use App\Services\Ai\ByokProviderRegistrar;
+use App\Services\Assistant\Runtime\AssistantModel;
 use App\Services\Workspaces\WorkspaceService;
 use Illuminate\Support\Facades\Http;
 use Laravel\Passport\Passport;
@@ -86,6 +88,57 @@ it('ignores personal keys when the workspace turns them off, without deleting th
         ->and(AiProviderCredential::find($personal->id))->not->toBeNull();
 });
 
+it('keeps a member\'s personal assistant off the team\'s keys by default', function () {
+    $member = User::factory()->create();
+    AiProviderCredential::factory()->forWorkspace($this->workspace)->create();
+
+    [$personalCall] = $this->registrar->apply(['openai' => 'gpt-4o'], null, $this->workspace->id, $member->id, personal: true);
+
+    expect($personalCall)->toBe(['openai' => 'gpt-4o']);
+});
+
+it('still runs a personal assistant on the member\'s own key', function () {
+    $member = User::factory()->create();
+    AiProviderCredential::factory()->forWorkspace($this->workspace)->create();
+    $personal = AiProviderCredential::factory()->forWorkspace($this->workspace)->personal($member)->create();
+
+    [$personalCall] = $this->registrar->apply(['openai' => 'gpt-4o'], null, $this->workspace->id, $member->id, personal: true);
+
+    expect($personalCall)->toBe(["byok-{$personal->id}" => 'gpt-4o']);
+});
+
+it('runs personal assistants on the team\'s keys once the workspace allows it', function () {
+    $member = User::factory()->create();
+    $team = AiProviderCredential::factory()->forWorkspace($this->workspace)->create();
+    setAiKeyPolicy($this->workspace->id, ['team_keys_cover_personal_assistants' => true]);
+
+    [$personalCall] = $this->registrar->apply(['openai' => 'gpt-4o'], null, $this->workspace->id, $member->id, personal: true);
+
+    expect($personalCall)->toBe(["byok-{$team->id}" => 'gpt-4o']);
+});
+
+it('requires the member\'s own key for a personal assistant when the platform\'s keys are off and team keys don\'t cover it', function () {
+    $member = User::factory()->create();
+    AiProviderCredential::factory()->forWorkspace($this->workspace)->create();
+    setAiKeyPolicy($this->workspace->id, ['platform_usage' => 'never']);
+
+    $this->registrar->apply(['openai' => 'gpt-4o'], null, $this->workspace->id, $member->id, personal: true);
+})->throws(OwnAiKeyRequiredException::class);
+
+it('keeps the assistant itself off the team\'s keys by default', function () {
+    config(['assistant.runtime.provider' => 'openai', 'assistant.runtime.model' => 'gpt-4o', 'assistant.runtime.catalog' => 'no-such-catalog-entry']);
+    $member = User::factory()->create();
+    $team = AiProviderCredential::factory()->forWorkspace($this->workspace)->create();
+    $assistant = Assistant::factory()->forMember($this->workspace, $member)->create();
+
+    $before = app(AssistantModel::class)->for($assistant);
+    setAiKeyPolicy($this->workspace->id, ['team_keys_cover_personal_assistants' => true]);
+    $after = app(AssistantModel::class)->for($assistant);
+
+    expect($before)->toBe(['openai', 'gpt-4o'])
+        ->and($after)->toBe([["byok-{$team->id}" => 'gpt-4o'], null]);
+});
+
 it('refuses a new personal key and flags kept ones when personal keys are off', function () {
     $member = User::factory()->create();
     $this->workspace->members()->create(['user_id' => $member->id, 'role' => Role::Member, 'joined_at' => now()]);
@@ -132,13 +185,15 @@ it('lets anyone read the policy but only admins change it, and audits the change
     $this->getJson($url)->assertOk()
         ->assertJsonPath('data.policy.platform_usage', 'when_no_key')
         ->assertJsonPath('data.policy.allow_personal_keys', true)
+        ->assertJsonPath('data.policy.team_keys_cover_personal_assistants', false)
         ->assertJsonPath('data.policy.can_manage', false);
     $this->putJson($url, ['platform_usage' => 'never'])->assertForbidden();
 
     Passport::actingAs($this->owner);
-    $this->putJson($url, ['platform_usage' => 'never', 'allow_personal_keys' => false])->assertOk()
+    $this->putJson($url, ['platform_usage' => 'never', 'allow_personal_keys' => false, 'team_keys_cover_personal_assistants' => true])->assertOk()
         ->assertJsonPath('data.policy.platform_usage', 'never')
-        ->assertJsonPath('data.policy.allow_personal_keys', false);
+        ->assertJsonPath('data.policy.allow_personal_keys', false)
+        ->assertJsonPath('data.policy.team_keys_cover_personal_assistants', true);
     $this->putJson($url, ['platform_usage' => 'sometimes'])->assertUnprocessable();
 
     expect(AuditLog::query()->where('action', 'ai_key_policy.updated')->exists())->toBeTrue();

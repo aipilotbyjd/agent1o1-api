@@ -13,8 +13,9 @@ use RuntimeException;
  * Which model the assistant runs on, and how big its context window is.
  * The owner's catalog pick wins; then the operator's internal
  * `personal-assistant` entry; then the raw configured provider. Whichever
- * it is runs on the owner's own provider key where they have one: see
- * `ByokProviderRegistrar`.
+ * it is runs on the owner's own provider key where they have one, and on
+ * the team's keys only when the workspace's policy lets them cover personal
+ * assistants: see `ByokProviderRegistrar`.
  */
 class AssistantModel
 {
@@ -31,7 +32,7 @@ class AssistantModel
     {
         [$provider, $model] = $this->platformModelFor($assistant);
 
-        return $this->byok->apply($provider, $model, $assistant->workspace_id, $assistant->user_id);
+        return $this->byok->apply($provider, $model, $assistant->workspace_id, $assistant->user_id, personal: true);
     }
 
     /**
