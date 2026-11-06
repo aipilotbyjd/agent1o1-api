@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Notifications\Ai\AiProviderCredentialInvalidNotification;
 use App\Services\Ai\ByokProviderRegistrar;
 use App\Services\Workspaces\WorkspaceService;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
@@ -104,4 +105,17 @@ it('renews a token about to expire at call time, and leaves out one that cannot 
 
     expect($fallback)->not->toHaveKey("byok-{$credential->id}")
         ->and($credential->fresh()->validation_status)->toBe(AiProviderCredentialStatus::Invalid);
+});
+
+it('keeps a connection in rotation when the provider cannot be reached to renew it', function () {
+    Notification::fake();
+    Http::fake(fn () => throw new ConnectionException('timeout'));
+    $credential = AiProviderCredential::factory()->forWorkspace($this->workspace)->provider('huggingface')
+        ->oauth(expiresAt: now()->addMinutes(5))->create(['created_by' => $this->owner->id]);
+
+    RefreshAiProviderTokenJob::dispatchSync($credential);
+
+    expect($credential->fresh()->validation_status)->toBe(AiProviderCredentialStatus::Valid)
+        ->and($credential->fresh()->refreshToken())->toBe('refresh-token');
+    Notification::assertNothingSent();
 });

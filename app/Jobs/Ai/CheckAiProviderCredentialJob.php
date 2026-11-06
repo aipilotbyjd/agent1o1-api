@@ -38,7 +38,7 @@ class CheckAiProviderCredentialJob implements ShouldQueue
         $wasValid = $this->credential->isValid();
 
         if ($this->credential->tokenExpiresWithin(60) && ! $refresher->refresh($this->credential)) {
-            if ($wasValid) {
+            if ($wasValid && $this->credential->validation_status === AiProviderCredentialStatus::Invalid) {
                 $alerts->stoppedWorking($this->credential);
             }
 

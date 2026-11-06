@@ -2,6 +2,7 @@
 
 use App\Enums\Onboarding\OnboardingStep;
 use App\Models\Ai\AiProviderCredential;
+use App\Models\Ai\WorkspaceAiKeyPolicy;
 use App\Models\User;
 use App\Services\Workspaces\WorkspaceService;
 use Laravel\Passport\Passport;
@@ -36,6 +37,17 @@ it('does not count a key that stopped working', function () {
     $workspace = app(WorkspaceService::class)->create($user, ['name' => 'Acme']);
     $user->update(['current_workspace_id' => $workspace->id]);
     AiProviderCredential::factory()->forWorkspace($workspace)->invalid()->create();
+
+    expect(connectAiStep($user)['completed'])->toBeFalse();
+});
+
+it('does not count a key that is not checked yet, or a personal key the workspace has turned off', function () {
+    $user = User::factory()->create(['onboarding_current_step' => OnboardingStep::ConnectAi]);
+    $workspace = app(WorkspaceService::class)->create($user, ['name' => 'Acme']);
+    $user->update(['current_workspace_id' => $workspace->id]);
+    AiProviderCredential::factory()->forWorkspace($workspace)->create(['validation_status' => 'unvalidated']);
+    AiProviderCredential::factory()->forWorkspace($workspace)->personal($user)->create();
+    WorkspaceAiKeyPolicy::query()->create(['workspace_id' => $workspace->id, 'allow_personal_keys' => false]);
 
     expect(connectAiStep($user)['completed'])->toBeFalse();
 });
