@@ -104,7 +104,7 @@ class AuthController extends Controller
             ->latest()
             ->get();
 
-        return ApiResponse::success(SuperAdminSessionResource::collection($sessions)->resolve($request));
+        return ApiResponse::success(['sessions' => SuperAdminSessionResource::collection($sessions)]);
     }
 
     public function revokeSession(Request $request, string $token)
@@ -121,7 +121,7 @@ class AuthController extends Controller
             ->limit(100)
             ->get();
 
-        return ApiResponse::success(SuperAdminLoginEventResource::collection($events)->resolve($request));
+        return ApiResponse::success(['events' => SuperAdminLoginEventResource::collection($events)]);
     }
 
     /**

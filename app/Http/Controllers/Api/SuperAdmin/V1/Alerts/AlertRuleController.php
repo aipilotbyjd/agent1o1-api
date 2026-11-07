@@ -32,7 +32,7 @@ class AlertRuleController extends Controller
             ->get()
             ->each(fn (AlertRule $rule) => $this->catalog->withDefaults($rule));
 
-        return ApiResponse::success(AlertRuleResource::collection($rules));
+        return ApiResponse::success(['rules' => AlertRuleResource::collection($rules)]);
     }
 
     public function update(UpdateAlertRuleRequest $request, AlertRule $rule)
@@ -46,7 +46,7 @@ class AlertRuleController extends Controller
 
         $this->audit->record($request->user('super-admin'), 'alerts.rule_updated', $rule, $before, $rule->only(['severity', 'cooldown_minutes', 'enabled', 'config']), $request->validated('reason'));
 
-        return ApiResponse::success(new AlertRuleResource($this->catalog->withDefaults($rule)), 'Alert rule updated.');
+        return ApiResponse::success(['rule' => AlertRuleResource::make($this->catalog->withDefaults($rule))], 'Alert rule updated.');
     }
 
     public function snooze(SnoozeAlertRuleRequest $request, AlertRule $rule)
@@ -57,7 +57,7 @@ class AlertRuleController extends Controller
 
         $this->audit->record($request->user('super-admin'), 'alerts.rule_snoozed', $rule, null, ['minutes' => $minutes], $request->validated('reason'));
 
-        return ApiResponse::success(new AlertRuleResource($this->catalog->withDefaults($rule)), $minutes === 0 ? 'Snooze cleared.' : 'Alert rule snoozed.');
+        return ApiResponse::success(['rule' => AlertRuleResource::make($this->catalog->withDefaults($rule))], $minutes === 0 ? 'Snooze cleared.' : 'Alert rule snoozed.');
     }
 
     /**

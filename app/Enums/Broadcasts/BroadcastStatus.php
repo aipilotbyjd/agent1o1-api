@@ -4,7 +4,7 @@ namespace App\Enums\Broadcasts;
 
 /**
  * Where an email campaign is in its life: draft → scheduled → sending → sent,
- * or canceled / failed. Only a draft can be edited.
+ * or cancelled / failed. Only a draft can be edited.
  */
 enum BroadcastStatus: string
 {
@@ -12,7 +12,7 @@ enum BroadcastStatus: string
     case Scheduled = 'scheduled';
     case Sending = 'sending';
     case Sent = 'sent';
-    case Canceled = 'canceled';
+    case Cancelled = 'cancelled';
     case Failed = 'failed';
 
     public function isEditable(): bool
@@ -32,11 +32,11 @@ enum BroadcastStatus: string
 
     public function canDelete(): bool
     {
-        return in_array($this, [self::Draft, self::Canceled], true);
+        return in_array($this, [self::Draft, self::Cancelled], true);
     }
 
     public function isFinished(): bool
     {
-        return in_array($this, [self::Sent, self::Canceled, self::Failed], true);
+        return in_array($this, [self::Sent, self::Cancelled, self::Failed], true);
     }
 }

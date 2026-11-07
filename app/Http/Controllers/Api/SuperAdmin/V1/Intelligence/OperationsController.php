@@ -7,6 +7,7 @@ use App\Http\Responses\ApiResponse;
 use App\Models\Ai\AiCallEvent;
 use App\Services\Intelligence\LiveOperations;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * What is happening now: the live spend board, the AI call explorer, and
@@ -55,12 +56,9 @@ class OperationsController extends Controller
             ->when($request->filled('to'), fn ($query) => $query->where('occurred_at', '<=', $request->date('to')))
             ->when($request->filled('min_cost_usd'), fn ($query) => $query->where('provider_cost_usd', '>=', (float) $request->input('min_cost_usd')))
             ->orderByDesc('occurred_at')
-            ->cursorPaginate($this->perPage($request, 50));
+            ->cursorPaginate($this->perPage($request, 50, 200));
 
-        return ApiResponse::success([
-            'data' => $calls->items(),
-            'next_cursor' => $calls->nextCursor()?->encode(),
-        ]);
+        return ApiResponse::cursorPaginated(JsonResource::collection($calls));
     }
 
     public function trace(string $traceId)

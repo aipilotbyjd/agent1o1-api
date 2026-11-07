@@ -20,7 +20,7 @@ params:path {
 
 script:post-response {
   if (res.status === 200 || res.status === 201) {
-    const v = res.body.data?.[0]?.id;
+    const v = res.body.data?.grants?.[0]?.id;
     if (v) bru.setVar("saPlanGrantId", v);
   }
 }

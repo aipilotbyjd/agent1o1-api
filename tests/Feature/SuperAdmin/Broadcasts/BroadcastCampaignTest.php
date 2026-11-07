@@ -331,7 +331,7 @@ it('cancels: nothing more is sent and the waiting rows are skipped', function ()
     $this->withHeaders($this->headers)
         ->postJson(saUrl("broadcasts/campaigns/{$campaign->id}/cancel"), ['reason' => 'Wrong audience, fixing'])
         ->assertOk()
-        ->assertJsonPath('data.status', 'canceled');
+        ->assertJsonPath('data.status', 'cancelled');
 
     foreach (BroadcastRecipient::query()->get() as $recipient) {
         (new SendBroadcastEmailJob($recipient->id))->handle(app(BroadcastCampaignService::class), app(BroadcastAudience::class));

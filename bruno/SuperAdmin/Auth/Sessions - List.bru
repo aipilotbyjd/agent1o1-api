@@ -16,7 +16,7 @@ auth:bearer {
 
 script:post-response {
   if (res.status === 200 || res.status === 201) {
-    const v = res.body.data?.find(s => !s.current)?.id;
+    const v = res.body.data?.sessions?.find(s => !s.current)?.id;
     if (v) bru.setVar("saSessionId", v);
   }
 }
