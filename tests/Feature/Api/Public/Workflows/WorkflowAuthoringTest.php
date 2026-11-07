@@ -24,6 +24,16 @@ function publicApiWorkspace(array $abilities): array
     return [$workspace, $plainTextKey, $owner];
 }
 
+it('refuses a slug another workflow in the key\'s workspace already has', function () {
+    [$workspace, $key] = publicApiWorkspace(['workflows:read', 'workflows:write']);
+    Workflow::factory()->forWorkspace($workspace)->create(['slug' => 'nightly-sync']);
+
+    $this->withToken($key)->postJson('/api/public/v1/workflows', ['name' => 'Nightly sync', 'slug' => 'nightly-sync'])
+        ->assertUnprocessable()->assertJsonValidationErrors('slug');
+    $this->withToken($key)->postJson('/api/public/v1/workflows', ['name' => 'Nightly sync', 'slug' => 'nightly-sync-2'])
+        ->assertCreated();
+});
+
 it('creates, edits, publishes and runs a workflow entirely over the public api', function () {
     [$workspace, $key] = publicApiWorkspace(['workflows:read', 'workflows:write', 'runs:read']);
 

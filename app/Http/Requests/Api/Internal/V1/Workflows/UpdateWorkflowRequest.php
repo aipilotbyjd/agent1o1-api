@@ -5,6 +5,7 @@ namespace App\Http\Requests\Api\Internal\V1\Workflows;
 use App\Enums\Triggers\TriggerTargetType;
 use App\Http\Requests\Api\Internal\V1\Workflows\Concerns\ValidatesWorkspaceFolder;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateWorkflowRequest extends FormRequest
 {
@@ -22,7 +23,10 @@ class UpdateWorkflowRequest extends FormRequest
     {
         return [
             'name' => ['sometimes', 'string', 'max:255'],
-            'slug' => ['sometimes', 'string', 'max:255', 'alpha_dash'],
+            'slug' => [
+                'sometimes', 'string', 'max:255', 'alpha_dash',
+                Rule::unique('workflows', 'slug')->where('workspace_id', $this->route('workspace')?->id)->ignore($this->route('workflow')),
+            ],
             'description' => ['sometimes', 'nullable', 'string'],
             'folder_id' => ['sometimes', 'nullable', 'uuid', $this->workspaceFolderExists(TriggerTargetType::Workflow)],
         ];

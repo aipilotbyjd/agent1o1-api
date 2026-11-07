@@ -36,6 +36,34 @@ it('creates a draft workflow with a generated slug', function () {
     expect($response->json('data.workflow.is_published'))->toBeFalse();
 });
 
+it('refuses a slug another workflow in the workspace already has, but not one from another workspace', function () {
+    [$workspace, $owner] = ownerWorkspaceForWorkflow();
+    [$otherWorkspace] = ownerWorkspaceForWorkflow();
+    Workflow::factory()->forWorkspace($workspace)->create(['slug' => 'weekly-digest']);
+    Workflow::factory()->forWorkspace($otherWorkspace)->create(['slug' => 'lead-intake']);
+    Workflow::factory()->forWorkspace($workspace)->create(['slug' => 'old-report'])->delete();
+    Passport::actingAs($owner);
+
+    $this->postJson("/api/v1/workspaces/{$workspace->id}/workflows", ['name' => 'Digest', 'slug' => 'weekly-digest'])
+        ->assertUnprocessable()->assertJsonValidationErrors('slug');
+    $this->postJson("/api/v1/workspaces/{$workspace->id}/workflows", ['name' => 'Report', 'slug' => 'old-report'])
+        ->assertUnprocessable()->assertJsonValidationErrors('slug');
+    $this->postJson("/api/v1/workspaces/{$workspace->id}/workflows", ['name' => 'Leads', 'slug' => 'lead-intake'])
+        ->assertCreated();
+});
+
+it('refuses renaming a workflow to a slug another workflow has, but keeps its own', function () {
+    [$workspace, $owner] = ownerWorkspaceForWorkflow();
+    Workflow::factory()->forWorkspace($workspace)->create(['slug' => 'weekly-digest']);
+    $workflow = Workflow::factory()->forWorkspace($workspace)->create(['slug' => 'nightly-sync']);
+    Passport::actingAs($owner);
+
+    $this->patchJson("/api/v1/workspaces/{$workspace->id}/workflows/{$workflow->id}", ['slug' => 'weekly-digest'])
+        ->assertUnprocessable()->assertJsonValidationErrors('slug');
+    $this->patchJson("/api/v1/workspaces/{$workspace->id}/workflows/{$workflow->id}", ['slug' => 'nightly-sync', 'name' => 'Nightly'])
+        ->assertOk()->assertJsonPath('data.workflow.slug', 'nightly-sync');
+});
+
 it('404s reading a workflow that belongs to a different workspace', function () {
     [$workspace, $owner] = ownerWorkspaceForWorkflow();
     [$otherWorkspace] = ownerWorkspaceForWorkflow();
