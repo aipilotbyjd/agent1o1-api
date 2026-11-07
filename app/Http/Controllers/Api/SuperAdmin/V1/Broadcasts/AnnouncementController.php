@@ -38,7 +38,7 @@ class AnnouncementController extends Controller
             ->when($request->string('status')->toString() === Announcement::STATUS_ENDED, fn ($query) => $query->whereNotNull('published_at')->where('ends_at', '<=', $now))
             ->latest()
             ->orderBy('id')
-            ->paginate(min($request->integer('per_page', 25), 100));
+            ->paginate($this->perPage($request));
 
         return ApiResponse::paginated(AnnouncementResource::collection($announcements));
     }

@@ -24,7 +24,7 @@ class BroadcastRecipientController extends Controller
             ->when($request->filled('q'), fn ($query) => $query->whereLike('email', '%'.$request->string('q').'%'))
             ->orderBy('email')
             ->orderBy('id')
-            ->paginate(min($request->integer('per_page', 50), 200));
+            ->paginate($this->perPage($request, 50, 200));
 
         return ApiResponse::paginated(BroadcastRecipientResource::collection($recipients));
     }

@@ -29,7 +29,7 @@ class AgentSessionEvaluationController extends Controller
         $evaluations = $agent->sessionEvaluations()
             ->when($request->filled('grade'), fn ($query) => $query->where('grade', $request->string('grade')))
             ->latest()
-            ->paginate(min(max($request->integer('per_page', 20), 1), 100));
+            ->paginate($this->perPage($request, 20));
 
         return ApiResponse::paginated(AgentSessionEvaluationResource::collection($evaluations));
     }

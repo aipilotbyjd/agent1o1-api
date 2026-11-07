@@ -87,7 +87,7 @@ class ReferralController extends Controller
         $referrals = $request->user()->referralsMade()
             ->with('referredUser:id,email')
             ->latest()
-            ->paginate($request->integer('per_page', 25));
+            ->paginate($this->perPage($request));
 
         return ApiResponse::paginated(ReferredUserResource::collection($referrals));
     }
@@ -97,7 +97,7 @@ class ReferralController extends Controller
         $rewards = $request->user()->referralRewards()
             ->with('plan')
             ->latest()
-            ->paginate($request->integer('per_page', 25));
+            ->paginate($this->perPage($request));
 
         return ApiResponse::paginated(ReferralRewardResource::collection($rewards));
     }

@@ -26,7 +26,7 @@ class PricingOverviewController extends Controller
             ->with('superAdmin:id,name')
             ->orderByDesc('created_at')
             ->orderByDesc('id')
-            ->cursorPaginate(min($request->integer('per_page', 50), 100));
+            ->cursorPaginate($this->perPage($request, 50));
 
         return ApiResponse::cursorPaginated(PricingChangeLogResource::collection($changes));
     }

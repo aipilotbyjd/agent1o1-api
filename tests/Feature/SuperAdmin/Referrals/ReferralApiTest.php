@@ -207,6 +207,8 @@ it('approves, grants early and revokes rewards', function () {
     expect($workspace->fresh()->topup_credits)->toBe(400);
 
     $this->postJson("/api/super-admin/v1/referrals/rewards/{$reward->id}/revoke", [])->assertJsonValidationErrors('reason');
+    $this->postJson("/api/super-admin/v1/referrals/rewards/{$reward->id}/revoke", ['reason' => 'Dupe'])->assertJsonValidationErrors('reason');
+    $this->postJson("/api/super-admin/v1/referrals/rewards/{$reward->id}/revoke", ['reason' => str_repeat('x', 256)])->assertJsonValidationErrors('reason');
     $this->postJson("/api/super-admin/v1/referrals/rewards/{$reward->id}/revoke", ['reason' => 'Duplicate account'])
         ->assertSuccessful()
         ->assertJsonPath('data.reward.status', 'revoked');

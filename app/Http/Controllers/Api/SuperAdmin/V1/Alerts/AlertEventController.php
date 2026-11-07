@@ -36,7 +36,7 @@ class AlertEventController extends Controller
             ->orderByRaw("case status when 'resolved' then 1 else 0 end")
             ->orderByDesc('last_fired_at')
             ->orderByDesc('id')
-            ->paginate(min($request->integer('per_page', 25), 100));
+            ->paginate($this->perPage($request));
 
         return ApiResponse::paginated(AlertEventResource::collection($events));
     }

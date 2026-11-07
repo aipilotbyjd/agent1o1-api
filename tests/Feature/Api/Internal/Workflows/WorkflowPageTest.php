@@ -199,8 +199,8 @@ it('runs the workflow for a member and shows only the outputs on the page', func
 
     $this->getJson("{$this->base}/{$page['id']}/submissions")
         ->assertOk()
-        ->assertJsonPath('data.submissions.0.user.name', 'Olive Owner')
-        ->assertJsonPath('data.submissions.0.run.status', 'completed');
+        ->assertJsonPath('data.0.user.name', 'Olive Owner')
+        ->assertJsonPath('data.0.run.status', 'completed');
 });
 
 it('only runs a published page, except as a test from the builder', function () {
