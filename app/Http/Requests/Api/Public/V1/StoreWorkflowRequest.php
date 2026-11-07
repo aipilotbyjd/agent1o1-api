@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\Public\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreWorkflowRequest extends FormRequest
 {
@@ -18,7 +19,7 @@ class StoreWorkflowRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'slug' => ['nullable', 'string', 'max:255', 'alpha_dash'],
+            'slug' => ['nullable', 'string', 'max:255', 'alpha_dash', Rule::unique('workflows', 'slug')->where('workspace_id', $this->attributes->get('workspace')?->id)],
             'description' => ['nullable', 'string'],
         ];
     }
