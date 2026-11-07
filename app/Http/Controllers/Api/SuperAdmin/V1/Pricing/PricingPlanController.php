@@ -35,7 +35,7 @@ class PricingPlanController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        return ApiResponse::success(PlanAdminResource::collection($plans)->resolve($request));
+        return ApiResponse::success(['plans' => PlanAdminResource::collection($plans)]);
     }
 
     public function show(Request $request, Plan $plan)

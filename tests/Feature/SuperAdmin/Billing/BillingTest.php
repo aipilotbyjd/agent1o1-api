@@ -46,7 +46,7 @@ it('lists plans, plan grants and the credit ledger', function () {
 
     $this->withHeaders($this->headers)->getJson(saUrl('billing/plans'))->assertOk()->assertJsonFragment(['slug' => 'pro']);
     $this->withHeaders($this->headers)->getJson(saUrl("billing/workspaces/{$this->workspace->id}/plan-grants"))
-        ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.plan.slug', 'pro');
+        ->assertOk()->assertJsonCount(1, 'data.grants')->assertJsonPath('data.grants.0.plan.slug', 'pro');
     $this->withHeaders($this->headers)->getJson(saUrl("billing/workspaces/{$this->workspace->id}/credit-transactions"))
         ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.credits', 7);
 });

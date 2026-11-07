@@ -74,9 +74,9 @@ it('lists live sessions, marks the current one and revokes another', function ()
 
     $sessions = $this->withToken($current['access_token'])->getJson(saUrl('auth/sessions'))
         ->assertOk()
-        ->assertJsonCount(2, 'data')
-        ->assertJsonMissingPath('data.0.access_token_hash')
-        ->json('data');
+        ->assertJsonCount(2, 'data.sessions')
+        ->assertJsonMissingPath('data.sessions.0.access_token_hash')
+        ->json('data.sessions');
 
     expect(collect($sessions)->where('current', true))->toHaveCount(1);
 

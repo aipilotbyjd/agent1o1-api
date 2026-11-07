@@ -31,7 +31,7 @@ class SuperAdminModelPriceController extends Controller
             ->limit(1000)
             ->get();
 
-        return ApiResponse::success(SuperAdminModelPriceResource::collection($prices)->resolve($request));
+        return ApiResponse::success(['prices' => SuperAdminModelPriceResource::collection($prices)]);
     }
 
     /**

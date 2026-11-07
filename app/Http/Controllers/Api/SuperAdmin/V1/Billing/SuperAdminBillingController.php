@@ -52,7 +52,7 @@ class SuperAdminBillingController extends Controller
     {
         $grants = $workspace->planGrants()->with('plan:id,name,slug')->latest()->get();
 
-        return ApiResponse::success(PlanGrantResource::collection($grants)->resolve($request));
+        return ApiResponse::success(['grants' => PlanGrantResource::collection($grants)]);
     }
 
     public function plans(Request $request)
