@@ -337,11 +337,11 @@ describe('typeform triggers', function () {
         $poll = fn (array $responses) => fakeTypeform(['GET /forms/AbC123/responses' => ['items' => $responses], 'GET /forms/AbC123' => typeformForm()]);
 
         $poll([typeformResponse('r1')]);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll([typeformResponse('r3'), typeformResponse('r2'), typeformResponse('r1')]);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         $events = $trigger->events()->where('status', 'queued')->get();
 

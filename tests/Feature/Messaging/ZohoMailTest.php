@@ -239,11 +239,11 @@ describe('zoho mail trigger', function () {
         $poll = fn (array $ids) => fakeZohoMail(['GET /accounts/'.ZMAIL_ACCOUNT.'/messages/view' => ['data' => array_map(fn (string $id): array => zmailMessage($id), $ids)]]);
 
         $poll(['1700000000000001']);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll(['1700000000000003', '1700000000000002', '1700000000000001']);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.id')->sort()->values()->all())->toBe(['1700000000000002', '1700000000000003']);
     });

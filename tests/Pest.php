@@ -4,6 +4,7 @@ use App\Actions\Referrals\AttributeReferralAction;
 use App\Actions\Workflows\StartWorkflowRunAction;
 use App\Enums\Billing\BillingInterval;
 use App\Enums\SuperAdmin\SuperAdminRole;
+use App\Jobs\Triggers\PollTrigger;
 use App\Models\Billing\Plan;
 use App\Models\Billing\Subscription;
 use App\Models\Referrals\Referral;
@@ -21,6 +22,7 @@ use App\Services\SuperAdmin\Auth\SuperAdminTokenService;
 use App\Services\SuperAdmin\Pricing\PricingStripe;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Laravel\Passport\Client;
@@ -117,6 +119,18 @@ function referUser(User $referrer, ?User $referred = null, ?ReferralProgram $pro
     }
 
     return app(AttributeReferralAction::class)->execute($referred ?? referralUser(['email_verified_at' => null]), $code->code);
+}
+
+/**
+ * Runs one poll in this process, even while `PollTrigger` is faked.
+ *
+ * Tests fake `PollTrigger` so publishing a flow doesn't start a poll of its
+ * own. The installed Laravel's `dispatch_sync` sends a queueable job through
+ * the (faked) queue, so it would never run; the bus runs it directly instead.
+ */
+function pollNow(PollTrigger $job): void
+{
+    app(Dispatcher::class)->dispatchNow($job);
 }
 
 /**

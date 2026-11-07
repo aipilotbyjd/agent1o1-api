@@ -311,11 +311,11 @@ describe('trello triggers', function () {
         $poll = fn (array $ids) => fakeTrello(['GET /boards/'.TRELLO_BOARD.'/actions' => array_map(fn (string $id): array => ['id' => $id, 'type' => 'createCard', 'date' => '2026-03-01T10:00:00.000Z', 'data' => ['card' => ['id' => TRELLO_CARD, 'name' => 'x']]], $ids)]);
 
         $poll(['a1']);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll(['a3', 'a2', 'a1']);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.id')->sort()->values()->all())->toBe(['a2', 'a3']);
     });

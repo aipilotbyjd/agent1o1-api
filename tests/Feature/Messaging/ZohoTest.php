@@ -367,11 +367,11 @@ describe('zoho triggers', function () {
         $poll = fn (array $ids) => fakeZoho(['POST /coql' => ['data' => array_map(fn (string $id): array => zohoRecord($id), $ids), 'info' => ['more_records' => false]]]);
 
         $poll(['4876876000000000001']);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll(['4876876000000000003', '4876876000000000002', '4876876000000000001']);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.id')->sort()->values()->all())->toBe(['4876876000000000002', '4876876000000000003'])
             ->and(zohoBody('POST /coql')['select_query'])->toContain('from Leads where Created_Time >= ')->toContain('order by Created_Time desc limit 0, 200');

@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -50,11 +51,19 @@ class AuthService
     {
         $data['email'] = User::normalizeEmail($data['email']);
 
-        $user = User::query()->create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => $data['password'],
-        ]);
+        // The account and its first tokens are saved together: if the tokens
+        // cannot be issued, no account is left behind to block a retry with
+        // "email already taken". The token request runs in-process on the
+        // same connection, so it sees the uncommitted user.
+        [$user, $tokens] = DB::transaction(function () use ($data): array {
+            $user = User::query()->create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => $data['password'],
+            ]);
+
+            return [$user, $this->issuePasswordGrantToken($data['email'], $data['password'])];
+        });
 
         $user->sendEmailVerificationNotification();
 
@@ -62,7 +71,7 @@ class AuthService
 
         return [
             'user' => $user,
-            'tokens' => $this->issuePasswordGrantToken($data['email'], $data['password']),
+            'tokens' => $tokens,
         ];
     }
 

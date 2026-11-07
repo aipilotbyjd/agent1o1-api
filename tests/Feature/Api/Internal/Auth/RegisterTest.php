@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\Notification;
 
 it('registers a user without a workspace and issues tokens', function () {
     $response = $this->postJson('/api/v1/auth/register', [
@@ -34,4 +35,26 @@ it('rejects registration with a mismatched password confirmation', function () {
         'password' => 'Password1!',
         'password_confirmation' => 'nope',
     ])->assertUnprocessable();
+});
+
+it('saves no account when the tokens cannot be issued, so the same email can retry', function () {
+    Notification::fake();
+    $secret = config('passport.password_client_secret');
+    config(['passport.password_client_secret' => 'not-the-real-secret']);
+
+    $payload = [
+        'name' => 'Jane Doe',
+        'email' => 'jane@example.com',
+        'password' => 'Password1!',
+        'password_confirmation' => 'Password1!',
+    ];
+
+    $this->postJson('/api/v1/auth/register', $payload)->assertUnprocessable();
+
+    expect(User::query()->where('email', 'jane@example.com')->exists())->toBeFalse();
+    Notification::assertNothingSent();
+
+    config(['passport.password_client_secret' => $secret]);
+
+    $this->postJson('/api/v1/auth/register', $payload)->assertCreated();
 });

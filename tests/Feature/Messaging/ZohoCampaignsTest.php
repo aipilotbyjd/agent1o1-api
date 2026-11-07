@@ -200,11 +200,11 @@ describe('zoho campaigns triggers', function () {
         $poll = fn (array $emails) => fakeZohoCampaigns(['GET /getlistsubscribers' => ['list_of_details' => array_map(fn (string $email): array => ['contact_email' => $email], $emails)]]);
 
         $poll(['a@x.com']);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll(['c@x.com', 'b@x.com', 'a@x.com']);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.email')->sort()->values()->all())->toBe(['b@x.com', 'c@x.com']);
     });

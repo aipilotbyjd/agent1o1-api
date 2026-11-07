@@ -186,11 +186,11 @@ describe('zoho cliq trigger', function () {
         $poll = fn (array $ids) => fakeZohoCliq(['GET /chats/CT_1/messages' => ['data' => array_map(fn (string $id, int $n): array => ['id' => $id, 'time' => 1772000000000 + $n, 'text' => $id], $ids, array_keys($ids))]]);
 
         $poll(['m1']);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll(['m3', 'm2', 'm1']);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.id')->sort()->values()->all())->toBe(['m2', 'm3']);
     });
