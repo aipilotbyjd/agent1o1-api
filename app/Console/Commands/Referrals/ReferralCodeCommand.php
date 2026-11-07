@@ -88,7 +88,7 @@ class ReferralCodeCommand extends Command
         $key = $this->argument('code');
 
         if (str_contains($key, '@')) {
-            $user = User::query()->where('email', $key)->first();
+            $user = User::query()->where('email', User::normalizeEmail($key))->first();
 
             return $user === null ? null : $codes->forUser($user);
         }

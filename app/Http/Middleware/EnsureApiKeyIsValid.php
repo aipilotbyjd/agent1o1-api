@@ -35,6 +35,10 @@ class EnsureApiKeyIsValid
             abort_if($apiKey === null, 401, 'Invalid API key.');
             abort_if($apiKey->isExpired(), 401, 'This API key has expired.');
 
+            // The same refusal `EnsureWorkspaceScope` gives the workspace's
+            // members: a suspended workspace is locked over its keys too.
+            abort_if($apiKey->workspace->isSuspended(), 403, 'This workspace has been suspended.');
+
             // Only touched when the stored time is stale: "last used" doesn't
             // need a write on every request.
             if ($apiKey->last_used_at === null || $apiKey->last_used_at->lt(now()->subMinutes(self::LAST_USED_RESOLUTION_MINUTES))) {

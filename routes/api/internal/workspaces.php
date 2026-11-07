@@ -12,7 +12,9 @@ Route::middleware('auth:api')->prefix('workspaces')->group(function () {
     Route::get('/', [WorkspaceController::class, 'index']);
     Route::post('/', [WorkspaceController::class, 'store']);
 
-    Route::get('invitations/{invitation}/accept', [WorkspaceInvitationController::class, 'accept'])
+    // POST, not GET: accepting changes membership, and a GET would be
+    // followed by link scanners and mail previews.
+    Route::post('invitations/{invitation}/accept', [WorkspaceInvitationController::class, 'accept'])
         ->middleware('signed')
         ->name('workspaces.invitations.accept');
 
