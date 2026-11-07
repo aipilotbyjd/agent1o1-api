@@ -51,7 +51,7 @@ class KnowledgeBaseController extends Controller
             ->orderBy('source')
             ->orderBy('chunk_index')
             ->orderBy('id')
-            ->paginate(max(1, min((int) $request->query('per_page', 25), 100)));
+            ->paginate($this->perPage($request));
 
         return ApiResponse::paginated(DocumentEmbeddingResource::collection($chunks));
     }

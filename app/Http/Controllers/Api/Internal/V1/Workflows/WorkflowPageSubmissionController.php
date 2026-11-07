@@ -46,19 +46,11 @@ class WorkflowPageSubmissionController extends Controller
 
         $history = $this->insights->submissions($page, $filters)
             ->with(['user:id,name', 'run:id,status,started_at,finished_at,input,output'])
-            ->paginate(min(100, max(1, $request->integer('per_page', self::PER_PAGE))));
+            ->paginate($this->perPage($request, self::PER_PAGE));
 
         $history->getCollection()->each->setRelation('page', $page);
 
-        return ApiResponse::success([
-            'submissions' => WorkflowPageSubmissionResource::collection($history->getCollection()),
-            'meta' => [
-                'total' => $history->total(),
-                'page' => $history->currentPage(),
-                'per_page' => $history->perPage(),
-                'last_page' => $history->lastPage(),
-            ],
-        ]);
+        return ApiResponse::paginated(WorkflowPageSubmissionResource::collection($history));
     }
 
     /**

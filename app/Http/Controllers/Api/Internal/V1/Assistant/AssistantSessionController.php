@@ -110,7 +110,7 @@ class AssistantSessionController extends Controller
         $this->requirePermission(Permission::AssistantUse);
         $this->ensureOwnSession($request, $workspace, $session);
 
-        $perPage = min(max($request->integer('per_page', 50), 1), 200);
+        $perPage = $this->perPage($request, 50, 200);
 
         return ApiResponse::paginated(
             AssistantMessageResource::collection(

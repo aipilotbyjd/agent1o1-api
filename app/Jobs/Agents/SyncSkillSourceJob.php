@@ -3,6 +3,7 @@
 namespace App\Jobs\Agents;
 
 use App\Enums\Agents\SkillSourceStatus;
+use App\Enums\Queue;
 use App\Models\Agents\SkillSource;
 use App\Services\Agents\Skills\SkillSync;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -25,7 +26,11 @@ class SyncSkillSourceJob implements ShouldBeUnique, ShouldQueue
 
     public int $uniqueFor = 300;
 
-    public function __construct(public SkillSource $source, public bool $force = false) {}
+    public function __construct(public SkillSource $source, public bool $force = false)
+    {
+        $this->onConnection(config('queue.long_running_connection'));
+        $this->onQueue(Queue::LongRunning->value);
+    }
 
     public function failed(?Throwable $exception): void
     {

@@ -28,7 +28,7 @@ class WorkflowBuilderDraftVersionController extends Controller
         $versions = $session->draftVersions()
             ->latest()
             ->latest('id')
-            ->paginate(min((int) $request->query('per_page', 20), 100));
+            ->paginate($this->perPage($request, 20));
 
         return ApiResponse::paginated(WorkflowBuilderDraftVersionResource::collection($versions));
     }

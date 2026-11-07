@@ -41,10 +41,22 @@ it('lists, marks read, and deletes only the authenticated users notifications', 
 
     $this->postJson("/api/v1/notifications/{$notification->id}/read")
         ->assertOk()
-        ->assertJsonPath('data.read_at', fn ($readAt): bool => $readAt !== null);
+        ->assertJsonPath('data.notification.read_at', fn ($readAt): bool => $readAt !== null);
 
     $this->deleteJson("/api/v1/notifications/{$otherNotification->id}")->assertNotFound();
     $this->deleteJson("/api/v1/notifications/{$notification->id}")->assertOk();
+});
+
+it('caps how many notifications one page can hold', function () {
+    $user = User::factory()->create();
+    foreach (range(1, 3) as $index) {
+        $user->notifications()->create(['id' => (string) str()->uuid(), 'type' => 'test', 'data' => ['title' => "Note {$index}"]]);
+    }
+
+    Passport::actingAs($user);
+
+    $this->getJson('/api/v1/notifications?per_page=1000000')->assertOk()->assertJsonPath('meta.per_page', 100);
+    $this->getJson('/api/v1/notifications?per_page=0')->assertOk()->assertJsonPath('meta.per_page', 1);
 });
 
 it('stores workspace-scoped notification preferences', function () {

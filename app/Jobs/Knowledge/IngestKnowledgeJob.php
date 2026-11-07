@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Knowledge;
 
+use App\Enums\Queue;
 use App\Models\Workspaces\Workspace;
 use App\Services\Agents\KnowledgeBase;
 use Illuminate\Bus\Queueable;
@@ -45,7 +46,10 @@ class IngestKnowledgeJob implements ShouldQueue
         public ?array $metadata = null,
         public ?string $ownerId = null,
         public ?int $revision = null,
-    ) {}
+    ) {
+        $this->onConnection(config('queue.long_running_connection'));
+        $this->onQueue(Queue::LongRunning->value);
+    }
 
     public function handle(KnowledgeBase $knowledgeBase): void
     {

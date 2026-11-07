@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Agents;
 
+use App\Enums\Queue;
 use App\Models\Agents\Reflection;
 use App\Services\Agents\ReflectionApplier;
 use Illuminate\Bus\Queueable;
@@ -21,7 +22,13 @@ class ApplyReflectionJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(public Reflection $reflection) {}
+    public int $timeout = 300;
+
+    public function __construct(public Reflection $reflection)
+    {
+        $this->onConnection(config('queue.long_running_connection'));
+        $this->onQueue(Queue::LongRunning->value);
+    }
 
     public function handle(ReflectionApplier $applier): void
     {

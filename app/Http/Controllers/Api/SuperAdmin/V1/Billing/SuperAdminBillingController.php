@@ -43,7 +43,7 @@ class SuperAdminBillingController extends Controller
         $transactions = $workspace->creditTransactions()
             ->orderByDesc('created_at')
             ->orderByDesc('id')
-            ->cursorPaginate(min($request->integer('per_page', 50), 100));
+            ->cursorPaginate($this->perPage($request, 50));
 
         return ApiResponse::cursorPaginated(CreditTransactionResource::collection($transactions));
     }
@@ -52,7 +52,7 @@ class SuperAdminBillingController extends Controller
     {
         $grants = $workspace->planGrants()->with('plan:id,name,slug')->latest()->get();
 
-        return ApiResponse::success(PlanGrantResource::collection($grants)->resolve($request));
+        return ApiResponse::success(['grants' => PlanGrantResource::collection($grants)]);
     }
 
     public function plans(Request $request)

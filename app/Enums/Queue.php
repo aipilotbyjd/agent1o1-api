@@ -23,4 +23,11 @@ enum Queue: string
     case Maintenance = 'system-maintenance';
     case Notification = 'system-notification';
     case Broadcast = 'system-broadcast';
+
+    /**
+     * Long background syncs (knowledge and skill sources, reflections) that
+     * outlive the `redis` connection's retry_after. Dispatched on the
+     * `queue.long_running_connection` connection, never on `default`.
+     */
+    case LongRunning = 'system-long-running';
 }

@@ -40,7 +40,7 @@ class InvoiceController extends Controller
         $this->requirePermission(Permission::BillingView);
 
         $invoices = $workspace->cursorPaginateInvoices(
-            perPage: min((int) $request->integer('per_page', 24), 100),
+            perPage: $this->perPage($request, 24),
             cursor: $request->query('cursor'),
         );
 

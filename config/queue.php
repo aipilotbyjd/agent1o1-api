@@ -91,6 +91,19 @@ return [
             'after_commit' => false,
         ],
 
+        // Long background syncs (`SyncKnowledgeSourceJob` at 900s,
+        // `IngestKnowledgeJob`, `SyncSkillSourceJob`, reflections): their
+        // timeouts exceed `redis`'s retry_after, so they get their own
+        // connection whose window is longer than the slowest of them.
+        'redis-long' => [
+            'driver' => 'redis',
+            'connection' => env('REDIS_QUEUE_CONNECTION', 'default'),
+            'queue' => 'system-long-running',
+            'retry_after' => (int) env('LONG_QUEUE_RETRY_AFTER', 960),
+            'block_for' => null,
+            'after_commit' => false,
+        ],
+
         'deferred' => [
             'driver' => 'deferred',
         ],
@@ -119,6 +132,23 @@ return [
     | connection and table which has been defined by your application.
     |
     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Long-Running Job Connection
+    |--------------------------------------------------------------------------
+    |
+    | The connection `Queue::LongRunning` jobs are dispatched on. Its
+    | retry_after must exceed the longest of those jobs' timeouts (900s).
+    | On Redis that's `redis-long`; any other driver (a local `database`
+    | or `sync` setup) keeps the default connection.
+    |
+    */
+
+    'long_running_connection' => env(
+        'LONG_QUEUE_CONNECTION',
+        env('QUEUE_CONNECTION', 'database') === 'redis' ? 'redis-long' : env('QUEUE_CONNECTION', 'database'),
+    ),
 
     'batching' => [
         'database' => env('DB_CONNECTION', 'sqlite'),

@@ -23,6 +23,15 @@ abstract class Controller
     }
 
     /**
+     * The `per_page` query parameter, clamped to 1..$max so a caller can't
+     * ask one request to load a whole table.
+     */
+    protected function perPage(Request $request, int $default = 25, int $max = 100): int
+    {
+        return max(1, min($request->integer('per_page', $default), $max));
+    }
+
+    /**
      * The workspace an API key request is scoped to, put there by
      * `EnsureApiKeyIsValid`. Public-API controllers have no workspace route
      * parameter and no authenticated user: the key *is* the scope.

@@ -25,9 +25,9 @@ it('lists plans in order with subscriber counts, hiding archived ones by default
 
     $response = $this->withHeaders($this->headers)->getJson(saUrl('pricing/plans'))->assertOk();
 
-    expect(collect($response->json('data'))->pluck('slug')->all())->toBe(['free', 'pro'])
-        ->and($response->json('data.1.subscribers_count'))->toBe(1)
-        ->and($response->json('data.0.is_default'))->toBeTrue();
+    expect(collect($response->json('data.plans'))->pluck('slug')->all())->toBe(['free', 'pro'])
+        ->and($response->json('data.plans.1.subscribers_count'))->toBe(1)
+        ->and($response->json('data.plans.0.is_default'))->toBeTrue();
 
     $this->withHeaders($this->headers)->getJson(saUrl('pricing/plans?archived=1'))
         ->assertOk()->assertJsonFragment(['slug' => $archived->slug]);

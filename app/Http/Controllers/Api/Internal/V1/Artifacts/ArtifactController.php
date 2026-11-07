@@ -61,7 +61,7 @@ class ArtifactController extends Controller
                 });
             })
             ->orderByDesc('artifacts.created_at')
-            ->paginate(max(1, min((int) $request->query('per_page', 25), 100)));
+            ->paginate($this->perPage($request));
 
         return ApiResponse::paginated(ArtifactResource::collection($artifacts));
     }

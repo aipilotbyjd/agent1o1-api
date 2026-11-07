@@ -46,7 +46,7 @@ class SuperAdminUserController extends Controller
             ->when($request->string('status')->toString() === 'unverified', fn ($query) => $query->whereNull('email_verified_at'))
             ->orderBy(ltrim($sort, '-'), str_starts_with($sort, '-') ? 'desc' : 'asc')
             ->orderBy('id')
-            ->paginate(min($request->integer('per_page', 25), 100));
+            ->paginate($this->perPage($request));
 
         $this->annotations->attach(CustomerSubjects::USER, $users->getCollection());
 

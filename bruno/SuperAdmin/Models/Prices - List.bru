@@ -22,7 +22,7 @@ params:query {
 
 script:post-response {
   if (res.status === 200 || res.status === 201) {
-    const v = res.body.data?.[0]?.id;
+    const v = res.body.data?.prices?.[0]?.id;
     if (v) bru.setVar("saPriceId", v);
   }
 }

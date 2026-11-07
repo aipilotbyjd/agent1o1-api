@@ -297,5 +297,5 @@ it('shows an account\'s sign-in history to owners', function () {
     $this->withHeaders(superAdminHeaders($owner))
         ->getJson(saUrl("accounts/{$target->id}/login-events"))
         ->assertOk()
-        ->assertJsonPath('data.0.event', 'login_failed');
+        ->assertJsonPath('data.events.0.event', 'login_failed');
 });

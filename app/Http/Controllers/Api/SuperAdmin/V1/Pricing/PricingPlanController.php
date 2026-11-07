@@ -35,7 +35,7 @@ class PricingPlanController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        return ApiResponse::success(PlanAdminResource::collection($plans)->resolve($request));
+        return ApiResponse::success(['plans' => PlanAdminResource::collection($plans)]);
     }
 
     public function show(Request $request, Plan $plan)
@@ -133,7 +133,7 @@ class PricingPlanController extends Controller
             ->with('workspace:id,name,slug')
             ->orderByDesc('created_at')
             ->orderByDesc('id')
-            ->cursorPaginate(min($request->integer('per_page', 50), 100));
+            ->cursorPaginate($this->perPage($request, 50));
 
         return ApiResponse::cursorPaginated(PlanSubscriberResource::collection($subscriptions));
     }
@@ -145,7 +145,7 @@ class PricingPlanController extends Controller
             ->with('superAdmin:id,name')
             ->orderByDesc('created_at')
             ->orderByDesc('id')
-            ->cursorPaginate(min($request->integer('per_page', 50), 100));
+            ->cursorPaginate($this->perPage($request, 50));
 
         return ApiResponse::cursorPaginated(PricingChangeLogResource::collection($changes));
     }
