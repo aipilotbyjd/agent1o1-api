@@ -77,7 +77,7 @@ class ReferralReferralCommand extends Command
         }
 
         $referrerId = $this->option('referrer') !== null
-            ? User::query()->where('email', $this->option('referrer'))->value('id') ?? 'none'
+            ? User::query()->where('email', User::normalizeEmail((string) $this->option('referrer')))->value('id') ?? 'none'
             : null;
 
         $referrals = Referral::query()

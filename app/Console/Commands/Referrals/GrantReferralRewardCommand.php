@@ -29,7 +29,7 @@ class GrantReferralRewardCommand extends Command
 
     public function handle(ReferralAdmin $admin): int
     {
-        $user = User::query()->where('email', $this->argument('email'))->first();
+        $user = User::query()->where('email', User::normalizeEmail((string) $this->argument('email')))->first();
 
         if ($user === null) {
             $this->error('No user has that email address.');

@@ -48,6 +48,8 @@ class AuthService
      */
     public function register(array $data): array
     {
+        $data['email'] = User::normalizeEmail($data['email']);
+
         $user = User::query()->create([
             'name' => $data['name'],
             'email' => $data['email'],
@@ -69,6 +71,8 @@ class AuthService
      */
     public function login(string $email, string $password): array
     {
+        $email = User::normalizeEmail($email);
+
         $this->throttle->assertNotLocked($email);
 
         $user = User::query()->where('email', $email)->first();
@@ -181,6 +185,8 @@ class AuthService
 
     public function forgotPassword(string $email): void
     {
+        $email = User::normalizeEmail($email);
+
         Password::sendResetLink(['email' => $email]);
 
         $this->events->record(
@@ -195,6 +201,7 @@ class AuthService
      */
     public function resetPassword(array $data): void
     {
+        $data['email'] = User::normalizeEmail($data['email']);
         $resetUser = null;
 
         $status = Password::reset($data, function (User $user, string $password) use (&$resetUser) {
@@ -249,6 +256,10 @@ class AuthService
      */
     public function requestEmailChange(User $user, string $newEmail): void
     {
+        // Normalized before the link is signed: the hash in it is checked
+        // against the stored (normalized) `pending_email`.
+        $newEmail = User::normalizeEmail($newEmail);
+
         $user->forceFill([
             'pending_email' => $newEmail,
             'pending_email_requested_at' => now(),
@@ -353,7 +364,7 @@ class AuthService
         if ($connection) {
             $user = $connection->user;
         } else {
-            $user = User::query()->where('email', $socialUser->getEmail())->first();
+            $user = User::query()->where('email', User::normalizeEmail((string) $socialUser->getEmail()))->first();
 
             if (! $user) {
                 $user = User::query()->create([

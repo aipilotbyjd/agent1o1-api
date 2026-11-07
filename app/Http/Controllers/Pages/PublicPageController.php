@@ -16,6 +16,7 @@ use App\Services\Workflows\Pages\PagePresenter;
 use App\Services\Workflows\Pages\PageSharePreview;
 use App\Services\Workflows\Pages\PageSubmissions;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 /**
@@ -131,6 +132,10 @@ class PublicPageController extends Controller
     {
         $page = $this->available($token);
 
+        // Postgres refuses to compare a uuid column with a non-uuid string,
+        // which would surface as a 500 instead of the 404 below.
+        abort_unless(Str::isUuid($submission), 404);
+
         $found = WorkflowPageSubmission::query()
             ->where('workflow_page_id', $page->id)
             ->whereKey($submission)
@@ -146,9 +151,15 @@ class PublicPageController extends Controller
 
     private function available(string $token): WorkflowPage
     {
-        $page = WorkflowPage::query()->where('public_token', $token)->with(['workflow', 'workspace:id,name', 'creator'])->first();
+        $page = WorkflowPage::query()->where('public_token', $token)->with(['workflow', 'workspace:id,name,suspended_at', 'creator'])->first();
 
-        abort_if($page === null || ! $page->isPubliclyAvailable() || $page->workflow === null, 404, 'This page is not available.');
+        // A suspended workspace's pages go dark with it, as if unpublished:
+        // the same 404, so the link says nothing about why.
+        abort_if(
+            $page === null || ! $page->isPubliclyAvailable() || $page->workflow === null || $page->workspace->isSuspended(),
+            404,
+            'This page is not available.',
+        );
 
         return $page;
     }
