@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\Internal\V1\Onboarding;
 
 use App\Enums\Workspaces\Role;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -11,6 +12,20 @@ class InviteTeamRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    /**
+     * Emails are stored lowercased (`User::normalizeEmail()`), so each address
+     * is matched in that same spelling.
+     */
+    protected function prepareForValidation(): void
+    {
+        if (is_array($this->input('emails'))) {
+            $this->merge(['emails' => array_map(
+                fn (mixed $email): mixed => is_string($email) ? User::normalizeEmail($email) : $email,
+                $this->input('emails'),
+            )]);
+        }
     }
 
     /**

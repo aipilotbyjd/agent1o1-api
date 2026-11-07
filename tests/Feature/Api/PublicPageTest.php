@@ -110,6 +110,22 @@ it('does not answer for a page that is private, unpublished, turned off or relin
     $this->getJson($this->url)->assertNotFound();
 });
 
+it('goes dark while its workspace is suspended', function () {
+    $this->workspace->forceFill(['suspended_at' => now()])->save();
+
+    $this->getJson($this->url)->assertNotFound();
+    $this->getJson("{$this->url}/meta")->assertNotFound();
+    $this->postJson("{$this->url}/submissions", ['input' => ['topic' => 'rain']])->assertNotFound();
+
+    $this->workspace->forceFill(['suspended_at' => null])->save();
+
+    $this->getJson($this->url)->assertOk();
+});
+
+it('answers 404, not an error, for a submission id that is not a uuid', function () {
+    $this->getJson("{$this->url}/submissions/not-a-uuid", ['X-Submission-Secret' => 'guess'])->assertNotFound();
+});
+
 it('asks for the password before showing or running a protected page', function () {
     $this->page->password = 'open-sesame';
     $this->page->access = 'password';

@@ -18,6 +18,8 @@ class WorkspaceInvitationService
 
     public function invite(Workspace $workspace, string $email, Role $role, User $invitedBy): WorkspaceInvitation
     {
+        $email = User::normalizeEmail($email);
+
         $alreadyMember = $workspace->users()->where('email', $email)->exists();
 
         if ($alreadyMember) {
@@ -45,7 +47,7 @@ class WorkspaceInvitationService
             throw ValidationException::withMessages(['token' => 'This invitation has expired.']);
         }
 
-        if ($invitation->email !== $user->email) {
+        if (User::normalizeEmail($invitation->email) !== User::normalizeEmail($user->email)) {
             throw ValidationException::withMessages(['email' => 'This invitation was sent to a different email address.']);
         }
 
