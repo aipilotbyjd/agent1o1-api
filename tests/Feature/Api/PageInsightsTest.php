@@ -141,10 +141,10 @@ it('filters submissions, pages through them and exports them', function () {
     $this->postJson("{$this->base}/submissions", ['input' => ['topic' => 'draft'], 'test' => true])->assertStatus(202);
 
     $all = $this->getJson("{$this->base}/submissions?per_page=2")->assertOk();
-    expect($all->json('data.meta'))->toMatchArray(['total' => 3, 'per_page' => 2, 'last_page' => 2]);
-    expect($all->json('data.submissions.0'))->toHaveKeys(['variant', 'input', 'outputs', 'duration_seconds']);
+    expect($all->json('meta'))->toMatchArray(['total' => 3, 'per_page' => 2, 'last_page' => 2]);
+    expect($all->json('data.0'))->toHaveKeys(['variant', 'input', 'outputs', 'duration_seconds']);
 
-    $real = $this->getJson("{$this->base}/submissions?include_tests=0")->json('data.submissions');
+    $real = $this->getJson("{$this->base}/submissions?include_tests=0")->json('data');
     expect(collect($real)->pluck('input.topic')->all())->toBe(['second', 'first']);
 
     $this->getJson("{$this->base}/submissions?status=nope")->assertUnprocessable();

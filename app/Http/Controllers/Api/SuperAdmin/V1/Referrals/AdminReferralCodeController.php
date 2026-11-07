@@ -31,7 +31,7 @@ class AdminReferralCodeController extends Controller
             }))
             ->when($request->filled('program_id'), fn ($query) => $query->where('program_id', $request->string('program_id')))
             ->latest()
-            ->paginate($request->integer('per_page', 25));
+            ->paginate($this->perPage($request));
 
         return ApiResponse::paginated(AdminReferralCodeResource::collection($codes));
     }

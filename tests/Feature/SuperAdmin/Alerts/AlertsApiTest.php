@@ -37,7 +37,7 @@ it('lists alerts, active ones first, and filters them', function () {
     $this->withHeaders($this->headers)->getJson(saUrl('alerts?status=resolved'))->assertJsonPath('meta.total', 1);
     $this->withHeaders($this->headers)->getJson(saUrl('alerts?status=active&severity=critical'))->assertJsonPath('meta.total', 1)->assertJsonPath('data.0.id', $critical->id);
     $this->withHeaders($this->headers)->getJson(saUrl('alerts?severity=bogus'))->assertUnprocessable();
-    $this->withHeaders($this->headers)->getJson(saUrl("alerts/{$critical->id}"))->assertOk()->assertJsonPath('data.severity', 'critical');
+    $this->withHeaders($this->headers)->getJson(saUrl("alerts/{$critical->id}"))->assertOk()->assertJsonPath('data.alert.severity', 'critical');
 });
 
 it('acknowledges and resolves an alert, with an audit trail', function () {
@@ -45,10 +45,10 @@ it('acknowledges and resolves an alert, with an audit trail', function () {
 
     $this->withHeaders($this->headers)->postJson(saUrl("alerts/{$event->id}/acknowledge"))
         ->assertOk()
-        ->assertJsonPath('data.status', 'acknowledged')
-        ->assertJsonPath('data.acknowledged_by', $this->admin->id);
+        ->assertJsonPath('data.alert.status', 'acknowledged')
+        ->assertJsonPath('data.alert.acknowledged_by', $this->admin->id);
 
-    $this->withHeaders($this->headers)->postJson(saUrl("alerts/{$event->id}/resolve"))->assertOk()->assertJsonPath('data.status', 'resolved');
+    $this->withHeaders($this->headers)->postJson(saUrl("alerts/{$event->id}/resolve"))->assertOk()->assertJsonPath('data.alert.status', 'resolved');
     $this->withHeaders($this->headers)->postJson(saUrl("alerts/{$event->id}/resolve"))->assertStatus(409);
     $this->withHeaders($this->headers)->postJson(saUrl("alerts/{$event->id}/acknowledge"))->assertStatus(409);
 
@@ -71,7 +71,7 @@ it('summarises open alerts, time to acknowledge and the noisiest rules', functio
 });
 
 it('lists the built-in rules with their default thresholds', function () {
-    $rules = collect($this->withHeaders($this->headers)->getJson(saUrl('alerts/rules'))->assertOk()->json('data'))->keyBy('key');
+    $rules = collect($this->withHeaders($this->headers)->getJson(saUrl('alerts/rules'))->assertOk()->json('data.rules'))->keyBy('key');
 
     expect($rules)->toHaveCount(count(AlertRuleCatalog::EVALUATORS))
         ->and($rules['failed_runs_spike']['config'])->toMatchArray(['min_failures' => 5, 'factor' => 3]);
@@ -89,7 +89,7 @@ it('tunes a rule, refusing settings it does not have', function () {
 
     $this->withHeaders($this->headers)->patchJson(saUrl("alerts/rules/{$rule->id}"), [
         'reason' => 'Too noisy at night', 'config' => ['min_failures' => 20], 'severity' => 'critical', 'cooldown_minutes' => 15, 'enabled' => false,
-    ])->assertOk()->assertJsonPath('data.config.min_failures', 20)->assertJsonPath('data.config.factor', 3);
+    ])->assertOk()->assertJsonPath('data.rule.config.min_failures', 20)->assertJsonPath('data.rule.config.factor', 3);
 
     $rule->refresh();
 
@@ -104,12 +104,12 @@ it('snoozes and un-snoozes a rule', function () {
     $rule = AlertRule::factory()->create();
 
     $this->withHeaders($this->headers)->postJson(saUrl("alerts/rules/{$rule->id}/snooze"), ['reason' => 'Planned maintenance window', 'minutes' => 120])
-        ->assertOk()->assertJsonPath('data.is_snoozed', true);
+        ->assertOk()->assertJsonPath('data.rule.is_snoozed', true);
 
     expect($rule->refresh()->isSnoozed())->toBeTrue();
 
     $this->withHeaders($this->headers)->postJson(saUrl("alerts/rules/{$rule->id}/snooze"), ['reason' => 'Maintenance finished early', 'minutes' => 0])
-        ->assertOk()->assertJsonPath('data.is_snoozed', false);
+        ->assertOk()->assertJsonPath('data.rule.is_snoozed', false);
 
     $this->withHeaders($this->headers)->postJson(saUrl("alerts/rules/{$rule->id}/snooze"), ['reason' => 'A month is too long', 'minutes' => 99999])->assertUnprocessable();
 });

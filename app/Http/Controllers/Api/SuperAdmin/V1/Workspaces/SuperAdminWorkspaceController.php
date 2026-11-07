@@ -42,7 +42,7 @@ class SuperAdminWorkspaceController extends Controller
             ->when($request->string('status')->toString() === 'active', fn ($query) => $query->whereNull('suspended_at'))
             ->latest()
             ->orderBy('id')
-            ->paginate(min($request->integer('per_page', 25), 100));
+            ->paginate($this->perPage($request));
 
         $this->annotations->attach(CustomerSubjects::WORKSPACE, $workspaces->getCollection());
 

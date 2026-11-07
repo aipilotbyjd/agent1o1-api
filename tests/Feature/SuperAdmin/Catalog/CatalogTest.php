@@ -33,6 +33,19 @@ it('switches a connector off and on, recording why', function () {
     expect($log->before)->toBe(['is_active' => true])->and($log->reason)->toBe('Provider outage, case 77');
 });
 
+it('pages through custom nodes with the page meta', function () {
+    $workspace = app(WorkspaceService::class)->create(User::factory()->create(), ['name' => 'Acme']);
+    CustomNode::factory()->count(3)->create(['workspace_id' => $workspace->id]);
+
+    $this->withHeaders($this->headers)->getJson(saUrl('catalog/nodes?per_page=2&page=2'))
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.workspace.name', 'Acme')
+        ->assertJsonPath('meta.current_page', 2)
+        ->assertJsonPath('meta.last_page', 2)
+        ->assertJsonPath('meta.total', 3);
+});
+
 it('switches a custom node off and on', function () {
     $workspace = app(WorkspaceService::class)->create(User::factory()->create(), ['name' => 'Acme']);
     $node = CustomNode::factory()->create(['workspace_id' => $workspace->id, 'is_active' => true]);

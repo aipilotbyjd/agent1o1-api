@@ -23,7 +23,7 @@ class SuperAdminAuditLogController extends Controller
             ->when($request->filled('to'), fn ($query) => $query->where('created_at', '<=', $request->date('to')))
             ->orderByDesc('created_at')
             ->orderByDesc('id')
-            ->cursorPaginate(min($request->integer('per_page', 50), 100));
+            ->cursorPaginate($this->perPage($request, 50));
 
         return ApiResponse::cursorPaginated(SuperAdminAuditLogResource::collection($logs));
     }

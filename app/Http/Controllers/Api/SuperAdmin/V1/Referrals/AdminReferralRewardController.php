@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\SuperAdmin\V1\Referrals;
 use App\Enums\Referrals\ReferralRewardStatus;
 use App\Enums\Referrals\ReferralRewardType;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\SuperAdmin\V1\Referrals\ReasonRequest;
+use App\Http\Requests\Api\SuperAdmin\V1\Referrals\ReferralReasonRequest;
 use App\Http\Requests\Api\SuperAdmin\V1\Referrals\StoreManualReferralRewardRequest;
 use App\Http\Resources\Api\SuperAdmin\V1\Referrals\AdminReferralRewardResource;
 use App\Http\Responses\ApiResponse;
@@ -38,7 +38,7 @@ class AdminReferralRewardController extends Controller
             ->when($request->filled('recipient_user_id'), fn ($query) => $query->where('recipient_user_id', $request->string('recipient_user_id')))
             ->when($request->filled('referral_id'), fn ($query) => $query->where('referral_id', $request->string('referral_id')))
             ->latest()
-            ->paginate($request->integer('per_page', 25));
+            ->paginate($this->perPage($request));
 
         return ApiResponse::paginated(AdminReferralRewardResource::collection($rewards));
     }
@@ -60,7 +60,7 @@ class AdminReferralRewardController extends Controller
         return ApiResponse::success(['reward' => AdminReferralRewardResource::make($reward->refresh()->load('recipient', 'plan'))], 'Reward granted.');
     }
 
-    public function revoke(ReasonRequest $request, ReferralReward $reward)
+    public function revoke(ReferralReasonRequest $request, ReferralReward $reward)
     {
         $this->admin->revokeReward($reward, $request->validated('reason'), $request->user('super-admin'));
 

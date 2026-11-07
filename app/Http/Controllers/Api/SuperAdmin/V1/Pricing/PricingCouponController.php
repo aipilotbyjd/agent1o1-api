@@ -21,7 +21,7 @@ class PricingCouponController extends Controller
             ->when($request->has('active'), fn ($query) => $query->where('is_active', $request->boolean('active')))
             ->orderByDesc('created_at')
             ->orderByDesc('id')
-            ->cursorPaginate(min($request->integer('per_page', 50), 100));
+            ->cursorPaginate($this->perPage($request, 50));
 
         return ApiResponse::cursorPaginated(PricingCouponResource::collection($coupons));
     }

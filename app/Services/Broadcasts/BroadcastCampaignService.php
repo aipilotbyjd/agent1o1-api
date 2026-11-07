@@ -219,7 +219,7 @@ class BroadcastCampaignService
         DB::transaction(function () use ($actor, $campaign, $reason): void {
             $before = $this->snapshot($campaign);
 
-            $campaign->forceFill(['status' => BroadcastStatus::Canceled, 'finished_at' => now()])->save();
+            $campaign->forceFill(['status' => BroadcastStatus::Cancelled, 'finished_at' => now()])->save();
 
             $campaign->recipients()
                 ->where('status', BroadcastRecipientStatus::Pending)

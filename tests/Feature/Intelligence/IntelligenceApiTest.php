@@ -50,8 +50,10 @@ it('shows the live board and lets any role search the call ledger', function () 
 
     $this->withHeaders($headers)->getJson(saUrl('intelligence/calls?provider=openai'))
         ->assertOk()
-        ->assertJsonCount(1, 'data.data')
-        ->assertJsonPath('data.data.0.id', $event->id);
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $event->id)
+        ->assertJsonPath('meta.has_more', false)
+        ->assertJsonPath('meta.next_cursor', null);
 
     $this->withHeaders($headers)->getJson(saUrl('intelligence/traces/trace-1'))
         ->assertOk()

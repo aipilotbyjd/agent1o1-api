@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Agents;
 
+use App\Enums\Queue;
 use App\Models\Agents\KnowledgeSource;
 use App\Services\Agents\Knowledge\KnowledgeSync;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -21,7 +22,11 @@ class SyncKnowledgeSourceJob implements ShouldBeUnique, ShouldQueue
 
     public int $uniqueFor = 900;
 
-    public function __construct(public KnowledgeSource $source) {}
+    public function __construct(public KnowledgeSource $source)
+    {
+        $this->onConnection(config('queue.long_running_connection'));
+        $this->onQueue(Queue::LongRunning->value);
+    }
 
     public function uniqueId(): string
     {

@@ -36,14 +36,14 @@ class AlertEventController extends Controller
             ->orderByRaw("case status when 'resolved' then 1 else 0 end")
             ->orderByDesc('last_fired_at')
             ->orderByDesc('id')
-            ->paginate(min($request->integer('per_page', 25), 100));
+            ->paginate($this->perPage($request));
 
         return ApiResponse::paginated(AlertEventResource::collection($events));
     }
 
     public function show(AlertEvent $alert)
     {
-        return ApiResponse::success(new AlertEventResource($alert->load('rule:id,key,name')));
+        return ApiResponse::success(['alert' => AlertEventResource::make($alert->load('rule:id,key,name'))]);
     }
 
     /**
@@ -92,7 +92,7 @@ class AlertEventController extends Controller
 
         $this->audit->record($request->user('super-admin'), 'alerts.acknowledged', $alert, null, ['title' => $alert->title]);
 
-        return ApiResponse::success(new AlertEventResource($alert->load('rule:id,key,name')), 'Alert acknowledged.');
+        return ApiResponse::success(['alert' => AlertEventResource::make($alert->load('rule:id,key,name'))], 'Alert acknowledged.');
     }
 
     public function resolve(Request $request, AlertEvent $alert)
@@ -103,6 +103,6 @@ class AlertEventController extends Controller
 
         $this->audit->record($request->user('super-admin'), 'alerts.resolved', $alert, null, ['title' => $alert->title]);
 
-        return ApiResponse::success(new AlertEventResource($alert->load('rule:id,key,name')), 'Alert resolved.');
+        return ApiResponse::success(['alert' => AlertEventResource::make($alert->load('rule:id,key,name'))], 'Alert resolved.');
     }
 }

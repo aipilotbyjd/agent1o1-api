@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Agents;
 
+use App\Enums\Queue;
 use App\Models\Agents\Agent;
 use App\Services\Agents\ReflectionAnalyzer;
 use Illuminate\Bus\Queueable;
@@ -18,7 +19,13 @@ class RunReflectionJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(public Agent $agent) {}
+    public int $timeout = 600;
+
+    public function __construct(public Agent $agent)
+    {
+        $this->onConnection(config('queue.long_running_connection'));
+        $this->onQueue(Queue::LongRunning->value);
+    }
 
     public function handle(ReflectionAnalyzer $analyzer): void
     {

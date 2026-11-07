@@ -16,6 +16,7 @@ use App\Http\Responses\ApiResponse;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentSession;
 use App\Models\Workspaces\Workspace;
+use Illuminate\Http\Request;
 
 class AgentSessionController extends Controller
 {
@@ -96,17 +97,15 @@ class AgentSessionController extends Controller
      * which is fine for a fresh session and wrong for a long-running one:
      * this is what a chat window pages backwards through.
      */
-    public function messages(Workspace $workspace, Agent $agent, AgentSession $session)
+    public function messages(Request $request, Workspace $workspace, Agent $agent, AgentSession $session)
     {
         $this->requirePermission(Permission::AgentView);
         $this->ensureBelongsToWorkspace($workspace, $agent);
         abort_if($session->agent_id !== $agent->id, 404);
 
-        $perPage = (int) request()->integer('per_page', 50);
-
         return ApiResponse::paginated(
             AgentMessageResource::collection(
-                $session->messages()->with(['attachments.agent', 'skill'])->oldest('id')->paginate(min(max($perPage, 1), 200)),
+                $session->messages()->with(['attachments.agent', 'skill'])->oldest('id')->paginate($this->perPage($request, 50, 200)),
             ),
         );
     }
