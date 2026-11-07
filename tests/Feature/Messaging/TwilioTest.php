@@ -389,7 +389,7 @@ describe('twilio triggers', function () {
         $received = fn (string $sid, array $extra = []) => twilioMessage(['sid' => $sid, 'direction' => 'inbound', 'status' => 'received', ...$extra]);
 
         $poll([$received('SM3333333333333333333333333333333a')]);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll([
@@ -397,7 +397,7 @@ describe('twilio triggers', function () {
             twilioMessage(['sid' => 'SM3333333333333333333333333333333b']),
             $received('SM3333333333333333333333333333333a'),
         ], ['GET /Messages/SM3333333333333333333333333333333c/Media.json' => ['media_list' => [['sid' => 'ME1', 'uri' => '/2010-04-01/Accounts/'.TWILIO_SID.'/Messages/SM3333333333333333333333333333333c/Media/ME1.json', 'content_type' => 'image/jpeg']]]]);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         $events = $trigger->events()->where('status', 'queued')->get();
 

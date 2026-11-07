@@ -276,11 +276,11 @@ describe('resend triggers', function () {
         $poll = fn (array $emails) => fakeResend(['GET /emails' => ['data' => $emails, 'has_more' => false]]);
 
         $poll([resendEmail('e1', 'bounced')]);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll([resendEmail('e3', 'bounced'), resendEmail('e2', 'delivered'), resendEmail('e1', 'bounced')]);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.id')->all())->toBe(['e3']);
     });

@@ -256,11 +256,11 @@ describe('monday triggers', function () {
         $poll = fn (array $ids) => fakeMonday(['items_page(limit' => ['boards' => [['items_page' => ['cursor' => null, 'items' => array_map(fn (string $id): array => mondayItem($id), $ids)]]]]]);
 
         $poll(['1001']);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll(['1003', '1002', '1001']);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.id')->sort()->values()->all())->toBe(['1002', '1003']);
     });

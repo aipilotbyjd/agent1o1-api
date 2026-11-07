@@ -296,11 +296,11 @@ describe('zoho desk triggers', function () {
         $poll = fn (array $ids) => fakeZohoDesk(['GET /tickets' => ['data' => array_map(fn (string $id): array => zdeskTicket($id), $ids)]]);
 
         $poll(['4876876000000000001']);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll(['4876876000000000003', '4876876000000000002', '4876876000000000001']);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.id')->sort()->values()->all())->toBe(['4876876000000000002', '4876876000000000003']);
     });
