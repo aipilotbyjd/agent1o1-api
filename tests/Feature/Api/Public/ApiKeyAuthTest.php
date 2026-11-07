@@ -47,3 +47,23 @@ it('rejects an expired api key', function () {
         ->getJson('/api/public/v1/me')
         ->assertUnauthorized();
 });
+
+it('rejects an api key whose workspace is suspended', function () {
+    $owner = User::factory()->create();
+    $workspace = app(WorkspaceService::class)->create($owner, ['name' => 'Acme']);
+    $workspace->forceFill(['suspended_at' => now()])->save();
+
+    $plainTextKey = ApiKey::generatePlainTextKey();
+    $apiKey = $workspace->apiKeys()->create([
+        'name' => 'CI key',
+        'hashed_key' => ApiKey::hash($plainTextKey),
+        'abilities' => ['*'],
+    ]);
+
+    $this->withToken($plainTextKey)
+        ->getJson('/api/public/v1/me')
+        ->assertForbidden()
+        ->assertJsonPath('message', 'This workspace has been suspended.');
+
+    expect($apiKey->fresh()->last_used_at)->toBeNull();
+});
