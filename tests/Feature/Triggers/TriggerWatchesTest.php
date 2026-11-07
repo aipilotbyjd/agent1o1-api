@@ -323,8 +323,8 @@ describe('when push falls behind', function () {
         [, , $trigger] = watchedTrigger('gmail', 'gmail_list_messages');
         Queue::fake([FireTriggerEvent::class]);
 
-        dispatch_sync(new PollTrigger($trigger->fresh())); // baseline
-        dispatch_sync(new PollTrigger($trigger->fresh())); // nobody poked it, yet there is mail
+        pollNow(new PollTrigger($trigger->fresh())); // baseline
+        pollNow(new PollTrigger($trigger->fresh())); // nobody poked it, yet there is mail
 
         expect($trigger->subscription->fresh()->status)->toBe(SubscriptionStatus::Degraded);
     });
@@ -339,9 +339,9 @@ describe('when push falls behind', function () {
         [, , $trigger] = watchedTrigger('gmail', 'gmail_list_messages');
         Queue::fake([FireTriggerEvent::class]);
 
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
         Cache::put(PollTrigger::pokeKey($trigger), true, 60);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->subscription->fresh()->status)->toBe(SubscriptionStatus::Active);
     });
@@ -376,7 +376,7 @@ describe('when push falls behind', function () {
         Queue::fake([FireTriggerEvent::class]);
         $pokeKey = PollTrigger::pokeKey($trigger);
 
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->fresh()->next_poll_at->lte(now()->addSecond()))->toBeTrue();
     });

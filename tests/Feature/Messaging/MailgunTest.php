@@ -321,11 +321,11 @@ describe('mailgun triggers', function () {
         $poll = fn (array $ids) => fakeMailgun(['GET /v3/mg.example.com/events' => ['items' => array_map(fn (string $id): array => mailgunEvent($id, 'opened'), $ids), 'paging' => ['next' => '']]]);
 
         $poll(['ev1']);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll(['ev3', 'ev2', 'ev1']);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.id')->sort()->values()->all())->toBe(['ev2', 'ev3']);
     });

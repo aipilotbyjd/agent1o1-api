@@ -270,11 +270,11 @@ describe('clickup triggers', function () {
         $poll = fn (array $ids) => fakeClickUp(['GET /list/901/task' => ['tasks' => array_map(fn (string $id): array => clickupTask($id), $ids)]]);
 
         $poll(['t1']);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll(['t3', 't2', 't1']);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.id')->sort()->values()->all())->toBe(['t2', 't3']);
     });

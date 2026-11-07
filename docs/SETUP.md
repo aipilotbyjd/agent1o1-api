@@ -158,36 +158,23 @@ psql -h 127.0.0.1 -U <your-user> -d <database> -Atc "select count(*) from oauth_
 
 You want both key files and `0` clients on a fresh database.
 
-### 7.2 Create the keys (only if missing)
+### 7.2 Create the keys and the password client
 
 ```bash
-php artisan passport:keys
+php artisan setup:passport
 ```
 
-Add `--force` only to replace existing keys. Replacing them signs everyone out.
+`composer setup` runs this for you. It:
 
-### 7.3 Create the password client
+- creates the encryption keys if they are missing (it never replaces existing keys, because that signs everyone out);
+- creates the password client with the `password`, `refresh_token` and `social_exchange` grants, and writes `PASSPORT_PASSWORD_CLIENT_ID` and `PASSPORT_PASSWORD_CLIENT_SECRET` to `.env`;
+- when `.env` already has an ID and secret, creates the client with those values if the database has none (after `migrate:fresh`, for example), or adds any missing grant to it.
 
-```bash
-php artisan passport:client --password
-```
+It is safe to run again. Pass `--no-env` to print the ID and secret instead of writing them, for an environment whose variables live somewhere else. The secret is shown only once.
 
-If the flags differ in your Passport version, check `php artisan passport:client --help`. The command prints a client ID and a secret. The secret is shown only once, so copy it straight away.
+Without this client, sign-up and sign-in fail with "The request is missing a required parameter…" on the email field.
 
-### 7.4 Add the client to `.env`
-
-```dotenv
-PASSPORT_PASSWORD_CLIENT_ID=<the id>
-PASSPORT_PASSWORD_CLIENT_SECRET=<the secret>
-```
-
-Then clear any cached config:
-
-```bash
-php artisan config:clear
-```
-
-### 7.5 Check that it works
+### 7.3 Check that it works
 
 Sign in through the login endpoint and confirm the response contains an access token.
 

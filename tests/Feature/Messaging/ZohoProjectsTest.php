@@ -253,11 +253,11 @@ describe('zoho projects triggers', function () {
         $poll = fn (array $ids) => fakeZohoProjects(['GET /tasks' => ['tasks' => array_map(fn (string $id): array => zprojTask($id), $ids)]]);
 
         $poll(['1234500000000001']);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll(['1234500000000003', '1234500000000002', '1234500000000001']);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.id')->sort()->values()->all())->toBe(['1234500000000002', '1234500000000003']);
     });

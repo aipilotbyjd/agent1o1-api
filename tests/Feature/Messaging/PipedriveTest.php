@@ -295,11 +295,11 @@ describe('pipedrive triggers', function () {
         $poll = fn (array $ids) => fakePipedrive(['GET /deals' => pipedriveOk(array_map(fn (int $id): array => pipedriveDeal($id), $ids))]);
 
         $poll([1]);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll([3, 2, 1]);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.id')->sort()->values()->all())->toBe([2, 3]);
     });

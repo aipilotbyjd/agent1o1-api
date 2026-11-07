@@ -591,7 +591,7 @@ describe('discord polling triggers', function () {
 
         // Newest first, as Discord lists them.
         $poll([discordMessage(['id' => '555555555555555501'])]);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll([
@@ -599,7 +599,7 @@ describe('discord polling triggers', function () {
             discordMessage(['id' => '555555555555555502', 'author' => ['id' => '1', 'username' => 'bot', 'bot' => true]]),
             discordMessage(['id' => '555555555555555501']),
         ]);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         // The bot's own message is left out by default.
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.id')->all())->toBe(['555555555555555503']);

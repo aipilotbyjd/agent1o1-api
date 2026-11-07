@@ -400,11 +400,11 @@ describe('stripe triggers', function () {
         $poll = fn (array $events) => fakeStripe(['GET /v1/events' => ['has_more' => false, 'data' => $events]]);
 
         $poll([stripeEvent('evt_1', 'invoice.paid')]);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll([stripeEvent('evt_3', 'invoice.paid'), stripeEvent('evt_2', 'invoice.paid'), stripeEvent('evt_1', 'invoice.paid')]);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         $events = $trigger->events()->where('status', 'queued')->get();
 
@@ -412,8 +412,8 @@ describe('stripe triggers', function () {
             ->and($events->first()->payload)->toMatchArray(['type' => 'invoice.paid', 'object_type' => 'payment_intent', 'object_id' => 'pi_1']);
 
         // The webhook and the next poll see the same events again: nothing more runs.
-        dispatch_sync(new PollTrigger($trigger->fresh()));
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->count())->toBe(2);
     });
@@ -849,10 +849,10 @@ describe('stripe trigger presets', function () {
         $poll = fn (array $events) => fakeStripe(['GET /v1/events' => ['has_more' => false, 'data' => $events]]);
 
         $poll([$dispute('evt_1')]);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         $poll([$dispute('evt_2'), $dispute('evt_1')]);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         $events = $trigger->events()->where('status', 'queued')->get();
 
