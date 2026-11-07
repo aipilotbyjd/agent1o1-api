@@ -19,6 +19,7 @@ use App\Models\Templates\WorkflowTemplate;
 use App\Services\SuperAdmin\Catalog\SuperAdminCatalogService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class SuperAdminCatalogController extends Controller
 {
@@ -68,9 +69,10 @@ class SuperAdminCatalogController extends Controller
             ->when($request->filled('workspace_id'), fn ($query) => $query->where('workspace_id', $request->string('workspace_id')))
             ->when($request->has('active'), fn ($query) => $query->where('is_active', $request->boolean('active')))
             ->orderBy('name')
-            ->paginate(min($request->integer('per_page', 25), 100));
+            ->paginate($this->perPage($request))
+            ->through(fn (CustomNode $node): array => $this->node($node));
 
-        return ApiResponse::success($nodes->getCollection()->map(fn (CustomNode $node): array => $this->node($node))->all());
+        return ApiResponse::paginated(JsonResource::collection($nodes));
     }
 
     public function enableNode(ReasonRequest $request, CustomNode $node)

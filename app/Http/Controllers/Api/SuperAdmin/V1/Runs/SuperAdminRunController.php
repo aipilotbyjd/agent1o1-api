@@ -42,7 +42,7 @@ class SuperAdminRunController extends Controller
             ->when($request->boolean('with_error'), fn ($query) => $query->whereNotNull('error'))
             ->orderByDesc('created_at')
             ->orderByDesc('id')
-            ->cursorPaginate(min($request->integer('per_page', 50), 100));
+            ->cursorPaginate($this->perPage($request, 50));
 
         return ApiResponse::cursorPaginated(SuperAdminRunResource::collection($runs));
     }

@@ -30,7 +30,7 @@ class SuperAdminAccountController extends Controller
             ->when($request->filled('role'), fn ($query) => $query->where('role', $request->string('role')))
             ->when($request->boolean('disabled'), fn ($query) => $query->whereNotNull('disabled_at'))
             ->orderBy('created_at')
-            ->paginate(min($request->integer('per_page', 25), 100));
+            ->paginate($this->perPage($request));
 
         return ApiResponse::paginated(SuperAdminAccountResource::collection($accounts));
     }

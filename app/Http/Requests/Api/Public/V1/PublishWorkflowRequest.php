@@ -17,7 +17,7 @@ class PublishWorkflowRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'notes' => ['sometimes', 'nullable', 'string', 'max:1000'],
+            'notes' => ['nullable', 'string', 'max:500'],
         ];
     }
 }

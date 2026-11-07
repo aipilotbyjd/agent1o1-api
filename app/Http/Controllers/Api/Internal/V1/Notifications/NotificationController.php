@@ -15,7 +15,7 @@ class NotificationController extends Controller
         $notifications = $request->user()->notifications()
             ->when($request->boolean('unread'), fn ($query) => $query->whereNull('read_at'))
             ->latest()
-            ->paginate($request->integer('per_page', 25));
+            ->paginate($this->perPage($request));
 
         return ApiResponse::paginated(NotificationResource::collection($notifications));
     }
@@ -30,7 +30,7 @@ class NotificationController extends Controller
         $databaseNotification = $request->user()->notifications()->findOrFail($notification);
         $databaseNotification->markAsRead();
 
-        return ApiResponse::success(new NotificationResource($databaseNotification), 'Notification marked read.');
+        return ApiResponse::success(['notification' => NotificationResource::make($databaseNotification)], 'Notification marked read.');
     }
 
     public function markAllRead(Request $request): JsonResponse

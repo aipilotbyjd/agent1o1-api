@@ -383,6 +383,25 @@ return [
             'timeout' => 60,
             'nice' => (int) env('HORIZON_BILLING_NICE', 0),
         ],
+        // Long background syncs: knowledge and skill sources, knowledge
+        // ingestion and agent reflections. Kept off `supervisor-1` so a
+        // 15-minute sync never sits in front of live Reverb broadcasts, and
+        // on the `redis-long` connection whose retry_after (960s) exceeds
+        // this timeout, so a still-running sync is never handed to a second
+        // worker.
+        'supervisor-long-running' => [
+            'connection' => 'redis-long',
+            'queue' => ['system-long-running'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 1,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 256,
+            'tries' => 1,
+            'timeout' => 900,
+            'nice' => 0,
+        ],
         // Super Admin email campaigns: bulk and rate-limited, so they get their
         // own supervisor and can never queue ahead of notifications or billing.
         'supervisor-broadcasts' => [
@@ -455,6 +474,11 @@ return [
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
+            'supervisor-long-running' => [
+                'maxProcesses' => 3,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
         ],
 
         'local' => [
@@ -489,6 +513,9 @@ return [
                 'maxProcesses' => 1,
             ],
             'supervisor-broadcasts' => [
+                'maxProcesses' => 1,
+            ],
+            'supervisor-long-running' => [
                 'maxProcesses' => 1,
             ],
         ],

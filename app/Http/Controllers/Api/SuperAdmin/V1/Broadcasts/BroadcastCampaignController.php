@@ -29,7 +29,7 @@ class BroadcastCampaignController extends Controller
             ->when($request->filled('q'), fn ($query) => $query->where(fn ($inner) => $inner->whereLike('name', '%'.$request->string('q').'%')->orWhereLike('subject', '%'.$request->string('q').'%')))
             ->latest()
             ->orderBy('id')
-            ->paginate(min($request->integer('per_page', 25), 100));
+            ->paginate($this->perPage($request));
 
         return ApiResponse::paginated(BroadcastCampaignResource::collection($campaigns));
     }

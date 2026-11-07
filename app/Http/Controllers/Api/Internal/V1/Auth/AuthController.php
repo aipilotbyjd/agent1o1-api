@@ -249,7 +249,7 @@ class AuthController extends Controller
             ->authEvents()
             ->orderByDesc('created_at')
             ->orderByDesc('id')
-            ->paginate(perPage: max(1, min($request->integer('per_page', 25), 100)));
+            ->paginate(perPage: $this->perPage($request));
 
         return ApiResponse::paginated(AuthEventResource::collection($events));
     }

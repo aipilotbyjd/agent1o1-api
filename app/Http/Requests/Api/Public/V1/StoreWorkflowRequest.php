@@ -18,8 +18,8 @@ class StoreWorkflowRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'slug' => ['sometimes', 'string', 'max:255', 'alpha_dash'],
-            'description' => ['sometimes', 'nullable', 'string'],
+            'slug' => ['nullable', 'string', 'max:255', 'alpha_dash'],
+            'description' => ['nullable', 'string'],
         ];
     }
 }

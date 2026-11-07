@@ -11,6 +11,7 @@ use App\Http\Requests\Api\SuperAdmin\V1\System\FlushFailedJobsRequest;
 use App\Http\Responses\ApiResponse;
 use App\Services\SuperAdmin\System\FailedJobService;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class SystemFailedJobController extends Controller
 {
@@ -20,20 +21,9 @@ class SystemFailedJobController extends Controller
     {
         $filters = $request->validate(FailedJobFilters::rules());
 
-        $page = $this->failedJobs->paginate($filters, min($request->integer('per_page', 25), 100));
+        $page = $this->failedJobs->paginate($filters, $this->perPage($request));
 
-        return response()->json([
-            'success' => true,
-            'statusCode' => 200,
-            'message' => 'Success',
-            'data' => $page->items(),
-            'meta' => [
-                'current_page' => $page->currentPage(),
-                'last_page' => $page->lastPage(),
-                'per_page' => $page->perPage(),
-                'total' => $page->total(),
-            ],
-        ]);
+        return ApiResponse::paginated(JsonResource::collection($page));
     }
 
     public function summary(Request $request)
