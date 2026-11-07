@@ -280,11 +280,11 @@ describe('airtable triggers', function () {
         $poll = fn (array $ids) => fakeAirtable(['GET /'.AIRTABLE_BASE.'/Campaigns' => ['records' => array_map(fn (string $id): array => airtableRecord($id), $ids)]]);
 
         $poll(['recA']);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll(['recC', 'recB', 'recA']);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.id')->sort()->values()->all())->toBe(['recB', 'recC']);
     });

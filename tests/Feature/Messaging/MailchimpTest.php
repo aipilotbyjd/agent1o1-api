@@ -314,11 +314,11 @@ describe('mailchimp triggers', function () {
         $poll = fn (array $emails) => fakeMailchimp(['GET /lists/'.MAILCHIMP_LIST.'/members' => ['members' => array_map(fn (string $email): array => mailchimpMember($email), $emails)]]);
 
         $poll(['a@x.co']);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll(['c@x.co', 'b@x.co', 'a@x.co']);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.email')->sort()->values()->all())->toBe(['b@x.co', 'c@x.co']);
     });

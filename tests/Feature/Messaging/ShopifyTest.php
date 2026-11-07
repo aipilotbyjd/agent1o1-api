@@ -504,12 +504,12 @@ describe('shopify triggers', function () {
         $poll = fn (array $orders) => fakeShopify(['GET /orders.json' => ['orders' => $orders]]);
 
         $poll([shopifyOrder(1)]);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll([shopifyOrder(3, ['created_at' => '2026-03-03T00:00:00+00:00']), shopifyOrder(2, ['created_at' => '2026-03-02T00:00:00+00:00']), shopifyOrder(1)]);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         $events = $trigger->events()->where('status', 'queued')->get();
 
@@ -522,11 +522,11 @@ describe('shopify triggers', function () {
         $poll = fn (array $orders) => fakeShopify(['GET /orders.json' => ['orders' => $orders]]);
 
         $poll([]);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         $poll([shopifyOrder(7)]);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
         $poll([shopifyOrder(7, ['updated_at' => '2026-03-02T09:00:00+00:00', 'note' => 'edited'])]);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->count())->toBe(1);
         Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'financial_status=paid') && str_contains($request->url(), 'updated_at_min='));
@@ -537,12 +537,12 @@ describe('shopify triggers', function () {
         $poll = fn (array $orders) => fakeShopify(['GET /orders.json' => ['orders' => $orders]]);
 
         $poll([]);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         $poll([shopifyOrder(7)]);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
         $poll([shopifyOrder(7, ['updated_at' => '2026-03-02T09:00:00+00:00'])]);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->count())->toBe(2);
     });

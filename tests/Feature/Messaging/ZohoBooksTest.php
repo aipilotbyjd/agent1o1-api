@@ -303,11 +303,11 @@ describe('zoho books triggers', function () {
         $poll = fn (array $ids) => fakeZohoBooks(['GET /invoices' => ['invoices' => array_map(fn (string $id): array => zbooksInvoice($id), $ids), 'page_context' => ['has_more_page' => false]]]);
 
         $poll(['460000000000001']);
-        dispatch_sync(new PollTrigger($trigger));
+        pollNow(new PollTrigger($trigger));
         expect($trigger->events()->where('status', 'queued')->count())->toBe(0);
 
         $poll(['460000000000003', '460000000000002', '460000000000001']);
-        dispatch_sync(new PollTrigger($trigger->fresh()));
+        pollNow(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.id')->sort()->values()->all())->toBe(['460000000000002', '460000000000003']);
     });
