@@ -25,14 +25,20 @@ class AgentSessionController extends Controller
         private readonly SendAgentMessageAction $sendMessage,
     ) {}
 
-    public function index(Workspace $workspace, Agent $agent)
+    public function index(Request $request, Workspace $workspace, Agent $agent)
     {
         $this->requirePermission(Permission::AgentView);
         $this->ensureBelongsToWorkspace($workspace, $agent);
 
-        return ApiResponse::success([
-            'sessions' => AgentSessionResource::collection($agent->sessions()->whereNull('parent_session_id')->withCount(['messages', 'pendingActions'])->latest()->get()),
-        ]);
+        $sessions = $agent->sessions()
+            ->whereNull('parent_session_id')
+            ->withCount(['messages', 'pendingActions'])
+            ->latest()
+            ->orderByDesc('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
+
+        return ApiResponse::cursorPaginated(AgentSessionResource::collection($sessions));
     }
 
     public function store(StoreAgentSessionRequest $request, Workspace $workspace, Agent $agent)

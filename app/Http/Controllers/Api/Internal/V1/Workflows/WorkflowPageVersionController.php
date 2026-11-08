@@ -21,13 +21,18 @@ class WorkflowPageVersionController extends Controller
 {
     public function __construct(private readonly PageVersions $versions) {}
 
-    public function index(Workspace $workspace, WorkflowPage $page)
+    public function index(Request $request, Workspace $workspace, WorkflowPage $page)
     {
         $this->authorizePage($workspace, $page);
 
-        $versions = $page->versions()->with('creator:id,name')->orderByDesc('number')->get();
+        $versions = $page->versions()
+            ->with('creator:id,name')
+            ->orderByDesc('number')
+            ->orderByDesc('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
 
-        return ApiResponse::success(['versions' => WorkflowPageVersionResource::collection($versions)]);
+        return ApiResponse::cursorPaginated(WorkflowPageVersionResource::collection($versions));
     }
 
     public function show(Workspace $workspace, WorkflowPage $page, WorkflowPageVersion $version)

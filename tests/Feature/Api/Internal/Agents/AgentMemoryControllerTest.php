@@ -16,8 +16,8 @@ it('lists an agent\'s memories', function () {
     $response = $this->getJson("/api/v1/workspaces/{$workspace->id}/agents/{$agent->id}/memories");
 
     $response->assertOk();
-    expect($response->json('data.memories'))->toHaveCount(1);
-    expect($response->json('data.memories.0.key'))->toBe('company_name');
+    expect($response->json('data'))->toHaveCount(1);
+    expect($response->json('data.0.key'))->toBe('company_name');
 });
 
 it('creates a memory', function () {

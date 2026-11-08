@@ -32,11 +32,11 @@ class AgentController extends Controller
                 ? $query->whereHas('tags', fn ($tags) => $tags->whereKey($tagId))
                 : $query->whereRaw('1 = 0'))
             ->latest()
-            ->get();
+            ->orderByDesc('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
 
-        return ApiResponse::success([
-            'agents' => AgentResource::collection($agents),
-        ]);
+        return ApiResponse::cursorPaginated(AgentResource::collection($agents));
     }
 
     /**
@@ -104,7 +104,7 @@ class AgentController extends Controller
      * `destroy` only soft-deletes, so the trash is every trashed agent:
      * most recently trashed first.
      */
-    public function trash(Workspace $workspace)
+    public function trash(Request $request, Workspace $workspace)
     {
         $this->requirePermission(Permission::AgentView);
 
@@ -112,11 +112,11 @@ class AgentController extends Controller
             ->onlyTrashed()
             ->with('tags')
             ->latest('deleted_at')
-            ->get();
+            ->orderByDesc('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
 
-        return ApiResponse::success([
-            'agents' => AgentResource::collection($agents),
-        ]);
+        return ApiResponse::cursorPaginated(AgentResource::collection($agents));
     }
 
     /**

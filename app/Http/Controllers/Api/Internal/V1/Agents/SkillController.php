@@ -31,13 +31,18 @@ class SkillController extends Controller
      */
     private const array SYNCED_EDITABLE = ['category', 'icon', 'color', 'tags', 'is_shared'];
 
-    public function index(Workspace $workspace)
+    public function index(Request $request, Workspace $workspace)
     {
         $this->requirePermission(Permission::AgentView);
 
-        return ApiResponse::success([
-            'skills' => SkillResource::collection($workspace->skills()->with('source')->latest()->get()),
-        ]);
+        $skills = $workspace->skills()
+            ->with('source')
+            ->latest()
+            ->orderByDesc('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
+
+        return ApiResponse::cursorPaginated(SkillResource::collection($skills));
     }
 
     public function store(StoreSkillRequest $request, Workspace $workspace)
