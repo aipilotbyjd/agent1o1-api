@@ -83,7 +83,7 @@ it('lists prices, filters them, and finds the stale ones', function () {
     ModelPrice::factory()->stale(200)->create(['provider' => 'openai', 'model_id' => 'gpt-stale']);
     ModelPrice::factory()->create(['provider' => 'anthropic', 'model_id' => 'claude-x', 'checked_at' => null]);
 
-    $ids = fn (string $query) => array_column($this->withHeaders($this->headers)->getJson(saUrl("models/prices?{$query}"))->json('data'), 'model_id');
+    $ids = fn (string $query) => array_column($this->withHeaders($this->headers)->getJson(saUrl("models/prices?{$query}"))->json('data.prices'), 'model_id');
 
     expect($ids(''))->toBe(['claude-x', 'gpt-fresh', 'gpt-stale'])
         ->and($ids('provider=anthropic'))->toBe(['claude-x'])

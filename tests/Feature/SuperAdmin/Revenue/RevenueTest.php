@@ -13,7 +13,8 @@ use App\Services\Workspaces\WorkspaceService;
 use Illuminate\Support\Str;
 
 beforeEach(function () {
-    $this->headers = superAdminHeaders(superAdmin(SuperAdminRole::Finance));
+    $this->admin = superAdmin(SuperAdminRole::Finance);
+    $this->headers = superAdminHeaders($this->admin);
 
     $this->starter = Plan::factory()->create(['slug' => 'starter', 'name' => 'Starter', 'price_monthly' => 1000, 'price_quarterly' => 2700, 'price_yearly' => 12000, 'stripe_price_id_monthly' => 'price_starter_m', 'stripe_price_id_quarterly' => 'price_starter_q', 'stripe_price_id_yearly' => 'price_starter_y']);
     $this->pro = Plan::factory()->create(['slug' => 'pro', 'name' => 'Pro', 'price_monthly' => 5000, 'price_quarterly' => 14000, 'price_yearly' => 54000, 'stripe_price_id_monthly' => 'price_pro_m', 'stripe_price_id_quarterly' => 'price_pro_q', 'stripe_price_id_yearly' => 'price_pro_y']);
@@ -95,6 +96,7 @@ it('compares with the start of the period', function () {
 
 it('breaks the month down into new, returning and lost revenue', function () {
     $this->travelTo(now()->startOfMonth()->addDays(10));
+    $this->headers = superAdminHeaders($this->admin); // the access token only lives minutes, so issue it at the travelled time
 
     $thisMonth = subscribe($this->pro);                                                                    // new: 5000
     $lastMonth = backdate(subscribe($this->starter), now()->subMonth()->startOfMonth()->addDays(3));      // started before: not new now
@@ -209,6 +211,7 @@ it('lists subscriptions that cannot be charged, with the amount at risk', functi
 
 it('builds paid-retention cohorts by the month a workspace started paying', function () {
     $this->travelTo(now()->startOfMonth()->addDays(10));
+    $this->headers = superAdminHeaders($this->admin); // the access token only lives minutes, so issue it at the travelled time
 
     // Two workspaces started two months ago; one is still paying.
     backdate(subscribe($this->pro), now()->subMonths(2)->startOfMonth()->addDay());
