@@ -19,6 +19,7 @@ Route::middleware(['auth:api', 'workspace.context'])
     ->group(function () {
         Route::get('/', [WorkflowController::class, 'index'])->name('index');
         Route::post('/', [WorkflowController::class, 'store'])->name('store');
+        Route::get('summary', [WorkflowController::class, 'summary'])->name('summary');
         Route::get('trash', [WorkflowController::class, 'trash'])->name('trash');
         Route::get('{workflow}', [WorkflowController::class, 'show'])->name('show');
         Route::patch('{workflow}', [WorkflowController::class, 'update'])->name('update');
