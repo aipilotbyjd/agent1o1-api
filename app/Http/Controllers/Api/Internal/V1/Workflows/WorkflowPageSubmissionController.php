@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Internal\V1\Workflows;
 
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Internal\V1\Workflows\ListWorkflowPageSubmissionsRequest;
 use App\Http\Requests\Api\Internal\V1\Workflows\SubmitWorkflowPageRequest;
 use App\Http\Resources\Api\Internal\V1\Workflows\WorkflowPageSubmissionResource;
 use App\Http\Responses\ApiResponse;
@@ -14,7 +15,6 @@ use App\Services\Workflows\Pages\PageInsights;
 use App\Services\Workflows\Pages\PageSchema;
 use App\Services\Workflows\Pages\PageSubmissions;
 use App\Services\Workflows\WorkflowInterface;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -37,7 +37,7 @@ class WorkflowPageSubmissionController extends Controller
      * The page's submissions, newest first, a page at a time: narrowed by
      * status, version, date and whether builder test runs are included.
      */
-    public function index(Request $request, Workspace $workspace, WorkflowPage $page)
+    public function index(ListWorkflowPageSubmissionsRequest $request, Workspace $workspace, WorkflowPage $page)
     {
         $this->requirePermission(Permission::PageView);
         $this->ensureBelongsToWorkspace($workspace, $page);
@@ -58,7 +58,7 @@ class WorkflowPageSubmissionController extends Controller
      * when, how it ended, who, the version, the inputs and the outputs the
      * page shows.
      */
-    public function export(Request $request, Workspace $workspace, WorkflowPage $page, WorkflowInterface $interface): StreamedResponse
+    public function export(ListWorkflowPageSubmissionsRequest $request, Workspace $workspace, WorkflowPage $page, WorkflowInterface $interface): StreamedResponse
     {
         $this->requirePermission(Permission::PageManage);
         $this->ensureBelongsToWorkspace($workspace, $page);
@@ -152,15 +152,9 @@ class WorkflowPageSubmissionController extends Controller
     /**
      * @return array{status: ?string, variant: ?string, include_tests: bool, from: ?string, to: ?string}
      */
-    private function filters(Request $request): array
+    private function filters(ListWorkflowPageSubmissionsRequest $request): array
     {
-        $validated = $request->validate([
-            'status' => ['nullable', 'in:'.implode(',', array_keys(PageInsights::STATUSES))],
-            'variant' => ['nullable', 'in:a,b'],
-            'include_tests' => ['nullable', 'boolean'],
-            'from' => ['nullable', 'date'],
-            'to' => ['nullable', 'date'],
-        ]);
+        $validated = $request->validated();
 
         return [
             'status' => $validated['status'] ?? null,

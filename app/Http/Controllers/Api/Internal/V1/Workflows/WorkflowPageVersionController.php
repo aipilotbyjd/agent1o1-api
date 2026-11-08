@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Internal\V1\Workflows;
 
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Internal\V1\Workflows\StoreWorkflowPageVersionRequest;
 use App\Http\Resources\Api\Internal\V1\Workflows\WorkflowPageResource;
 use App\Http\Resources\Api\Internal\V1\Workflows\WorkflowPageVersionResource;
 use App\Http\Responses\ApiResponse;
@@ -42,14 +43,11 @@ class WorkflowPageVersionController extends Controller
      * Saves the drafts as they are now, with an optional label, also used
      * by the builder before it applies an AI design.
      */
-    public function store(Request $request, Workspace $workspace, WorkflowPage $page)
+    public function store(StoreWorkflowPageVersionRequest $request, Workspace $workspace, WorkflowPage $page)
     {
         $this->authorizePage($workspace, $page);
 
-        $validated = $request->validate([
-            'label' => ['nullable', 'string', 'max:120'],
-            'kind' => ['nullable', 'in:'.WorkflowPageVersion::Saved.','.WorkflowPageVersion::BeforeGeneration],
-        ]);
+        $validated = $request->validated();
 
         $version = $this->versions->snapshot($page, $validated['kind'] ?? WorkflowPageVersion::Saved, $request->user(), $validated['label'] ?? null);
 

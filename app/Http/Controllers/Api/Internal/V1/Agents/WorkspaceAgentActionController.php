@@ -3,20 +3,17 @@
 namespace App\Http\Controllers\Api\Internal\V1\Agents;
 
 use App\Actions\Agents\ResolveAgentActionsAction;
-use App\Enums\Agents\ActionEffect;
-use App\Enums\Agents\ActionRisk;
 use App\Enums\Agents\ActionToolKind;
 use App\Enums\Agents\AgentActionStatus;
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Internal\V1\Agents\DecideAgentActionsRequest;
+use App\Http\Requests\Api\Internal\V1\Agents\ListWorkspaceAgentActionsRequest;
 use App\Http\Resources\Api\Internal\V1\Agents\AgentActionResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Agents\AgentAction;
 use App\Models\Workspaces\Workspace;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 /**
  * The workspace's approvals inbox: every agent action waiting on someone,
@@ -29,16 +26,11 @@ class WorkspaceAgentActionController extends Controller
 {
     public function __construct(private readonly ResolveAgentActionsAction $resolve) {}
 
-    public function index(Request $request, Workspace $workspace)
+    public function index(ListWorkspaceAgentActionsRequest $request, Workspace $workspace)
     {
         $this->requirePermission(Permission::AgentView);
 
-        $filters = $request->validate([
-            'status' => ['nullable', Rule::enum(AgentActionStatus::class)],
-            'agent_id' => ['nullable', 'uuid'],
-            'effect' => ['nullable', Rule::enum(ActionEffect::class)],
-            'risk' => ['nullable', Rule::enum(ActionRisk::class)],
-        ]);
+        $filters = $request->validated();
 
         $status = $filters['status'] ?? AgentActionStatus::Pending->value;
 

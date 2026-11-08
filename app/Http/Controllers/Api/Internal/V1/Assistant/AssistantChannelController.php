@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\Internal\V1\Assistant;
 use App\Enums\Billing\Feature;
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Internal\V1\Assistant\ConfirmSmsVerificationRequest;
+use App\Http\Requests\Api\Internal\V1\Assistant\StartSmsVerificationRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Assistant\AssistantPhoneNumber;
 use App\Models\Assistant\AssistantSlackInstall;
@@ -50,22 +52,22 @@ class AssistantChannelController extends Controller
         ]);
     }
 
-    public function smsStart(Request $request, Workspace $workspace, PhoneVerification $verification, TwilioSms $twilio): JsonResponse
+    public function smsStart(StartSmsVerificationRequest $request, Workspace $workspace, PhoneVerification $verification, TwilioSms $twilio): JsonResponse
     {
         $this->requirePermission(Permission::AssistantUse);
         abort_unless($twilio->configured(), 404, 'Texting is not set up on this server.');
         abort_unless((bool) $workspace->currentPlan()?->hasFeature(Feature::AssistantSms), 402, 'Texting needs a plan that includes it.');
 
-        $verification->start($request->user(), (string) $request->validate(['phone' => ['required', 'string', 'max:20']])['phone']);
+        $verification->start($request->user(), $request->validated('phone'));
 
         return ApiResponse::success([], 'Code sent.');
     }
 
-    public function smsConfirm(Request $request, Workspace $workspace, PhoneVerification $verification): JsonResponse
+    public function smsConfirm(ConfirmSmsVerificationRequest $request, Workspace $workspace, PhoneVerification $verification): JsonResponse
     {
         $this->requirePermission(Permission::AssistantUse);
 
-        $number = $verification->confirm($request->user(), (string) $request->validate(['code' => ['required', 'string', 'max:10']])['code']);
+        $number = $verification->confirm($request->user(), $request->validated('code'));
 
         return ApiResponse::success(['phone' => $number->phone], 'Number verified.');
     }
