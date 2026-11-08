@@ -176,7 +176,9 @@ describe('the mechanism, without any controller check', function () {
 
         Passport::actingAs($this->owner);
 
-        Route::middleware(['auth:api', 'workspace.context'])
+        // The `api` group is what binds `{workspace}` to a model before `workspace.context` runs,
+        // as it does for the real routes loaded through `withRouting(api: ...)`.
+        Route::middleware(['api', 'auth:api', 'workspace.context'])
             ->prefix('api/v1/workspaces/{workspace}/__probe')
             ->scopeBindings()
             ->group(function () {
