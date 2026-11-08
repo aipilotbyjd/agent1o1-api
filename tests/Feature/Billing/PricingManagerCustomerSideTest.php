@@ -50,7 +50,7 @@ it('leaves a plan alone when the seeder runs again after an admin edited it', fu
     expect($starter->price_monthly)->toBe(3500)
         ->and($starter->credits_monthly)->toBe(9000)
         ->and($starter->is_active)->toBeFalse()
-        ->and(Plan::query()->count())->toBe(3);
+        ->and(Plan::query()->count())->toBe(4);
 });
 
 it('lists admin-defined packs to customers, with badges, instead of config', function () {

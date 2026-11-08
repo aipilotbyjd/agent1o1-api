@@ -43,15 +43,15 @@ class RememberTool extends AssistantTool
     protected function execute(Request $request): string
     {
         $key = Str::limit(Str::snake(Str::squish((string) $request['key'])), (int) config('assistant.limits.memory_key_max_chars'), '');
-        $value = Str::limit(Str::squish((string) $request['value']), (int) config('assistant.limits.memory_value_max_chars'), '…');
+        $value = $this->capValue(Str::squish((string) $request['value']));
 
         if ($key === '' || $value === '') {
             return 'Nothing was saved: both a key and a value are needed.';
         }
 
-        $memories = $this->assistant->memories();
+        $alreadyRemembered = $this->assistant->memories()->where('key', $key)->exists();
 
-        if (! $memories->where('key', $key)->exists() && $memories->count() >= (int) config('assistant.limits.memories_max')) {
+        if (! $alreadyRemembered && $this->assistant->memories()->count() >= (int) config('assistant.limits.memories_max')) {
             return 'Nothing was saved: too many facts are already remembered. Update an existing key, or ask the person to remove some.';
         }
 
@@ -61,6 +61,21 @@ class RememberTool extends AssistantTool
         );
 
         return "Remembered {$key}.";
+    }
+
+    /**
+     * Trims a value to the configured length, ellipsis included, so the cap is
+     * a real ceiling on what is stored and sent on every turn.
+     */
+    private function capValue(string $value): string
+    {
+        $max = (int) config('assistant.limits.memory_value_max_chars');
+
+        if (mb_strlen($value) <= $max) {
+            return $value;
+        }
+
+        return rtrim(mb_substr($value, 0, max(0, $max - 1))).'…';
     }
 
     public function schema(JsonSchema $schema): array

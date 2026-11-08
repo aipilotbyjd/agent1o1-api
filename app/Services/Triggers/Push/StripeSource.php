@@ -2,6 +2,7 @@
 
 namespace App\Services\Triggers\Push;
 
+use App\Exceptions\WatchRefusedException;
 use App\Models\Triggers\ProviderWatch;
 use App\Models\Triggers\Trigger;
 use App\Nodes\Integrations\Stripe\StripeListEventsNode;
@@ -104,6 +105,7 @@ class StripeSource extends AbstractWatchedSource
      * @param  list<string>  $events
      *
      * @throws RequestException when Stripe refuses it (a URL that isn't public https, a key that can't write endpoints)
+     * @throws WatchRefusedException when Stripe answers without the secret it shows only once
      */
     private function register(ProviderWatch $watch, array $events): void
     {
@@ -116,7 +118,7 @@ class StripeSource extends AbstractWatchedSource
         $secret = $response->json('secret');
 
         if (! is_string($secret) || $secret === '') {
-            throw new RequestException($response);
+            throw new WatchRefusedException('Stripe created the endpoint without a signing secret, so its deliveries could not be verified.');
         }
 
         $watch->external_id = (string) $response->json('id');

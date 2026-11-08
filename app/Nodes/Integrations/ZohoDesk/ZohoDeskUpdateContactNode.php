@@ -41,7 +41,7 @@ class ZohoDeskUpdateContactNode extends AbstractZohoDeskNode
                 'last_name' => Field::text('Last name'),
                 'email' => Field::text('Email'),
                 'phone' => Field::advanced(Field::text('Phone')),
-                    'custom_fields' => Field::advanced(Field::json('Custom fields (JSON)', 'By API name, e.g. {"cf_plan": "Gold"}.')),
+                'custom_fields' => Field::advanced(Field::json('Custom fields (JSON)', 'By API name, e.g. {"cf_plan": "Gold"}.')),
             ],
         ];
     }

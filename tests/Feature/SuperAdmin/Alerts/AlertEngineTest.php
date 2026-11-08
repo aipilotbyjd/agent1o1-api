@@ -6,7 +6,17 @@ use App\Models\SuperAdmin\AlertEvent;
 use App\Models\SuperAdmin\AlertRule;
 use App\Services\Notifications\AdminAlerts;
 use App\Services\SuperAdmin\Alerts\AlertRuleCatalog;
+use App\Services\SuperAdmin\System\HealthChecker;
 use App\Services\SuperAdmin\System\QueueInspector;
+
+beforeEach(function () {
+    // The real checks probe Redis, Reverb and friends, which are down on a bare CI runner.
+    $this->mock(HealthChecker::class)->shouldReceive('run')->andReturn([
+        'status' => 'ok',
+        'checked_at' => now()->toIso8601String(),
+        'checks' => [],
+    ]);
+});
 
 /**
  * Replaces the real alert sender with one that remembers what it was asked to send.

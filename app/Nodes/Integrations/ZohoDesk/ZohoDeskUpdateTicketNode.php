@@ -43,7 +43,7 @@ class ZohoDeskUpdateTicketNode extends AbstractZohoDeskNode
                 'department_id' => Field::advanced($this->departmentField()),
                 'assignee_id' => $this->agentField(),
                 'description' => Field::advanced(Field::textarea('Description')),
-                    'custom_fields' => Field::advanced(Field::json('Custom fields (JSON)', 'By API name, e.g. {"cf_plan": "Gold"}.')),
+                'custom_fields' => Field::advanced(Field::json('Custom fields (JSON)', 'By API name, e.g. {"cf_plan": "Gold"}.')),
             ],
         ];
     }

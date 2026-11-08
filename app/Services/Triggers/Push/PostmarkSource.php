@@ -146,6 +146,10 @@ class PostmarkSource extends AbstractTokenWatchedSource
             }
 
             $this->registerUrl($watch, fn (string $url) => $this->ok($http->put(self::API.'/server', ['InboundHookUrl' => $url])));
+
+            // The server has one inbound webhook and no id for it; a watch without an
+            // external id counts as not created yet, so it would be registered again on every sync.
+            $watch->external_id = 'server';
         } else {
             $this->registerUrl($watch, function (string $url) use ($watch, $http, $event, $stream): void {
                 $response = $this->ok($http->post(self::API.'/webhooks', ['Url' => $url, 'MessageStream' => $stream, 'Triggers' => [$event => ['Enabled' => true]]]));

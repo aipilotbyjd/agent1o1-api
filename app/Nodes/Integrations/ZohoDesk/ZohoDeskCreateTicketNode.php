@@ -46,7 +46,7 @@ class ZohoDeskCreateTicketNode extends AbstractZohoDeskNode
                 'channel' => Field::advanced(Field::select('Channel', ['Email' => 'Email', 'Web' => 'Web', 'Phone' => 'Phone', 'Chat' => 'Chat', 'Forums' => 'Forums'], null, 'Web')),
                 'assignee_id' => $this->agentField(),
                 'due_date' => Field::advanced(Field::datetime('Due')),
-                    'custom_fields' => Field::advanced(Field::json('Custom fields (JSON)', 'By API name, e.g. {"cf_plan": "Gold"}.')),
+                'custom_fields' => Field::advanced(Field::json('Custom fields (JSON)', 'By API name, e.g. {"cf_plan": "Gold"}.')),
             ],
         ];
     }

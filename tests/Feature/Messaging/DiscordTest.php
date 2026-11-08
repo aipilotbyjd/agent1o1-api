@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Triggers\SubscriptionStatus;
+use App\Exceptions\ConnectorException;
 use App\Jobs\Triggers\FireTriggerEvent;
 use App\Jobs\Triggers\PollTrigger;
 use App\Jobs\Triggers\SyncTriggerSubscription;
@@ -37,6 +38,7 @@ use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\DiscordOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -76,7 +78,7 @@ function fakeDiscord(array $routes): void
 
         $answer = value($routes[$key], $request);
 
-        return $answer instanceof GuzzleHttp\Promise\PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
+        return $answer instanceof PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
     }]);
 }
 
@@ -357,7 +359,7 @@ describe('discord dropdowns', function () {
             ->and($source->load('discord.channels', $query())->toArray()['options'])->toBe([['value' => DISCORD_CHANNEL, 'label' => '#general', 'description' => 'Acme']])
             ->and($source->load('discord.channels', $query(search: 'nope'))->options)->toBe([])
             ->and(array_column($source->load('discord.roles', $query(['guild' => DISCORD_GUILD]))->toArray()['options'], 'label'))->toBe(['Admin', 'Member'])
-            ->and(fn () => $source->load('discord.roles', $query()))->toThrow(App\Exceptions\ConnectorException::class, 'Choose a server first');
+            ->and(fn () => $source->load('discord.roles', $query()))->toThrow(ConnectorException::class, 'Choose a server first');
         Http::assertSent(fn (Request $request): bool => $request->hasHeader('Authorization', 'Bot bot_test'));
     });
 });

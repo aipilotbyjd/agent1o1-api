@@ -42,7 +42,7 @@ class CrmAccessTokens
      */
     public function salesforceHost(string $domain): string
     {
-        $host = strtolower(trim((string) preg_replace('~^https?://~i', '', trim($domain)), " /"));
+        $host = strtolower(trim((string) preg_replace('~^https?://~i', '', trim($domain)), ' /'));
 
         return preg_match('/^[a-z0-9][a-z0-9-]*(\.[a-z0-9-]+)*\.(my\.salesforce\.com|my\.salesforce-setup\.com|sandbox\.my\.salesforce\.com|salesforce\.com)$/', $host) === 1
             ? $host

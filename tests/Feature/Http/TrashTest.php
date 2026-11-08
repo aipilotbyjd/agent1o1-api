@@ -35,14 +35,14 @@ it('moves an item to the trash and lists it there', function (string $path, stri
 
     $this->getJson("/api/v1/workspaces/{$workspace->id}/{$path}")
         ->assertOk()
-        ->assertJsonCount(1, "data.{$path}")
-        ->assertJsonPath("data.{$path}.0.id", $kept->id);
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $kept->id);
 
     $this->getJson("/api/v1/workspaces/{$workspace->id}/{$path}/trash")
         ->assertOk()
-        ->assertJsonCount(1, "data.{$path}")
-        ->assertJsonPath("data.{$path}.0.id", $item->id)
-        ->assertJsonPath("data.{$path}.0.deleted_at", fn ($value) => $value !== null);
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $item->id)
+        ->assertJsonPath('data.0.deleted_at', fn ($value) => $value !== null);
 })->with('trashable');
 
 it('restores a trashed item', function (string $path, string $key, string $model) {
@@ -56,7 +56,7 @@ it('restores a trashed item', function (string $path, string $key, string $model
         ->assertJsonPath("data.{$key}.deleted_at", null);
 
     expect($item->fresh()->trashed())->toBeFalse();
-    $this->getJson("/api/v1/workspaces/{$workspace->id}/{$path}/trash")->assertJsonCount(0, "data.{$path}");
+    $this->getJson("/api/v1/workspaces/{$workspace->id}/{$path}/trash")->assertJsonCount(0, 'data');
 })->with('trashable');
 
 it('permanently deletes a trashed item', function (string $path, string $key, string $model) {
@@ -87,7 +87,7 @@ it('404s on another workspace\'s trashed item', function (string $path, string $
 
     $this->postJson("/api/v1/workspaces/{$workspace->id}/{$path}/{$item->id}/restore")->assertNotFound();
     $this->deleteJson("/api/v1/workspaces/{$workspace->id}/{$path}/{$item->id}/force")->assertNotFound();
-    $this->getJson("/api/v1/workspaces/{$workspace->id}/{$path}/trash")->assertJsonCount(0, "data.{$path}");
+    $this->getJson("/api/v1/workspaces/{$workspace->id}/{$path}/trash")->assertJsonCount(0, 'data');
 })->with('trashable');
 
 it('lets a viewer see the trash but not restore or purge it', function (string $path, string $key, string $model) {

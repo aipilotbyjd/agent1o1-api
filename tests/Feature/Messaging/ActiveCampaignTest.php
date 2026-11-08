@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Triggers\SubscriptionStatus;
+use App\Exceptions\ConnectorException;
 use App\Jobs\Triggers\FireTriggerEvent;
 use App\Jobs\Triggers\PollTrigger;
 use App\Jobs\Triggers\SyncTriggerSubscription;
@@ -30,6 +31,7 @@ use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\ActiveCampaignOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -76,7 +78,7 @@ function fakeActiveCampaign(array $routes): void
 
         $answer = value($routes[$route], $request);
 
-        return $answer instanceof GuzzleHttp\Promise\PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
+        return $answer instanceof PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
     }]);
 }
 
@@ -250,8 +252,8 @@ describe('activecampaign dropdowns', function () {
 
         expect($source->load('activecampaign.lists', $query())->toArray())->toBe(['options' => [['value' => '4', 'label' => 'Newsletter']], 'next_cursor' => null])
             ->and($source->load('activecampaign.stages', $query(['pipeline_id' => 1]))->toArray()['options'])->toBe([['value' => '2', 'label' => 'Qualified']])
-            ->and(fn () => $source->load('activecampaign.stages', $query()))->toThrow(App\Exceptions\ConnectorException::class, 'Choose a pipeline first')
-            ->and(fn () => $source->load('activecampaign.lists', new NodeOptionsQuery(app(WorkspaceService::class)->create(User::factory()->create(), ['name' => 'B']), User::factory()->create(), [], 'k', null, null, ['api_url' => 'https://evil.test'])))->toThrow(App\Exceptions\ConnectorException::class, 'account URL looks like');
+            ->and(fn () => $source->load('activecampaign.stages', $query()))->toThrow(ConnectorException::class, 'Choose a pipeline first')
+            ->and(fn () => $source->load('activecampaign.lists', new NodeOptionsQuery(app(WorkspaceService::class)->create(User::factory()->create(), ['name' => 'B']), User::factory()->create(), [], 'k', null, null, ['api_url' => 'https://evil.test'])))->toThrow(ConnectorException::class, 'account URL looks like');
         Http::assertSent(fn (Request $request): bool => $request->hasHeader('Api-Token', 'ac_key') && str_contains(urldecode($request->url()), 'filters[d_groupid]=1'));
     });
 });
