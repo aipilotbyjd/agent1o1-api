@@ -74,6 +74,40 @@ jobs:
 
       - run: vendor/bin/pint --test
 
+  static-analysis:
+    name: static-analysis
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+          tools: composer:v2
+
+      - id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - uses: actions/cache@v4
+        with:
+          path: .phpstan.cache
+          key: phpstan-${{ runner.os }}-${{ hashFiles('composer.lock') }}-${{ github.sha }}
+          restore-keys: phpstan-${{ runner.os }}-${{ hashFiles('composer.lock') }}-
+
+      - run: composer install --prefer-dist --no-interaction --no-progress --no-scripts
+
+      - run: vendor/bin/phpstan analyse --memory-limit=3G --no-progress
+
   security:
     name: security
     runs-on: ubuntu-latest
