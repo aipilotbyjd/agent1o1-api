@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Agents\Agent;
 use App\Models\Triggers\Trigger;
 use App\Models\User;
 use App\Models\Workflows\Folder;
@@ -117,5 +118,34 @@ describe('folders and page sections', function () {
 
         expect($requests)->toBe(3)
             ->and($ids)->toEqualCanonicalizing($folders->pluck('id')->all());
+    });
+});
+
+describe('agents', function () {
+    it('pages agents and their trash', function () {
+        $agents = Agent::factory()->forWorkspace($this->workspace)->count(5)->create();
+        $trashed = Agent::factory()->forWorkspace($this->workspace)->count(3)->create();
+        $trashed->each->delete();
+
+        ['ids' => $live, 'requests' => $liveRequests] = ($this->walk)("{$this->base}/agents", 2);
+        ['ids' => $gone, 'requests' => $goneRequests] = ($this->walk)("{$this->base}/agents/trash", 2);
+
+        expect($liveRequests)->toBe(3)
+            ->and($live)->toEqualCanonicalizing($agents->pluck('id')->all())
+            ->and($goneRequests)->toBe(2)
+            ->and($gone)->toEqualCanonicalizing($trashed->pluck('id')->all());
+    });
+
+    it('pages an agents memories and keeps them to that agent', function () {
+        $agent = Agent::factory()->forWorkspace($this->workspace)->create();
+        $other = Agent::factory()->forWorkspace($this->workspace)->create();
+        foreach (range(1, 5) as $n) {
+            $agent->memories()->create(['key' => "k{$n}", 'value' => 'v']);
+        }
+        $other->memories()->create(['key' => 'x', 'value' => 'v']);
+
+        ['ids' => $ids, 'requests' => $requests] = ($this->walk)("{$this->base}/agents/{$agent->id}/memories", 2);
+
+        expect($requests)->toBe(3)->and($ids)->toHaveCount(5);
     });
 });

@@ -234,7 +234,7 @@ it('lets viewers use nothing and change nothing', function () {
 
     Passport::actingAs(pageMember(Role::Viewer));
 
-    $this->getJson($this->base)->assertOk()->assertJsonCount(1, 'data.pages');
+    $this->getJson($this->base)->assertOk()->assertJsonCount(1, 'data');
     $this->patchJson("{$this->base}/{$page['id']}", ['name' => 'Mine'])->assertForbidden();
     $this->postJson("{$this->base}/{$page['id']}/submissions", ['input' => ['topic' => 'rain']])->assertForbidden();
 

@@ -11,6 +11,7 @@ use App\Models\Agents\Agent;
 use App\Models\Agents\AgentVersion;
 use App\Models\Workspaces\Workspace;
 use App\Services\Agents\AgentVersioner;
+use Illuminate\Http\Request;
 
 /**
  * An agent's behavioral history. Versions are written by `AgentObserver`
@@ -25,16 +26,18 @@ class AgentVersionController extends Controller
 {
     public function __construct(private readonly AgentVersioner $versioner) {}
 
-    public function index(Workspace $workspace, Agent $agent)
+    public function index(Request $request, Workspace $workspace, Agent $agent)
     {
         $this->requirePermission(Permission::AgentView);
         $this->ensureBelongsToWorkspace($workspace, $agent);
 
-        return ApiResponse::success([
-            'versions' => AgentVersionResource::collection(
-                $agent->versions()->orderByDesc('version')->get(),
-            ),
-        ]);
+        $versions = $agent->versions()
+            ->orderByDesc('version')
+            ->orderByDesc('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
+
+        return ApiResponse::cursorPaginated(AgentVersionResource::collection($versions));
     }
 
     public function show(Workspace $workspace, Agent $agent, int $version)

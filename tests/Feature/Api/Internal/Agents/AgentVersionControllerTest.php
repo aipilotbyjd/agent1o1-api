@@ -38,7 +38,7 @@ it('lists and shows versions by version number', function () {
 
     $index = $this->getJson("/api/v1/workspaces/{$workspace->id}/agents/{$agent->id}/versions");
     $index->assertOk();
-    expect(array_column($index->json('data.versions'), 'version'))->toBe([2, 1]);
+    expect(array_column($index->json('data'), 'version'))->toBe([2, 1]);
 
     $this->getJson("/api/v1/workspaces/{$workspace->id}/agents/{$agent->id}/versions/1")
         ->assertOk()

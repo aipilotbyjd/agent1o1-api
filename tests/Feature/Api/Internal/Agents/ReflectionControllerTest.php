@@ -72,7 +72,7 @@ it('triggers a reflection run on demand and lists it', function () {
 
     $this->getJson($base)
         ->assertOk()
-        ->assertJsonCount(1, 'data.runs');
+        ->assertJsonCount(1, 'data');
 
     $this->getJson("{$base}/{$runId}")->assertOk()->assertJsonPath('data.run.id', $runId);
 });

@@ -25,14 +25,18 @@ class AgentEvalRunController extends Controller
 {
     public function __construct(private readonly EvalRunner $runner) {}
 
-    public function index(Workspace $workspace, Agent $agent, AgentEvalSuite $suite)
+    public function index(Request $request, Workspace $workspace, Agent $agent, AgentEvalSuite $suite)
     {
         $this->requirePermission(Permission::AgentView);
         $this->authorizeSuite($workspace, $agent, $suite);
 
-        return ApiResponse::success([
-            'runs' => AgentEvalRunResource::collection($suite->runs()->latest()->get()),
-        ]);
+        $runs = $suite->runs()
+            ->latest()
+            ->orderByDesc('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
+
+        return ApiResponse::cursorPaginated(AgentEvalRunResource::collection($runs));
     }
 
     public function store(Request $request, Workspace $workspace, Agent $agent, AgentEvalSuite $suite)

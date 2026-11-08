@@ -126,7 +126,7 @@ it('includes tags when listing and showing agents', function () {
 
     $this->getJson("/api/v1/workspaces/{$workspace->id}/agents")
         ->assertOk()
-        ->assertJsonPath('data.agents.0.tags.0.name', 'support');
+        ->assertJsonPath('data.0.tags.0.name', 'support');
 
     $this->getJson("/api/v1/workspaces/{$workspace->id}/agents/{$agent->id}")
         ->assertOk()
@@ -145,8 +145,8 @@ it('filters the agent list by tag', function () {
     $response = $this->getJson("/api/v1/workspaces/{$workspace->id}/agents?tag_id={$tag->id}");
 
     $response->assertOk();
-    expect($response->json('data.agents'))->toHaveCount(1);
-    expect($response->json('data.agents.0.id'))->toBe($tagged->id);
+    expect($response->json('data'))->toHaveCount(1);
+    expect($response->json('data.0.id'))->toBe($tagged->id);
 });
 
 it('returns no agents for a malformed tag filter', function () {
@@ -157,7 +157,7 @@ it('returns no agents for a malformed tag filter', function () {
 
     $this->getJson("/api/v1/workspaces/{$workspace->id}/agents?tag_id=not-a-uuid")
         ->assertOk()
-        ->assertJsonCount(0, 'data.agents');
+        ->assertJsonCount(0, 'data');
 });
 
 it('shares a tag across a workflow and an agent, counted separately', function () {

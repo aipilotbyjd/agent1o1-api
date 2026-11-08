@@ -60,7 +60,7 @@ it('creates a suite, adds cases and executes it end to end', function () {
 
     $this->getJson("{$base}/{$suiteId}/runs")
         ->assertOk()
-        ->assertJsonPath('data.runs.0.id', $run->json('data.run.id'));
+        ->assertJsonPath('data.0.id', $run->json('data.run.id'));
 });
 
 it('refuses a case with no assertions', function () {
