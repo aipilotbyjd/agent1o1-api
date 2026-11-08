@@ -22,7 +22,7 @@ use App\Nodes\Integrations\Pipedrive\PipedriveGetDealNode;
 use App\Nodes\Integrations\Pipedrive\PipedriveListChangedDealsNode;
 use App\Nodes\Integrations\Pipedrive\PipedriveListDealsNode;
 use App\Nodes\Integrations\Pipedrive\PipedriveMarkDealNode;
-use App\Nodes\Integrations\Pipedrive\PipedriveSearchPersonsNode;
+use App\Nodes\Integrations\Pipedrive\PipedriveSearchPeopleNode;
 use App\Nodes\Integrations\Pipedrive\PipedriveUpdateDealNode;
 use App\Nodes\Integrations\Pipedrive\PipedriveUpdateLeadNode;
 use App\Services\Triggers\Push\PipedriveSource;
@@ -205,7 +205,7 @@ describe('pipedrive nodes', function () {
 
     it('searches people by words and unwraps the matches', function () {
         fakePipedrive(['GET /persons/search' => ['success' => true, 'data' => ['items' => [['result_score' => 0.9, 'item' => ['id' => 51, 'name' => 'Ada Lovelace']]]]]]);
-        $node = new PipedriveSearchPersonsNode;
+        $node = new PipedriveSearchPeopleNode;
 
         $output = $node->execute(Run::factory()->create(), pipedriveConfig(['term' => 'ada']), []);
 
