@@ -9,6 +9,7 @@ Route::get('library/{artifact}/view', [LibraryController::class, 'view'])
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}/library')
+    ->scopeBindings()
     ->as('library.')
     ->group(function () {
         Route::get('/', [LibraryController::class, 'index'])->name('index');

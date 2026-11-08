@@ -49,11 +49,11 @@ class TriggerController extends Controller
             ->when($request->validated('target_type'), fn (Builder $triggers, string $targetType) => $triggers->where('target_type', $targetType))
             ->when($request->validated('target_id'), fn (Builder $triggers, string $targetId) => $triggers->where('target_id', $targetId))
             ->latest()
-            ->get();
+            ->orderByDesc('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
 
-        return ApiResponse::success([
-            'triggers' => TriggerResource::collection($triggers),
-        ]);
+        return ApiResponse::cursorPaginated(TriggerResource::collection($triggers));
     }
 
     public function store(StoreTriggerRequest $request, Workspace $workspace)

@@ -354,7 +354,7 @@ it('lists every change waiting for review in the workspace, oldest first', funct
     Passport::actingAs($this->admin);
     $requests = $this->getJson("/api/v1/workspaces/{$this->workspace->id}/publish-requests")
         ->assertOk()
-        ->json('data.requests');
+        ->json('data');
 
     expect(array_column(array_column($requests, 'workflow'), 'name'))->toBe(['Invoice sync', 'Lead router']);
     expect($requests[0]['can_review'])->toBeTrue();

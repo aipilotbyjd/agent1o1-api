@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}/billing')
+    ->scopeBindings()
     ->as('billing.')
     ->group(function () {
         Route::get('/', [BillingController::class, 'overview'])->name('overview');

@@ -175,7 +175,7 @@ it('manages triggers through the API and never exposes the webhook token on its 
         ->assertSuccessful()
         ->assertJsonPath('data.trigger.status', 'paused');
 
-    $this->getJson("{$this->base}/triggers")->assertSuccessful()->assertJsonCount(1, 'data.triggers');
+    $this->getJson("{$this->base}/triggers")->assertSuccessful()->assertJsonCount(1, 'data');
     $this->deleteJson("{$this->base}/triggers/{$webhook['id']}")->assertNoContent();
 });
 

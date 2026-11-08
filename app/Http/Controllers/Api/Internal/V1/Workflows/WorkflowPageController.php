@@ -47,9 +47,11 @@ class WorkflowPageController extends Controller
             ->withMax('submissions', 'created_at')
             ->when($request->query('workflow_id'), fn (Builder $query, string $workflowId) => $query->where('workflow_id', $workflowId))
             ->latest('updated_at')
-            ->get();
+            ->orderByDesc('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
 
-        return ApiResponse::success(['pages' => WorkflowPageListResource::collection($pages)]);
+        return ApiResponse::cursorPaginated(WorkflowPageListResource::collection($pages));
     }
 
     public function store(StoreWorkflowPageRequest $request, Workspace $workspace)

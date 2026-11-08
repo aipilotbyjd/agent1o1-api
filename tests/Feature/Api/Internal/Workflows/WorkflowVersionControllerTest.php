@@ -66,7 +66,7 @@ it('lists versions newest first with who published them and how often they ran, 
 
     $versions = $this->getJson("/api/v1/workspaces/{$workspace->id}/workflows/{$workflow->id}/versions")
         ->assertOk()
-        ->json('data.versions');
+        ->json('data');
 
     expect(array_column($versions, 'version'))->toBe([2, 1]);
     expect($versions[0]['publisher'])->toBe(['id' => $owner->id, 'name' => 'Ada Lovelace']);

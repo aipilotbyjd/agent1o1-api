@@ -71,9 +71,9 @@ it('lists top-level folders with nested children and workflow counts', function 
     $response = $this->getJson("/api/v1/workspaces/{$workspace->id}/folders");
 
     $response->assertOk();
-    expect($response->json('data.folders'))->toHaveCount(1);
-    expect($response->json('data.folders.0.children'))->toHaveCount(1);
-    expect($response->json('data.folders.0.workflow_count'))->toBe(1);
+    expect($response->json('data'))->toHaveCount(1);
+    expect($response->json('data.0.children'))->toHaveCount(1);
+    expect($response->json('data.0.workflow_count'))->toBe(1);
 });
 
 it('lists agent folders separately from workflow folders', function () {
@@ -87,9 +87,9 @@ it('lists agent folders separately from workflow folders', function () {
     $response = $this->getJson("/api/v1/workspaces/{$workspace->id}/folders?type=agent");
 
     $response->assertOk();
-    expect($response->json('data.folders'))->toHaveCount(1);
-    expect($response->json('data.folders.0.name'))->toBe('Agent Folder');
-    expect($response->json('data.folders.0.agent_count'))->toBe(1);
+    expect($response->json('data'))->toHaveCount(1);
+    expect($response->json('data.0.name'))->toBe('Agent Folder');
+    expect($response->json('data.0.agent_count'))->toBe(1);
 });
 
 it('updates a folder', function () {

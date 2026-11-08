@@ -97,6 +97,6 @@ it('lists only the conversations people started, not ones subagents ran', functi
 
     $this->getJson("/api/v1/workspaces/{$workspace->id}/agents/{$agent->id}/sessions")
         ->assertOk()
-        ->assertJsonCount(1, 'data.sessions')
-        ->assertJsonPath('data.sessions.0.id', $session->id);
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $session->id);
 });

@@ -17,6 +17,13 @@ abstract class Controller
         $this->authorize($permission->value);
     }
 
+    /**
+     * The second layer behind scoped route bindings: routes under
+     * `/workspaces/{workspace}` already find their models *through* the
+     * workspace and 404 on a stranger's, so this only catches a route left
+     * out of that (templates, the assistant) or a model not bound from the URL.
+     * Keep it where it is; don't rely on it alone for a new route.
+     */
     protected function ensureBelongsToWorkspace(Workspace $workspace, Model $model): void
     {
         abort_if($model->workspace_id !== $workspace->id, 404);

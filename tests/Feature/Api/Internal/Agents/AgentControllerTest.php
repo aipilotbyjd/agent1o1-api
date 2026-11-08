@@ -207,7 +207,7 @@ it('lists agents with their tags, chat count and last use', function () {
 
     Passport::actingAs($owner);
 
-    $agents = collect($this->getJson("/api/v1/workspaces/{$workspace->id}/agents")->assertOk()->json('data.agents'))->keyBy('id');
+    $agents = collect($this->getJson("/api/v1/workspaces/{$workspace->id}/agents")->assertOk()->json('data'))->keyBy('id');
 
     expect($agents[$busy->id]['tags'][0]['name'])->toBe('Sales');
     expect($agents[$busy->id]['sessions_count'])->toBe(2);
@@ -241,5 +241,5 @@ it('lists an agent\'s chats with their message counts', function () {
 
     $this->getJson("/api/v1/workspaces/{$workspace->id}/agents/{$agent->id}/sessions")
         ->assertOk()
-        ->assertJsonPath('data.sessions.0.messages_count', 3);
+        ->assertJsonPath('data.0.messages_count', 3);
 });

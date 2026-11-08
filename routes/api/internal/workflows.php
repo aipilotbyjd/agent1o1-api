@@ -14,10 +14,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}/workflows')
+    ->scopeBindings()
     ->as('workflows.')
     ->group(function () {
         Route::get('/', [WorkflowController::class, 'index'])->name('index');
         Route::post('/', [WorkflowController::class, 'store'])->name('store');
+        Route::get('summary', [WorkflowController::class, 'summary'])->name('summary');
         Route::get('trash', [WorkflowController::class, 'trash'])->name('trash');
         Route::get('{workflow}', [WorkflowController::class, 'show'])->name('show');
         Route::patch('{workflow}', [WorkflowController::class, 'update'])->name('update');
@@ -55,6 +57,7 @@ Route::middleware(['auth:api', 'workspace.context'])
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}/folders')
+    ->scopeBindings()
     ->as('folders.')
     ->group(function () {
         Route::get('/', [FolderController::class, 'index'])->name('index');
@@ -67,6 +70,7 @@ Route::middleware(['auth:api', 'workspace.context'])
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}/tags')
+    ->scopeBindings()
     ->as('tags.')
     ->group(function () {
         Route::get('/', [TagController::class, 'index'])->name('index');
@@ -77,6 +81,7 @@ Route::middleware(['auth:api', 'workspace.context'])
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}')
+    ->scopeBindings()
     ->group(function () {
         // Whether workflow changes need a review before they go live.
         Route::get('publish-approval-policy', [PublishApprovalPolicyController::class, 'show'])->name('publish-approval-policy.show');

@@ -10,19 +10,23 @@ use App\Models\Agents\Agent;
 use App\Models\Agents\ReflectionRun;
 use App\Models\Workspaces\Workspace;
 use App\Services\Agents\ReflectionAnalyzer;
+use Illuminate\Http\Request;
 
 class ReflectionRunController extends Controller
 {
-    public function index(Workspace $workspace, Agent $agent)
+    public function index(Request $request, Workspace $workspace, Agent $agent)
     {
         $this->requirePermission(Permission::AgentView);
         $this->ensureBelongsToWorkspace($workspace, $agent);
 
-        return ApiResponse::success([
-            'runs' => ReflectionRunResource::collection(
-                $agent->reflectionRuns()->withCount('reflections')->latest()->get(),
-            ),
-        ]);
+        $runs = $agent->reflectionRuns()
+            ->withCount('reflections')
+            ->latest()
+            ->orderByDesc('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
+
+        return ApiResponse::cursorPaginated(ReflectionRunResource::collection($runs));
     }
 
     /**

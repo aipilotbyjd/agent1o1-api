@@ -10,16 +10,34 @@ get {
   auth: inherit
 }
 
+params:query {
+  ~search: invoice
+  ~status: published
+  ~favorites: true
+  ~tag_id: 
+  ~sort: updated
+  ~per_page: 25
+  ~page: 1
+}
+
 params:path {
   workspace: {{workspaceId}}
 }
 
 docs {
-  Lists the workspace's visible workflows, newest first; trashed ones are
-  in `Workflows - Trash`. Requires the `workflow.view` permission.
+  Lists the workspace's visible workflows, filtered, sorted and paged by
+  the server; trashed ones are in `Workflows - Trash`. Requires the
+  `workflow.view` permission.
 
-  Each item adds `nodes_count`, `node_types`, `last_run_at` and the
+  Filters: `search` (name, description, tag name or node type), `status`
+  (`published` or `draft`), `favorites` (the caller's), `tag_id`.
+  `sort`: `updated` (default, newest first), `name`, `last_run` (most
+  recent first, never-run last) or `nodes` (most first).
+
+  Each item adds `tags`, `nodes_count`, `node_types`, `last_run_at` and the
   caller's `is_favorite`.
 
-  Response is wrapped: `{ success, statusCode, message, data: { workflows } }`.
+  Paged by number: `?page=` and `?per_page=` (1-100, default 25). Response is
+  `{ success, statusCode, message, data, meta: { current_page, last_page,
+  per_page, total } }`. For the stat cards use `Workflows - Summary`.
 }

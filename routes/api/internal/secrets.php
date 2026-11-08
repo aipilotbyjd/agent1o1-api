@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}/secrets')
+    ->scopeBindings()
     ->as('secrets.')
     ->group(function () {
         Route::get('/', [SecretController::class, 'index'])->name('index');
