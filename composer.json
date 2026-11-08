@@ -27,6 +27,7 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
+        "larastan/larastan": "^3.14",
         "laravel/boost": "^2.2",
         "laravel/pail": "^1.2.5",
         "laravel/pao": "^1.0.6",
@@ -90,8 +91,12 @@
         ],
         "ci": [
             "@lint",
+            "@analyse",
             "@test",
             "@composer audit --locked"
+        ],
+        "analyse": [
+            "vendor/bin/phpstan analyse --memory-limit=3G"
         ]
     },
     "extra": {
