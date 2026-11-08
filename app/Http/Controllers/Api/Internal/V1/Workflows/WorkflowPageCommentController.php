@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\Internal\V1\Workflows;
 use App\Enums\Workspaces\Permission;
 use App\Events\Pages\PageActivity;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Internal\V1\Workflows\StoreWorkflowPageCommentRequest;
+use App\Http\Requests\Api\Internal\V1\Workflows\UpdateWorkflowPageCommentRequest;
 use App\Http\Resources\Api\Internal\V1\Workflows\WorkflowPageCommentResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Workflows\WorkflowPage;
@@ -33,15 +35,11 @@ class WorkflowPageCommentController extends Controller
         return ApiResponse::success(['comments' => WorkflowPageCommentResource::collection($threads)]);
     }
 
-    public function store(Request $request, Workspace $workspace, WorkflowPage $page)
+    public function store(StoreWorkflowPageCommentRequest $request, Workspace $workspace, WorkflowPage $page)
     {
         $this->authorizePage($workspace, $page);
 
-        $validated = $request->validate([
-            'body' => ['required', 'string', 'max:5000'],
-            'block_id' => ['nullable', 'string', 'max:64'],
-            'parent_id' => ['nullable', 'uuid'],
-        ]);
+        $validated = $request->validated();
 
         $parent = null;
 
@@ -65,15 +63,12 @@ class WorkflowPageCommentController extends Controller
     /**
      * Edits the text, or resolves or reopens a thread.
      */
-    public function update(Request $request, Workspace $workspace, WorkflowPage $page, WorkflowPageComment $comment)
+    public function update(UpdateWorkflowPageCommentRequest $request, Workspace $workspace, WorkflowPage $page, WorkflowPageComment $comment)
     {
         $this->authorizePage($workspace, $page);
         abort_if($comment->workflow_page_id !== $page->id, 404);
 
-        $validated = $request->validate([
-            'body' => ['sometimes', 'required', 'string', 'max:5000'],
-            'resolved' => ['sometimes', 'boolean'],
-        ]);
+        $validated = $request->validated();
 
         if (array_key_exists('body', $validated)) {
             abort_if($comment->user_id !== $request->user()->id, 403, 'You can only edit your own comments.');
