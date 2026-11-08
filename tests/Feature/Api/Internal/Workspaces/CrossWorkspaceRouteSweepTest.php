@@ -10,6 +10,7 @@ use App\Models\Artifacts\Artifact;
 use App\Models\Assistant\Assistant;
 use App\Models\Assistant\AssistantBriefingConfig;
 use App\Models\Assistant\AssistantBriefingRun;
+use App\Models\Assistant\AssistantFollowUp;
 use App\Models\Assistant\AssistantInboxConfig;
 use App\Models\Assistant\AssistantInboxLabel;
 use App\Models\Assistant\AssistantInboxMessage;
@@ -171,6 +172,7 @@ function foreignAssistantRow(string $class, Workspace $workspace): ?Model
             'starts_at' => now()->addDay(),
         ]),
         AssistantSituation::class => AssistantSituation::query()->create(['assistant_id' => $assistant->id, 'title' => 'Renewal']),
+        AssistantFollowUp::class => AssistantFollowUp::factory()->create(['assistant_id' => $assistant->id]),
         AssistantBriefingRun::class => AssistantBriefingRun::query()->create([
             'assistant_briefing_config_id' => $briefing()->id,
             'run_key' => 'run',
