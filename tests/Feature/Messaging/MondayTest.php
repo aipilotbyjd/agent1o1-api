@@ -27,6 +27,7 @@ use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\MondayOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -59,7 +60,7 @@ function fakeMonday(array $routes): void
             if (str_contains($query, (string) $needle)) {
                 $value = value($answer, $request);
 
-                return $value instanceof GuzzleHttp\Promise\PromiseInterface ? $value : Http::response(['data' => $value ?? []]);
+                return $value instanceof PromiseInterface ? $value : Http::response(['data' => $value ?? []]);
             }
         }
 
@@ -298,7 +299,7 @@ describe('monday instant delivery', function () {
     });
 
     it('creates one webhook for each change event on a changed-item trigger', function () {
-        mondayTrigger('monday_list_updated_items', routes: ['create_webhook' => fn (Request $request) => Http::response(['data' => ['create_webhook' => ['id' => $request['variables']['event'] === 'change_name' ? '7003' : '7002']]])]);
+        mondayTrigger('monday_list_updated_items', routes: ['create_webhook' => fn (Request $request) => Http::response(['data' => ['create_webhook' => ['id' => json_decode($request->body(), true)['variables']['event'] === 'change_name' ? '7003' : '7002']]])]);
         $watch = ProviderWatch::query()->sole();
 
         expect($watch->resource_key)->toBe('changed:55')->and($watch->external_id)->toBe('7002,7003');

@@ -84,6 +84,14 @@
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ],
+        "lint": [
+            "vendor/bin/pint --test"
+        ],
+        "ci": [
+            "@lint",
+            "@test",
+            "@composer audit --locked"
         ]
     },
     "extra": {

@@ -587,7 +587,7 @@ describe('shopify triggers', function () {
     });
 
     it('starts a poll when a signed delivery arrives, and only once for the same event', function () {
-        shopifyTrigger();
+        $trigger = shopifyTrigger();
 
         shopifyDelivery(eventId: 'evt-9')->assertOk();
         shopifyDelivery(eventId: 'evt-9')->assertOk();
@@ -595,6 +595,7 @@ describe('shopify triggers', function () {
         Queue::assertPushed(PollTrigger::class, 1);
         expect(ProviderEvent::query()->where('provider', 'shopify')->sole())->event_id->toBe('evt-9')->routing_key->toBe('acme.myshopify.com|orders/create')->event_type->toBe('orders/create');
 
+        finishQueuedPoll($trigger);
         shopifyDelivery(eventId: 'evt-10')->assertOk();
 
         Queue::assertPushed(PollTrigger::class, 2);

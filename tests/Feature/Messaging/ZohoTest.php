@@ -30,6 +30,7 @@ use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\ZohoOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -95,7 +96,7 @@ function fakeZoho(array $routes): void
 
         $answer = value($routes[$route], $request);
 
-        return $answer instanceof GuzzleHttp\Promise\PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
+        return $answer instanceof PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
     }]);
 }
 
@@ -151,7 +152,7 @@ function zohoWritten(string $id = ZOHO_ID, string $action = 'insert'): array
 describe('zoho nodes', function () {
     it('registers the nodes under the zoho connector', function () {
         $registry = app(NodeRegistry::class);
-        $types = array_filter(array_column($registry->placeableTypes(), 'type'), fn (string $type): bool => str_starts_with($type, 'zoho_'));
+        $types = array_filter(array_column($registry->placeableTypes(), 'type'), fn (string $type): bool => str_starts_with($type, 'zoho_') && ! preg_match('/^zoho_(books|campaigns|cliq|desk|mail|projects)_/', $type));
 
         expect(count($types))->toBeGreaterThanOrEqual(44);
 

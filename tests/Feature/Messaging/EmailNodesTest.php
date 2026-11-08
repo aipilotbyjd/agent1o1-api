@@ -46,9 +46,11 @@ describe('Email (SMTP) nodes', function () {
 
     it('sends one message with the connection\'s From, a plain-text twin for HTML, and the extras', function () {
         $sent = [];
-        $this->partialMock(SmtpMailer::class, fn ($mailer) => $mailer->shouldReceive('send')->once()->andReturnUsing(function (array $account, Email $message) use (&$sent): void {
-            $sent = ['account' => $account, 'message' => $message];
-        }));
+        $this->partialMock(SmtpMailer::class, function ($mailer) use (&$sent): void {
+            $mailer->shouldReceive('send')->once()->andReturnUsing(function (array $account, Email $message) use (&$sent): void {
+                $sent = ['account' => $account, 'message' => $message];
+            });
+        });
 
         $output = (new EmailSendEmailNode)->execute(emailRun(), [
             'to' => 'ada@example.com, bob@example.com',
@@ -90,9 +92,11 @@ describe('Email (SMTP) nodes', function () {
             'files.test/gone.pdf' => Http::response('no', 404),
         ]);
         $attached = null;
-        $this->partialMock(SmtpMailer::class, fn ($mailer) => $mailer->shouldReceive('send')->once()->andReturnUsing(function (array $account, Email $message) use (&$attached): void {
-            $attached = $message->getAttachments();
-        }));
+        $this->partialMock(SmtpMailer::class, function ($mailer) use (&$attached): void {
+            $mailer->shouldReceive('send')->once()->andReturnUsing(function (array $account, Email $message) use (&$attached): void {
+                $attached = $message->getAttachments();
+            });
+        });
 
         $output = (new EmailSendEmailNode)->execute(emailRun(), ['to' => 'a@b.co', 'subject' => 'Invoice', 'body' => 'Attached', 'attachments' => ['https://files.test/invoice.pdf']], []);
 
@@ -117,13 +121,15 @@ describe('Email (SMTP) nodes', function () {
 
     it('sends to many people separately and reports who it could not reach', function () {
         $recipients = [];
-        $this->partialMock(SmtpMailer::class, fn ($mailer) => $mailer->shouldReceive('send')->times(3)->andReturnUsing(function (array $account, Email $message) use (&$recipients): void {
-            $recipients[] = array_map(fn ($address) => $address->getAddress(), $message->getTo());
+        $this->partialMock(SmtpMailer::class, function ($mailer) use (&$recipients): void {
+            $mailer->shouldReceive('send')->times(3)->andReturnUsing(function (array $account, Email $message) use (&$recipients): void {
+                $recipients[] = array_map(fn ($address) => $address->getAddress(), $message->getTo());
 
-            if ($message->getTo()[0]->getAddress() === 'bad@example.com') {
-                throw new Exception('550 mailbox unavailable');
-            }
-        }));
+                if ($message->getTo()[0]->getAddress() === 'bad@example.com') {
+                    throw new Exception('550 mailbox unavailable');
+                }
+            });
+        });
 
         $output = (new EmailSendToManyNode)->execute(emailRun(), [
             'recipients' => ['a@example.com', 'bad@example.com', 'c@example.com'],

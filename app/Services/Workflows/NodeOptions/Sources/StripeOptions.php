@@ -154,7 +154,7 @@ class StripeOptions extends HttpOptionsSource
      */
     private function couponText(array $coupon): string
     {
-        $off = isset($coupon['percent_off']) ? rtrim(rtrim((string) $coupon['percent_off'], '0'), '.').'% off' : (isset($coupon['amount_off']) ? number_format($coupon['amount_off'] / 100, 2, '.', '').' '.strtoupper((string) ($coupon['currency'] ?? '')).' off' : '');
+        $off = isset($coupon['percent_off']) ? rtrim(rtrim(number_format((float) $coupon['percent_off'], 2, '.', ''), '0'), '.').'% off' : (isset($coupon['amount_off']) ? number_format($coupon['amount_off'] / 100, 2, '.', '').' '.strtoupper((string) ($coupon['currency'] ?? '')).' off' : '');
 
         return trim($off.', '.($coupon['duration'] ?? ''), ', ');
     }

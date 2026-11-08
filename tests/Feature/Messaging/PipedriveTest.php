@@ -22,7 +22,7 @@ use App\Nodes\Integrations\Pipedrive\PipedriveGetDealNode;
 use App\Nodes\Integrations\Pipedrive\PipedriveListChangedDealsNode;
 use App\Nodes\Integrations\Pipedrive\PipedriveListDealsNode;
 use App\Nodes\Integrations\Pipedrive\PipedriveMarkDealNode;
-use App\Nodes\Integrations\Pipedrive\PipedriveSearchPersonsNode;
+use App\Nodes\Integrations\Pipedrive\PipedriveSearchPeopleNode;
 use App\Nodes\Integrations\Pipedrive\PipedriveUpdateDealNode;
 use App\Nodes\Integrations\Pipedrive\PipedriveUpdateLeadNode;
 use App\Services\Triggers\Push\PipedriveSource;
@@ -31,6 +31,7 @@ use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\PipedriveOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -68,7 +69,7 @@ function fakePipedrive(array $routes): void
 
         $answer = value($routes[$route], $request);
 
-        return $answer instanceof GuzzleHttp\Promise\PromiseInterface ? $answer : Http::response($answer ?? ['success' => true]);
+        return $answer instanceof PromiseInterface ? $answer : Http::response($answer ?? ['success' => true]);
     }]);
 }
 
@@ -112,7 +113,6 @@ function pipedriveDeal(int $id = 7, array $extra = []): array
 }
 
 /**
- * @param  mixed  $data
  * @return array<string, mixed>
  */
 function pipedriveOk(mixed $data, bool $more = false, int $next = 0): array
@@ -205,7 +205,7 @@ describe('pipedrive nodes', function () {
 
     it('searches people by words and unwraps the matches', function () {
         fakePipedrive(['GET /persons/search' => ['success' => true, 'data' => ['items' => [['result_score' => 0.9, 'item' => ['id' => 51, 'name' => 'Ada Lovelace']]]]]]);
-        $node = new PipedriveSearchPersonsNode;
+        $node = new PipedriveSearchPeopleNode;
 
         $output = $node->execute(Run::factory()->create(), pipedriveConfig(['term' => 'ada']), []);
 

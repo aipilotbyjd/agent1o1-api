@@ -35,11 +35,17 @@ class ModelPrice extends Model
 
     protected static function booted(): void
     {
-        static::saved(function (ModelPrice $price): void {
-            if ($price->wasRecentlyCreated || $price->wasChanged(self::VERSIONED_COLUMNS)) {
+        static::created(function (ModelPrice $price): void {
+            $price->openVersion();
+        });
+
+        static::updated(function (ModelPrice $price): void {
+            if ($price->wasChanged(self::VERSIONED_COLUMNS)) {
                 $price->openVersion();
             }
+        });
 
+        static::saved(function (): void {
             app(ModelPrices::class)->forget();
         });
 

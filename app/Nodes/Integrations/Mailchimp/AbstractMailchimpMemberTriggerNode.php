@@ -7,7 +7,6 @@ use App\Enums\Agents\ActionEffect;
 use App\Models\Runs\Run;
 use App\Nodes\Integrations\Concerns\ActsAsTrigger;
 use App\Nodes\Support\Field;
-use Illuminate\Support\Carbon;
 
 /**
  * A change to the people on an audience that starts a flow: someone subscribed,

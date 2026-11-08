@@ -13,6 +13,7 @@ use App\Nodes\Integrations\ZohoBooks\AbstractZohoBooksNode;
 use App\Nodes\Integrations\ZohoBooks\ZohoBooksCreateBillNode;
 use App\Nodes\Integrations\ZohoBooks\ZohoBooksCreateCustomerNode;
 use App\Nodes\Integrations\ZohoBooks\ZohoBooksCreateInvoiceNode;
+use App\Nodes\Integrations\ZohoBooks\ZohoBooksCreateItemNode;
 use App\Nodes\Integrations\ZohoBooks\ZohoBooksDeleteInvoiceNode;
 use App\Nodes\Integrations\ZohoBooks\ZohoBooksEmailInvoiceNode;
 use App\Nodes\Integrations\ZohoBooks\ZohoBooksGetInvoiceNode;
@@ -25,6 +26,7 @@ use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\ZohoBooksOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -87,7 +89,7 @@ function fakeZohoBooks(array $routes): void
 
         $answer = value($routes[$route], $request);
 
-        return $answer instanceof GuzzleHttp\Promise\PromiseInterface ? $answer : Http::response(['code' => 0, 'message' => 'success', ...(array) $answer]);
+        return $answer instanceof PromiseInterface ? $answer : Http::response(['code' => 0, 'message' => 'success', ...(array) $answer]);
     }]);
 }
 
@@ -249,7 +251,7 @@ describe('zoho books nodes', function () {
     it('treats a 200 answer with an error code as an error', function () {
         fakeZohoBooks(['POST /items' => fn () => Http::response(['code' => 1001, 'message' => 'Item name already exists.'])]);
 
-        expect(fn () => (new App\Nodes\Integrations\ZohoBooks\ZohoBooksCreateItemNode)->execute(zbooksRun(), ['name' => 'X', 'rate' => '5'], []))->toThrow(RuntimeException::class, 'already exists');
+        expect(fn () => (new ZohoBooksCreateItemNode)->execute(zbooksRun(), ['name' => 'X', 'rate' => '5'], []))->toThrow(RuntimeException::class, 'already exists');
     });
 });
 

@@ -107,7 +107,7 @@ it('registers every notion node under its own type, in the notion category', fun
     $types = collect(glob(app_path('Nodes/Integrations/Notion/Notion*Node.php')))
         ->map(fn (string $file): string => 'App\\Nodes\\Integrations\\Notion\\'.basename($file, '.php'));
 
-    expect($types)->toHaveCount(29);
+    expect($types)->toHaveCount(30);
 
     foreach ($types as $class) {
         $node = new $class;

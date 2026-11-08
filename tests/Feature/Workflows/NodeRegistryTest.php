@@ -3,8 +3,14 @@
 use App\Contracts\NodeContract;
 use App\Models\Nodes\NodeCategory;
 use App\Nodes\AiAutomation\AskAiNode;
+use App\Nodes\DataTransform\ArrayNode;
 use App\Nodes\DataTransform\CallApiNode;
+use App\Nodes\DataTransform\DateTimeNode;
+use App\Nodes\DataTransform\JsonNode;
+use App\Nodes\DataTransform\MathNode;
 use App\Nodes\DataTransform\RunCodeNode;
+use App\Nodes\DataTransform\SetVariableNode;
+use App\Nodes\DataTransform\StringNode;
 use App\Nodes\DataTransform\TransformNode;
 use App\Nodes\FlowLogic\FilterNode;
 use App\Nodes\FlowLogic\RouterNode;
@@ -20,12 +26,12 @@ it('registers every minimal built-in node under its own type string', function (
         'router' => RouterNode::class,
         'filter' => FilterNode::class,
         'ask_ai' => AskAiNode::class,
-        'set_variable' => App\Nodes\DataTransform\SetVariableNode::class,
-        'string' => App\Nodes\DataTransform\StringNode::class,
-        'json' => App\Nodes\DataTransform\JsonNode::class,
-        'array' => App\Nodes\DataTransform\ArrayNode::class,
-        'math' => App\Nodes\DataTransform\MathNode::class,
-        'date_time' => App\Nodes\DataTransform\DateTimeNode::class,
+        'set_variable' => SetVariableNode::class,
+        'string' => StringNode::class,
+        'json' => JsonNode::class,
+        'array' => ArrayNode::class,
+        'math' => MathNode::class,
+        'date_time' => DateTimeNode::class,
     ];
 
     foreach ($expected as $type => $class) {

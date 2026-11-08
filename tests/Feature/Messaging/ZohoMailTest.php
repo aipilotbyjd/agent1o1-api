@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Workflows\Workflow;
 use App\Nodes\Integrations\ZohoMail\AbstractZohoMailNode;
 use App\Nodes\Integrations\ZohoMail\ZohoMailGetMessageNode;
+use App\Nodes\Integrations\ZohoMail\ZohoMailListFoldersNode;
 use App\Nodes\Integrations\ZohoMail\ZohoMailListMessagesNode;
 use App\Nodes\Integrations\ZohoMail\ZohoMailMarkReadNode;
 use App\Nodes\Integrations\ZohoMail\ZohoMailMoveMessageNode;
@@ -20,6 +21,7 @@ use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\ZohoMailOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -83,7 +85,7 @@ function fakeZohoMail(array $routes): void
 
         $answer = value($routes[$route], $request);
 
-        return $answer instanceof GuzzleHttp\Promise\PromiseInterface ? $answer : Http::response($answer);
+        return $answer instanceof PromiseInterface ? $answer : Http::response($answer);
     }]);
 }
 
@@ -201,7 +203,7 @@ describe('zoho mail nodes', function () {
     it('explains an error with a hint', function () {
         fakeZohoMail(['GET /accounts/'.ZMAIL_ACCOUNT.'/folders' => fn () => Http::response(['data' => ['errorCode' => 'INVALID_OAUTHTOKEN']], 401)]);
 
-        expect(fn () => (new App\Nodes\Integrations\ZohoMail\ZohoMailListFoldersNode)->execute(zmailRun(), [], []))->toThrow(RuntimeException::class, 'Reconnect Zoho Mail');
+        expect(fn () => (new ZohoMailListFoldersNode)->execute(zmailRun(), [], []))->toThrow(RuntimeException::class, 'Reconnect Zoho Mail');
     });
 });
 

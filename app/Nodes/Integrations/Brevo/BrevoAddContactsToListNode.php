@@ -5,7 +5,6 @@ namespace App\Nodes\Integrations\Brevo;
 use App\Enums\Agents\ActionEffect;
 use App\Models\Runs\Run;
 use App\Nodes\Support\Field;
-use InvalidArgumentException;
 
 class BrevoAddContactsToListNode extends AbstractBrevoNode
 {

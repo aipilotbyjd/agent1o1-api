@@ -36,6 +36,8 @@
         <env name="LONG_QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="STRIPE_WEBHOOK_SECRET" value=""/>
+        <env name="PASSPORT_PASSWORD_CLIENT_ID" value="00000000-0000-4000-8000-000000000001"/>
+        <env name="PASSPORT_PASSWORD_CLIENT_SECRET" value="testing-password-grant-client-secret"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

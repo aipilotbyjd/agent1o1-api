@@ -29,6 +29,7 @@ use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\PostmarkOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -65,7 +66,7 @@ function fakePostmark(array $routes): void
 
         $answer = value($routes[$route], $request);
 
-        return $answer instanceof GuzzleHttp\Promise\PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
+        return $answer instanceof PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
     }]);
 }
 

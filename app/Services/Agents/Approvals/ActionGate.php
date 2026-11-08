@@ -314,6 +314,15 @@ class ActionGate
      */
     private function repeatedFailureVerdict(ActionContext $context, ToolCall $call): ?array
     {
+        $session = $context->session;
+
+        // Only a chat turn is one turn of one run. An eval run shared by every case,
+        // or a workflow run shared by several Agent nodes, must not carry one
+        // case's failures into the next: the tool counts its own (`ActionGuard`).
+        if ($session === null || $context->run->runnable_type !== $session->getMorphClass() || $context->run->runnable_id !== $session->id) {
+            return null;
+        }
+
         $failures = AgentAction::query()
             ->where('run_id', $context->run->id)
             ->where('tool_name', $call->toolName)

@@ -54,7 +54,7 @@ class TrelloUpdateListNode extends AbstractTrelloNode
             throw new InvalidArgumentException('Change at least one thing.');
         }
 
-        $list = $this->trello($run, $config, 'PUT', '/lists/'.$this->id($config, 'list_id', 'The list'), $changes);
+        $list = $this->trello($run, $config, 'PUT', '/lists/'.$this->id($config, 'list_id', 'The list'), [], $changes);
 
         return ['id' => $list['id'] ?? null, 'name' => $list['name'] ?? null, 'archived' => (bool) ($list['closed'] ?? false)];
     }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Triggers\SubscriptionStatus;
+use App\Exceptions\ConnectorException;
 use App\Jobs\Triggers\FireTriggerEvent;
 use App\Jobs\Triggers\PollTrigger;
 use App\Jobs\Triggers\SyncTriggerSubscription;
@@ -27,6 +28,7 @@ use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\MailchimpOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -66,7 +68,7 @@ function fakeMailchimp(array $routes): void
 
         $answer = value($routes[$route], $request);
 
-        return $answer instanceof GuzzleHttp\Promise\PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
+        return $answer instanceof PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
     }]);
 }
 
@@ -117,14 +119,14 @@ describe('mailchimp nodes', function () {
 
     it('adds or updates a member by the hash of the lower-case email, with only what is set', function () {
         $hash = md5('ada@example.com');
-        fakeMailchimp(["PUT /lists/".MAILCHIMP_LIST."/members/{$hash}" => mailchimpMember()]);
+        fakeMailchimp(['PUT /lists/'.MAILCHIMP_LIST."/members/{$hash}" => mailchimpMember()]);
 
         $output = (new MailchimpAddOrUpdateMemberNode)->execute(Run::factory()->create(), mailchimpConfig([
             'email' => ' Ada@Example.com ', 'first_name' => 'Ada', 'merge_fields' => '{"COMPANY": "Acme"}', 'tags' => 'customer, vip', 'status_if_new' => 'pending', 'status' => 'unsubscribed', 'vip' => 'yes',
         ]), []);
 
         expect($output)->toMatchArray(['id' => $hash, 'email' => 'ada@example.com', 'status' => 'subscribed', 'first_name' => 'Ada', 'last_name' => 'Lovelace', 'phone' => null, 'tags' => ['customer']])
-            ->and(mailchimpSent("PUT /lists/".MAILCHIMP_LIST."/members/{$hash}"))->toBe([
+            ->and(mailchimpSent('PUT /lists/'.MAILCHIMP_LIST."/members/{$hash}"))->toBe([
                 'email_address' => 'ada@example.com', 'status_if_new' => 'pending', 'status' => 'unsubscribed', 'merge_fields' => ['COMPANY' => 'Acme', 'FNAME' => 'Ada'], 'tags' => ['customer', 'vip'], 'vip' => true,
             ]);
         Http::assertSent(fn (Request $request): bool => str_starts_with($request->url(), 'https://us21.api.mailchimp.com/3.0/') && $request->hasHeader('Authorization', 'Basic '.base64_encode('flows:'.MAILCHIMP_KEY)));
@@ -143,20 +145,20 @@ describe('mailchimp nodes', function () {
 
     it('updates a member and refuses an update that changes nothing', function () {
         $hash = md5('ada@example.com');
-        fakeMailchimp(["PATCH /lists/".MAILCHIMP_LIST."/members/{$hash}" => mailchimpMember()]);
+        fakeMailchimp(['PATCH /lists/'.MAILCHIMP_LIST."/members/{$hash}" => mailchimpMember()]);
         $node = new MailchimpUpdateMemberNode;
 
         $node->execute(Run::factory()->create(), mailchimpConfig(['email' => 'ada@example.com', 'last_name' => 'Byron', 'new_email' => 'ada@new.test']), []);
 
-        expect(mailchimpSent("PATCH /lists/".MAILCHIMP_LIST."/members/{$hash}"))->toBe(['email_address' => 'ada@new.test', 'merge_fields' => ['LNAME' => 'Byron']])
+        expect(mailchimpSent('PATCH /lists/'.MAILCHIMP_LIST."/members/{$hash}"))->toBe(['email_address' => 'ada@new.test', 'merge_fields' => ['LNAME' => 'Byron']])
             ->and(fn () => $node->execute(Run::factory()->create(), mailchimpConfig(['email' => 'ada@example.com']), []))->toThrow(InvalidArgumentException::class, 'Change at least one thing');
     });
 
     it('unsubscribes, tags and untags', function () {
         $hash = md5('ada@example.com');
         fakeMailchimp([
-            "PATCH /lists/".MAILCHIMP_LIST."/members/{$hash}" => mailchimpMember('ada@example.com', ['status' => 'unsubscribed']),
-            "POST /lists/".MAILCHIMP_LIST."/members/{$hash}/tags" => null,
+            'PATCH /lists/'.MAILCHIMP_LIST."/members/{$hash}" => mailchimpMember('ada@example.com', ['status' => 'unsubscribed']),
+            'POST /lists/'.MAILCHIMP_LIST."/members/{$hash}/tags" => null,
         ]);
         $run = Run::factory()->create();
 
@@ -164,7 +166,7 @@ describe('mailchimp nodes', function () {
         (new MailchimpAddTagsNode)->execute($run, mailchimpConfig(['email' => 'ada@example.com', 'tags' => ['a', 'b']]), []);
 
         expect($unsubscribed['status'])->toBe('unsubscribed')
-            ->and(mailchimpSent("POST /lists/".MAILCHIMP_LIST."/members/{$hash}/tags"))->toBe(['tags' => [['name' => 'a', 'status' => 'active'], ['name' => 'b', 'status' => 'active']]])
+            ->and(mailchimpSent('POST /lists/'.MAILCHIMP_LIST."/members/{$hash}/tags"))->toBe(['tags' => [['name' => 'a', 'status' => 'active'], ['name' => 'b', 'status' => 'active']]])
             ->and(fn () => (new MailchimpAddTagsNode)->execute($run, mailchimpConfig(['email' => 'ada@example.com', 'tags' => '']), []))->toThrow(InvalidArgumentException::class, 'at least one tag');
     });
 
@@ -237,7 +239,7 @@ describe('mailchimp dropdowns', function () {
         expect($source->load('mailchimp.audiences', $query())->toArray())->toBe(['options' => [['value' => MAILCHIMP_LIST, 'label' => 'Newsletter', 'description' => '42 members']], 'next_cursor' => '100'])
             ->and($source->load('mailchimp.campaigns', $query())->toArray()['options'][0])->toBe(['value' => 'cafe123456', 'label' => 'March', 'description' => 'Sent'])
             ->and($source->load('mailchimp.segments', $query(['list_id' => MAILCHIMP_LIST]))->toArray()['options'])->toBe([['value' => '9', 'label' => 'VIP', 'description' => '3 members']])
-            ->and(fn () => $source->load('mailchimp.segments', $query()))->toThrow(App\Exceptions\ConnectorException::class, 'Choose an audience first');
+            ->and(fn () => $source->load('mailchimp.segments', $query()))->toThrow(ConnectorException::class, 'Choose an audience first');
     });
 });
 

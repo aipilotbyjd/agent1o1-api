@@ -28,6 +28,7 @@ use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\ZohoDeskOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -90,7 +91,7 @@ function fakeZohoDesk(array $routes): void
 
         $answer = value($routes[$route], $request);
 
-        return $answer instanceof GuzzleHttp\Promise\PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
+        return $answer instanceof PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
     }]);
 }
 
@@ -145,7 +146,7 @@ describe('zoho desk nodes', function () {
     it('creates a ticket at the data center with the token and organization in headers', function () {
         fakeZohoDesk(['POST /tickets' => zdeskTicket()]);
 
-        $output = (new ZohoDeskCreateTicketNode)->execute(zdeskRun(), ['department_id' => '7001', 'subject' => ' Cannot log in ', 'email' => 'Ada@Example.com', 'priority' => 'High', 'custom_fields' => '{"cf_plan": "Gold"}'], []);
+        $output = (new ZohoDeskCreateTicketNode)->execute(zdeskRun(), ['department_id' => '5000000007001', 'subject' => ' Cannot log in ', 'email' => 'Ada@Example.com', 'priority' => 'High', 'custom_fields' => '{"cf_plan": "Gold"}'], []);
 
         $request = zdeskRequest('POST /tickets');
 
@@ -153,7 +154,7 @@ describe('zoho desk nodes', function () {
             ->and($request->url())->toStartWith('https://desk.zoho.com/api/v1/tickets')
             ->and($request->header('Authorization')[0])->toBe('Zoho-oauthtoken 1000.zoho-session')
             ->and($request->header('orgId')[0])->toBe('6001')
-            ->and(zdeskBody('POST /tickets'))->toMatchArray(['departmentId' => '7001', 'subject' => 'Cannot log in', 'priority' => 'High', 'channel' => 'Web', 'cf' => ['cf_plan' => 'Gold']]);
+            ->and(zdeskBody('POST /tickets'))->toMatchArray(['departmentId' => '5000000007001', 'subject' => 'Cannot log in', 'priority' => 'High', 'channel' => 'Web', 'cf' => ['cf_plan' => 'Gold']]);
     });
 
     it('refuses a connection without the organization id, and a bad ticket id', function () {

@@ -19,10 +19,12 @@ use App\Nodes\Integrations\Klaviyo\KlaviyoTrackEventNode;
 use App\Nodes\Integrations\Klaviyo\KlaviyoUnsubscribeProfileNode;
 use App\Nodes\Integrations\Klaviyo\KlaviyoUpdateProfileNode;
 use App\Nodes\Integrations\Klaviyo\KlaviyoUpsertProfileNode;
+use App\Services\Triggers\Push\PushSources;
 use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\KlaviyoOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -61,7 +63,7 @@ function fakeKlaviyo(array $routes): void
 
         $answer = value($routes[$route], $request);
 
-        return $answer instanceof GuzzleHttp\Promise\PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer, 200, ['Content-Type' => 'application/vnd.api+json']));
+        return $answer instanceof PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer, 200, ['Content-Type' => 'application/vnd.api+json']));
     }]);
 }
 
@@ -261,6 +263,6 @@ describe('klaviyo triggers', function () {
     });
 
     it('is polled only: Klaviyo has no webhook the app can register', function () {
-        expect(app(App\Services\Triggers\Push\PushSources::class)->source('klaviyo'))->toBeNull();
+        expect(app(PushSources::class)->source('klaviyo'))->toBeNull();
     });
 });

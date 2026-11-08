@@ -13,6 +13,7 @@ use App\Models\Runs\NodeRun;
 use App\Models\Runs\Run;
 use App\Models\SuperAdmin\SuperAdmin;
 use App\Models\SuperAdmin\SuperAdminToken;
+use App\Models\Triggers\Trigger;
 use App\Models\User;
 use App\Models\Workflows\Workflow;
 use App\Models\Workspaces\Workspace;
@@ -22,8 +23,10 @@ use App\Services\SuperAdmin\Auth\SuperAdminTokenService;
 use App\Services\SuperAdmin\Pricing\PricingStripe;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use Illuminate\Bus\UniqueLock;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Laravel\Passport\Client;
 use PragmaRX\Google2FA\Google2FA;
@@ -131,6 +134,16 @@ function referUser(User $referrer, ?User $referred = null, ?ReferralProgram $pro
 function pollNow(PollTrigger $job): void
 {
     app(Dispatcher::class)->dispatchNow($job);
+}
+
+/**
+ * PollTrigger is unique per trigger, so while one sits on the faked queue a
+ * second dispatch is coalesced into it. Call this to stand in for the queued
+ * poll having run, before expecting the next dispatch to be queued.
+ */
+function finishQueuedPoll(Trigger $trigger): void
+{
+    (new UniqueLock(Cache::driver()))->release(new PollTrigger($trigger));
 }
 
 /**
