@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Notifications\Referrals\ReferralSignedUpNotification;
 use App\Services\Referrals\ReferralCodes;
 use App\Services\Referrals\ReferralSettings;
+use App\Services\Workspaces\WorkspaceService;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 use Laravel\Passport\Passport;
@@ -69,6 +70,10 @@ it('fires the signup reward once the referred user verifies their email', functi
     $code = app(ReferralCodes::class)->forUser($referrer);
 
     $referred = registerWithReferral('new@acme.test', $code->code);
+
+    // Sign-up creates no workspace; onboarding does, and the reward lands in it.
+    app(WorkspaceService::class)->create($referred, ['name' => 'New Co']);
+    $referred = $referred->fresh();
 
     expect($referred->currentWorkspace->topup_credits)->toBe(0);
 

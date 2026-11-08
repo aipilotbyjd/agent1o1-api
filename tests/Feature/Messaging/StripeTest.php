@@ -446,7 +446,7 @@ describe('stripe triggers', function () {
     });
 
     it('starts a poll when a signed event arrives, and only once for the same event', function () {
-        stripeTrigger();
+        $trigger = stripeTrigger();
         $secret = (string) ProviderWatch::query()->sole()->secret;
 
         stripeDelivery($secret, 'evt_9')->assertOk();
@@ -454,6 +454,7 @@ describe('stripe triggers', function () {
 
         Queue::assertPushed(PollTrigger::class, 1);
 
+        finishQueuedPoll($trigger);
         stripeDelivery($secret, 'evt_10')->assertOk();
 
         Queue::assertPushed(PollTrigger::class, 2);
