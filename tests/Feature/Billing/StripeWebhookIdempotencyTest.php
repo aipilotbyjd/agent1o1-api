@@ -94,6 +94,16 @@ it('lets Stripe retry an event whose handler failed instead of reporting it alre
     $workspace = app(WorkspaceService::class)->create($owner, ['name' => 'Acme']);
     $workspace->forceFill(['stripe_id' => 'cus_test_retry'])->save();
 
+    Plan::factory()->create(['credits_monthly' => 5000, 'stripe_price_id_monthly' => 'price_test_retry']);
+
+    Subscription::query()->create([
+        'workspace_id' => $workspace->id,
+        'type' => 'default',
+        'stripe_id' => 'sub_test_retry',
+        'stripe_status' => 'active',
+        'stripe_price' => 'price_test_retry',
+    ]);
+
     $payload = subscriptionCreatedPayload('evt_test_retry', 'cus_test_retry', 'sub_test_retry', 'price_test_retry');
 
     $this->mock(OpenUsagePeriodForSubscriptionAction::class)
