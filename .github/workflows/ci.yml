@@ -48,8 +48,8 @@ jobs:
 
       - name: Prepare environment
         run: |
-          cp .env.example .env
-          php artisan key:generate --no-interaction
+          # Tests must run on code defaults + phpunit.xml, not on .env.example values.
+          php -r "file_put_contents('.env', 'APP_KEY=base64:'.base64_encode(random_bytes(32)).PHP_EOL);"
           php artisan passport:keys --force --no-interaction
 
       - name: Run Pest
