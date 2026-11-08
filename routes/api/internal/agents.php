@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}/agents')
+    ->scopeBindings()
     ->as('agents.')
     ->group(function () {
         Route::get('/', [AgentController::class, 'index'])->name('index');

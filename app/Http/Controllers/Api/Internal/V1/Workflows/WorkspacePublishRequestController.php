@@ -9,6 +9,7 @@ use App\Http\Resources\Api\Internal\V1\Workflows\WorkflowPublishRequestResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Workflows\WorkflowPublishRequest;
 use App\Models\Workspaces\Workspace;
+use Illuminate\Http\Request;
 
 /**
  * Every workflow change waiting for review in the workspace, oldest first
@@ -16,7 +17,7 @@ use App\Models\Workspaces\Workspace;
  */
 class WorkspacePublishRequestController extends Controller
 {
-    public function index(Workspace $workspace)
+    public function index(Request $request, Workspace $workspace)
     {
         $this->requirePermission(Permission::WorkflowView);
 
@@ -27,8 +28,10 @@ class WorkspacePublishRequestController extends Controller
             ->select(['id', 'workflow_id', 'workspace_id', 'requested_by', 'status', 'notes', 'base_version_id', 'reviewed_at', 'review_notes', 'created_at'])
             ->with(['workflow:id,name', 'requester:id,name', 'baseVersion:id,version'])
             ->oldest()
-            ->get();
+            ->orderBy('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
 
-        return ApiResponse::success(['requests' => WorkflowPublishRequestResource::collection($pending)]);
+        return ApiResponse::cursorPaginated(WorkflowPublishRequestResource::collection($pending));
     }
 }

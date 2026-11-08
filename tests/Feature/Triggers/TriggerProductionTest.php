@@ -381,8 +381,8 @@ it('reports 24-hour stats and the target name in the list', function () {
 
     $this->getJson("/api/v1/workspaces/{$workspace->id}/triggers")
         ->assertSuccessful()
-        ->assertJsonPath('data.triggers.0.stats_24h', ['fired' => 1, 'failed' => 1, 'skipped' => 0, 'rejected' => 0])
-        ->assertJsonPath('data.triggers.0.target_name', $workflow->name);
+        ->assertJsonPath('data.0.stats_24h', ['fired' => 1, 'failed' => 1, 'skipped' => 0, 'rejected' => 0])
+        ->assertJsonPath('data.0.target_name', $workflow->name);
 });
 
 describe('legacy triggers', function () {

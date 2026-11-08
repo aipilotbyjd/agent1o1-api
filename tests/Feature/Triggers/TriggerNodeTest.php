@@ -266,6 +266,6 @@ it('filters the trigger list by target', function () {
     $response = $this->getJson("/api/v1/workspaces/{$workspace->id}/triggers?target_type=workflow&target_id={$workflow->id}")
         ->assertSuccessful();
 
-    expect($response->json('data.triggers'))->toHaveCount(1)
-        ->and($response->json('data.triggers.0.target_id'))->toBe($workflow->id);
+    expect($response->json('data'))->toHaveCount(1)
+        ->and($response->json('data.0.target_id'))->toBe($workflow->id);
 });

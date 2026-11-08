@@ -13,6 +13,7 @@ Route::post('ai-providers/connect/complete', [AiProviderConnectController::class
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}')
+    ->scopeBindings()
     ->group(function () {
         Route::get('ai-providers', [AiProviderCredentialController::class, 'providers'])->name('ai-providers.index');
         Route::post('ai-providers/{provider}/connect', [AiProviderConnectController::class, 'start'])->middleware('throttle:ai-credential-checks')->name('ai-providers.connect');

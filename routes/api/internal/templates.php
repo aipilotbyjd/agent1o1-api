@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}')
     ->group(function () {
+        // Templates can be platform-wide (`workspace_id` null, public) and
+        // readable from every workspace, so the four template groups below are
+        // deliberately not scoped to the workspace: each controller authorises
+        // them itself (this workspace's own, or a public platform one).
+        // Don't put `scopeBindings()` on this outer group: a nested
+        // `withoutScopedBindings()` can't undo it. Only the routes after the
+        // groups, which take a workflow, page or agent, are scoped.
         Route::prefix('workflow-templates')->as('workflow-templates.')->group(function () {
             Route::get('/', [WorkflowTemplateController::class, 'index'])->name('index');
             Route::post('/', [WorkflowTemplateController::class, 'store'])->name('store');
@@ -48,7 +55,7 @@ Route::middleware(['auth:api', 'workspace.context'])
             Route::delete('{templateCollection}/items/{item}', [TemplateCollectionItemController::class, 'destroy'])->name('items.destroy');
         });
 
-        Route::post('workflows/{workflow}/save-as-template', [WorkflowTemplateController::class, 'storeFromWorkflow'])->name('workflows.save-as-template');
-        Route::post('pages/{page}/save-as-template', [PageTemplateController::class, 'storeFromPage'])->name('pages.save-as-template');
-        Route::post('agents/{agent}/save-as-template', [AgentTemplateController::class, 'storeFromAgent'])->name('agents.save-as-template');
+        Route::post('workflows/{workflow}/save-as-template', [WorkflowTemplateController::class, 'storeFromWorkflow'])->scopeBindings()->name('workflows.save-as-template');
+        Route::post('pages/{page}/save-as-template', [PageTemplateController::class, 'storeFromPage'])->scopeBindings()->name('pages.save-as-template');
+        Route::post('agents/{agent}/save-as-template', [AgentTemplateController::class, 'storeFromAgent'])->scopeBindings()->name('agents.save-as-template');
     });

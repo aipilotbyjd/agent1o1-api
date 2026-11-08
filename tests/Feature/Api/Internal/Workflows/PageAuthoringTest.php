@@ -60,7 +60,7 @@ it('keeps a version for every publish and for each save', function () {
     $this->patchJson($this->base, ['content' => ($this->content)('Second')])->assertOk();
     $this->postJson("{$this->base}/versions", ['label' => 'Before the redesign'])->assertCreated();
 
-    $versions = $this->getJson("{$this->base}/versions")->assertOk()->json('data.versions');
+    $versions = $this->getJson("{$this->base}/versions")->assertOk()->json('data');
 
     expect(array_column($versions, 'number'))->toBe([2, 1]);
     expect(array_column($versions, 'kind'))->toBe(['saved', 'published']);

@@ -2,6 +2,7 @@
 
 namespace App\Models\Agents;
 
+use App\Models\Concerns\ResolvesScopedRouteBindings;
 use App\Models\User;
 use App\Models\Workspaces\Workspace;
 use Database\Factories\Agents\AgentEvalSuiteFactory;
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class AgentEvalSuite extends Model
 {
     /** @use HasFactory<AgentEvalSuiteFactory> */
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, ResolvesScopedRouteBindings;
 
     /**
      * @var array<string, mixed>
@@ -52,6 +53,14 @@ class AgentEvalSuite extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function scopedRouteBindingRelations(): array
+    {
+        return ['evalRun' => 'runs'];
     }
 
     public function cases(): HasMany

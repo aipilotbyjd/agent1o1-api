@@ -5,6 +5,7 @@ namespace App\Models\Agents;
 use App\Enums\Agents\AutonomyMode;
 use App\Models\Ai\ModelCatalog;
 use App\Models\Artifacts\Artifact;
+use App\Models\Concerns\ResolvesScopedRouteBindings;
 use App\Models\User;
 use App\Models\Workflows\Folder;
 use App\Models\Workflows\Tag;
@@ -31,7 +32,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Agent extends Model
 {
     /** @use HasFactory<AgentFactory> */
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids, ResolvesScopedRouteBindings, SoftDeletes;
 
     public const ICONS = [
         'bot', 'brain', 'sparkles', 'search', 'target', 'shield', 'rocket', 'layers', 'flame', 'sliders-horizontal',
@@ -68,6 +69,50 @@ class Agent extends Model
             'test_mode' => 'boolean',
             'allow_web_fetch' => 'boolean',
         ];
+    }
+
+    /**
+     * `{skill}`, `{workflow}` and `{subagent}` under an agent are *candidates*
+     * to attach (`POST {agent}/skills/{skill}`), so they can't resolve through
+     * the attached `skills()`/`workflows()`/`subagents()` pivots: they resolve
+     * through everything in the agent's own workspace instead.
+     *
+     * @return array<string, string>
+     */
+    protected function scopedRouteBindingRelations(): array
+    {
+        return [
+            'evaluation' => 'sessionEvaluations',
+            'run' => 'reflectionRuns',
+            'skill' => 'workspaceSkills',
+            'subagent' => 'workspaceAgents',
+            'suite' => 'evalSuites',
+            'workflow' => 'workspaceWorkflows',
+        ];
+    }
+
+    /**
+     * @return HasMany<Skill, $this>
+     */
+    public function workspaceSkills(): HasMany
+    {
+        return $this->hasMany(Skill::class, 'workspace_id', 'workspace_id');
+    }
+
+    /**
+     * @return HasMany<Workflow, $this>
+     */
+    public function workspaceWorkflows(): HasMany
+    {
+        return $this->hasMany(Workflow::class, 'workspace_id', 'workspace_id');
+    }
+
+    /**
+     * @return HasMany<Agent, $this>
+     */
+    public function workspaceAgents(): HasMany
+    {
+        return $this->hasMany(self::class, 'workspace_id', 'workspace_id');
     }
 
     public function workspace(): BelongsTo

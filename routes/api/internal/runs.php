@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}')
+    ->scopeBindings()
     ->as('runs.')
     ->group(function () {
         Route::post('workflows/{workflow}/runs', [RunController::class, 'store'])->name('store');

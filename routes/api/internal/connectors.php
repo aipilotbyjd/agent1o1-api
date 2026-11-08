@@ -18,6 +18,7 @@ Route::middleware('auth:api')->group(function () {
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}/connector-credentials')
+    ->scopeBindings()
     ->as('connector-credentials.')
     ->group(function () {
         Route::post('oauth/initiate', [OAuthConnectorController::class, 'initiate'])->name('oauth.initiate');

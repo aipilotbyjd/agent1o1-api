@@ -5,8 +5,10 @@ namespace App\Models\Workspaces;
 use App\Casts\Timezone;
 use App\Enums\Billing\Feature;
 use App\Models\Agents\Agent;
+use App\Models\Agents\AgentAction;
 use App\Models\Agents\AgentSession;
 use App\Models\Agents\DocumentEmbedding;
+use App\Models\Agents\KnowledgeSource;
 use App\Models\Agents\Skill;
 use App\Models\Agents\SkillSource;
 use App\Models\Ai\AiProviderCredential;
@@ -20,6 +22,7 @@ use App\Models\Billing\Plan;
 use App\Models\Billing\PlanGrant;
 use App\Models\Billing\Subscription;
 use App\Models\Billing\UsagePeriod;
+use App\Models\Concerns\ResolvesScopedRouteBindings;
 use App\Models\Connectors\ConnectorCredential;
 use App\Models\Nodes\CustomNode;
 use App\Models\Notifications\NotificationChannel;
@@ -55,7 +58,7 @@ use Laravel\Cashier\Billable;
 #[Fillable(['name', 'slug', 'avatar', 'timezone', 'owner_id'])]
 class Workspace extends Model
 {
-    use Billable, HasFactory, HasUuids, SoftDeletes;
+    use Billable, HasFactory, HasUuids, ResolvesScopedRouteBindings, SoftDeletes;
 
     /**
      * @var array<string, mixed>
@@ -99,6 +102,27 @@ class Workspace extends Model
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    /**
+     * Route parameters whose name isn't their relation's. `{member}` is the
+     * `User`, found through the workspace's membership rows, and `{session}`
+     * under a workspace is a workflow-builder chat (the assistant's own
+     * sessions are checked against the member's assistant instead: see
+     * routes/api/internal/assistant.php).
+     *
+     * @return array<string, string>
+     */
+    protected function scopedRouteBindingRelations(): array
+    {
+        return [
+            'action' => 'agentActions',
+            'member' => 'users',
+            'node' => 'customNodes',
+            'page' => 'workflowPages',
+            'section' => 'pageSections',
+            'session' => 'builderSessions',
+        ];
     }
 
     public function members(): HasMany
@@ -221,6 +245,16 @@ class Workspace extends Model
     public function secrets(): HasMany
     {
         return $this->hasMany(Secret::class);
+    }
+
+    public function agentActions(): HasMany
+    {
+        return $this->hasMany(AgentAction::class);
+    }
+
+    public function knowledgeSources(): HasMany
+    {
+        return $this->hasMany(KnowledgeSource::class);
     }
 
     public function documentEmbeddings(): HasMany

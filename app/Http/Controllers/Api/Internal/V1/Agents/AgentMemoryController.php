@@ -11,17 +11,22 @@ use App\Http\Responses\ApiResponse;
 use App\Models\Agents\Agent;
 use App\Models\Agents\AgentMemory;
 use App\Models\Workspaces\Workspace;
+use Illuminate\Http\Request;
 
 class AgentMemoryController extends Controller
 {
-    public function index(Workspace $workspace, Agent $agent)
+    public function index(Request $request, Workspace $workspace, Agent $agent)
     {
         $this->requirePermission(Permission::AgentView);
         $this->ensureBelongsToWorkspace($workspace, $agent);
 
-        return ApiResponse::success([
-            'memories' => AgentMemoryResource::collection($agent->memories()->latest()->get()),
-        ]);
+        $memories = $agent->memories()
+            ->latest()
+            ->orderByDesc('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
+
+        return ApiResponse::cursorPaginated(AgentMemoryResource::collection($memories));
     }
 
     public function store(StoreAgentMemoryRequest $request, Workspace $workspace, Agent $agent)
