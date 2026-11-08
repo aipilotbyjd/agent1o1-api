@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Api\Internal\V1\Assistant;
 
 use App\Enums\Assistant\AssistantSituationStatus;
-use App\Enums\Assistant\AssistantSituationStepStatus;
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Api\Internal\V1\Assistant\Concerns\ResolvesOwnAssistant;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Internal\V1\Assistant\UpdateAssistantSituationRequest;
+use App\Http\Requests\Api\Internal\V1\Assistant\UpdateAssistantSituationStepRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Assistant\AssistantSituation;
 use App\Models\Assistant\AssistantSituationStep;
@@ -14,7 +15,6 @@ use App\Models\Workspaces\Workspace;
 use App\Services\Assistant\Briefings\SituationActions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class AssistantSituationController extends Controller
 {
@@ -36,24 +36,24 @@ class AssistantSituationController extends Controller
         return ApiResponse::success(['situations' => $situations->map(fn (AssistantSituation $situation): array => $this->describe($situation))->values()]);
     }
 
-    public function update(Request $request, Workspace $workspace, AssistantSituation $situation): JsonResponse
+    public function update(UpdateAssistantSituationRequest $request, Workspace $workspace, AssistantSituation $situation): JsonResponse
     {
         $this->requirePermission(Permission::AssistantUse);
         $this->ensureOwn($request, $workspace, $situation);
 
-        $validated = $request->validate(['status' => ['required', Rule::in(['done', 'dismissed', 'open'])]]);
+        $validated = $request->validated();
         $situation->forceFill(['status' => $validated['status']])->save();
 
         return ApiResponse::success(['situation' => $this->describe($situation->load('steps'))]);
     }
 
-    public function updateStep(Request $request, Workspace $workspace, AssistantSituation $situation, AssistantSituationStep $step): JsonResponse
+    public function updateStep(UpdateAssistantSituationStepRequest $request, Workspace $workspace, AssistantSituation $situation, AssistantSituationStep $step): JsonResponse
     {
         $this->requirePermission(Permission::AssistantUse);
         $this->ensureOwn($request, $workspace, $situation);
         abort_if($step->assistant_situation_id !== $situation->id, 404);
 
-        $validated = $request->validate(['status' => ['required', Rule::enum(AssistantSituationStepStatus::class)]]);
+        $validated = $request->validated();
         $step->forceFill(['status' => $validated['status']])->save();
 
         return ApiResponse::success(['situation' => $this->describe($situation->load('steps'))]);

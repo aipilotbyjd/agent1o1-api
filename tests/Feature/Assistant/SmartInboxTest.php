@@ -371,6 +371,7 @@ it('manages labels and renames them in Gmail', function () {
     $this->postJson("{$this->base}/inbox/labels", ['name' => 'A/B', 'definition' => 'x'])->assertUnprocessable();
 
     $invoices = $config->labels()->where('name', 'Invoices')->sole();
+    $this->patchJson("{$this->base}/inbox/labels/{$invoices->id}", ['name' => 'fyi'])->assertUnprocessable()->assertJsonValidationErrors('name');
     $this->patchJson("{$this->base}/inbox/labels/{$invoices->id}", ['name' => 'Bills'])->assertSuccessful();
     expect($this->mailbox->labelNames[$invoices->provider_label_id])->toBe('Bills');
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Internal\V1\Workflows;
 
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Internal\V1\Workflows\StoreWorkflowPageGenerationRequest;
 use App\Http\Resources\Api\Internal\V1\Workflows\WorkflowPageGenerationResource;
 use App\Http\Responses\ApiResponse;
 use App\Jobs\Pages\GeneratePageJob;
@@ -11,7 +12,6 @@ use App\Models\Workflows\WorkflowPage;
 use App\Models\Workflows\WorkflowPageGeneration;
 use App\Models\Workspaces\Workspace;
 use App\Services\Billing\CreditGate;
-use Illuminate\Http\Request;
 
 /**
  * Asking AI to design or rework a page: see `GeneratePageJob`. The request
@@ -20,16 +20,12 @@ use Illuminate\Http\Request;
  */
 class WorkflowPageGenerationController extends Controller
 {
-    public function store(Request $request, Workspace $workspace, WorkflowPage $page, CreditGate $creditGate)
+    public function store(StoreWorkflowPageGenerationRequest $request, Workspace $workspace, WorkflowPage $page, CreditGate $creditGate)
     {
         $this->authorizePage($workspace, $page);
         $creditGate->assertCanStartRun($workspace);
 
-        $validated = $request->validate([
-            'prompt' => ['required', 'string', 'min:3', 'max:4000'],
-            'variant' => ['nullable', 'in:a,b'],
-            'keep_theme' => ['nullable', 'boolean'],
-        ]);
+        $validated = $request->validated();
 
         $variant = $validated['variant'] ?? 'a';
         abort_if($variant === 'b' && $page->variant_content === null, 409, 'This page has no version B.');
