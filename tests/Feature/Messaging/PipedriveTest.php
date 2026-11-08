@@ -31,6 +31,7 @@ use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\PipedriveOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -68,7 +69,7 @@ function fakePipedrive(array $routes): void
 
         $answer = value($routes[$route], $request);
 
-        return $answer instanceof GuzzleHttp\Promise\PromiseInterface ? $answer : Http::response($answer ?? ['success' => true]);
+        return $answer instanceof PromiseInterface ? $answer : Http::response($answer ?? ['success' => true]);
     }]);
 }
 
@@ -112,7 +113,6 @@ function pipedriveDeal(int $id = 7, array $extra = []): array
 }
 
 /**
- * @param  mixed  $data
  * @return array<string, mixed>
  */
 function pipedriveOk(mixed $data, bool $more = false, int $next = 0): array

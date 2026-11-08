@@ -202,7 +202,7 @@ abstract class AbstractAirtableNode implements DeclaresEffect, NodeContract
      */
     protected function formulaText(string $value): string
     {
-        return "'".str_replace(["\\", "'", "\r", "\n"], ['\\\\', "\\'", ' ', ' '], $value)."'";
+        return "'".str_replace(['\\', "'", "\r", "\n"], ['\\\\', "\\'", ' ', ' '], $value)."'";
     }
 
     /**

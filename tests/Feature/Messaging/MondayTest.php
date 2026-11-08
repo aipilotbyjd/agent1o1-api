@@ -27,6 +27,7 @@ use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\MondayOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -59,7 +60,7 @@ function fakeMonday(array $routes): void
             if (str_contains($query, (string) $needle)) {
                 $value = value($answer, $request);
 
-                return $value instanceof GuzzleHttp\Promise\PromiseInterface ? $value : Http::response(['data' => $value ?? []]);
+                return $value instanceof PromiseInterface ? $value : Http::response(['data' => $value ?? []]);
             }
         }
 

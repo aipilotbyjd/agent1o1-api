@@ -4,8 +4,8 @@ namespace App\Services\Connectors;
 
 use App\Exceptions\ConnectorException;
 use App\Models\Connectors\ConnectorCredential;
-use App\Nodes\Integrations\Shopify\AbstractShopifyNode;
 use App\Nodes\Integrations\ActiveCampaign\AbstractActiveCampaignNode;
+use App\Nodes\Integrations\Shopify\AbstractShopifyNode;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;

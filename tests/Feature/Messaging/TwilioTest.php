@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Triggers\SubscriptionStatus;
+use App\Exceptions\ConnectorException;
 use App\Jobs\Triggers\FireTriggerEvent;
 use App\Jobs\Triggers\PollTrigger;
 use App\Jobs\Triggers\SyncTriggerSubscription;
@@ -16,7 +17,6 @@ use App\Nodes\Integrations\Twilio\TwilioCheckVerificationNode;
 use App\Nodes\Integrations\Twilio\TwilioListCallsNode;
 use App\Nodes\Integrations\Twilio\TwilioListFailedMessagesNode;
 use App\Nodes\Integrations\Twilio\TwilioListMessagesNode;
-use App\Nodes\Integrations\Twilio\TwilioListNewIncomingMessagesNode;
 use App\Nodes\Integrations\Twilio\TwilioLookupPhoneNumberNode;
 use App\Nodes\Integrations\Twilio\TwilioMakeCallNode;
 use App\Nodes\Integrations\Twilio\TwilioSendSmsNode;
@@ -29,6 +29,7 @@ use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\TwilioOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -80,7 +81,7 @@ function fakeTwilio(array $routes): void
 
         $answer = value($routes[$key], $request);
 
-        return $answer instanceof GuzzleHttp\Promise\PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
+        return $answer instanceof PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
     }]);
 }
 
@@ -307,7 +308,7 @@ describe('twilio dropdowns', function () {
         ])
             ->and(array_column($source->load('twilio.numbers', $query(search: 'support'))->toArray()['options'], 'value'))->toBe(['+14155550124'])
             ->and($source->load('twilio.verify_services', $query())->toArray()['options'][0])->toMatchArray(['value' => 'VA77777777777777777777777777777777', 'label' => 'Login codes'])
-            ->and(fn () => $source->load('twilio.numbers', $query([])))->toThrow(App\Exceptions\ConnectorException::class, 'Account SID');
+            ->and(fn () => $source->load('twilio.numbers', $query([])))->toThrow(ConnectorException::class, 'Account SID');
         Http::assertSent(fn (Request $request): bool => $request->hasHeader('Authorization', 'Basic '.base64_encode(TWILIO_SID.':'.TWILIO_TOKEN)));
     });
 });

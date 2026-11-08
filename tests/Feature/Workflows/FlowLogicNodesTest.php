@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Runs\Run;
+use App\Nodes\FlowLogic\DelayNode;
 use App\Nodes\FlowLogic\FilterNode;
 use App\Nodes\FlowLogic\RouterNode;
 
@@ -60,7 +61,7 @@ it('fails loudly on an unknown operator instead of passing', function () {
 })->throws(InvalidArgumentException::class);
 
 it('caps a delay at seven days and never goes negative', function () {
-    $node = new App\Nodes\FlowLogic\DelayNode;
+    $node = new DelayNode;
     $run = Run::factory()->create();
 
     expect($node->execute($run, ['seconds' => 99999999], []))->toBe(['seconds' => 604800])

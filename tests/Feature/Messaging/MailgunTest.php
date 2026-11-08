@@ -27,8 +27,10 @@ use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\MailgunOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
@@ -73,7 +75,7 @@ function fakeMailgun(array $routes): void
 
         $value = value($routes[$route], $request);
 
-        return $value instanceof GuzzleHttp\Promise\PromiseInterface ? $value : ($value === null ? Http::response(null, 204) : Http::response($value));
+        return $value instanceof PromiseInterface ? $value : ($value === null ? Http::response(null, 204) : Http::response($value));
     };
     Http::fake(['api.mailgun.net/*' => $answer, 'api.eu.mailgun.net/*' => $answer]);
 }
@@ -178,7 +180,7 @@ describe('mailgun nodes', function () {
         $output = (new MailgunListEventsNode)->execute(mailgunRun(), ['event' => 'permanent_fail', 'since' => '2026-03-01T00:00:00Z', 'recipient' => 'ada@example.com'], []);
 
         expect($output['events'][0])->toMatchArray(['id' => 'ev2', 'event' => 'failed', 'severity' => 'permanent', 'recipient' => 'ada@example.com', 'subject' => 'Hi', 'message_id' => 'mid1', 'status_code' => 550, 'status_message' => 'No such user', 'at' => '2026-02-26T10:00:00+00:00', 'tags' => ['welcome']]);
-        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'event=failed') && str_contains($request->url(), 'severity=permanent') && str_contains($request->url(), 'ascending=no') && str_contains($request->url(), 'end='.Illuminate\Support\Carbon::parse('2026-03-01T00:00:00Z')->timestamp));
+        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'event=failed') && str_contains($request->url(), 'severity=permanent') && str_contains($request->url(), 'ascending=no') && str_contains($request->url(), 'end='.Carbon::parse('2026-03-01T00:00:00Z')->timestamp));
     });
 
     it('follows the paging link, but only on the Mailgun host', function () {

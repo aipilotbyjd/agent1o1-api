@@ -18,12 +18,15 @@ use App\Nodes\Integrations\SendGrid\SendGridRemoveSuppressionNode;
 use App\Nodes\Integrations\SendGrid\SendGridSearchContactsNode;
 use App\Nodes\Integrations\SendGrid\SendGridSendEmailNode;
 use App\Nodes\Integrations\SendGrid\SendGridUpsertContactNode;
+use App\Services\Triggers\Push\PushSources;
 use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\SendGridOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
@@ -58,7 +61,7 @@ function fakeSendGrid(array $routes): void
 
         $answer = value($routes[$route], $request);
 
-        return $answer instanceof GuzzleHttp\Promise\PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
+        return $answer instanceof PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
     }]);
 }
 
@@ -229,7 +232,7 @@ describe('sendgrid nodes', function () {
 
         expect(array_column($output['bounces'], 'email'))->toBe(['new@x.co', 'old@x.co'])
             ->and($output['bounces'][0]['created_at'])->toBe('2026-02-26T10:00:00+00:00');
-        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'start_time='.Illuminate\Support\Carbon::parse('2026-02-01T00:00:00Z')->timestamp) && str_contains($request->url(), 'limit=50'));
+        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'start_time='.Carbon::parse('2026-02-01T00:00:00Z')->timestamp) && str_contains($request->url(), 'limit=50'));
     });
 });
 
@@ -279,6 +282,6 @@ describe('sendgrid triggers', function () {
         dispatch_sync(new PollTrigger($trigger->fresh()));
 
         expect($trigger->events()->where('status', 'queued')->get()->pluck('payload.email')->sort()->values()->all())->toBe(['b@x.co', 'c@x.co'])
-            ->and(app(App\Services\Triggers\Push\PushSources::class)->source('sendgrid'))->toBeNull();
+            ->and(app(PushSources::class)->source('sendgrid'))->toBeNull();
     });
 });

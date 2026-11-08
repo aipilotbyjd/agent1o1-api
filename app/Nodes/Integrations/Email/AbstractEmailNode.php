@@ -4,16 +4,15 @@ namespace App\Nodes\Integrations\Email;
 
 use App\Contracts\DeclaresEffect;
 use App\Contracts\NodeContract;
-use App\Models\Runs\Run;
 use App\Nodes\Integrations\Concerns\ResolvesConnectorCredential;
 use App\Nodes\Support\Field;
 use App\Services\Connectors\SmtpMailer;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
 use RuntimeException;
-use Throwable;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
+use Throwable;
 
 /**
  * Shared message building for the Email (SMTP) nodes. The "account" is a mail
