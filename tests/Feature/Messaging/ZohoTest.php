@@ -152,7 +152,7 @@ function zohoWritten(string $id = ZOHO_ID, string $action = 'insert'): array
 describe('zoho nodes', function () {
     it('registers the nodes under the zoho connector', function () {
         $registry = app(NodeRegistry::class);
-        $types = array_filter(array_column($registry->placeableTypes(), 'type'), fn (string $type): bool => str_starts_with($type, 'zoho_'));
+        $types = array_filter(array_column($registry->placeableTypes(), 'type'), fn (string $type): bool => str_starts_with($type, 'zoho_') && ! str_starts_with($type, 'zoho_desk_'));
 
         expect(count($types))->toBeGreaterThanOrEqual(44);
 
