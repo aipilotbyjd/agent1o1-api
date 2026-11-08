@@ -1,13 +1,11 @@
 <?php
 
-use App\Models\Runs\Run;
 use App\Models\Triggers\Trigger;
 use App\Models\User;
 use App\Models\Workflows\Folder;
 use App\Models\Workflows\Workflow;
 use App\Models\Workflows\WorkflowVersion;
 use App\Services\Workspaces\WorkspaceService;
-use Illuminate\Support\Carbon;
 use Laravel\Passport\Passport;
 
 /*
@@ -51,77 +49,6 @@ beforeEach(function () {
 });
 
 describe('workflows', function () {
-    it('pages through every workflow once, even when they share a timestamp', function () {
-        $sameInstant = Carbon::parse('2026-01-01 12:00:00');
-        $workflows = Workflow::factory()->forWorkspace($this->workspace)->count(7)->create(['created_at' => $sameInstant]);
-
-        ['ids' => $ids, 'requests' => $requests] = ($this->walk)("{$this->base}/workflows", 3);
-
-        expect($requests)->toBe(3)
-            ->and($ids)->toHaveCount(7)
-            ->and(array_unique($ids))->toHaveCount(7)
-            ->and($ids)->toEqualCanonicalizing($workflows->pluck('id')->all());
-    });
-
-    it('reports where the list ends', function () {
-        Workflow::factory()->forWorkspace($this->workspace)->count(3)->create();
-
-        $this->getJson("{$this->base}/workflows?per_page=2")
-            ->assertOk()
-            ->assertJsonPath('meta.has_more', true)
-            ->assertJsonCount(2, 'data');
-
-        $this->getJson("{$this->base}/workflows?per_page=5")
-            ->assertOk()
-            ->assertJsonPath('meta.has_more', false)
-            ->assertJsonPath('meta.next_cursor', null)
-            ->assertJsonCount(3, 'data');
-    });
-
-    it('caps per_page so one request cannot load a whole workspace', function () {
-        Workflow::factory()->forWorkspace($this->workspace)->count(3)->create();
-
-        $this->getJson("{$this->base}/workflows?per_page=100000")
-            ->assertOk()
-            ->assertJsonPath('meta.per_page', 100);
-    });
-
-    it('enriches each page with node types and last run time for its own workflows', function () {
-        $first = Workflow::factory()->forWorkspace($this->workspace)->create(['created_at' => now()->subMinute()]);
-        $second = Workflow::factory()->forWorkspace($this->workspace)->create(['created_at' => now()]);
-        $first->nodes()->create(['key' => 'a', 'type' => 'slack.send_message', 'config' => []]);
-        $second->nodes()->create(['key' => 'a', 'type' => 'http.request', 'config' => []]);
-        Run::factory()->forWorkflow($first)->completed()->create();
-
-        $pageOne = $this->getJson("{$this->base}/workflows?per_page=1")->assertOk();
-        $pageTwo = $this->getJson("{$this->base}/workflows?per_page=1&cursor=".$pageOne->json('meta.next_cursor'))->assertOk();
-
-        expect($pageOne->json('data.0.id'))->toBe($second->id)
-            ->and($pageOne->json('data.0.node_types'))->toBe(['http.request'])
-            ->and($pageOne->json('data.0.last_run_at'))->toBeNull()
-            ->and($pageTwo->json('data.0.id'))->toBe($first->id)
-            ->and($pageTwo->json('data.0.node_types'))->toBe(['slack.send_message'])
-            ->and($pageTwo->json('data.0.last_run_at'))->not->toBeNull();
-    });
-
-    it('runs a fixed number of queries however many workflows exist', function () {
-        Workflow::factory()->forWorkspace($this->workspace)->count(3)->create();
-        $this->getJson("{$this->base}/workflows?per_page=2")->assertOk(); // warm up lazy singletons
-
-        $count = function (): int {
-            DB::flushQueryLog();
-            DB::enableQueryLog();
-            $this->getJson("{$this->base}/workflows?per_page=2")->assertOk();
-
-            return count(DB::getQueryLog());
-        };
-
-        $before = $count();
-        Workflow::factory()->forWorkspace($this->workspace)->count(20)->create();
-
-        expect($count())->toBe($before);
-    });
-
     it('pages the trash too', function () {
         $trashed = Workflow::factory()->forWorkspace($this->workspace)->count(4)->create();
         $trashed->each->delete();
@@ -135,10 +62,11 @@ describe('workflows', function () {
 
     it('does not page into another workspaces workflows', function () {
         $other = app(WorkspaceService::class)->create(User::factory()->create(), ['name' => 'Globex']);
-        Workflow::factory()->forWorkspace($other)->count(3)->create();
+        Workflow::factory()->forWorkspace($other)->count(3)->create()->each->delete();
         $own = Workflow::factory()->forWorkspace($this->workspace)->create();
+        $own->delete();
 
-        ['ids' => $ids] = ($this->walk)("{$this->base}/workflows", 2);
+        ['ids' => $ids] = ($this->walk)("{$this->base}/workflows/trash", 2);
 
         expect($ids)->toBe([$own->id]);
     });

@@ -1,0 +1,23 @@
+meta {
+  name: Workflows - Summary
+  type: http
+  seq: 41
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/summary
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Counts for the workflows page without loading the list: `total` visible
+  workflows, how many are `published`, and how many are the caller's
+  `favorites`. Requires the `workflow.view` permission.
+
+  Response is wrapped: `{ success, statusCode, message, data: { total, published, favorites } }`.
+}
