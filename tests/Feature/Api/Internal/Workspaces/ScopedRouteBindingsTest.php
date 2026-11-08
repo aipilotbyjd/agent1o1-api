@@ -84,7 +84,7 @@ it('scopes the bindings of every workspace route, except the documented ones', f
 it('only exempts routes that are really unscoped', function () {
     foreach (workspaceScopedRoutes() as $route) {
         if (isExemptWorkspaceRoute($route)) {
-            expect($route->preventsScopedBindings())->toBeTrue("{$route->uri()} is listed as exempt but is still scoped.");
+            expect($route->enforcesScopedBindings())->toBeFalse("{$route->uri()} is listed as exempt but is still scoped.");
         }
     }
 });
