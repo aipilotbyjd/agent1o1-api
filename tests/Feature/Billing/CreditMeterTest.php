@@ -216,7 +216,11 @@ it('records how many more credits a call costs than before the upgrade', functio
 
 it('records nothing when a call costs the same as before the upgrade', function () {
     config(['billing.shadow_billing' => true]);
-    Pulse::shouldReceive('record')->never();
+    // A call with no provider or model is counted as unpriced, but no shadow delta is recorded.
+    $entry = Mockery::mock(Entry::class);
+    $entry->shouldReceive('count')->andReturnSelf();
+    Pulse::shouldReceive('record')->with('ai_unpriced_call', Mockery::any())->andReturn($entry);
+    Pulse::shouldReceive('record')->with('ai_billing_shadow_delta', Mockery::any(), Mockery::any())->never();
 
     $nodeRun = NodeRun::factory()->make(['type' => 'ask_ai', 'usage' => ['input_tokens' => 1500, 'output_tokens' => 600]]);
 
