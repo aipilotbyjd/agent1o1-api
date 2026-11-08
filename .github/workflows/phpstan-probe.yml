@@ -1,0 +1,39 @@
+name: PHPStan probe (temporary)
+
+on:
+  pull_request:
+    branches: [dev]
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: bcmath, exif, gd, intl, mbstring, pcntl, pdo_sqlite, sqlite3, zip
+          coverage: none
+          tools: composer:v2
+
+      - run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Error counts per level
+        run: |
+          for level in 3 4 5 6; do
+            count=$(vendor/bin/phpstan analyse --level=$level --no-progress --memory-limit=3G --error-format=raw --configuration=phpstan.neon 2>/dev/null | grep -c . || true)
+            echo "PHPSTAN_LEVEL_$level=$count"
+          done
+
+      - name: Baseline at level 5
+        run: |
+          vendor/bin/phpstan analyse --level=5 --no-progress --memory-limit=3G --configuration=phpstan.neon --generate-baseline=phpstan-baseline.neon --allow-empty-baseline || true
+          echo "---BASELINE-START---"
+          cat phpstan-baseline.neon
+          echo "---BASELINE-END---"
+          grep -c "message:" phpstan-baseline.neon || true
