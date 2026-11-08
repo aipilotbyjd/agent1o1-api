@@ -23,9 +23,17 @@ it('debug: probe route', function () {
     $url = "/api/v1/workspaces/{$workspace->id}/__probe/workflows/{$own->id}";
     $response = $this->getJson($url);
 
-    fwrite(STDERR, "\nDEBUGPROBE status=".$response->getStatusCode().' body='.$response->getContent()."\n");
-    fwrite(STDERR, 'DEBUGPROBE routecount='.count(Route::getRoutes()->getRoutes()).' class='.get_class(Route::getRoutes())."\n");
-    fwrite(STDERR, 'DEBUGPROBE match='.(Route::getRoutes()->getByName('x') ? 'y' : 'n')."\n");
+    $own->refresh();
+    $info = [
+        'status' => $response->getStatusCode(),
+        'body' => $response->getContent(),
+        'collection' => get_class(Route::getRoutes()),
+        'workflow_trashed' => method_exists($own, 'trashed') ? $own->trashed() : null,
+        'workspace_workflows' => $workspace->workflows()->count(),
+        'workspace_workflows_withTrashed' => method_exists($workspace->workflows(), 'withTrashed') ? $workspace->workflows()->withTrashed()->count() : 'n/a',
+        'own_workspace_id' => $own->workspace_id,
+        'workspace_id' => $workspace->id,
+    ];
 
-    expect(true)->toBeTrue();
+    expect(json_encode($info))->toBe('DEBUGPROBE');
 });
