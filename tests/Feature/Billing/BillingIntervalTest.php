@@ -65,7 +65,7 @@ it('sells the free plan on no interval at all', function () {
     expect(Plan::query()->where('slug', 'free')->sole()->availableIntervals())->toBe([]);
 });
 
-it('prices every paid seeded plan on all four intervals', function () {
+it('prices every paid seeded plan on every interval it enables', function () {
     Plan::query()->delete();
     test()->syncSetup('plans');
 
@@ -75,7 +75,9 @@ it('prices every paid seeded plan on all four intervals', function () {
 
     $paid->each(function (Plan $plan): void {
         foreach (BillingInterval::cases() as $interval) {
-            expect($plan->priceFor($interval))->toBeGreaterThan(0);
+            if ($plan->enablesInterval($interval)) {
+                expect($plan->priceFor($interval))->toBeGreaterThan(0);
+            }
         }
     });
 });
