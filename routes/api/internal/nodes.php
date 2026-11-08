@@ -15,6 +15,7 @@ Route::middleware('auth:api')->group(function () {
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}/nodes')
+    ->scopeBindings()
     ->as('nodes.')
     ->group(function () {
         Route::get('custom', [NodeController::class, 'custom'])->name('custom');

@@ -84,7 +84,7 @@ it('excludes internal (loop-mode) workflows from the workspace listing', functio
 
     $response = $this->getJson("/api/v1/workspaces/{$workspace->id}/workflows")->assertOk();
 
-    expect($response->json('data.workflows'))->toHaveCount(1);
+    expect($response->json('data'))->toHaveCount(1);
 });
 
 it('saves a draft graph via the builder endpoint', function () {
@@ -290,18 +290,18 @@ it('favorites and unfavorites a workflow per user', function () {
     $this->patchJson("/api/v1/workspaces/{$workspace->id}/workflows/{$workflow->id}/favorite", ['is_favorite' => true])
         ->assertOk();
 
-    $listAsOwner = $this->getJson("/api/v1/workspaces/{$workspace->id}/workflows")->json('data.workflows');
+    $listAsOwner = $this->getJson("/api/v1/workspaces/{$workspace->id}/workflows")->json('data');
     expect(collect($listAsOwner)->firstWhere('id', $workflow->id)['is_favorite'])->toBeTrue();
 
     Passport::actingAs($otherMember);
-    $listAsOther = $this->getJson("/api/v1/workspaces/{$workspace->id}/workflows")->json('data.workflows');
+    $listAsOther = $this->getJson("/api/v1/workspaces/{$workspace->id}/workflows")->json('data');
     expect(collect($listAsOther)->firstWhere('id', $workflow->id)['is_favorite'])->toBeFalse();
 
     Passport::actingAs($owner);
     $this->patchJson("/api/v1/workspaces/{$workspace->id}/workflows/{$workflow->id}/favorite", ['is_favorite' => false])
         ->assertOk();
 
-    $listAfterUnfavorite = $this->getJson("/api/v1/workspaces/{$workspace->id}/workflows")->json('data.workflows');
+    $listAfterUnfavorite = $this->getJson("/api/v1/workspaces/{$workspace->id}/workflows")->json('data');
     expect(collect($listAfterUnfavorite)->firstWhere('id', $workflow->id)['is_favorite'])->toBeFalse();
 });
 
@@ -313,7 +313,7 @@ it('includes node counts, node types, and last run time on the list', function (
     $run = Run::factory()->forWorkflow($workflow)->completed()->create();
 
     Passport::actingAs($owner);
-    $listed = collect($this->getJson("/api/v1/workspaces/{$workspace->id}/workflows")->json('data.workflows'))
+    $listed = collect($this->getJson("/api/v1/workspaces/{$workspace->id}/workflows")->json('data'))
         ->firstWhere('id', $workflow->id);
 
     expect($listed['nodes_count'])->toBe(2);

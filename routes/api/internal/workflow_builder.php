@@ -13,6 +13,7 @@ Route::middleware(['auth:api', 'workspace.context'])->group(function () {
     // Editor-only concerns on an already-created Workflow (node placement,
     // edges, autosave): see WorkflowBuilderController.
     Route::prefix('workspaces/{workspace}/workflows')
+        ->scopeBindings()
         ->as('workflows.builder.')
         ->group(function () {
             Route::put('{workflow}/graph', [WorkflowBuilderController::class, 'replaceGraph'])->name('graph');
@@ -30,6 +31,7 @@ Route::middleware(['auth:api', 'workspace.context'])->group(function () {
     // WorkflowBuilderAgent's tools (and the canvas, via PATCH draft),
     // promoted to a real Workflow when ready.
     Route::prefix('workspaces/{workspace}/workflow-builder-sessions')
+        ->scopeBindings()
         ->as('workflow-builder-sessions.')
         ->group(function () {
             Route::get('/', [WorkflowBuilderSessionController::class, 'index'])->name('index');

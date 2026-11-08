@@ -7,6 +7,7 @@ use App\Enums\Workflows\BuilderSessionStatus;
 use App\Enums\Workflows\FlowControlNodeType;
 use App\Exceptions\WorkflowBuilderConflictException;
 use App\Jobs\Workflows\ProcessWorkflowBuilderMessageJob;
+use App\Models\Concerns\ResolvesScopedRouteBindings;
 use App\Models\User;
 use App\Models\Workflows\Workflow;
 use App\Models\Workspaces\Workspace;
@@ -55,7 +56,7 @@ class WorkflowBuilderSession extends Model
     public const int STALE_REPLY_MINUTES = 10;
 
     /** @use HasFactory<WorkflowBuilderSessionFactory> */
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, ResolvesScopedRouteBindings;
 
     /**
      * @var array<string, mixed>
@@ -92,6 +93,14 @@ class WorkflowBuilderSession extends Model
     public function workflow(): BelongsTo
     {
         return $this->belongsTo(Workflow::class);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function scopedRouteBindingRelations(): array
+    {
+        return ['version' => 'draftVersions'];
     }
 
     public function draftVersions(): HasMany

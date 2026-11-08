@@ -282,8 +282,8 @@ describe('trigger status', function () {
 
         $this->getJson("/api/v1/workspaces/{$workspace->id}/triggers")
             ->assertOk()
-            ->assertJsonPath('data.triggers.0.status.state', 'listening')
-            ->assertJsonPath('data.triggers.0.status.delivery.mode', 'instant');
+            ->assertJsonPath('data.0.status.state', 'listening')
+            ->assertJsonPath('data.0.status.delivery.mode', 'instant');
     });
 });
 

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 // Saved blocks to reuse across pages.
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}/page-sections')
+    ->scopeBindings()
     ->as('page-sections.')
     ->group(function () {
         Route::get('/', [PageSectionController::class, 'index'])->name('index');
@@ -21,6 +22,7 @@ Route::middleware(['auth:api', 'workspace.context'])
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}/pages')
+    ->scopeBindings()
     ->as('pages.')
     ->group(function () {
         Route::get('/', [WorkflowPageController::class, 'index'])->name('index');

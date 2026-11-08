@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}/knowledge-base')
+    ->scopeBindings()
     ->as('knowledge-base.')
     ->group(function () {
         Route::get('/', [KnowledgeBaseController::class, 'index'])->name('index');

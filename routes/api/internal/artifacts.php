@@ -9,6 +9,7 @@ Route::get('artifacts/{artifact}/preview', [ArtifactController::class, 'preview'
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}/artifacts')
+    ->scopeBindings()
     ->as('artifacts.')
     ->group(function () {
         Route::get('/', [ArtifactController::class, 'index'])->name('index');
@@ -18,5 +19,8 @@ Route::middleware(['auth:api', 'workspace.context'])
         Route::get('{artifact}/download', [ArtifactController::class, 'download'])->name('download');
         Route::patch('{artifact}/access', [ArtifactController::class, 'updateAccess'])->name('access.update');
         Route::post('{artifact}/shares', [ArtifactController::class, 'addShare'])->name('shares.store');
-        Route::delete('{artifact}/shares/{user}', [ArtifactController::class, 'removeShare'])->name('shares.destroy');
+        // `{user}` is any user: a share is keyed by the artifact's group, not
+        // by a relation scoped binding could follow. `removeShare()` checks
+        // the artifact's workspace itself.
+        Route::delete('{artifact}/shares/{user}', [ArtifactController::class, 'removeShare'])->withoutScopedBindings()->name('shares.destroy');
     });

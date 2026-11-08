@@ -18,7 +18,7 @@ Route::middleware('auth:api')->prefix('workspaces')->group(function () {
         ->middleware('signed')
         ->name('workspaces.invitations.accept');
 
-    Route::middleware('workspace.context')->prefix('{workspace}')->group(function () {
+    Route::middleware('workspace.context')->prefix('{workspace}')->scopeBindings()->group(function () {
         Route::get('/', [WorkspaceController::class, 'show']);
         Route::patch('/', [WorkspaceController::class, 'update']);
         Route::delete('/', [WorkspaceController::class, 'destroy']);

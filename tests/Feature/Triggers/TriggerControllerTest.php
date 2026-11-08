@@ -296,7 +296,7 @@ it('counts rejected events apart from skipped ones in the 24h stats', function (
 
     $this->getJson("/api/v1/workspaces/{$workspace->id}/triggers")
         ->assertOk()
-        ->assertJsonPath('data.triggers.0.stats_24h', ['fired' => 0, 'failed' => 0, 'skipped' => 1, 'rejected' => 1]);
+        ->assertJsonPath('data.0.stats_24h', ['fired' => 0, 'failed' => 0, 'skipped' => 1, 'rejected' => 1]);
 });
 
 it('caps how many events one page returns', function () {

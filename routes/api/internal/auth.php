@@ -72,7 +72,7 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('avatar', [UserController::class, 'deleteAvatar'])->name('avatar.destroy');
     });
 
-    Route::prefix('workspaces/{workspace}/api-keys')->as('api-keys.')->middleware('workspace.context')->group(function () {
+    Route::prefix('workspaces/{workspace}/api-keys')->as('api-keys.')->middleware('workspace.context')->scopeBindings()->group(function () {
         Route::get('/', [ApiKeyController::class, 'index'])->name('index');
         Route::post('/', [ApiKeyController::class, 'store'])->name('store');
         Route::delete('{apiKey}', [ApiKeyController::class, 'destroy'])->name('destroy');

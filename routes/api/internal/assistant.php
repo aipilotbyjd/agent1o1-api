@@ -27,6 +27,12 @@ Route::get('app-config', AppConfigController::class)
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}/assistant')
+    // Everything here belongs to the member's *own* assistant, which is
+    // narrower than the workspace: a scoped binding can't say "this member's",
+    // so each controller checks it (`ResolvesOwnAssistant`, 404 for anyone
+    // else's) and these parameters (`{session}`, `{trigger}`, `{run}`, ...)
+    // are deliberately not resolved through the workspace.
+    ->withoutScopedBindings()
     ->as('assistant.')
     ->group(function () {
         Route::get('/', [AssistantController::class, 'show'])->name('show');
