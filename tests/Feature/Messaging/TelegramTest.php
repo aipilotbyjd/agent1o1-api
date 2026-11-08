@@ -3,7 +3,6 @@
 use App\Enums\Triggers\SubscriptionStatus;
 use App\Jobs\Triggers\FireTriggerEvent;
 use App\Jobs\Triggers\PollTrigger;
-use App\Jobs\Triggers\RouteProviderEvent;
 use App\Jobs\Triggers\SyncTriggerSubscription;
 use App\Models\Connectors\Connector;
 use App\Models\Connectors\ConnectorCredential;
@@ -28,6 +27,7 @@ use App\Services\Triggers\Push\WatchManager;
 use App\Services\Triggers\TriggerStatus;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -63,7 +63,7 @@ function fakeTelegram(array $methods): void
 
         $answer = value($methods[$method], $request);
 
-        return $answer instanceof GuzzleHttp\Promise\PromiseInterface ? $answer : Http::response(['ok' => true, 'result' => $answer]);
+        return $answer instanceof PromiseInterface ? $answer : Http::response(['ok' => true, 'result' => $answer]);
     }]);
 }
 

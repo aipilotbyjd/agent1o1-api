@@ -9,7 +9,6 @@ use App\Models\Triggers\ProviderWatch;
 use App\Models\Triggers\Trigger;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
 /**

@@ -7,7 +7,6 @@ use App\Models\Connectors\ConnectorCredential;
 use App\Models\Triggers\ProviderWatch;
 use App\Models\Triggers\Trigger;
 use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Throwable;
 

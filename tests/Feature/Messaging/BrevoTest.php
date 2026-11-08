@@ -18,10 +18,12 @@ use App\Nodes\Integrations\Brevo\BrevoSendEmailNode;
 use App\Nodes\Integrations\Brevo\BrevoSendSmsNode;
 use App\Nodes\Integrations\Brevo\BrevoTrackEventNode;
 use App\Nodes\Integrations\Brevo\BrevoUpdateContactNode;
+use App\Services\Triggers\Push\PushSources;
 use App\Services\Workflows\NodeOptions\NodeOptionsQuery;
 use App\Services\Workflows\NodeOptions\Sources\BrevoOptions;
 use App\Services\Workflows\NodeRegistry;
 use App\Services\Workspaces\WorkspaceService;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -58,7 +60,7 @@ function fakeBrevo(array $routes): void
 
         $answer = value($routes[$route], $request);
 
-        return $answer instanceof GuzzleHttp\Promise\PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
+        return $answer instanceof PromiseInterface ? $answer : ($answer === null ? Http::response(null, 204) : Http::response($answer));
     }]);
 }
 
@@ -265,6 +267,6 @@ describe('brevo triggers', function () {
         $node = app(NodeRegistry::class)->resolve('brevo_list_updated_contacts');
 
         expect($node->triggerItemId(['id' => 1, 'modified_at' => 'a']))->not->toBe($node->triggerItemId(['id' => 1, 'modified_at' => 'b']))
-            ->and(app(App\Services\Triggers\Push\PushSources::class)->source('brevo'))->toBeNull();
+            ->and(app(PushSources::class)->source('brevo'))->toBeNull();
     });
 });

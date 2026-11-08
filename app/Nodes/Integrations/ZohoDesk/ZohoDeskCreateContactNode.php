@@ -41,7 +41,7 @@ class ZohoDeskCreateContactNode extends AbstractZohoDeskNode
                 'phone' => Field::advanced(Field::text('Phone')),
                 'account_id' => Field::advanced(Field::text('Company id', 'A long number, from a previous step.')),
                 'description' => Field::advanced(Field::textarea('Notes')),
-                    'custom_fields' => Field::advanced(Field::json('Custom fields (JSON)', 'By API name, e.g. {"cf_plan": "Gold"}.')),
+                'custom_fields' => Field::advanced(Field::json('Custom fields (JSON)', 'By API name, e.g. {"cf_plan": "Gold"}.')),
             ],
         ];
     }
