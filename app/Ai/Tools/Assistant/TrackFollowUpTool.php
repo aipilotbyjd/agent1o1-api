@@ -65,10 +65,21 @@ class TrackFollowUpTool extends AssistantTool
 
         $attributes = [
             'remind_at' => now()->addDays($days),
-            'subject' => Str::limit(Str::squish((string) ($request['subject'] ?? '')), 200, '') ?: null,
-            'note' => Str::limit(Str::squish((string) ($request['note'] ?? '')), 500, '') ?: null,
             'assistant_session_id' => $this->session?->id,
         ];
+
+        // Tracking a thread again only moves its date: it must not wipe the
+        // subject or note unless a new one is given.
+        $subject = Str::limit(Str::squish((string) ($request['subject'] ?? '')), 200, '');
+        $note = Str::limit(Str::squish((string) ($request['note'] ?? '')), 500, '');
+
+        if ($subject !== '') {
+            $attributes['subject'] = $subject;
+        }
+
+        if ($note !== '') {
+            $attributes['note'] = $note;
+        }
 
         // The reminder only counts answers that arrive after tracking began.
         $followUp = $existing ?? $this->assistant->followUps()->make(['thread_id' => $threadId, 'status' => AssistantFollowUpStatus::Pending]);
