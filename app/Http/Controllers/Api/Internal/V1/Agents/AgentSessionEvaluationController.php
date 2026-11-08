@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api\Internal\V1\Agents;
 
-use App\Enums\Agents\SessionEvaluationGrade;
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Internal\V1\Agents\ListAgentSessionEvaluationsRequest;
 use App\Http\Resources\Api\Internal\V1\Agents\AgentSessionEvaluationResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Agents\Agent;
@@ -12,19 +12,15 @@ use App\Models\Agents\AgentSession;
 use App\Models\Agents\AgentSessionEvaluation;
 use App\Models\Workspaces\Workspace;
 use App\Services\Agents\SessionEvaluator;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class AgentSessionEvaluationController extends Controller
 {
     public function __construct(private readonly SessionEvaluator $evaluator) {}
 
-    public function index(Request $request, Workspace $workspace, Agent $agent)
+    public function index(ListAgentSessionEvaluationsRequest $request, Workspace $workspace, Agent $agent)
     {
         $this->requirePermission(Permission::AgentView);
         $this->ensureBelongsToWorkspace($workspace, $agent);
-
-        $request->validate(['grade' => ['sometimes', Rule::enum(SessionEvaluationGrade::class)]]);
 
         $evaluations = $agent->sessionEvaluations()
             ->when($request->filled('grade'), fn ($query) => $query->where('grade', $request->string('grade')))

@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Agents\ResolveAgentActionsAction;
+use App\Http\Requests\DecideSignedAgentActionRequest;
 use App\Models\Agents\AgentAction;
 use App\Models\User;
 use App\Services\Agents\Approvals\ActionApprovers;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
@@ -37,12 +37,9 @@ class AgentActionSignedDecisionController extends Controller
         ]);
     }
 
-    public function store(Request $request, AgentAction $action, ResolveAgentActionsAction $resolve): View
+    public function store(DecideSignedAgentActionRequest $request, AgentAction $action, ResolveAgentActionsAction $resolve): View
     {
-        $validated = $request->validate([
-            'decision' => ['required', Rule::in(['approve', 'reject'])],
-            'note' => ['nullable', 'string', 'max:2000'],
-        ]);
+        $validated = $request->validated();
 
         $user = User::query()->findOrFail($request->query('user'));
 

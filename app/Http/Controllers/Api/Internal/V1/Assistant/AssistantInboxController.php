@@ -123,7 +123,6 @@ class AssistantInboxController extends Controller
         $config = $this->config($assistant);
 
         abort_if($config->labels()->count() >= (int) config('assistant.inbox.max_labels'), 422, 'You can have up to '.config('assistant.inbox.max_labels').' labels.');
-        abort_if($config->labels()->whereRaw('lower(name) = ?', [mb_strtolower($request->validated('name'))])->exists(), 422, 'You already have a label with that name.');
 
         $config->labels()->create([...$request->validated(), 'position' => (int) $config->labels()->max('position') + 1]);
         $this->syncIfOn($config);
@@ -142,8 +141,6 @@ class AssistantInboxController extends Controller
         $validated = $request->validated();
 
         if (isset($validated['name']) && $validated['name'] !== $label->name) {
-            abort_if($config->labels()->whereKeyNot($label->id)->whereRaw('lower(name) = ?', [mb_strtolower($validated['name'])])->exists(), 422, 'You already have a label with that name.');
-
             try {
                 $this->labels->rename($label, $validated['name'], $config->enabled ? $this->mailboxes->for($config) : null);
             } catch (Throwable $e) {

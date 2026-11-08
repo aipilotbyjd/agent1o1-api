@@ -6,6 +6,8 @@ use App\Authorization\WorkspaceContext;
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Internal\V1\Workflows\ClonePageToWorkspaceRequest;
+use App\Http\Requests\Api\Internal\V1\Workflows\RecordWorkflowPageStartRequest;
+use App\Http\Requests\Api\Internal\V1\Workflows\ShowWorkflowPageInsightsRequest;
 use App\Http\Requests\Api\Internal\V1\Workflows\StoreWorkflowPageRequest;
 use App\Http\Requests\Api\Internal\V1\Workflows\UpdateWorkflowPageRequest;
 use App\Http\Resources\Api\Internal\V1\Workflows\WorkflowPageListResource;
@@ -189,11 +191,10 @@ class WorkflowPageController extends Controller
     /**
      * A member started filling in the published page.
      */
-    public function event(Request $request, Workspace $workspace, WorkflowPage $page)
+    public function event(RecordWorkflowPageStartRequest $request, Workspace $workspace, WorkflowPage $page)
     {
         $this->requirePermission(Permission::PageView);
         $this->ensureBelongsToWorkspace($workspace, $page);
-        $request->validate(['type' => ['required', 'in:'.WorkflowPageEvent::Start]]);
 
         $visitor = $this->insights->visitor($page, $request, $request->user());
         $this->insights->record($page, WorkflowPageEvent::Start, $this->insights->variantFor($page, $visitor), $visitor);
@@ -205,15 +206,12 @@ class WorkflowPageController extends Controller
      * Views, starts, runs and how they ended over the last `days` days, by
      * day and per version while an A/B test runs.
      */
-    public function insights(Request $request, Workspace $workspace, WorkflowPage $page)
+    public function insights(ShowWorkflowPageInsightsRequest $request, Workspace $workspace, WorkflowPage $page)
     {
         $this->requirePermission(Permission::PageView);
         $this->ensureBelongsToWorkspace($workspace, $page);
 
-        $validated = $request->validate([
-            'days' => ['nullable', 'integer', 'in:7,30,90'],
-            'include_tests' => ['nullable', 'boolean'],
-        ]);
+        $validated = $request->validated();
 
         return ApiResponse::success([
             'insights' => $this->insights->summary($page, (int) ($validated['days'] ?? 30), $request->boolean('include_tests')),

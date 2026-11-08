@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api\Internal\V1\Agents;
 
 use App\Actions\Agents\ResolveAgentActionsAction;
-use App\Enums\Agents\AgentActionStatus;
 use App\Enums\RunStatus;
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Internal\V1\Agents\DecideAgentActionsRequest;
+use App\Http\Requests\Api\Internal\V1\Agents\ListAgentActionsRequest;
 use App\Http\Resources\Api\Internal\V1\Agents\AgentActionResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Agents\Agent;
@@ -16,8 +16,6 @@ use App\Models\Agents\AgentSession;
 use App\Models\Workspaces\Workspace;
 use App\Services\Agents\Approvals\ActionResumer;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 /**
  * An agent's action log (everything it did or tried to do that changes
@@ -33,7 +31,7 @@ class AgentActionController extends Controller
         private readonly ActionResumer $resumer,
     ) {}
 
-    public function index(Request $request, Workspace $workspace, Agent $agent)
+    public function index(ListAgentActionsRequest $request, Workspace $workspace, Agent $agent)
     {
         $this->requirePermission(Permission::AgentView);
         $this->ensureBelongsToWorkspace($workspace, $agent);
@@ -43,7 +41,7 @@ class AgentActionController extends Controller
         ));
     }
 
-    public function sessionIndex(Request $request, Workspace $workspace, Agent $agent, AgentSession $session)
+    public function sessionIndex(ListAgentActionsRequest $request, Workspace $workspace, Agent $agent, AgentSession $session)
     {
         $this->requirePermission(Permission::AgentView);
         $this->ensureBelongsToWorkspace($workspace, $agent);
@@ -97,12 +95,9 @@ class AgentActionController extends Controller
      * @param  Builder<AgentAction>  $query
      * @return Builder<AgentAction>
      */
-    private function filtered(Request $request, Builder $query): Builder
+    private function filtered(ListAgentActionsRequest $request, Builder $query): Builder
     {
-        $filters = $request->validate([
-            'status' => ['nullable', Rule::enum(AgentActionStatus::class)],
-            'tool_name' => ['nullable', 'string', 'max:255'],
-        ]);
+        $filters = $request->validated();
 
         return $query
             ->when($filters['status'] ?? null, fn (Builder $query, string $status) => $query->where('status', $status))
