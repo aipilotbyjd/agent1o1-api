@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:api', 'workspace.context', LockSkillSource::class])
     ->prefix('workspaces/{workspace}/skills')
+    ->scopeBindings()
     ->as('skills.')
     ->group(function () {
         Route::get('/', [SkillController::class, 'index'])->name('index');
@@ -38,6 +39,7 @@ Route::middleware(['auth:api', 'workspace.context', LockSkillSource::class])
 
 Route::middleware(['auth:api', 'workspace.context', LockSkillSource::class])
     ->prefix('workspaces/{workspace}/skill-sources')
+    ->scopeBindings()
     ->as('skill-sources.')
     ->group(function () {
         Route::get('/', [SkillSourceController::class, 'index'])->name('index');

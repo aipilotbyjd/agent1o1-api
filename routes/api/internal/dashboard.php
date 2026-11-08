@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}/dashboard')
+    ->scopeBindings()
     ->as('dashboard.')
     ->group(function () {
         Route::get('/', [DashboardController::class, 'overview'])->name('overview');

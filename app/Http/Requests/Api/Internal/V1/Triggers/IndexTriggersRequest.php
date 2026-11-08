@@ -21,6 +21,8 @@ class IndexTriggersRequest extends FormRequest
         return [
             'target_type' => ['nullable', Rule::enum(TriggerTargetType::class), 'required_with:target_id'],
             'target_id' => ['nullable', 'uuid'],
+            'per_page' => ['nullable', 'integer', 'between:1,100'],
+            'cursor' => ['nullable', 'string'],
         ];
     }
 }

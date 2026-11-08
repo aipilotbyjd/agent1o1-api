@@ -11,6 +11,7 @@ Route::middleware('auth:api')->group(function () {
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}')
+    ->scopeBindings()
     ->group(function () {
         Route::get('model-settings', [WorkspaceModelSettingsController::class, 'show'])->name('model-settings.show');
         Route::put('model-settings', [WorkspaceModelSettingsController::class, 'update'])->name('model-settings.update');

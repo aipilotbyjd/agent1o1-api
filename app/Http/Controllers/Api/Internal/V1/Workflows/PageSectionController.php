@@ -10,6 +10,7 @@ use App\Http\Responses\ApiResponse;
 use App\Models\Workflows\PageSection;
 use App\Models\Workspaces\Workspace;
 use App\Services\Workflows\Pages\PageSchema;
+use Illuminate\Http\Request;
 
 /**
  * The workspace's library of saved page blocks: see `PageSection`. Anyone
@@ -19,13 +20,18 @@ class PageSectionController extends Controller
 {
     public function __construct(private readonly PageSchema $schema) {}
 
-    public function index(Workspace $workspace)
+    public function index(Request $request, Workspace $workspace)
     {
         $this->requirePermission(Permission::PageManage);
 
-        $sections = $workspace->pageSections()->with('creator:id,name')->latest('updated_at')->get();
+        $sections = $workspace->pageSections()
+            ->with('creator:id,name')
+            ->latest('updated_at')
+            ->orderByDesc('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
 
-        return ApiResponse::success(['sections' => PageSectionResource::collection($sections)]);
+        return ApiResponse::cursorPaginated(PageSectionResource::collection($sections));
     }
 
     public function store(StorePageSectionRequest $request, Workspace $workspace)

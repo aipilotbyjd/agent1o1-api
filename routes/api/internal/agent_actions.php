@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:api', 'workspace.context'])
     ->prefix('workspaces/{workspace}')
+    ->scopeBindings()
     ->group(function () {
         // The approvals inbox across every agent in the workspace.
         Route::get('agent-actions', [WorkspaceAgentActionController::class, 'index'])->name('agent-actions.index');

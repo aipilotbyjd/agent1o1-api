@@ -20,19 +20,28 @@ use Illuminate\Support\Str;
 
 class WorkflowController extends Controller
 {
+    /**
+     * Cursor-paginated: a workspace can hold thousands of workflows, and the
+     * node-type and last-run lookups below are keyed on the page's ids only,
+     * so a request costs the same however large the workspace is.
+     */
     public function index(Request $request, Workspace $workspace)
     {
         $this->requirePermission(Permission::WorkflowView);
 
         $workflows = $workspace->workflows()
             ->visible()
-            ->latest()
             ->withCount('nodes')
             ->withExists(['favoritedByUsers as is_favorite' => fn ($query) => $query->where('user_id', $request->user()->id)])
-            ->get();
+            ->latest()
+            ->orderByDesc('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
+
+        $workflowIds = $workflows->getCollection()->pluck('id');
 
         $nodeTypesByWorkflow = WorkflowNode::query()
-            ->whereIn('workflow_id', $workflows->pluck('id'))
+            ->whereIn('workflow_id', $workflowIds)
             ->select('workflow_id', 'type')
             ->distinct()
             ->get()
@@ -40,19 +49,17 @@ class WorkflowController extends Controller
             ->map(fn ($rows) => $rows->pluck('type')->values()->all());
 
         $lastRunAtByWorkflow = Run::query()
-            ->whereIn('workflow_id', $workflows->pluck('id'))
+            ->whereIn('workflow_id', $workflowIds)
             ->selectRaw('workflow_id, MAX(COALESCE(finished_at, started_at, created_at)) as last_run_at')
             ->groupBy('workflow_id')
             ->pluck('last_run_at', 'workflow_id');
 
-        $workflows->each(function (Workflow $workflow) use ($nodeTypesByWorkflow, $lastRunAtByWorkflow): void {
+        $workflows->getCollection()->each(function (Workflow $workflow) use ($nodeTypesByWorkflow, $lastRunAtByWorkflow): void {
             $workflow->setAttribute('node_types', $nodeTypesByWorkflow->get($workflow->id, []));
             $workflow->setAttribute('last_run_at', $lastRunAtByWorkflow->get($workflow->id));
         });
 
-        return ApiResponse::success([
-            'workflows' => WorkflowResource::collection($workflows),
-        ]);
+        return ApiResponse::cursorPaginated(WorkflowResource::collection($workflows));
     }
 
     public function store(StoreWorkflowRequest $request, Workspace $workspace, PlanLimitGate $limits)
@@ -103,7 +110,7 @@ class WorkflowController extends Controller
      * `destroy` only soft-deletes, so the trash is every trashed workflow:
      * most recently trashed first.
      */
-    public function trash(Workspace $workspace)
+    public function trash(Request $request, Workspace $workspace)
     {
         $this->requirePermission(Permission::WorkflowView);
 
@@ -111,11 +118,11 @@ class WorkflowController extends Controller
             ->onlyTrashed()
             ->visible()
             ->latest('deleted_at')
-            ->get();
+            ->orderByDesc('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
 
-        return ApiResponse::success([
-            'workflows' => WorkflowResource::collection($workflows),
-        ]);
+        return ApiResponse::cursorPaginated(WorkflowResource::collection($workflows));
     }
 
     /**

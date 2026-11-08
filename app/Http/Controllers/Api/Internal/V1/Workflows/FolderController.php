@@ -29,9 +29,11 @@ class FolderController extends Controller
             ->with('children')
             ->withCount(['workflows', 'agents'])
             ->orderBy('position')
-            ->get();
+            ->orderBy('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
 
-        return ApiResponse::success(['folders' => FolderResource::collection($folders)]);
+        return ApiResponse::cursorPaginated(FolderResource::collection($folders));
     }
 
     public function store(StoreFolderRequest $request, Workspace $workspace)

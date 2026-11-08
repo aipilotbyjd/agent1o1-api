@@ -130,8 +130,8 @@ it('keeps internal loop workflows out of the trash and purges them with their pa
     $child->delete();
 
     $this->getJson("/api/v1/workspaces/{$workspace->id}/workflows/trash")
-        ->assertJsonCount(1, 'data.workflows')
-        ->assertJsonPath('data.workflows.0.id', $workflow->id);
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $workflow->id);
 
     $this->deleteJson("/api/v1/workspaces/{$workspace->id}/workflows/{$workflow->id}/force")->assertNoContent();
 

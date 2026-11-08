@@ -12,6 +12,7 @@ use App\Models\Agents\ReflectionRun;
 use App\Models\Billing\CreditTransaction;
 use App\Models\User;
 use App\Models\Workflows\Workflow;
+use App\Models\Workflows\WorkflowApproval;
 use App\Models\Workflows\WorkflowVersion;
 use App\Models\Workspaces\Workspace;
 use Closure;
@@ -115,6 +116,11 @@ class Run extends Model
     public function nodeRuns(): HasMany
     {
         return $this->hasMany(NodeRun::class);
+    }
+
+    public function approvals(): HasMany
+    {
+        return $this->hasMany(WorkflowApproval::class);
     }
 
     public function triggeredBy(): BelongsTo

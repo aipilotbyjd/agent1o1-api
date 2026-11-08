@@ -44,7 +44,7 @@ it('lists, renames and deletes only this workspace’s sections', function () {
     $mine = PageSection::factory()->forWorkspace($this->workspace)->create(['name' => 'Mine']);
     $theirs = PageSection::factory()->forWorkspace($other)->create(['name' => 'Theirs']);
 
-    expect(collect($this->getJson($this->base)->assertOk()->json('data.sections'))->pluck('name')->all())->toBe(['Mine']);
+    expect(collect($this->getJson($this->base)->assertOk()->json('data'))->pluck('name')->all())->toBe(['Mine']);
 
     $this->patchJson("{$this->base}/{$mine->id}", ['name' => 'Renamed'])->assertOk()->assertJsonPath('data.section.name', 'Renamed');
     $this->deleteJson("{$this->base}/{$theirs->id}")->assertNotFound();

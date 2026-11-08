@@ -11,10 +11,11 @@ use App\Http\Responses\ApiResponse;
 use App\Models\Workflows\Workflow;
 use App\Models\Workflows\WorkflowVersion;
 use App\Models\Workspaces\Workspace;
+use Illuminate\Http\Request;
 
 class WorkflowVersionController extends Controller
 {
-    public function index(Workspace $workspace, Workflow $workflow)
+    public function index(Request $request, Workspace $workspace, Workflow $workflow)
     {
         $this->requirePermission(Permission::WorkflowVersion);
         $this->ensureBelongsToWorkspace($workspace, $workflow);
@@ -24,11 +25,11 @@ class WorkflowVersionController extends Controller
             ->with('publisher:id,name')
             ->withCount('runs')
             ->latest('version')
-            ->get();
+            ->orderByDesc('id')
+            ->cursorPaginate($this->perPage($request))
+            ->withQueryString();
 
-        return ApiResponse::success([
-            'versions' => WorkflowVersionResource::collection($versions),
-        ]);
+        return ApiResponse::cursorPaginated(WorkflowVersionResource::collection($versions));
     }
 
     public function show(Workspace $workspace, Workflow $workflow, WorkflowVersion $version)
