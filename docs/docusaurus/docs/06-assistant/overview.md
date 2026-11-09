@@ -21,7 +21,7 @@ The **Assistant** is a personal AI for one user. It is separate from workspace [
 
 ## Core ideas
 
-- **Turns**: each message starts a turn that can call tools, compact context, and queue follow-up input.
+- **Turns**: each message starts a turn that can call tools, shorten long context, and hold follow-up input.
 - **Tool gate and rules**: each tool has an effect (read, write, external). Rules decide allow, ask or block per tool. Approvals appear in chat and can be answered from Slack.
 - **Memory and style**: the assistant remembers facts and learns your writing style from feedback and edits.
 - **Feedback**: thumbs up or down with notes improves later answers.

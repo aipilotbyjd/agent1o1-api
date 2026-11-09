@@ -30,8 +30,6 @@ The request body, query string and headers become the trigger's output and are a
 
 Rotate the token at any time with `POST /triggers/{trigger}/rotate-token`. The old URL stops working immediately.
 
-**Check:** confirm the list of `WebhookAuthentication` modes in `app/Enums/Triggers/WebhookAuthentication.php`.
-
 ## Rate limiting
 
 Hook endpoints are rate limited (`trigger-hooks` limiter). Callers get `429` when over the limit.

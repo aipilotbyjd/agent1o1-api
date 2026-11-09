@@ -32,7 +32,7 @@ Endpoints: `PATCH /artifacts/{artifact}/access`, `POST /artifacts/{artifact}/sha
 
 ## Storage
 
-Files are stored with Laravel's filesystem. Configure S3 or an S3-compatible disk in production (`FILESYSTEM_DISK`, `AWS_*`).
+Files are stored securely in your workspace's storage.
 
 ## Permissions
 

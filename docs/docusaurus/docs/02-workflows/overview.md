@@ -24,12 +24,12 @@ Draft ──► Validate ──► Publish ──► Version N ──► Run
 ## How a run executes
 
 1. A **run** is created with its trigger source and input payload.
-2. The engine resolves the graph and queues one job per ready node.
+2. The engine resolves the graph and runs each ready node in the background.
 3. Each job creates a **node run**, executes the node, stores its output, records its credit cost, and releases the nodes downstream.
 4. When a list reaches a node that expects a single item, the engine **fans out** into one node run per item and joins them later (see [Loops and batches](./flow-control.md)).
 5. The run finishes as `completed`, `failed` or `cancelled`. Failures can be routed to an alternate path instead of failing the whole run.
 
-Nodes are executed by queue workers, so long runs never block the web app. See [Queues](../13-self-hosting/queues-and-horizon.md).
+Nodes run in the background, so long runs never block the app.
 
 ## Organizing workflows
 

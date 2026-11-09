@@ -41,10 +41,6 @@ Triggers are as instant as the provider allows:
 
 The node tells you which mode applies. If an app's single webhook slot is already used somewhere else, Agent1o1 refuses to take it over and tells you where it points.
 
-:::note
-Several integrations were written from public provider docs and not yet run against live accounts. See `docs/NODES_CATALOG.md` ("To verify against the providers") before promising behavior to customers.
-:::
+## Missing an app?
 
-## Requesting a new integration
-
-Integrations are code plus catalog data. Contributors add a node family under `app/Nodes/Integrations/{App}` and a connector row in `database/setup/connectors.php`. See [Architecture](../13-self-hosting/architecture.md).
+Tell us which app you need and we will consider it for the roadmap.

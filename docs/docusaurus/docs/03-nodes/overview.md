@@ -35,7 +35,3 @@ Each node run records a credit cost. A run has a base cost; AI nodes are billed 
 - **Call API** and other outbound HTTP nodes go through a guarded client that blocks private addresses (SSRF protection), pins DNS, caps response size, and does not replay headers across origins.
 - Files move between nodes as artifacts. Integration nodes that accept inline file content use text or base64 with a size cap (typically 10 MB).
 - Dropdown values accept ids or names. Some nodes (for example Linear and Jira) resolve names to ids with one lookup, and fail loudly if a name matches several people.
-
-## Catalog maintenance
-
-Categories, apps and node overrides are data, synced with `php artisan setup:catalog:sync`. See [Catalog sync](../13-self-hosting/setup.md#setup-data).

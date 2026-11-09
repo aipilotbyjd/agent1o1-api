@@ -34,7 +34,7 @@ Attach a workflow with `POST /agents/{agent}/workflows/{workflow}`. The workflow
 
 ## Sub-agents
 
-Delegate work to another agent. Sub-agent tasks run on their own queue (`ai-subagent`) and appear in the session's **subagent tasks**.
+Delegate work to another agent. Sub-agent tasks run in the background and appear in the session's **subagent tasks**.
 
 ## Effects
 

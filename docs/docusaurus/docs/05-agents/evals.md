@@ -16,7 +16,7 @@ Runs start manually (`POST /eval-suites/{suite}/runs`) or from automation. Each 
 
 ## Assertions
 
-Common types: contains text, does not contain text, calls a tool, does not call a tool, matches a rubric judged by a model. See `app/Enums/Agents/EvalAssertionType.php` for the full list.
+Common types: contains text, does not contain text, calls a tool, does not call a tool, matches a rubric judged by a model.
 
 ## Workflow
 

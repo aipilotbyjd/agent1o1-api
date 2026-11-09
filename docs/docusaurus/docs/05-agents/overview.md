@@ -1,6 +1,6 @@
 ---
 title: Agents overview
-description: Conversational, tool-using AI agents built on Laravel AI.
+description: Conversational, tool-using AI agents.
 sidebar_position: 1
 ---
 
@@ -35,7 +35,7 @@ Endpoints (internal): `/workspaces/{workspace}/agents/{agent}/sessions` and `...
 4. Results return to the model. Steps repeat until a final answer.
 5. Credits are deducted per step. A cost cap stops runaway turns.
 
-Long turns use a dedicated queue (`ai-agent`) with limited concurrency to stay under provider rate limits.
+Long turns run in the background with limited concurrency to stay under AI provider rate limits.
 
 ## Calling an agent from workflows
 

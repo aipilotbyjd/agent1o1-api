@@ -22,8 +22,6 @@ Domain failures raise typed exceptions that are mapped centrally to HTTP respons
 | `429` | Rate limited. See `Retry-After` |
 | `5xx` | Server error. Retry with backoff |
 
-**Check:** confirm the exact status mapping in `bootstrap/app.php` and `app/Exceptions/Http` before publishing.
-
 ## Typed conditions
 
 | Condition | Typical cause |
@@ -51,7 +49,7 @@ Domain failures raise typed exceptions that are mapped centrally to HTTP respons
 |---|---|
 | `auth` | 10 per minute per IP |
 | `public-api` | 60 per minute per key |
-| `trigger-hooks`, `assistant-hooks` | Configured per URL or IP |
+| Webhook URLs | Rate limited per URL |
 | `workflow-builder-messages` | 10 per minute |
 | `workflow-builder-assist` | 20 per minute |
 | `connector-tests` | 10 per minute |

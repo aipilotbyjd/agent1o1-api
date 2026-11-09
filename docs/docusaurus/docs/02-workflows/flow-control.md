@@ -55,7 +55,7 @@ A **Sub-workflow** node runs another workflow as a step. Inputs and outputs map 
 
 | Guardrail | Purpose |
 |---|---|
-| Max concurrent runs per plan | Stops one workspace flooding the queue |
+| Max concurrent runs per plan | Stops one workspace using all capacity |
 | Max credits per run | Stops a runaway loop spending your balance |
 | Skip-if-running (triggers) | Avoids overlapping runs of the same trigger |
 | Failure breaker (triggers) | Disables a trigger after repeated failures |

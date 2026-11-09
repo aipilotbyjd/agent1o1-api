@@ -15,7 +15,7 @@ A **connector** defines an integration. A **connection** (connector credential) 
 | **OAuth 2.0** | Google, Slack, Linear, Jira, Notion | Click **Connect**, approve in the provider, return to the app |
 | **API key / token** | Telegram, Twilio, SMTP, Mailgun, Typeform | Enter the key in the connection form |
 
-Credentials are stored encrypted. OAuth tokens refresh automatically (`connectors:refresh-expiring` every 5 minutes), and a health check runs hourly.
+Credentials are stored encrypted. OAuth tokens refresh automatically, and a health check runs hourly.
 
 ## Managing connections
 
@@ -29,7 +29,7 @@ Credentials are stored encrypted. OAuth tokens refresh automatically (`connector
 
 ## Scope
 
-Connections are workspace-scoped. Personal connections (visible only to you) and shared ones both exist; see `ConnectorCredentialScope`. Permissions: `connector.view`, `connector.manage`.
+Connections are workspace-scoped. Personal connections (visible only to you) and shared ones both exist. Permissions: `connector.view`, `connector.manage`.
 
 ## OAuth flow
 

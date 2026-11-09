@@ -27,7 +27,7 @@ Each tool call is classified by **risk** and **effect**. The gate returns a **ve
 - By Slack: buttons in the notification post to `/api/slack/agent-actions`.
 - By signed link: an email or message link carries a signed decision.
 
-Pending actions expire automatically (`agents:expire-actions` runs every minute).
+Pending actions expire automatically if nobody decides in time.
 
 ## Plans
 

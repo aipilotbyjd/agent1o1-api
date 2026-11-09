@@ -8,8 +8,6 @@ sidebar_position: 3
 
 Base: `https://api.example.com/api/public/v1`. Auth: `Authorization: Bearer <api key>`. Rate limit: 60 per minute per key.
 
-**Check:** request and response field names below were derived from route definitions. Confirm payloads against the controllers and resources before publishing.
-
 ## Account
 
 | Method | Path | Notes |

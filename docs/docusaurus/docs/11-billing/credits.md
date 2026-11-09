@@ -23,7 +23,7 @@ Every spend is an append-only **credit transaction** in the ledger, with the sou
 | Credit packs | One-off purchases. They do not expire with the period. |
 | Free credit claim | One-time claim for eligible new workspaces |
 | Referral rewards | Credits earned from referrals |
-| Admin grants | Manual grants from the super admin |
+| Admin grants | Manual grants from the Agent1o1 team |
 
 Credits are consumed in grant order (expiring first).
 

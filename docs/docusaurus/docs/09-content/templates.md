@@ -15,7 +15,7 @@ sidebar_position: 2
 | **Page templates** | A starting layout for a public page. |
 | **Collections** | Curated sets of templates (for example "Sales ops"). |
 
-Open **Blueprints** in the app. Use **Use template** to copy it into your workspace. Template content is synced from the platform catalog (`setup:catalog:sync`).
+Open **Blueprints** in the app. Use **Use template** to copy it into your workspace.
 
 Endpoints: `/workflow-templates`, `/agent-templates`, `/page-templates`, `/template-collections`. Permissions: `template.view`, `template.manage`.
 

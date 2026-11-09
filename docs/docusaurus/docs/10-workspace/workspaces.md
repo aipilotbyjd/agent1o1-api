@@ -27,4 +27,4 @@ If a workspace is suspended (non-payment or abuse), actions return `WorkspaceSus
 
 ## Workspace context
 
-Every internal API route under `/workspaces/{workspace}` is checked for membership and role before the controller runs.
+Every request is checked for workspace membership and role before it runs.

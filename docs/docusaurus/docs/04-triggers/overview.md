@@ -30,9 +30,9 @@ Event arrives ─► verify (token/signature) ─► store TriggerEvent ─► c
 ```
 
 1. **Verify**: webhook token in the URL, or the provider's signature.
-2. **Store**: a `TriggerEvent` row is written first, so the event is never lost if a worker is down.
+2. **Store**: the event is saved first, so the event is never lost if a worker is down.
 3. **Conditions**: [Only run when](./conditions.md) rules decide `dispatched` or `ignored`.
-4. **Dispatch**: starts the run on the `triggers-event` queue.
+4. **Dispatch**: starts the run.
 5. **Recover**: stuck events are retried; failed ones can be **replayed**.
 
 Event statuses are visible per trigger: `GET /workspaces/{workspace}/triggers/{trigger}/events`.

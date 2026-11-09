@@ -47,8 +47,8 @@ For each run you can see:
 
 ## Realtime updates
 
-The web app subscribes to workspace channels over WebSockets (Reverb), so node statuses update live. See [Realtime](../12-api/realtime.md).
+The web app subscribes to workspace channels over WebSockets, so node statuses update live.
 
 ## Retention
 
-Trigger events and run data are pruned on a schedule. Check your plan and the self-hosting `config/triggers.php` retention settings.
+Old trigger events and run data are removed on a schedule.

@@ -25,23 +25,22 @@ It combines four things in one workspace:
 - Building automations? Go to [Workflows](./02-workflows/overview.md) and the [Node catalog](./03-nodes/overview.md).
 - Building an AI agent? Go to [Agents](./05-agents/overview.md).
 - Integrating from code? Go to the [API overview](./12-api/overview.md).
-- Running your own instance? Go to [Self-hosting](./13-self-hosting/setup.md).
 
 ## How the platform fits together
 
 ```
             ┌────────────────────────────────────────────┐
- Triggers → │  Workflow engine (queued, node by node)    │ → Runs, Artifacts
+ Triggers → │  Workflow engine (node by node)             │ → Runs, Artifacts
  (webhook,  │   AI nodes · Data nodes · Flow logic ·     │
  schedule,  │   60+ app integrations                      │
  app events)└──────────────▲─────────────────────────────┘
                             │ call as tools
             ┌───────────────┴─────────────┐
-            │  Agents (Laravel AI)        │ ← Sessions, Skills, Knowledge, Memory
+            │  Agents                     │ ← Sessions, Skills, Knowledge, Memory
             └──────────────▲──────────────┘
                            │ same business logic
-        Internal API (/api/v1)  ·  Public API (/api/public/v1)
-        used by the web app        used by your code
+        Web app                    ·  Public API (/api/public/v1)
+                                      used by your code
 ```
 
 Everything is scoped to a **workspace**. Usage is metered in **credits**, and billed through Stripe.

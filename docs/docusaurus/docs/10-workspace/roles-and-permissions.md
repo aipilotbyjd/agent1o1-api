@@ -38,8 +38,6 @@ sidebar_position: 2
 | Notifications | `notification-channel.view`, `notification-channel.manage` |
 | Audit | `audit-log.view` |
 
-**Check:** the role-to-permission matrix is defined in `app/Enums/Workspaces/Role.php`. Replace this summary with the exact table before publishing.
-
 ## API keys vs roles
 
 API keys do not have a role. They carry **abilities** (`workflows:read`, `workflows:write`, `agents:invoke`, `runs:read`, `connectors:manage`, `*`). See [Authentication](../12-api/authentication.md).

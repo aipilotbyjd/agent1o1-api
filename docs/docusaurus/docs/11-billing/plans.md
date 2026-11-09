@@ -46,7 +46,7 @@ Billing intervals: monthly, quarterly, yearly, and lifetime offers on paid plans
 
 ## How limits are enforced
 
-A central `PlanLimitGate` checks workflows, agents, members, pages and active triggers on create. When a cap is reached, the API returns `PlanLimitExceeded`. Features not on your plan return `FeatureNotAvailable`.
+Limits on workflows, agents, members, pages and active triggers are checked when you create one. When you reach a cap, the app (or API) tells you which limit you hit and how to raise it. Features not on your plan are labeled and cannot be turned on until you upgrade.
 
 ## Subscribing, changing and cancelling
 

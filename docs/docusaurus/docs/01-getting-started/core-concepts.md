@@ -65,7 +65,6 @@ An **artifact** is a file produced or consumed by runs and agents (reports, PDFs
 
 **Credits** meter usage. Runs, AI calls and some integrations consume credits. Plans include a monthly allowance; you can buy credit packs or enable overage. See [Credits](../11-billing/credits.md).
 
-## Internal vs Public API
+## API
 
-- The **Internal API** (`/api/v1`) is used by the Agent1o1 web app and authenticated with user sessions.
-- The **Public API** (`/api/public/v1`) is for your code, authenticated with workspace **API keys** that carry scoped abilities.
+The **Public API** (`/api/public/v1`) is for your code, authenticated with workspace **API keys** that carry scoped abilities.

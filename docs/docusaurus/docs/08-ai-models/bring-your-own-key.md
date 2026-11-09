@@ -21,13 +21,13 @@ BYOK is **provider-level**, not model-level. One OpenAI key covers every OpenAI 
 | API key | Most providers |
 | OAuth connect | OpenRouter, Hugging Face, ChatGPT (when enabled by the platform) |
 
-After saving, the key is validated. Keys are encrypted and never shown again. A scheduled check (`ai-credentials:check`) revalidates keys hourly, and OAuth tokens refresh every five minutes.
+After saving, the key is validated. Keys are encrypted and never shown again. Keys are revalidated hourly, and OAuth tokens refresh automatically.
 
 ## Who can use it
 
 - **Workspace key**: available to the whole workspace. `ai-credential.manage` to create.
 - **Personal key**: used only by its owner (`ai-credential.use-personal`).
-- **Policy**: admins can require own keys for certain providers (`WorkspaceAiKeyPolicy`) or forbid personal keys.
+- **Policy**: admins can require own keys for certain providers or forbid personal keys.
 
 ## Resolution order
 

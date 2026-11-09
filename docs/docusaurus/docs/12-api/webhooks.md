@@ -1,37 +1,25 @@
 ---
 title: Webhooks
-description: Inbound webhook endpoints, how each is authenticated, and what they are for.
+description: URLs you can call to start workflows, resume paused runs and reach your assistant.
 sidebar_position: 5
 ---
 
 # Webhooks
 
-All inbound webhooks are public routes that authenticate themselves, and live outside the API-key and session middleware.
+These URLs are public and authenticate themselves with a token in the URL.
 
-| Endpoint | Purpose | Authentication |
-|---|---|---|
-| `POST/GET /api/hooks/{token}` | Workflow or agent webhook trigger | Token in URL (optional signature) |
-| `POST/GET /api/hooks/apps/{provider}` | App push events (Telegram, Discord, Twilio, Typeform, ...) | Provider signature |
-| `POST /api/hooks/wait/{token}` | Resume a run paused on a Wait node | Token in URL |
-| `POST /api/hooks/assistant/{token}` | Personal assistant webhook | Token in URL |
-| `POST /api/hooks/assistant/email` | Inbound email to the assistant | Shared token and sender checks |
-| `POST /api/hooks/assistant/sms` | Inbound SMS | Twilio signature |
-| `POST /api/hooks/assistant/slack/events` | Slack events | Slack signing secret |
-| `GET /api/hooks/assistant/slack/oauth` | Slack install redirect | OAuth state |
-| `POST /api/slack/agent-actions` | Approve or reject agent actions from Slack | Slack signing secret |
-| `POST /api/stripe/webhook` | Stripe billing events | Stripe signature |
+| Endpoint | Purpose |
+|---|---|
+| `POST/GET /api/hooks/{token}` | Start a workflow or agent from a [webhook trigger](../04-triggers/webhook.md) |
+| `POST /api/hooks/wait/{token}` | Resume a run paused on a [Wait node](../02-workflows/flow-control.md#delay-and-wait) |
+| `POST /api/hooks/assistant/{token}` | Send a message to your personal assistant |
 
-## Provider-specific verification
-
-- **Telegram**: per-bot secret in `X-Telegram-Bot-Api-Secret-Token`.
-- **Discord**: Ed25519 signature over timestamp and body, answered within 3 seconds.
-- **Twilio**: HMAC-SHA1 of URL and sorted fields, account SID must match.
-- **Stripe**: signing secret. Every event is recorded once (`ProcessedWebhookEvent`) so retries are safe, and failures are stored for replay.
+Treat the token like a password. You can rotate a trigger's token at any time, and the old URL stops working immediately.
 
 ## Delivery guarantees
 
-Trigger events are stored before processing and retried if stuck. Return `2xx` quickly. Do not rely on ordering.
+Events are stored before processing and retried if a run is delayed. Return `2xx` quickly from your own systems, and do not rely on ordering.
 
 ## Rate limits
 
-`trigger-hooks` and `assistant-hooks` limiters apply per URL or IP. Over the limit returns `429`.
+Webhook URLs are rate limited. Over the limit returns `429`. Retry with backoff.

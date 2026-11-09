@@ -20,7 +20,7 @@ A **skill** packages know-how: a description of when to use it, instructions, re
 
 ## Sources
 
-Skills can be created by hand or **synced from a source** (for example a Git repository). Sources are re-synced every 15 minutes (`skills:sync-sources`). Publish checks can block a skill that fails validation (`SkillPublishBlocked`).
+Skills can be created by hand or **synced from a source** (for example a Git repository). Sources re-sync automatically every 15 minutes, and a skill that fails validation cannot be published.
 
 ## Attaching to agents
 
@@ -28,4 +28,4 @@ Skills can be created by hand or **synced from a source** (for example a Git rep
 
 ## Public API
 
-Skills are listed through the internal API today; see [Public API](../12-api/public-api.md) for what is exposed to API keys.
+Manage skills in the app. They are not available through API keys yet.

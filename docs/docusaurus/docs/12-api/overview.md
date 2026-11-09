@@ -1,6 +1,6 @@
 ---
 title: API overview
-description: The three API surfaces, base URLs, conventions and versioning.
+description: Base URLs, conventions and rate limits for the Public API.
 sidebar_position: 1
 ---
 
@@ -8,22 +8,14 @@ sidebar_position: 1
 
 | Surface | Base path | Auth | Audience |
 |---|---|---|---|
-| **Public API** | `/api/public/v1` | Workspace API key | Your code, integrations, MCP |
-| **Internal API** | `/api/v1` | OAuth2 bearer token (Passport) | The Agent1o1 web app |
-| **Inbound webhooks** | `/api/hooks`, `/api/stripe/webhook`, `/api/slack/agent-actions` | URL token or provider signature | Triggers, Stripe, Slack |
+| **Public API** | `/api/public/v1` | Workspace API key | Your code and integrations |
+| **Inbound webhooks** | `/api/hooks` | URL token | Systems that start workflows |
 | **Public pages** | `/api/v1/p/{token}` | Page access rules | Visitors |
-| **Super admin** | configurable prefix | Separate admin tokens | Platform staff |
-
-Both the public and internal APIs call the same business-logic classes, so behavior is identical.
-
-:::warning
-The Internal API is built for the first-party app and may change without notice. Build integrations on the Public API.
-:::
 
 ## Conventions
 
 - JSON in, JSON out. Send `Accept: application/json` and `Content-Type: application/json`.
-- Resources use Laravel API Resources and wrap payloads in `data`. Lists are paginated with `links` and `meta`.
+- Responses wrap payloads in `data`. Lists are paginated with `links` and `meta`.
 - Timestamps are ISO 8601 in UTC.
 - IDs are opaque strings. Do not parse them.
 - Errors follow one shape. See [Errors and limits](./errors-and-limits.md).

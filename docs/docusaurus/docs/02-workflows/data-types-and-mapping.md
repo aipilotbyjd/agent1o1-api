@@ -27,8 +27,6 @@ When a single item is expected and a list arrives, the engine loops (fan-out). W
 
 Inside text fields, reference earlier outputs with the template syntax. The syntax is the same everywhere a text field accepts it, including trigger conditions and agent tool settings.
 
-**Check:** confirm the exact interpolation syntax from the templating engine in `app/Services/Workflows` before publishing this page.
-
 ## Comparing values
 
 The Filter node, Router node, and trigger conditions share one condition engine, so an operator means the same thing everywhere.

@@ -53,8 +53,6 @@ curl https://api.example.com/api/public/v1/runs/RUN_ID \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-**Check:** the exact request body field names (`inputs`) should be confirmed against the Public API controller before publishing.
-
 ## Next steps
 
 - Start it automatically with a [trigger](../04-triggers/overview.md).

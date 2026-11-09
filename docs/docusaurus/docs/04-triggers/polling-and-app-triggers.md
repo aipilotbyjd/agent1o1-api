@@ -23,15 +23,11 @@ The node tells you which mode applies. Examples:
 
 ## Watches
 
-For push apps a **watch** (`ProviderWatch`) is registered with the provider and renewed automatically (`triggers:renew-watches` every 10 minutes). A daily check verifies the watch still points to us. If someone replaces it, the trigger shows **reconnect needed**.
+For push apps, Agent1o1 registers a **watch** with the app for you and renews it automatically. A daily check verifies the watch still points to us. If someone replaces it, the trigger shows **reconnect needed**.
 
 ## Never take over what is in use
 
 If a provider only allows one webhook and it already points elsewhere, we do not replace it. The trigger is refused with a sentence naming where it points, and poll-based triggers keep polling.
-
-## Enabling push per provider (self-hosting)
-
-Push is enabled with `TRIGGERS_PUSH_<PROVIDER>_ENABLED` environment variables, plus provider secrets such as signing secrets and Pub/Sub topics. See [Environment variables](../13-self-hosting/environment-variables.md).
 
 ## Presets
 

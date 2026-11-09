@@ -15,8 +15,6 @@ Markdown source for the Agent1o1 documentation site. Nothing here is built yet.
 - Numeric folder prefixes (`01-`, `02-`) set sidebar order. Docusaurus strips them from URLs.
 - Every page has `title` and `description` front matter. `sidebar_position` orders pages inside a folder.
 - Each folder has a `_category_.json` that sets its sidebar label and position.
-- API paths are written relative to the API host. Internal API: `/api/v1`. Public API: `/api/public/v1`. Inbound webhooks: `/api/hooks`.
-- Anything marked **Check** was inferred from the code and should be confirmed in the product before publishing.
 - Use `:::tip`, `:::note`, `:::warning` admonitions as shown in existing pages.
 
 ## Section map
@@ -34,7 +32,5 @@ Markdown source for the Agent1o1 documentation site. Nothing here is built yet.
 | `09-content` | Everyone | Artifacts, templates, library, public pages |
 | `10-workspace` | Admins | Members, roles, permissions, notifications, audit |
 | `11-billing` | Admins | Plans, credits, packs, overage, referrals |
-| `12-api` | Developers | Public API, internal API, webhooks, realtime |
-| `13-self-hosting` | Operators | Setup, architecture, queues, environment variables |
-| `14-super-admin` | Platform staff | Back-office console |
+| `12-api` | Developers | Public API, webhooks, errors |
 | `15-reference` | Everyone | Glossary, statuses, limits, FAQ, troubleshooting |

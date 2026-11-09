@@ -20,7 +20,7 @@ sidebar_position: 1
 |---|---|
 | Type | `webhook`, `schedule`, `polling`, `manual` |
 | Target | workflow, agent |
-| Event status | see `TriggerEventStatus` (for example received, dispatched, ignored, failed) |
+| Event status | received, dispatched, ignored, failed |
 
 ## Workflow builder
 
@@ -43,7 +43,7 @@ sidebar_position: 1
 | Enum | Values |
 |---|---|
 | Autonomy mode | `read_only`, `ask`, `plan`, `smart`, `autopilot` |
-| Session, plan, action | see `AgentSessionStatus`, `AgentPlanStatus`, `AgentActionStatus` |
+| Session, plan, action | shown in the app and API responses |
 
 ## Workspace roles
 
@@ -60,7 +60,3 @@ sidebar_position: 1
 ## Plan feature keys
 
 `credit_packs`, `credit_overage`, `git_sync`, `workflow_approvals`, `custom_nodes`, `priority_support`, `public_pages`, `remove_branding`, `smart_inbox`, `assistant_sandbox`, `assistant_sms`.
-
-:::note
-Enums live in `app/Enums`. Values not listed fully here should be copied from there when you finalize the docs.
-:::

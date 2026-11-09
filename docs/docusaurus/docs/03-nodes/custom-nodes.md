@@ -13,8 +13,6 @@ Custom nodes let a workspace package a repeatable step (for example a specific i
 - Custom nodes appear in the library under the **Custom** category.
 - They are versioned with the workflows that use them.
 
-**Check:** the exact authoring model (declarative definition vs. code) should be confirmed from `app/Models/Nodes/CustomNode.php` and the nodes API before publishing detailed steps here.
-
 ## API
 
 Endpoints live under `/api/v1/workspaces/{workspace}/nodes` (list, create, update, delete, options).
