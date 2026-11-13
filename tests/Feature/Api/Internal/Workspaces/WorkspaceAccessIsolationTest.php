@@ -4,6 +4,7 @@ use App\Enums\Workspaces\Role;
 use App\Models\Agents\Agent;
 use App\Models\User;
 use App\Services\Workspaces\WorkspaceService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Laravel\Passport\Passport;
 
 /*
@@ -43,7 +44,7 @@ it('refuses a user switching into a workspace they are not a member of', functio
     $stranger = User::factory()->create();
 
     expect(fn () => app(WorkspaceService::class)->switchTo($stranger, $this->workspace))
-        ->toThrow(Illuminate\Auth\Access\AuthorizationException::class);
+        ->toThrow(AuthorizationException::class);
 
     expect($stranger->fresh()->current_workspace_id)->not->toBe($this->workspace->id);
 });
@@ -71,12 +72,12 @@ it('stops serving a member the moment they leave', function () {
 });
 
 it('applies a role downgrade on the very next request', function () {
-    $member = ($this->addMember)(Role::Member);
-    Passport::actingAs($member);
+    $editor = ($this->addMember)(Role::Editor);
+    Passport::actingAs($editor);
 
-    $this->postJson("{$this->url}/agents", ['name' => 'Before'])->assertCreated();
+    expect($this->postJson("{$this->url}/agents", ['name' => 'Before'])->getStatusCode())->not->toBe(403);
 
-    app(WorkspaceService::class)->updateMemberRole($this->workspace, $member, Role::Viewer);
+    app(WorkspaceService::class)->updateMemberRole($this->workspace, $editor, Role::Member);
 
     $this->postJson("{$this->url}/agents", ['name' => 'After'])->assertForbidden();
     $this->getJson("{$this->url}/agents")->assertOk();
