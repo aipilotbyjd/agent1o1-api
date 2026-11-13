@@ -271,3 +271,169 @@ it('never serves or changes another workspaces row through the public api', func
         ->and($result['unswept'])->toBe([])
         ->and($result['checked'])->toBeGreaterThan(15);
 });
+
+/**
+ * Every model class under app/Models that can be instantiated.
+ *
+ * @return list<class-string<Model>>
+ */
+function allModelClasses(): array
+{
+    $classes = [];
+    $root = app_path('Models');
+
+    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS)) as $file) {
+        if ($file->getExtension() !== 'php') {
+            continue;
+        }
+
+        $class = 'App\\Models\\'.str_replace(['/', '.php'], ['\\', ''], substr($file->getPathname(), strlen($root) + 1));
+
+        if (class_exists($class) && is_subclass_of($class, Model::class) && ! (new ReflectionClass($class))->isAbstract()) {
+            $classes[] = $class;
+        }
+    }
+
+    return $classes;
+}
+
+it('never lists another workspaces rows from a workspace index route', function () {
+    $owner = User::factory()->create();
+    $mine = app(WorkspaceService::class)->create($owner, ['name' => 'Acme']);
+    $theirs = app(WorkspaceService::class)->create(User::factory()->create(), ['name' => 'Globex']);
+
+    $foreignKeys = [$theirs->id];
+
+    foreach (allModelClasses() as $class) {
+        try {
+            $row = foreignRow($class, $theirs);
+        } catch (Throwable) {
+            continue;
+        }
+
+        if ($row !== null && is_string($row->getKey()) && strlen($row->getKey()) >= 32) {
+            $foreignKeys[] = $row->getKey();
+        }
+    }
+
+    Passport::actingAs($owner);
+
+    $checked = 0;
+    $leaks = [];
+
+    foreach (Route::getRoutes()->getRoutes() as $route) {
+        if (! str_starts_with($route->uri(), 'api/v1/workspaces/{workspace}/')
+            || ! in_array('GET', $route->methods(), true)
+            || $route->parameterNames() !== ['workspace']
+            || str_contains($route->uri(), 'stream')) {
+            continue;
+        }
+
+        $response = $this->getJson('/'.str_replace('{workspace}', $mine->id, $route->uri()));
+        $checked++;
+
+        $body = (string) ($response->baseResponse instanceof Symfony\Component\HttpFoundation\StreamedResponse ? '' : $response->getContent());
+
+        foreach ($foreignKeys as $key) {
+            if (str_contains($body, $key)) {
+                $leaks[] = "GET {$route->uri()} exposed {$key}";
+            }
+        }
+    }
+
+    expect(count($foreignKeys))->toBeGreaterThan(20)
+        ->and($checked)->toBeGreaterThan(30)
+        ->and($leaks)->toBe([]);
+});
+
+/**
+ * Routes under the workspace prefix that bind exactly two models (a parent
+ * and a child, in URI order) besides the workspace.
+ *
+ * @return list<array{route: LaravelRoute, parameters: array<string, class-string<Model>>}>
+ */
+function nestedModelRoutes(): array
+{
+    $nested = [];
+
+    foreach (Route::getRoutes()->getRoutes() as $route) {
+        if (! str_starts_with($route->uri(), 'api/v1/workspaces/{workspace}/')) {
+            continue;
+        }
+
+        $models = [];
+
+        foreach ($route->signatureParameters(['subClass' => Model::class]) as $parameter) {
+            $models[$parameter->getName()] = $parameter->getType()->getName();
+        }
+
+        $models = array_intersect_key($models, array_flip(array_diff($route->parameterNames(), ['workspace'])));
+
+        if (count($models) >= 2) {
+            $nested[] = ['route' => $route, 'parameters' => $models];
+        }
+    }
+
+    return $nested;
+}
+
+it('resolves every nested tenant-owned route parameter through its parent', function () {
+    $unscoped = [];
+
+    foreach (nestedModelRoutes() as ['route' => $route, 'parameters' => $models]) {
+        $tenantOwned = array_filter($models, fn (string $class) => Schema::hasColumn((new $class)->getTable(), 'workspace_id'));
+
+        if (count($tenantOwned) >= 2 && ! $route->enforcesScopedBindings()) {
+            $unscoped[] = $route->uri();
+        }
+    }
+
+    expect($unscoped)->toBe([]);
+});
+
+it('refuses another workspaces row nested under one of my own parents', function () {
+    $owner = User::factory()->create();
+    $mine = app(WorkspaceService::class)->create($owner, ['name' => 'Acme']);
+    $theirs = app(WorkspaceService::class)->create(User::factory()->create(), ['name' => 'Globex']);
+
+    Passport::actingAs($owner);
+
+    $leaks = [];
+    $checked = 0;
+
+    foreach (nestedModelRoutes() as ['route' => $route, 'parameters' => $models]) {
+        if (count($models) !== 2) {
+            continue;
+        }
+
+        [$parentName, $childName] = array_keys($models);
+
+        try {
+            $parent = foreignRow($models[$parentName], $mine);
+            $child = foreignRow($models[$childName], $theirs);
+        } catch (Throwable) {
+            continue;
+        }
+
+        if ($parent === null || $child === null) {
+            continue;
+        }
+
+        $uri = '/'.str_replace(
+            ['{workspace}', '{'.$parentName.'}', '{'.$childName.'}'],
+            [$mine->id, (string) $parent->getKey(), (string) $child->getKey()],
+            $route->uri(),
+        );
+
+        foreach (array_diff($route->methods(), ['HEAD']) as $method) {
+            $status = $this->json($method, $uri)->getStatusCode();
+            $checked++;
+
+            if ($status < 400 || $status >= 500) {
+                $leaks[] = "{$method} {$route->uri()} → {$status}";
+            }
+        }
+    }
+
+    expect($leaks)->toBe([])->and($checked)->toBeGreaterThan(0);
+});

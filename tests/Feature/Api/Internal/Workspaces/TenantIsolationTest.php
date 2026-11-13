@@ -152,3 +152,14 @@ it('refuses a trigger credential that belongs to another workspace', function ()
     $this->postJson("{$this->url}/triggers", [...$payload, 'credential_id' => $own->id])
         ->assertCreated();
 });
+
+it('refuses to start a workflow builder session on another workspaces workflow', function () {
+    $foreign = Workflow::factory()->forWorkspace($this->other)->create();
+    $own = Workflow::factory()->forWorkspace($this->workspace)->create();
+
+    $this->postJson("{$this->url}/workflow-builder-sessions", ['workflow_id' => $foreign->id])
+        ->assertUnprocessable()->assertJsonValidationErrors('workflow_id');
+
+    $this->postJson("{$this->url}/workflow-builder-sessions", ['workflow_id' => $own->id])
+        ->assertCreated();
+});
