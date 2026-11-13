@@ -5,6 +5,7 @@ namespace App\Services\SuperAdmin\Pricing;
 use App\Models\Billing\CreditPack;
 use App\Models\Billing\CreditPackDefinition;
 use App\Models\SuperAdmin\SuperAdmin;
+use App\Services\Billing\MarginFloor;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -17,7 +18,10 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  */
 class SuperAdminPackService
 {
-    public function __construct(private readonly PricingChangeLogger $log) {}
+    public function __construct(
+        private readonly PricingChangeLogger $log,
+        private readonly MarginFloor $floor,
+    ) {}
 
     /**
      * The packs as an admin sees them: the table once it has rows, else the
@@ -52,6 +56,10 @@ class SuperAdminPackService
      */
     public function create(SuperAdmin $actor, array $data): CreditPackDefinition
     {
+        if ($data['is_active'] ?? true) {
+            $this->floor->assertPackChangeAllowed((string) $data['key'], null, (int) $data['credits'], (int) $data['price_cents']);
+        }
+
         return DB::transaction(function () use ($actor, $data): CreditPackDefinition {
             $this->importConfigIfEmpty($actor);
 
@@ -83,6 +91,15 @@ class SuperAdminPackService
 
             if (! $pack->isDirty()) {
                 return $pack;
+            }
+
+            if ($pack->is_active) {
+                $this->floor->assertPackChangeAllowed(
+                    $pack->key,
+                    ['credits' => (int) $pack->getOriginal('credits'), 'price_cents' => (int) $pack->getOriginal('price_cents')],
+                    (int) $pack->credits,
+                    (int) $pack->price_cents,
+                );
             }
 
             $pack->save();
