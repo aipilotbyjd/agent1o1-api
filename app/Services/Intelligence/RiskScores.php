@@ -199,7 +199,7 @@ class RiskScores
             ->get()
             ->groupBy('workspace_id');
 
-        $workspaces = Workspace::query()->whereIn('id', $spend->keys())->get()->keyBy('id');
+        $workspaces = Workspace::query()->whereIn('id', $spend->keys())->with('subscriptions.plan')->get()->keyBy('id');
         $results = [];
 
         foreach ($spend as $workspaceId => $rows) {
@@ -259,7 +259,7 @@ class RiskScores
             ->distinct()
             ->pluck('workspace_id');
 
-        return Workspace::query()->whereIn('id', $ids)->get();
+        return Workspace::query()->whereIn('id', $ids)->with('subscriptions.plan')->get();
     }
 
     /**
@@ -273,7 +273,7 @@ class RiskScores
             ->distinct()
             ->pluck('workspace_id');
 
-        return Workspace::query()->whereIn('id', $ids)->get();
+        return Workspace::query()->whereIn('id', $ids)->with('subscriptions.plan')->get();
     }
 
     /**
