@@ -161,14 +161,15 @@ class StripeWebhookController extends CashierWebhookController
         try {
             $object = $payload['data']['object'] ?? [];
             $customerId = $object['customer'] ?? null;
-            $workspace ??= $customerId !== null ? Cashier::findBillable($customerId) : null;
+            $billable = $customerId !== null ? Cashier::findBillable($customerId) : null;
+            $workspace ??= $billable instanceof Workspace ? $billable : null;
 
             if ($workspace === null) {
                 return;
             }
 
             app(ProductAnalytics::class)->capture(
-                $workspace->owner_id !== null ? (string) $workspace->owner_id : null,
+                (string) $workspace->owner_id,
                 $event,
                 ['stripe_status' => $object['status'] ?? null, 'is_trial' => ($object['status'] ?? null) === 'trialing'],
                 (string) $workspace->getKey(),
@@ -484,7 +485,8 @@ class StripeWebhookController extends CashierWebhookController
     protected function handleCustomerSubscriptionDeleted(array $payload)
     {
         $customerId = $payload['data']['object']['customer'] ?? null;
-        $workspace = $customerId !== null ? Cashier::findBillable($customerId) : null;
+        $billable = $customerId !== null ? Cashier::findBillable($customerId) : null;
+        $workspace = $billable instanceof Workspace ? $billable : null;
         $subscription = $workspace?->subscription('default');
         $afterFailedPayments = $subscription?->inDunning() ?? false;
 
