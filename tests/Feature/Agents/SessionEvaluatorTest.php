@@ -199,3 +199,17 @@ it('lets an explicit evaluation-settings model override win over the catalog cha
         return $prompt->provider->name() === 'anthropic' && $prompt->model === 'claude-3-haiku-latest';
     });
 });
+
+it('bills every grading pass, including a session graded again', function () {
+    SessionEvalJudgeAgent::fake([
+        ['criteria_results' => [], 'tags' => [], 'data_results' => [], 'sentiment' => null, 'call_successful' => 'success', 'summary' => 'First.'],
+        ['criteria_results' => [], 'tags' => [], 'data_results' => [], 'sentiment' => null, 'call_successful' => 'success', 'summary' => 'Second.'],
+    ]);
+
+    [$session] = sessionFor();
+
+    app(SessionEvaluator::class)->evaluate($session);
+    app(SessionEvaluator::class)->evaluate($session);
+
+    expect($session->workspace->creditTransactions()->where('source_type', 'session_evaluation')->count())->toBe(2);
+});

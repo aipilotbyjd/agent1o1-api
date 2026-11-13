@@ -4,6 +4,7 @@ namespace App\Services\Billing;
 
 use App\Enums\Billing\BillingInterval;
 use App\Models\Billing\Plan;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Whether every way of buying credits earns more per credit than a credit can
@@ -95,6 +96,105 @@ class MarginFloor
         }
 
         return $rows;
+    }
+
+    /**
+     * The attributes of a plan that decide what its credits earn.
+     *
+     * @return array<string, mixed>
+     */
+    public function attributesOf(Plan $plan): array
+    {
+        return $plan->only([
+            'slug', 'credits_monthly', 'enabled_intervals',
+            'price_monthly', 'price_quarterly', 'price_yearly', 'price_lifetime',
+        ]);
+    }
+
+    /**
+     * Whether admin changes are checked against the floor
+     * (`billing.margin_floor.enforce_changes`).
+     */
+    public function enforcesChanges(): bool
+    {
+        return (bool) config('billing.margin_floor.enforce_changes', true);
+    }
+
+    /**
+     * Refuses (422) a plan change that leaves an offer below the floor. An
+     * offer that was already below it may be edited, but not made worse, so
+     * a plan can still be repaired in steps. Pass an empty `$before` to judge
+     * the whole plan, as when it is put on sale.
+     *
+     * @param  array<string, mixed>  $before
+     * @param  array<string, mixed>  $after
+     */
+    public function assertPlanChangeAllowed(array $before, array $after): void
+    {
+        if (! $this->enforcesChanges()) {
+            return;
+        }
+
+        $was = collect($this->forPlan($before))->keyBy('interval');
+
+        $rows = array_filter($this->forPlan($after), function (array $row) use ($was): bool {
+            $previous = $was->get($row['interval']);
+
+            return ! $row['passes']
+                && ($previous === null || $previous['passes'] || $row['usd_per_credit'] < $previous['usd_per_credit'] - 1e-9);
+        });
+
+        $this->refuse(array_values($rows));
+    }
+
+    /**
+     * Refuses (422) a credit pack priced below the floor, unless it already
+     * was and this does not make it worse.
+     *
+     * @param  array{credits: int, price_cents: int}|null  $before
+     */
+    public function assertPackChangeAllowed(string $key, ?array $before, int $credits, int $priceCents): void
+    {
+        if (! $this->enforcesChanges()) {
+            return;
+        }
+
+        $row = $this->row('pack', $key, null, $priceCents / 100, $credits, $this->prepaidFloor());
+
+        if ($row['passes']) {
+            return;
+        }
+
+        if ($before !== null) {
+            $previous = $this->row('pack', $key, null, $before['price_cents'] / 100, $before['credits'], $this->prepaidFloor());
+
+            if (! $previous['passes'] && $row['usd_per_credit'] >= $previous['usd_per_credit'] - 1e-9) {
+                return;
+            }
+        }
+
+        $this->refuse([$row]);
+    }
+
+    /**
+     * @param  list<array{kind: string, subject: string, interval: string|null, price_usd: float, credits: int, usd_per_credit: float, net_usd_per_credit: float, floor_usd_per_credit: float, cost_usd_per_credit: float, margin_percent: float, passes: bool}>  $rows
+     */
+    private function refuse(array $rows): void
+    {
+        if ($rows === []) {
+            return;
+        }
+
+        $lines = array_map(fn (array $row): string => sprintf(
+            '%s%s earns $%.5f per credit (floor $%.5f, cost $%.5f)',
+            $row['subject'],
+            $row['interval'] !== null ? " {$row['interval']}" : '',
+            $row['usd_per_credit'],
+            $row['floor_usd_per_credit'],
+            $row['cost_usd_per_credit'],
+        ), $rows);
+
+        throw new HttpException(422, 'This would sell credits below the margin floor: '.implode('; ', $lines).'.');
     }
 
     /**

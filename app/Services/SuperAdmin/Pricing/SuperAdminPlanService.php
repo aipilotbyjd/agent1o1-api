@@ -6,6 +6,7 @@ use App\Models\Billing\Plan;
 use App\Models\Billing\UsagePeriod;
 use App\Models\Referrals\ReferralRewardRule;
 use App\Models\SuperAdmin\SuperAdmin;
+use App\Services\Billing\MarginFloor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -31,7 +32,10 @@ class SuperAdminPlanService
         'is_public', 'enabled_intervals',
     ];
 
-    public function __construct(private readonly PricingChangeLogger $log) {}
+    public function __construct(
+        private readonly PricingChangeLogger $log,
+        private readonly MarginFloor $floor,
+    ) {}
 
     /**
      * Creates a plan as an inactive draft: it sells nothing until it is
@@ -98,6 +102,16 @@ class SuperAdminPlanService
                 return $locked;
             }
 
+            if ($locked->is_active && (array_key_exists('credits_monthly', $after) || array_key_exists('enabled_intervals', $after))) {
+                $this->floor->assertPlanChangeAllowed(
+                    array_combine(array_keys($this->floor->attributesOf($locked)), array_map(
+                        fn (string $key): mixed => $locked->getOriginal($key),
+                        array_keys($this->floor->attributesOf($locked)),
+                    )),
+                    $this->floor->attributesOf($locked),
+                );
+            }
+
             $locked->updated_by = $actor->id;
             $locked->save();
 
@@ -119,6 +133,10 @@ class SuperAdminPlanService
 
         if ($plan->is_active === $active) {
             return $plan;
+        }
+
+        if ($active) {
+            $this->floor->assertPlanChangeAllowed([], $this->floor->attributesOf($plan));
         }
 
         return $this->flip($actor, $plan, ['is_active' => $active], $active ? 'activated' : 'deactivated', $reason);

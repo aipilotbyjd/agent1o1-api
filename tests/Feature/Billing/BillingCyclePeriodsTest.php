@@ -6,6 +6,7 @@ use App\Models\Billing\Plan;
 use App\Models\Billing\Subscription;
 use App\Models\User;
 use App\Models\Workspaces\Workspace;
+use App\Services\Billing\CreditWallet;
 use App\Services\Workspaces\WorkspaceService;
 
 /**
@@ -112,4 +113,19 @@ it('refills a yearly subscription monthly rather than once a year', function () 
     expect($period->starts_at->toDateTimeString())->toBe('2026-03-10 00:00:00')
         ->and($period->ends_at->toDateTimeString())->toBe('2026-04-10 00:00:00')
         ->and($period->credits_limit)->toBe(5000);
+});
+
+it('still counts a plan allowance as unused after its grant was revoked or lapsed', function () {
+    $workspace = cycleWorkspace('cus_unused');
+    $wallet = app(CreditWallet::class);
+
+    $period = $workspace->currentUsagePeriod();
+    $period->update(['credits_limit' => 1000, 'credits_used' => 400]);
+
+    $grant = $wallet->ensureAllowance($period->fresh(), CreditGrantSource::Plan);
+
+    $wallet->revoke($grant, 'Billing cycle ended');
+
+    expect($grant->fresh()->remaining)->toBe(0)
+        ->and($wallet->unusedPlanAllowance($period->fresh()))->toBe(600);
 });

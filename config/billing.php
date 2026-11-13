@@ -287,19 +287,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | BYOK Orchestration Fee
-    |--------------------------------------------------------------------------
-    |
-    | Gumloop's "agent chats on BYOK carry a 16% orchestration fee instead of
-    | 8%, calculated on what the run would have been worth". A chat turn
-    | served by a workspace's own key pays no token credits, so the fee is
-    | taken on the turn's would-be value (its token cost at list price plus
-    | tool calls and compute) at this rate instead of `orchestration_fee_rate`.
-    |
-    */
-
-    /*
-    |--------------------------------------------------------------------------
     | Credit Reservations and Real-time Billing
     |--------------------------------------------------------------------------
     |
@@ -324,6 +311,19 @@ return [
 
     'realtime_node_billing' => (bool) env('BILLING_REALTIME_NODE_BILLING', true),
 
+    /*
+    |--------------------------------------------------------------------------
+    | BYOK Orchestration Fee
+    |--------------------------------------------------------------------------
+    |
+    | Gumloop's "agent chats on BYOK carry a 16% orchestration fee instead of
+    | 8%, calculated on what the run would have been worth". A chat turn
+    | served by a workspace's own key pays no token credits, so the fee is
+    | taken on the turn's would-be value (its token cost at list price plus
+    | tool calls and compute) at this rate instead of `orchestration_fee_rate`.
+    |
+    */
+
     'byok_orchestration_fee_rate' => (float) env('BILLING_BYOK_ORCHESTRATION_FEE_RATE', 0.16),
 
     /*
@@ -341,6 +341,10 @@ return [
     | it is compared with cost. `lifetime_months` spreads a lifetime price
     | over the months its credits are expected to keep coming.
     |
+    | `enforce_changes` makes Super Admin refuse a plan, price or pack change
+    | that would sell credits below the floor (an offer already below it can
+    | be edited, just not made worse).
+    |
     */
 
     'margin_floor' => [
@@ -348,6 +352,7 @@ return [
         'prepaid_usd_per_credit' => (float) env('BILLING_MARGIN_FLOOR_PREPAID', 0.0054),
         'payment_fee_rate' => (float) env('BILLING_PAYMENT_FEE_RATE', 0.032),
         'lifetime_months' => (int) env('BILLING_MARGIN_LIFETIME_MONTHS', 36),
+        'enforce_changes' => (bool) env('BILLING_MARGIN_FLOOR_ENFORCE_CHANGES', true),
     ],
 
     /*

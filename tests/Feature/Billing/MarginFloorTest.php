@@ -98,3 +98,21 @@ it('passes the margin check command when every offer is above the floor', functi
 
     $this->artisan('billing:margin-check')->assertSuccessful();
 });
+
+it('refuses a change that pushes an offer below the floor but lets an already-low offer be repaired', function () {
+    config(['billing.margin_floor.enforce_changes' => true]);
+
+    $floor = app(MarginFloor::class);
+    $healthy = ['slug' => 'pro', 'credits_monthly' => 15_000, 'price_monthly' => 9900, 'enabled_intervals' => ['monthly']];
+    $low = [...$healthy, 'price_monthly' => 7000];
+
+    expect(fn () => $floor->assertPlanChangeAllowed($healthy, [...$healthy, 'credits_monthly' => 25_000]))
+        ->toThrow(Symfony\Component\HttpKernel\Exception\HttpException::class);
+
+    expect(fn () => $floor->assertPlanChangeAllowed($low, [...$low, 'price_monthly' => 8000]))->not->toThrow(Throwable::class)
+        ->and(fn () => $floor->assertPlanChangeAllowed($low, [...$low, 'price_monthly' => 6000]))
+        ->toThrow(Symfony\Component\HttpKernel\Exception\HttpException::class);
+
+    expect(fn () => $floor->assertPackChangeAllowed('big', null, 20_000, 9000))
+        ->toThrow(Symfony\Component\HttpKernel\Exception\HttpException::class);
+});

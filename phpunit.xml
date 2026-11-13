@@ -25,6 +25,7 @@
         <env name="CACHE_STORE" value="array"/>
         <env name="BILLING_FREE_TIER_SPEND_CACHE_SECONDS" value="0"/>
         <env name="BILLING_INTERVAL_LIFETIME_ENABLED" value="true"/>
+        <env name="BILLING_MARGIN_FLOOR_ENFORCE_CHANGES" value="false"/>
         <env name="BILLING_UNPRICED_FALLBACK" value="flat"/>
         <env name="BILLING_REALTIME_NODE_BILLING" value="false"/>
         <env name="DB_CONNECTION" value="sqlite"/>

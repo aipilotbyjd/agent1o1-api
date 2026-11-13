@@ -67,7 +67,7 @@ class SessionEvaluator
             ['workspace_id' => $session->workspace_id, 'agent_id' => $agent->id],
         );
 
-        $evaluation->forceFill(['status' => SessionEvaluationStatus::Evaluating, 'error' => null])->save();
+        $evaluation->forceFill(['status' => SessionEvaluationStatus::Evaluating, 'error' => null, 'usage' => null])->save();
 
         $run = $this->openRun($evaluation, $session);
 
