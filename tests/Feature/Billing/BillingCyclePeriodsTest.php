@@ -120,7 +120,8 @@ it('still counts a plan allowance as unused after its grant was revoked or lapse
     $wallet = app(CreditWallet::class);
 
     $period = $workspace->currentUsagePeriod();
-    $period->update(['credits_limit' => 1000, 'credits_used' => 400]);
+    $period->update(['credits_limit' => 1000]);
+    $period->forceFill(['credits_used' => 400])->save();
 
     $grant = $wallet->ensureAllowance($period->fresh(), CreditGrantSource::Plan);
 
