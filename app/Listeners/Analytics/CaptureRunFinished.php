@@ -38,7 +38,7 @@ class CaptureRunFinished
                 'is_child_run' => $run->parent_run_id !== null,
                 'duration_ms' => $run->durationMs(),
             ],
-            $run->workspace_id !== null ? (string) $run->workspace_id : null,
+            (string) $run->workspace_id,
         );
     }
 }
