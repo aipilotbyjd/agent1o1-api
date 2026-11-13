@@ -156,15 +156,14 @@ class StripeWebhookController extends CashierWebhookController
      *
      * @param  array<string, mixed>  $payload
      */
-    private function captureSubscriptionEvent(string $event, array $payload, ?Workspace $workspace = null): void
+    private function captureSubscriptionEvent(string $event, array $payload, ?object $workspace = null): void
     {
         try {
             $object = $payload['data']['object'] ?? [];
             $customerId = $object['customer'] ?? null;
-            $billable = $customerId !== null ? Cashier::findBillable($customerId) : null;
-            $workspace ??= $billable instanceof Workspace ? $billable : null;
+            $workspace ??= $customerId !== null ? Cashier::findBillable($customerId) : null;
 
-            if ($workspace === null) {
+            if (! $workspace instanceof Workspace) {
                 return;
             }
 
@@ -485,8 +484,7 @@ class StripeWebhookController extends CashierWebhookController
     protected function handleCustomerSubscriptionDeleted(array $payload)
     {
         $customerId = $payload['data']['object']['customer'] ?? null;
-        $billable = $customerId !== null ? Cashier::findBillable($customerId) : null;
-        $workspace = $billable instanceof Workspace ? $billable : null;
+        $workspace = $customerId !== null ? Cashier::findBillable($customerId) : null;
         $subscription = $workspace?->subscription('default');
         $afterFailedPayments = $subscription?->inDunning() ?? false;
 

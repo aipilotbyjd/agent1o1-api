@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Laravel\Passport\Passport;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /*
  * Safety net for tenant isolation. For every route that takes exactly one
@@ -332,7 +333,7 @@ it('never lists another workspaces rows from a workspace index route', function 
         $response = $this->getJson('/'.str_replace('{workspace}', $mine->id, $route->uri()));
         $checked++;
 
-        $body = (string) ($response->baseResponse instanceof Symfony\Component\HttpFoundation\StreamedResponse ? '' : $response->getContent());
+        $body = (string) ($response->baseResponse instanceof StreamedResponse ? '' : $response->getContent());
 
         foreach ($foreignKeys as $key) {
             if (str_contains($body, $key)) {
