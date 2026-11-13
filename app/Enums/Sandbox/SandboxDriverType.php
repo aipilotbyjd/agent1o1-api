@@ -2,6 +2,7 @@
 
 namespace App\Enums\Sandbox;
 
+use App\Services\Sandbox\Drivers\DaytonaSandboxDriver;
 use App\Services\Sandbox\Drivers\E2BSandboxDriver;
 use App\Services\Sandbox\Drivers\PistonSandboxDriver;
 use App\Services\Sandbox\Drivers\RunnerSandboxDriver;
@@ -14,6 +15,7 @@ use App\Services\Sandbox\SandboxDriver;
 enum SandboxDriverType: string
 {
     case E2B = 'e2b';
+    case Daytona = 'daytona';
     case Piston = 'piston';
     case Runner = 'runner';
 
@@ -21,6 +23,7 @@ enum SandboxDriverType: string
     {
         return match ($this) {
             self::E2B => 'E2B cloud sandboxes',
+            self::Daytona => 'Daytona sandboxes (Daytona Cloud or your own install)',
             self::Piston => 'Piston code runner (your own separate server)',
             self::Runner => 'Agent1o1 runner (your own separate sandbox servers)',
         };
@@ -33,6 +36,7 @@ enum SandboxDriverType: string
     {
         return match ($this) {
             self::E2B => E2BSandboxDriver::class,
+            self::Daytona => DaytonaSandboxDriver::class,
             self::Piston => PistonSandboxDriver::class,
             self::Runner => RunnerSandboxDriver::class,
         };
@@ -56,7 +60,7 @@ enum SandboxDriverType: string
      */
     public function usesCustomUrl(): bool
     {
-        return $this !== self::E2B;
+        return in_array($this, [self::Piston, self::Runner], true);
     }
 
     /**
@@ -72,6 +76,13 @@ enum SandboxDriverType: string
                 'domain' => ['nullable', 'string', 'max:200', 'regex:/^[a-z0-9.-]+$/i'],
                 'template' => ['nullable', 'string', 'max:120'],
             ],
+            self::Daytona => [
+                'api_url' => ['nullable', 'url:https', 'max:500'],
+                'toolbox_url' => ['nullable', 'url:https', 'max:500'],
+                'snapshot' => ['nullable', 'string', 'max:200'],
+                'target' => ['nullable', 'string', 'max:100'],
+                'network_block_all' => ['nullable', 'boolean'],
+            ],
             self::Piston, self::Runner => [
                 'url' => ['required', 'string', 'max:500'],
             ],
@@ -86,7 +97,7 @@ enum SandboxDriverType: string
     public function credentialRules(): array
     {
         return match ($this) {
-            self::E2B => ['api_key' => ['nullable', 'string', 'max:500']],
+            self::E2B, self::Daytona => ['api_key' => ['nullable', 'string', 'max:500']],
             self::Piston => ['token' => ['nullable', 'string', 'max:500']],
             self::Runner => ['token' => ['nullable', 'string', 'max:500']],
         };
@@ -98,7 +109,7 @@ enum SandboxDriverType: string
     public function requiredCredential(): ?string
     {
         return match ($this) {
-            self::E2B => 'api_key',
+            self::E2B, self::Daytona => 'api_key',
             self::Runner => 'token',
             self::Piston => null,
         };

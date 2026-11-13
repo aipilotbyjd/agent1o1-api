@@ -107,6 +107,16 @@ it('needs no address for E2B but does need its key', function () {
         ->assertUnprocessable()->assertJsonValidationErrors('credentials.api_key');
 });
 
+it('adds Daytona with just an API key, using the cloud addresses by default', function () {
+    $payload = ['key' => 'daytona', 'name' => 'Daytona', 'driver' => 'daytona', 'credentials' => ['api_key' => 'dtn-key-4321']];
+
+    $this->withHeaders($this->headers)->postJson(saUrl('sandbox/providers'), stepUp($this->operator, $payload))
+        ->assertCreated()->assertJsonPath('data.is_configured', true)->assertJsonPath('data.credential_hint', '…4321');
+
+    $this->withHeaders($this->headers)->postJson(saUrl('sandbox/providers'), stepUp($this->operator, [...$payload, 'key' => 'daytona-b', 'credentials' => ['api_key' => 'k'], 'config' => ['toolbox_url' => 'https://10.0.0.5/toolbox']]))
+        ->assertUnprocessable()->assertJsonValidationErrors('config.toolbox_url');
+});
+
 it('lets only operators and owners change anything, and everyone read', function (SuperAdminRole $role, int $read, int $write) {
     $admin = superAdmin($role);
 
@@ -267,7 +277,7 @@ it('shows the overview and what the month has cost', function () {
         ->assertJsonPath('data.month.budget_used_ratio', 0.25)
         ->assertJsonPath('data.providers.0.key', 'main')
         ->assertJsonPath('data.drivers.0.driver', 'e2b')
-        ->assertJsonCount(3, 'data.drivers');
+        ->assertJsonCount(4, 'data.drivers');
 });
 
 it('reports usage by provider, by day and by workspace', function () {

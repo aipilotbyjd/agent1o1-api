@@ -58,7 +58,7 @@ class UpdateSandboxProviderRequest extends StepUpRequest
     {
         return [
             function (Validator $validator): void {
-                foreach (['config.url', 'config.api_url'] as $field) {
+                foreach (['config.url', 'config.api_url', 'config.toolbox_url'] as $field) {
                     if (! $this->filled($field) || $validator->errors()->has($field)) {
                         continue;
                     }

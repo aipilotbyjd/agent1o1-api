@@ -1,10 +1,13 @@
 <?php
 
+use App\Enums\Sandbox\SandboxMode;
 use App\Models\Sandbox\SandboxProvider;
+use App\Services\Sandbox\Drivers\DaytonaSandboxDriver;
 use App\Services\Sandbox\Drivers\E2BSandboxDriver;
 use App\Services\Sandbox\Drivers\PistonSandboxDriver;
 use App\Services\Sandbox\Drivers\RunnerSandboxDriver;
 use App\Services\Sandbox\SandboxGoneException;
+use App\Services\Sandbox\SandboxRouter;
 use App\Services\Sandbox\SandboxStartException;
 use App\Services\Sandbox\SandboxUrlGuard;
 use Illuminate\Http\Client\ConnectionException;
@@ -127,4 +130,108 @@ it('only accepts a sandbox address on a separate public machine', function (stri
 
 it('accepts a separate public machine', function () {
     expect(app(SandboxUrlGuard::class)->problem('https://93.184.216.50'))->toBeNull();
+});
+
+it('drives a Daytona sandbox through its whole life', function () {
+    Http::fake([
+        'https://93.184.216.60/api/sandbox' => Http::response(['id' => 'dtn-1', 'state' => 'started']),
+        'https://93.184.216.61/toolbox/dtn-1/process/execute' => Http::response(['exitCode' => 0, 'result' => "hi\n"]),
+        'https://93.184.216.61/toolbox/dtn-1/files/download*' => Http::response('file-bytes'),
+        'https://93.184.216.60/api/sandbox/dtn-1' => Http::sequence()
+            ->push(['id' => 'dtn-1', 'state' => 'started'])
+            ->push([]),
+    ]);
+    $driver = new DaytonaSandboxDriver(SandboxProvider::factory()->daytona()->make(['credentials' => ['api_key' => 'dtn-secret']]));
+
+    $created = $driver->create(900);
+    $result = $driver->run($created['id'], $created['access_token'], 'python', 'print("hi")', 30);
+
+    expect($created)->toBe(['id' => 'dtn-1', 'access_token' => null])
+        ->and($result)->stdout->toBe("hi\n")->error->toBeNull()
+        ->and($driver->readFile('dtn-1', null, '/tmp/a.txt', 1000))->toBe('file-bytes');
+
+    $driver->keepAlive('dtn-1', 900);
+    $driver->destroy('dtn-1', null);
+
+    Http::assertSent(fn (HttpRequest $request) => str_ends_with($request->url(), '/api/sandbox')
+        && $request->hasHeader('Authorization', 'Bearer dtn-secret')
+        && $request['autoStopInterval'] === 15
+        && $request['autoDeleteInterval'] === 0);
+    Http::assertSent(fn (HttpRequest $request) => str_ends_with($request->url(), '/process/execute')
+        && str_contains($request['command'], base64_encode('print("hi")'))
+        && str_contains($request['command'], 'timeout 30 python3'));
+    Http::assertSent(fn (HttpRequest $request) => $request->method() === 'DELETE' && str_ends_with($request->url(), '/api/sandbox/dtn-1'));
+});
+
+it('reports a Daytona program that failed or ran out of time', function () {
+    Http::fake(['*/process/execute' => Http::sequence()
+        ->push(['exitCode' => 1, 'result' => 'Traceback: boom'])
+        ->push(['exitCode' => 124, 'result' => ''])]);
+    $driver = new DaytonaSandboxDriver(SandboxProvider::factory()->daytona()->make());
+
+    expect($driver->run('dtn-1', null, 'python', 'x', 5)->error)->toContain('Exited with code 1')->toContain('boom')
+        ->and($driver->run('dtn-1', null, 'js', 'x', 5)->error)->toBe('The code ran out of time.');
+});
+
+it('treats a missing or stopped Daytona sandbox as gone', function () {
+    Http::fake([
+        '*/process/execute' => Http::response(['message' => 'sandbox not found'], 404),
+        '*/api/sandbox/stopped' => Http::response(['id' => 'stopped', 'state' => 'stopped']),
+    ]);
+    $driver = new DaytonaSandboxDriver(SandboxProvider::factory()->daytona()->make());
+
+    expect(fn () => $driver->run('dtn-1', null, 'python', 'x', 5))->toThrow(SandboxGoneException::class)
+        ->and(fn () => $driver->keepAlive('stopped', 60))->toThrow(SandboxGoneException::class);
+});
+
+it('treats a busy, down or failed-to-start Daytona as a start failure', function () {
+    $driver = new DaytonaSandboxDriver(SandboxProvider::factory()->daytona()->make());
+    Http::fake(['*' => Http::sequence()
+        ->push('busy', 429)
+        ->push(['id' => 'bad', 'state' => 'error'])
+        ->whenEmpty(Http::response([]))]);
+
+    expect(fn () => $driver->create(60))->toThrow(SandboxStartException::class, 'could not start')
+        ->and(fn () => $driver->create(60))->toThrow(SandboxStartException::class, 'did not start');
+});
+
+it('deletes the Daytona sandbox after a one-off run, even if it failed', function () {
+    Http::fake([
+        'https://93.184.216.60/api/sandbox' => Http::response(['id' => 'once', 'state' => 'started']),
+        'https://93.184.216.61/toolbox/once/process/execute' => Http::response(['message' => 'crashed'], 500),
+        'https://93.184.216.60/api/sandbox/once' => Http::response([]),
+    ]);
+
+    expect(fn () => (new DaytonaSandboxDriver(SandboxProvider::factory()->daytona()->make()))->runOnce('python', 'x', 10))
+        ->toThrow(RuntimeException::class);
+
+    Http::assertSent(fn (HttpRequest $request) => $request->method() === 'DELETE' && str_ends_with($request->url(), '/api/sandbox/once'));
+});
+
+it('uses Daytona Cloud addresses when none are set, and refuses a private override', function () {
+    Http::fake(['*' => Http::response(['id' => 'c1', 'state' => 'started'])]);
+
+    (new DaytonaSandboxDriver(SandboxProvider::factory()->daytona()->make(['config' => []])))->create(60);
+
+    Http::assertSent(fn (HttpRequest $request) => $request->url() === 'https://app.daytona.io/api/sandbox');
+
+    $private = new DaytonaSandboxDriver(SandboxProvider::factory()->daytona()->make(['config' => ['toolbox_url' => 'https://10.0.0.5/toolbox']]));
+
+    expect(fn () => $private->create(60))->toThrow(SandboxStartException::class, 'not allowed');
+});
+
+it('refuses code too long to send to Daytona', function () {
+    Http::fake();
+    $driver = new DaytonaSandboxDriver(SandboxProvider::factory()->daytona()->make());
+
+    expect(fn () => $driver->run('dtn-1', null, 'python', str_repeat('a', 80000), 5))->toThrow(RuntimeException::class, 'too long');
+
+    Http::assertNothingSent();
+});
+
+it('is chosen for conversation computers like E2B', function () {
+    config(['assistant.sandbox.api_key' => null]);
+    SandboxProvider::factory()->daytona()->create(['key' => 'daytona']);
+
+    expect(app(SandboxRouter::class)->candidates(SandboxMode::Persistent)->pluck('key')->all())->toBe(['daytona']);
 });

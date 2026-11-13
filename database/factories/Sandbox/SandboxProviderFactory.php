@@ -37,6 +37,15 @@ class SandboxProviderFactory extends Factory
         return $this->state(fn () => ['driver' => SandboxDriverType::E2B->value]);
     }
 
+    public function daytona(): static
+    {
+        return $this->state(fn () => [
+            'driver' => SandboxDriverType::Daytona->value,
+            'config' => ['api_url' => 'https://93.184.216.60/api', 'toolbox_url' => 'https://93.184.216.61/toolbox'],
+            'credentials' => ['api_key' => 'daytona-key-'.fake()->bothify('????')],
+        ]);
+    }
+
     public function piston(string $url = 'https://93.184.216.36'): static
     {
         return $this->state(fn () => [
