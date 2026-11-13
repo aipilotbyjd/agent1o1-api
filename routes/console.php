@@ -2,6 +2,7 @@
 
 use App\Jobs\System\ExpireStaleWaitsJob;
 use App\Jobs\System\FailStuckAgentTurnsJob;
+use App\Jobs\System\FailStuckNodeRunsJob;
 use Illuminate\Support\Facades\Schedule;
 
 /*
@@ -99,3 +100,4 @@ Schedule::onOneServer()->withoutOverlapping()->group(function (): void {
 
 Schedule::job(new ExpireStaleWaitsJob)->everyMinute()->onOneServer();
 Schedule::job(new FailStuckAgentTurnsJob)->everyFiveMinutes()->onOneServer();
+Schedule::job(new FailStuckNodeRunsJob)->everyFiveMinutes()->onOneServer();
