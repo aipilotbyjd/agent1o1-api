@@ -11,6 +11,7 @@ use App\Enums\Triggers\TriggerType;
 use App\Exceptions\PlanLimitExceededException;
 use App\Exceptions\UsageBlockedException;
 use App\Jobs\Triggers\FireTriggerEvent;
+use App\Models\Broadcasts\Announcement;
 use App\Models\Runs\Run;
 use App\Models\Triggers\Trigger;
 use App\Models\Triggers\TriggerEvent;
@@ -25,6 +26,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Throwable;
 
 /**
  * Creates and manages triggers, and runs the two halves of every firing.
@@ -193,6 +195,13 @@ class TriggerService
         // streak that would switch the trigger off for good.
         if ($trigger->workspace->isSuspended()) {
             return $this->writeTerminal($trigger, $source, $payload, $deliveryId, $payloadSnippet, $headers, TriggerEventStatus::Skipped, 'The workspace is suspended.');
+        }
+
+        // While the app is read-only for maintenance, no new run starts. Like a
+        // suspended workspace this isn't the trigger's fault, so it is recorded
+        // without feeding the skip streak. Runs already going carry on.
+        if ($source !== TriggerType::Manual && $this->isUnderMaintenance()) {
+            return $this->writeTerminal($trigger, $source, $payload, $deliveryId, $payloadSnippet, $headers, TriggerEventStatus::Skipped, 'Skipped: the app is in maintenance.');
         }
 
         // Dropped here, not left to fail in FireTriggerEvent: running out of
@@ -425,6 +434,17 @@ class TriggerService
     /**
      * Whether the trigger is on and its target can run right now.
      */
+    private function isUnderMaintenance(): bool
+    {
+        try {
+            return Announcement::openBlockingWindow() !== null;
+        } catch (Throwable $e) {
+            report($e);
+
+            return false;
+        }
+    }
+
     public function canRun(Trigger $trigger): bool
     {
         return $trigger->is_active && $this->runStarter->canRun($trigger);

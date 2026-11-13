@@ -29,6 +29,7 @@ class AnnouncementResource extends JsonResource
             'cta_url' => $this->cta_url,
             'dismissible' => $this->dismissible,
             'blocks_writes' => $this->blocksWrites(),
+            'read_only_message' => $this->blocksWrites() ? $this->read_only_message : null,
             'window_open' => $this->isInWindow(),
             'starts_at' => $this->starts_at,
             'ends_at' => $this->ends_at,

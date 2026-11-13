@@ -5,6 +5,7 @@ use App\Enums\Triggers\TriggerType;
 use App\Jobs\Triggers\FireTriggerEvent;
 use App\Jobs\Triggers\PollTrigger;
 use App\Models\Agents\Agent;
+use App\Models\Broadcasts\Announcement;
 use App\Models\Triggers\Trigger;
 use App\Models\User;
 use App\Models\Workflows\Workflow;
@@ -42,6 +43,36 @@ function robustPublishTrigger(Workflow $workflow, User $owner, string $type, arr
 
     return Trigger::query()->where('target_id', $workflow->id)->where('trigger_node_key', 'start')->firstOrFail();
 }
+
+describe('maintenance window', function () {
+    beforeEach(function () {
+        Queue::fake([FireTriggerEvent::class]);
+    });
+
+    it('skips an automated event without feeding the skip streak or starting a run', function () {
+        [, $owner, $workflow] = robustWorkflow();
+        $trigger = robustPublishTrigger($workflow, $owner, 'webhook_trigger', []);
+        Announcement::factory()->maintenance()->create();
+
+        $event = app(TriggerService::class)->receive($trigger->fresh(), TriggerType::Webhook, ['a' => 1]);
+
+        expect($event->status)->toBe(TriggerEventStatus::Skipped)
+            ->and($event->error)->toBe('Skipped: the app is in maintenance.')
+            ->and($trigger->fresh()->consecutive_skip_count)->toBe(0)
+            ->and($trigger->fresh()->is_active)->toBeTrue();
+        Queue::assertNothingPushed();
+    });
+
+    it('queues the event again once the window has ended', function () {
+        [, $owner, $workflow] = robustWorkflow();
+        $trigger = robustPublishTrigger($workflow, $owner, 'webhook_trigger', []);
+        Announcement::factory()->maintenance()->create(['starts_at' => now()->subHours(3), 'ends_at' => now()->subHour()]);
+
+        $event = app(TriggerService::class)->receive($trigger->fresh(), TriggerType::Webhook, ['a' => 1]);
+
+        expect($event->status)->toBe(TriggerEventStatus::Queued);
+    });
+});
 
 describe('suspended workspaces', function () {
     beforeEach(function () {

@@ -38,8 +38,10 @@ class BlockWritesDuringMaintenance
         }
 
         $response = ApiResponse::error(
-            $window->title.': the app is read-only for maintenance'.($window->ends_at ? ' until '.$window->ends_at->toIso8601String() : '').'. Try again shortly.',
+            $window->read_only_message
+                ?: $window->title.': the app is read-only for maintenance'.($window->ends_at ? ' until '.$window->ends_at->toIso8601String() : '').'. Try again shortly.',
             Response::HTTP_SERVICE_UNAVAILABLE,
+            ['reason' => 'maintenance'],
         );
 
         if ($window->ends_at !== null) {
@@ -58,7 +60,7 @@ class BlockWritesDuringMaintenance
     private function openWindow(): ?Announcement
     {
         try {
-            return Announcement::blockingCached()->first(fn (Announcement $announcement): bool => $announcement->isInWindow());
+            return Announcement::openBlockingWindow();
         } catch (Throwable $e) {
             report($e);
 

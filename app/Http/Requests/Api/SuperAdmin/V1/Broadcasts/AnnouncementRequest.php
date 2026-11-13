@@ -36,6 +36,7 @@ class AnnouncementRequest extends FormRequest
             'cta_url' => ['sometimes', 'nullable', 'string', 'max:2048', 'regex:#^(https://[^\s]+|/(?!/)[^\s]*)$#'],
             'dismissible' => ['sometimes', 'boolean'],
             'blocks_writes' => ['sometimes', 'boolean'],
+            'read_only_message' => ['sometimes', 'nullable', 'string', 'max:300'],
             'starts_at' => ['sometimes', 'nullable', 'date'],
             'ends_at' => ['sometimes', 'nullable', 'date', 'after:starts_at'],
             ...AudienceRules::for(),

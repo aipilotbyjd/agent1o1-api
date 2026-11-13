@@ -147,7 +147,7 @@ class AnnouncementService
      */
     private function snapshot(Announcement $announcement): array
     {
-        return $announcement->only(['type', 'severity', 'title', 'body', 'cta_label', 'cta_url', 'dismissible', 'blocks_writes', 'audience', 'starts_at', 'ends_at', 'published_at']);
+        return $announcement->only(['type', 'severity', 'title', 'body', 'cta_label', 'cta_url', 'dismissible', 'blocks_writes', 'read_only_message', 'audience', 'starts_at', 'ends_at', 'published_at']);
     }
 
     private function push(string $reason, Announcement $announcement): void

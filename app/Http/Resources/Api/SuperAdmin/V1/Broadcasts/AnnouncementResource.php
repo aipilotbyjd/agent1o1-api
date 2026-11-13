@@ -30,6 +30,7 @@ class AnnouncementResource extends JsonResource
             'cta_url' => $this->cta_url,
             'dismissible' => $this->dismissible,
             'blocks_writes' => $this->blocks_writes,
+            'read_only_message' => $this->read_only_message,
             'audience' => app(BroadcastAudience::class)->normalize($this->audience, 'all'),
             'starts_at' => $this->starts_at,
             'ends_at' => $this->ends_at,
