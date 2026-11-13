@@ -8,6 +8,7 @@ use App\Models\Agents\Agent;
 use App\Models\Triggers\Trigger;
 use App\Models\User;
 use App\Services\Agents\AgentVersioner;
+use App\Services\Analytics\ProductAnalytics;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -26,6 +27,13 @@ class AgentObserver
 
     public function created(Agent $agent): void
     {
+        app(ProductAnalytics::class)->capture(
+            $agent->created_by !== null ? (string) $agent->created_by : null,
+            'agent_created',
+            ['agent_id' => (string) $agent->getKey()],
+            (string) $agent->workspace_id,
+        );
+
         $this->versioner->snapshot($agent, $this->actor() ?? $agent->creator);
     }
 
