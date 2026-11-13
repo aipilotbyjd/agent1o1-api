@@ -17,12 +17,12 @@ return new class extends Migration
         Schema::create('knowledge_sources', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('owner_id')->nullable()->constrained('users')->cascadeOnDelete();
+            $table->foreignUuid('owner_id')->index()->nullable()->constrained('users')->cascadeOnDelete();
             $table->foreignUuid('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->string('collection');
             $table->string('type');
             $table->string('name');
-            $table->foreignUuid('connector_credential_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignUuid('connector_credential_id')->index()->nullable()->constrained()->nullOnDelete();
             $table->json('config')->nullable();
             $table->string('status')->default('pending');
             $table->text('last_error')->nullable();

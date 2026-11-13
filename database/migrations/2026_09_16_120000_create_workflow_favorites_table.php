@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('workflow_favorites', function (Blueprint $table) {
             $table->foreignUuid('workflow_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('user_id')->index()->constrained()->cascadeOnDelete();
             $table->timestamps();
 
             $table->primary(['workflow_id', 'user_id']);

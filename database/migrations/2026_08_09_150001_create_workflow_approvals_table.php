@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('workflow_approvals', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('run_id')->constrained('runs')->cascadeOnDelete();
+            $table->foreignUuid('run_id')->index()->constrained('runs')->cascadeOnDelete();
             $table->foreignUuid('node_run_id')->constrained('node_runs')->cascadeOnDelete();
             $table->timestamp('requested_at');
             $table->timestamp('decided_at')->nullable();

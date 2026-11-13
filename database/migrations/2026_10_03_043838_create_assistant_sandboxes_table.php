@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('assistant_sandboxes', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('assistant_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('assistant_id')->index()->constrained()->cascadeOnDelete();
             $table->foreignUuid('assistant_session_id')->unique()->constrained()->cascadeOnDelete();
             $table->string('provider');
             $table->string('provider_sandbox_id');

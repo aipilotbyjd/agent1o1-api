@@ -22,7 +22,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('plan_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignUuid('subscription_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignUuid('subscription_id')->index()->nullable()->constrained()->nullOnDelete();
             $table->timestamp('starts_at');
             $table->timestamp('ends_at');
             $table->unsignedInteger('credits_used')->default(0);

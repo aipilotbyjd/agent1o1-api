@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('assistant_triggers', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('assistant_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('assistant_id')->index()->constrained()->cascadeOnDelete();
             $table->string('type');
             $table->string('name');
             $table->text('prompt');

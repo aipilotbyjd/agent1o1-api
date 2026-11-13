@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('workflow_edges', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('workflow_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('workflow_id')->index()->constrained()->cascadeOnDelete();
             $table->foreignUuid('from_node_id')->constrained('workflow_nodes')->cascadeOnDelete();
-            $table->foreignUuid('to_node_id')->constrained('workflow_nodes')->cascadeOnDelete();
+            $table->foreignUuid('to_node_id')->index()->constrained('workflow_nodes')->cascadeOnDelete();
             $table->string('condition')->nullable();
             $table->timestamps();
 

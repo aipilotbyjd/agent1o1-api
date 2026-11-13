@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tag_workflow', function (Blueprint $table) {
             $table->foreignUuid('tag_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('workflow_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('workflow_id')->index()->constrained()->cascadeOnDelete();
             $table->primary(['tag_id', 'workflow_id']);
         });
     }

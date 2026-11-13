@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('agents', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('folder_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignUuid('folder_id')->index()->nullable()->constrained()->nullOnDelete();
             $table->string('name');
             $table->string('slug');
             $table->text('description')->nullable();

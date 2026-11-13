@@ -10,10 +10,10 @@ return new class extends Migration
     {
         Schema::create('subagent_tasks', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('workspace_id')->index()->constrained()->cascadeOnDelete();
             $table->foreignUuid('parent_session_id')->constrained('agent_sessions')->cascadeOnDelete();
-            $table->foreignUuid('agent_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('session_id')->nullable()->constrained('agent_sessions')->nullOnDelete();
+            $table->foreignUuid('agent_id')->index()->constrained()->cascadeOnDelete();
+            $table->foreignUuid('session_id')->index()->nullable()->constrained('agent_sessions')->nullOnDelete();
             $table->text('task');
             $table->string('status')->default('queued');
             $table->longText('result')->nullable();

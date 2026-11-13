@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('connector_credentials', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('connector_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('connector_id')->index()->constrained()->cascadeOnDelete();
             $table->foreignUuid('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->string('name');
             $table->text('data');

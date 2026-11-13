@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('assistant_situation_steps', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('assistant_situation_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('assistant_situation_id')->index()->constrained()->cascadeOnDelete();
             $table->unsignedSmallInteger('position');
             $table->text('body');
             $table->string('status')->default('todo');

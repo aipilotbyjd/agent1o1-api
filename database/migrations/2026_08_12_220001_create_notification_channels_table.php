@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('notification_channels', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('workspace_id')->index()->constrained()->cascadeOnDelete();
             $table->foreignUuid('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->string('type');
             $table->string('name');

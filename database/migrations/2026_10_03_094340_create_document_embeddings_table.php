@@ -23,7 +23,7 @@ return new class extends Migration
         Schema::create('document_embeddings', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('owner_id')->nullable()->constrained('users')->cascadeOnDelete();
+            $table->foreignUuid('owner_id')->index()->nullable()->constrained('users')->cascadeOnDelete();
             $table->string('collection')->default('default');
             $table->foreignUuid('knowledge_source_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('external_id')->nullable();

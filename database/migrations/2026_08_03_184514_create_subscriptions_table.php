@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('plan_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignUuid('plan_id')->index()->nullable()->constrained()->nullOnDelete();
             $table->string('type');
             $table->string('stripe_id')->unique();
             $table->string('stripe_status');

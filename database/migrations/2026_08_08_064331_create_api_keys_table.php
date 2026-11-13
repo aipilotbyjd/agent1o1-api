@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('api_keys', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('workspace_id')->index()->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('hashed_key')->unique();
             $table->json('abilities');

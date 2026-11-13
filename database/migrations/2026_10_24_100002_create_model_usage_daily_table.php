@@ -22,7 +22,7 @@ return new class extends Migration
         Schema::create('model_usage_daily', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->date('date');
-            $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('workspace_id')->index()->constrained()->cascadeOnDelete();
             $table->string('provider');
             $table->string('model');
             $table->boolean('own_key')->default(false);

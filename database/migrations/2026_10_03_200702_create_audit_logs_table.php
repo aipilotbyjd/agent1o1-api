@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
             // Null for system activity (queue jobs, webhooks). The label keeps
             // who did it readable after the user or API key is gone.
-            $table->foreignUuid('actor_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignUuid('actor_id')->index()->nullable()->constrained('users')->nullOnDelete();
             $table->string('actor_label');
             $table->string('action');
             $table->string('subject_type')->nullable();

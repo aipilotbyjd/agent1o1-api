@@ -17,7 +17,7 @@ return new class extends Migration
     {
         Schema::create('referral_visits', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('referral_code_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('referral_code_id')->index()->constrained()->cascadeOnDelete();
             $table->uuid('visitor_id')->index();
             $table->text('landing_url')->nullable();
             $table->text('referrer_url')->nullable();
