@@ -8,6 +8,7 @@ use App\Exceptions\WorkflowValidationException;
 use App\Models\Triggers\Trigger;
 use App\Models\User;
 use App\Models\Workflows\Workflow;
+use App\Services\Analytics\ProductAnalytics;
 use App\Services\Triggers\TriggerNodeSync;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -23,6 +24,20 @@ use Illuminate\Support\Facades\Log;
 class WorkflowObserver
 {
     public function __construct(private readonly TriggerNodeSync $triggerSync) {}
+
+    public function created(Workflow $workflow): void
+    {
+        if ($workflow->is_internal) {
+            return;
+        }
+
+        app(ProductAnalytics::class)->capture(
+            $workflow->created_by !== null ? (string) $workflow->created_by : null,
+            'workflow_created',
+            ['workflow_id' => (string) $workflow->getKey()],
+            (string) $workflow->workspace_id,
+        );
+    }
 
     /**
      * Remove the workflow's triggers. They are made from the published graph,
