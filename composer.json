@@ -23,7 +23,8 @@
         "phpoffice/phpspreadsheet": "^5.10",
         "phpoffice/phpword": "^1.4",
         "pragmarx/google2fa": "^9.1",
-        "predis/predis": "^3.7"
+        "predis/predis": "^3.7",
+        "sentry/sentry-laravel": "^4.30"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
