@@ -17,6 +17,7 @@ use App\Models\Billing\PlanGrant;
 use App\Models\Billing\ProcessedWebhookEvent;
 use App\Models\Billing\StripeWebhookFailure;
 use App\Models\Workspaces\Workspace;
+use App\Services\Analytics\ProductAnalytics;
 use App\Notifications\Billing\PaymentFailedNotification;
 use App\Notifications\Billing\PaymentRecoveredNotification;
 use App\Notifications\Billing\SubscriptionCanceledNotification;
@@ -144,8 +145,37 @@ class StripeWebhookController extends CashierWebhookController
 
         $this->checkTrialCard($payload['data']['object'] ?? []);
         $this->syncPlanAndUsagePeriod($payload);
+        $this->captureSubscriptionEvent('subscription_started', $payload);
 
         return $response;
+    }
+
+    /**
+     * Billing funnel events for PostHog. Attributed to the workspace owner,
+     * who is the person that subscribed. Never fails the webhook.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private function captureSubscriptionEvent(string $event, array $payload, ?Workspace $workspace = null): void
+    {
+        try {
+            $object = $payload['data']['object'] ?? [];
+            $customerId = $object['customer'] ?? null;
+            $workspace ??= $customerId !== null ? Cashier::findBillable($customerId) : null;
+
+            if ($workspace === null) {
+                return;
+            }
+
+            app(ProductAnalytics::class)->capture(
+                $workspace->owner_id !== null ? (string) $workspace->owner_id : null,
+                $event,
+                ['stripe_status' => $object['status'] ?? null, 'is_trial' => ($object['status'] ?? null) === 'trialing'],
+                (string) $workspace->getKey(),
+            );
+        } catch (Throwable $exception) {
+            report($exception);
+        }
     }
 
     /**
@@ -459,6 +489,7 @@ class StripeWebhookController extends CashierWebhookController
         $afterFailedPayments = $subscription?->inDunning() ?? false;
 
         $response = parent::handleCustomerSubscriptionDeleted($payload);
+        $this->captureSubscriptionEvent('subscription_canceled', $payload, $workspace);
 
         if ($workspace !== null) {
             $subscription?->clearDunning();
