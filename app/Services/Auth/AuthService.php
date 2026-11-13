@@ -7,6 +7,7 @@ use App\Models\Credentials\OAuthConnection;
 use App\Models\User;
 use App\Notifications\Auth\ConfirmEmailChangeNotification;
 use App\Notifications\Auth\SecurityAlertNotification;
+use App\Services\Analytics\ProductAnalytics;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -41,6 +42,7 @@ class AuthService
         private readonly TwoFactorAuthService $twoFactor,
         private readonly AuthEventRecorder $events,
         private readonly LoginThrottle $throttle,
+        private readonly ProductAnalytics $analytics,
     ) {}
 
     /**
@@ -68,6 +70,7 @@ class AuthService
         $user->sendEmailVerificationNotification();
 
         $this->events->record(AuthEvent::Registered, $user);
+        $this->analytics->capture((string) $user->getKey(), 'user_signed_up', ['method' => 'email']);
 
         return [
             'user' => $user,
@@ -388,6 +391,7 @@ class AuthService
                 $user->markEmailAsVerified();
 
                 $this->events->record(AuthEvent::Registered, $user, context: ['provider' => $provider]);
+                $this->analytics->capture((string) $user->getKey(), 'user_signed_up', ['method' => $provider]);
             }
 
             OAuthConnection::query()->create([
