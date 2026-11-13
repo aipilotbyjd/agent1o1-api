@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Cache;
  * version, so a publish or an edit shows up at once.
  */
 #[Fillable([
-    'type', 'severity', 'title', 'body', 'cta_label', 'cta_url', 'dismissible', 'blocks_writes',
+    'type', 'severity', 'title', 'body', 'cta_label', 'cta_url', 'dismissible', 'blocks_writes', 'read_only_message',
     'audience', 'starts_at', 'ends_at', 'published_at', 'created_by',
 ])]
 class Announcement extends Model
@@ -210,6 +210,14 @@ class Announcement extends Model
     public static function blockingCached(): Collection
     {
         return self::liveCached()->filter(fn (Announcement $announcement): bool => $announcement->blocksWrites())->values();
+    }
+
+    /**
+     * The write-blocking maintenance notice whose window is open right now, if any.
+     */
+    public static function openBlockingWindow(): ?self
+    {
+        return self::blockingCached()->first(fn (self $announcement): bool => $announcement->isInWindow());
     }
 
     public static function forgetCache(): void

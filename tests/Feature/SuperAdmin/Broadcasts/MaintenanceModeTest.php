@@ -11,7 +11,8 @@ it('turns away a write while a blocking window is open, with Retry-After', funct
 
     $response = $this->postJson('/api/v1/workspaces', ['name' => 'Another'])->assertStatus(503);
 
-    expect($response->headers->get('Retry-After'))->not->toBeNull()
+    expect($response->json('errors.reason'))->toBe('maintenance')
+        ->and($response->headers->get('Retry-After'))->not->toBeNull()
         ->and($response->json('message'))->toContain('Database upgrade');
 });
 
@@ -70,4 +71,35 @@ it('keeps turning writes away once the window is cached', function () {
     foreach (range(1, 3) as $attempt) {
         $this->postJson('/api/v1/workspaces', ['name' => 'Another'])->assertStatus(503);
     }
+});
+
+it('answers with the custom read-only message when the notice has one', function () {
+    Announcement::factory()->maintenance()->create(['read_only_message' => 'Saving is paused until 23:00 UTC.']);
+
+    Passport::actingAs(referralUser());
+
+    $this->postJson('/api/v1/workspaces', ['name' => 'Another'])
+        ->assertStatus(503)
+        ->assertJsonPath('message', 'Saving is paused until 23:00 UTC.')
+        ->assertJsonPath('errors.reason', 'maintenance');
+
+    $this->getJson('/api/v1/announcements')
+        ->assertOk()
+        ->assertJsonPath('data.announcements.0.read_only_message', 'Saving is paused until 23:00 UTC.');
+});
+
+it('lets an admin set the read-only message when creating a notice', function () {
+    $response = $this->withHeaders(superAdminHeaders(superAdmin()))
+        ->postJson(saUrl('broadcasts/announcements'), [
+            'type' => 'maintenance',
+            'title' => 'Upgrade',
+            'starts_at' => now()->addHour()->toIso8601String(),
+            'ends_at' => now()->addHours(2)->toIso8601String(),
+            'blocks_writes' => true,
+            'read_only_message' => 'Back at 23:00 UTC.',
+        ])
+        ->assertCreated()
+        ->assertJsonPath('data.read_only_message', 'Back at 23:00 UTC.');
+
+    expect(Announcement::find($response->json('data.id'))->read_only_message)->toBe('Back at 23:00 UTC.');
 });
