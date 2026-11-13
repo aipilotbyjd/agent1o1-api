@@ -6,6 +6,7 @@ use App\Enums\Billing\BillingInterval;
 use App\Models\Billing\Plan;
 use App\Models\Billing\PlanPriceHistory;
 use App\Models\SuperAdmin\SuperAdmin;
+use App\Services\Billing\MarginFloor;
 use Illuminate\Support\Facades\DB;
 use Stripe\Exception\ApiErrorException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -30,6 +31,7 @@ class PlanPriceChanger
     public function __construct(
         private readonly PricingStripe $stripe,
         private readonly PricingChangeLogger $log,
+        private readonly MarginFloor $floor,
     ) {}
 
     /**
@@ -42,6 +44,8 @@ class PlanPriceChanger
         if ($changes === []) {
             return $plan;
         }
+
+        $this->assertAboveMarginFloor($plan, $changes);
 
         $productId = $this->ensureProduct($plan);
         $created = [];
@@ -114,6 +118,28 @@ class PlanPriceChanger
         }
 
         return $changes;
+    }
+
+    /**
+     * A plan on sale may not be repriced below the margin floor. A draft may,
+     * since it sells nothing until it is activated (which checks again).
+     *
+     * @param  array<string, array{old_amount: int, new_amount: int, old_price_id: string|null}>  $changes
+     */
+    private function assertAboveMarginFloor(Plan $plan, array $changes): void
+    {
+        if (! $plan->is_active) {
+            return;
+        }
+
+        $before = $this->floor->attributesOf($plan);
+        $after = $before;
+
+        foreach ($changes as $value => $change) {
+            $after["price_{$value}"] = $change['new_amount'];
+        }
+
+        $this->floor->assertPlanChangeAllowed($before, $after);
     }
 
     private function ensureProduct(Plan $plan): string

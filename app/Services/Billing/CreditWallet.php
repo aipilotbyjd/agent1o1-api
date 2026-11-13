@@ -248,6 +248,24 @@ class CreditWallet
     }
 
     /**
+     * What a period's plan allowance had left when it ended, however its
+     * grant was retired. A grant's `remaining` is zeroed when a billing cycle
+     * closes it and again when `credits:expire` lapses it, so it cannot say
+     * what went unused; the grant's size less what the period spent can.
+     */
+    public function unusedPlanAllowance(UsagePeriod $period): int
+    {
+        $grant = CreditGrant::query()
+            ->where('usage_period_id', $period->id)
+            ->where('source', CreditGrantSource::Plan)
+            ->latest('created_at')
+            ->latest('id')
+            ->first();
+
+        return $grant === null ? 0 : max(0, $grant->amount - $this->allowanceSpentBeforeWallet($period));
+    }
+
+    /**
      * Keeps the period's allowance grant matching `credits_limit`, creating
      * it the first time the period is used. A changed limit (a plan change
      * mid-period) replaces the grant: what was already spent from the old
