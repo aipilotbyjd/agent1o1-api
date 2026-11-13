@@ -216,11 +216,7 @@ class UsagePeriods
             return;
         }
 
-        $unused = (int) CreditGrant::query()
-            ->where('usage_period_id', $previous->id)
-            ->where('source', CreditGrantSource::Plan)
-            ->whereNull('revoked_at')
-            ->sum('remaining');
+        $unused = $this->wallet->unusedPlanAllowance($previous);
 
         $credits = intdiv($unused * $percent, 100);
 

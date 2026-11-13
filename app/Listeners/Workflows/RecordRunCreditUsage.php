@@ -96,7 +96,7 @@ class RecordRunCreditUsage implements ShouldQueue
         }
 
         if ($run->runnable instanceof AgentSessionEvaluation) {
-            $this->chargeForSessionEvaluation($run->runnable);
+            $this->chargeForSessionEvaluation($run, $run->runnable);
 
             return;
         }
@@ -123,10 +123,13 @@ class RecordRunCreditUsage implements ShouldQueue
     }
 
     /**
-     * One charge per evaluation. An evaluation that failed before the judge
-     * answered carries no usage and is skipped: nothing was spent on it.
+     * One charge per grading pass. A session graded again reuses its
+     * evaluation row, so the charge is keyed on the pass's run instead:
+     * keyed on the evaluation it would bill only the first pass. A pass that
+     * failed before the judge answered carries no usage and is skipped:
+     * nothing was spent on it.
      */
-    private function chargeForSessionEvaluation(AgentSessionEvaluation $evaluation): void
+    private function chargeForSessionEvaluation(Run $run, AgentSessionEvaluation $evaluation): void
     {
         if ($evaluation->usage === null) {
             return;
@@ -135,7 +138,7 @@ class RecordRunCreditUsage implements ShouldQueue
         $this->deductCredits->execute(
             $evaluation->workspace,
             CreditTransactionType::SessionEvaluation,
-            $evaluation->id,
+            $run->id,
             $this->meter->costForSessionEvaluation($evaluation),
             'Session evaluation',
             allowOverdraft: true,

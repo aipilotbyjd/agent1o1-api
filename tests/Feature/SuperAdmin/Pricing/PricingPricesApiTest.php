@@ -189,3 +189,16 @@ it('requires step-up for a real sync', function () {
     $this->withHeaders($this->headers)->postJson(saUrl("pricing/plans/{$this->plan->id}/stripe/sync"), [])
         ->assertUnprocessable()->assertJsonValidationErrors(['reason', 'totp_code']);
 });
+
+it('refuses a price that sells credits below the margin floor, and lets a price above it through', function () {
+    config(['billing.margin_floor.enforce_changes' => true]);
+
+    $this->withHeaders($this->headers)->putJson($this->url, stepUp($this->finance, ['prices' => ['monthly' => 1900]]))
+        ->assertUnprocessable();
+
+    expect($this->plan->fresh()->price_monthly)->toBe(2900)
+        ->and($this->stripe->callsTo('archivePrice'))->toBe([]);
+
+    $this->withHeaders($this->headers)->putJson($this->url, stepUp($this->finance, ['prices' => ['monthly' => 3900]]))
+        ->assertOk();
+});
