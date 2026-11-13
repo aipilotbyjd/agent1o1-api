@@ -31,6 +31,7 @@ class FlushBatchesCommand extends Command
         Trigger::query()
             ->where('is_active', true)
             ->whereHas('events', fn ($events) => $events->where('status', TriggerEventStatus::Held->value))
+            ->with(['workspace.subscriptions.plan', 'target'])
             ->eachById(function (Trigger $trigger) use ($triggers, &$flushed): void {
                 if (! $triggers->heldWindowIsOver($trigger)) {
                     return;

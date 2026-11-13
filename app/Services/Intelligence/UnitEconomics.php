@@ -234,7 +234,7 @@ class UnitEconomics
             ->where('ends_at', '>', now())
             ->whereNotNull('credits_limit')
             ->where('credits_limit', '>', 0)
-            ->with('workspace')
+            ->with('workspace.subscriptions.plan')
             ->get(['id', 'workspace_id', 'credits_used', 'credits_limit']);
 
         return $periods

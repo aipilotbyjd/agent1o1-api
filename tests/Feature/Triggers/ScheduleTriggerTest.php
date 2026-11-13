@@ -7,6 +7,7 @@ use App\Models\Agents\Agent;
 use App\Models\Triggers\Trigger;
 use App\Models\User;
 use App\Services\Workspaces\WorkspaceService;
+use Illuminate\Database\Eloquent\Model;
 
 function makeScheduleTrigger(string $cron): Trigger
 {
@@ -98,3 +99,13 @@ it('reads a one-time date with no offset in the schedule timezone', function () 
 
     expect($next->toIso8601String())->toBe('2099-01-01T14:00:00+00:00');
 });
+
+it('loads each due schedule\'s workspace and target in one query per batch rather than one per trigger', function () {
+    Model::preventLazyLoading();
+
+    $triggers = collect(range(1, 3))->map(fn (): Trigger => makeScheduleTrigger('* * * * *'));
+
+    $this->artisan('triggers:run-due')->assertSuccessful();
+
+    expect($triggers->map(fn (Trigger $trigger): int => $trigger->events()->count())->all())->toBe([1, 1, 1]);
+})->after(fn () => Model::preventLazyLoading(false));

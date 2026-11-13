@@ -155,7 +155,7 @@ class FactRollup
         $plans = [];
 
         foreach (array_chunk($workspaceIds, 200) as $chunk) {
-            foreach (Workspace::query()->whereIn('id', $chunk)->get() as $workspace) {
+            foreach (Workspace::query()->whereIn('id', $chunk)->with('subscriptions.plan')->get() as $workspace) {
                 $grant = $workspace->activePlanGrant();
 
                 $plans[$workspace->id] = [

@@ -262,6 +262,7 @@ class BroadcastAudience
         Workspace::query()
             ->when($definition['workspace_ids'] !== [], fn (Builder $query) => $query->whereIn('id', $definition['workspace_ids']))
             ->when(! $wantsDefault, fn (Builder $query) => $query->where(fn (Builder $inner) => $inner->whereHas('subscriptions')->orWhereHas('planGrants')))
+            ->with('subscriptions.plan')
             ->chunkById(self::CHUNK, function (Collection $workspaces) use (&$ids, $definition): void {
                 $matching = $workspaces->filter(fn (Workspace $workspace): bool => in_array($workspace->currentPlan()?->slug, $definition['plans'], true));
 

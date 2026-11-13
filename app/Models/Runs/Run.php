@@ -210,7 +210,8 @@ class Run extends Model
 
         return match ($runnableClass) {
             Workflow::class => $this->relationLoaded('nodeRuns')
-                ? $this->nodeRuns->sum(fn (NodeRun $nodeRun): int => $nodeRun->creditTransaction?->credits ?? 0)
+                ? $this->nodeRuns->loadMissing('creditTransaction')
+                    ->sum(fn (NodeRun $nodeRun): int => $nodeRun->creditTransaction?->credits ?? 0)
                 : $this->nodeRuns()->with('creditTransaction')->get()
                     ->sum(fn (NodeRun $nodeRun): int => $nodeRun->creditTransaction?->credits ?? 0),
             AgentSession::class => isset($this->output['message_id'])

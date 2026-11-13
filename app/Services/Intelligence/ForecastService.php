@@ -110,7 +110,7 @@ class ForecastService
 
         $results = [];
 
-        foreach (Workspace::query()->whereIn('id', $burn->keys())->get() as $workspace) {
+        foreach (Workspace::query()->whereIn('id', $burn->keys())->with('subscriptions.plan')->get() as $workspace) {
             $period = $workspace->currentUsagePeriod();
             $available = $workspace->availableCredits();
 
