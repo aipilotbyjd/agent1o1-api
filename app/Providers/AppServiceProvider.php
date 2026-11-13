@@ -50,8 +50,6 @@ use App\Services\Ai\OperatorEndpoints;
 use App\Services\Assistant\Branding\BrandRepository;
 use App\Services\Assistant\Branding\ConfigBrandRepository;
 use App\Services\Assistant\Computer\ComputerToolProvider;
-use App\Services\Assistant\Computer\E2BSandboxDriver;
-use App\Services\Assistant\Computer\SandboxDriver;
 use App\Services\Assistant\Tools\ConnectorToolProvider;
 use App\Services\Assistant\Tools\KnowledgeToolProvider;
 use App\Services\Assistant\Tools\ToolCatalog;
@@ -88,7 +86,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->scoped(AiCallContext::class);
         $this->app->scoped(AiProviderSettings::class);
         $this->app->bind(BrandRepository::class, ConfigBrandRepository::class);
-        $this->app->bind(SandboxDriver::class, E2BSandboxDriver::class);
         $this->app->tag([ConnectorToolProvider::class, KnowledgeToolProvider::class, ComputerToolProvider::class], ToolCatalog::TAG);
 
         // Must run in register(), not boot(): CashierServiceProvider's own

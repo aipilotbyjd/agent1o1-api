@@ -25,6 +25,7 @@ use App\Nodes\AiAutomation\KnowledgeSearchNode;
 use App\Nodes\DataTransform\ArrayNode;
 use App\Nodes\DataTransform\BatchNode;
 use App\Nodes\DataTransform\CallApiNode;
+use App\Nodes\DataTransform\CodeNode;
 use App\Nodes\DataTransform\CsvParseNode;
 use App\Nodes\DataTransform\DataStoreNode;
 use App\Nodes\DataTransform\DateTimeNode;
@@ -1334,6 +1335,7 @@ class NodeRegistryServiceProvider extends ServiceProvider
             'transform' => TransformNode::class,
             'call_api' => CallApiNode::class,
             'run_code' => RunCodeNode::class,
+            'code' => CodeNode::class,
             'set_variable' => SetVariableNode::class,
             'string' => StringNode::class,
             'json' => JsonNode::class,

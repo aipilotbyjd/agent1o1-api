@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Assistant\Computer;
+namespace App\Services\Sandbox;
 
 /**
  * What one run printed and returned.

@@ -37,6 +37,11 @@ enum Feature: string
     case AssistantSandbox = 'assistant_sandbox';
 
     /**
+     * The workflow Code node: your own Python or JavaScript, run on a remote sandbox.
+     */
+    case CodeExecution = 'code_execution';
+
+    /**
      * Texting the assistant by SMS.
      */
     case AssistantSms = 'assistant_sms';

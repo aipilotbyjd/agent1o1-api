@@ -235,6 +235,7 @@ return [
 
     'node_costs' => [
         'run_code' => (int) env('BILLING_NODE_COST_RUN_CODE', 3),
+        'code' => (int) env('BILLING_NODE_COST_CODE', 3),
         'agent' => (int) env('BILLING_NODE_COST_AGENT', 3),
         'ai_image' => (int) env('BILLING_NODE_COST_AI_IMAGE', 10),
         'ai_speech' => (int) env('BILLING_NODE_COST_AI_SPEECH', 3),

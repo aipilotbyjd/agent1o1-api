@@ -1,18 +1,24 @@
 <?php
 
-namespace App\Services\Assistant\Computer;
+namespace App\Services\Sandbox\Drivers;
 
+use App\Services\Sandbox\AbstractSandboxDriver;
+use App\Services\Sandbox\SandboxGoneException;
+use App\Services\Sandbox\SandboxResult;
+use App\Services\Sandbox\SandboxStartException;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
+use Throwable;
 
 /**
  * E2B code-interpreter sandboxes over their HTTP API: the control plane
  * creates and keeps sandboxes alive; each sandbox serves code execution
  * (port 49999, NDJSON stream) and its filesystem (port 49983).
  */
-class E2BSandboxDriver implements SandboxDriver
+class E2BSandboxDriver extends AbstractSandboxDriver
 {
     private const int CODE_PORT = 49999;
 
@@ -20,10 +26,18 @@ class E2BSandboxDriver implements SandboxDriver
 
     public function create(int $idleSeconds): array
     {
-        $response = $this->api()->post('/sandboxes', [
-            'templateID' => config('assistant.sandbox.template'),
-            'timeout' => $idleSeconds,
-        ]);
+        try {
+            $response = $this->api()->post('/sandboxes', [
+                'templateID' => $this->provider->setting('template', 'code-interpreter-v1'),
+                'timeout' => $idleSeconds,
+            ]);
+        } catch (ConnectionException $e) {
+            throw new SandboxStartException('Could not reach E2B: '.$e->getMessage(), previous: $e);
+        }
+
+        if ($response->serverError() || $response->status() === 429) {
+            throw new SandboxStartException("E2B could not start a sandbox (HTTP {$response->status()}).");
+        }
 
         $this->ensureOk($response, 'create sandbox');
 
@@ -93,10 +107,34 @@ class E2BSandboxDriver implements SandboxDriver
         $this->ensureAlive($response);
     }
 
+    public function destroy(string $id, ?string $accessToken): void
+    {
+        $response = $this->api()->delete("/sandboxes/{$id}");
+
+        if ($response->failed() && $response->status() !== 404) {
+            throw new RuntimeException("E2B could not delete the sandbox (HTTP {$response->status()}).");
+        }
+    }
+
+    public function runOnce(string $language, string $code, int $timeoutSeconds): SandboxResult
+    {
+        $created = $this->create($timeoutSeconds + 30);
+
+        try {
+            return $this->run($created['id'], $created['access_token'], $language, $code, $timeoutSeconds);
+        } finally {
+            try {
+                $this->destroy($created['id'], $created['access_token']);
+            } catch (Throwable) {
+                // The sandbox expires by itself at the provider.
+            }
+        }
+    }
+
     private function api(): PendingRequest
     {
-        return Http::baseUrl((string) config('assistant.sandbox.api_url'))
-            ->withHeaders(['X-API-Key' => (string) config('assistant.sandbox.api_key')])
+        return Http::baseUrl((string) $this->provider->setting('api_url', 'https://api.e2b.dev'))
+            ->withHeaders(['X-API-Key' => (string) $this->provider->credential('api_key')])
             ->acceptJson()
             ->timeout(30);
     }
@@ -108,7 +146,7 @@ class E2BSandboxDriver implements SandboxDriver
 
     private function host(string $id, int $port): string
     {
-        return "https://{$port}-{$id}.".config('assistant.sandbox.domain');
+        return "https://{$port}-{$id}.".$this->provider->setting('domain', 'e2b.app');
     }
 
     private function ensureAlive(Response $response): void

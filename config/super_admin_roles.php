@@ -26,6 +26,7 @@ $view = [
     Ability::BroadcastsView->value,
     Ability::SystemView->value,
     Ability::AlertsView->value,
+    Ability::SandboxView->value,
 ];
 
 return [
@@ -48,6 +49,7 @@ return [
             Ability::ModelsManage->value,
             Ability::BroadcastsManage->value,
             Ability::AlertsManage->value,
+            Ability::SandboxManage->value,
         ],
 
         Role::Finance->value => [

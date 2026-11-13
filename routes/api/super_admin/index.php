@@ -48,4 +48,5 @@ Route::group($attributes, function () {
     require __DIR__.'/revenue.php';
     require __DIR__.'/pricing.php';
     require __DIR__.'/intelligence.php';
+    require __DIR__.'/sandbox.php';
 });

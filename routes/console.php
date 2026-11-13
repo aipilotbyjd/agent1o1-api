@@ -34,6 +34,7 @@ Schedule::onOneServer()->withoutOverlapping()->group(function (): void {
     Schedule::command('assistant:check-inboxes')->everyTwoMinutes();
     Schedule::command('assistant:check-follow-ups')->everyFifteenMinutes();
     Schedule::command('assistant:sync-meetings')->everyTenMinutes();
+    Schedule::command('sandbox:cleanup')->everyTenMinutes();
 
     // Connectors, knowledge & skills
     Schedule::command('connectors:refresh-expiring')->everyFiveMinutes();
