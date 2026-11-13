@@ -5,7 +5,7 @@ Go-live checklist for the first production launch of Agent1o1 API. Work top to b
 Legend: `[ ]` to do · **BLOCKER** = must be done before any external user · **VERIFY** = the repo suggests it exists, confirm it works in production.
 
 Findings from reading the repo when this was written (re-check, they may be stale):
-- No `.github/workflows` directory exists, so there is **no CI** yet (§12).
+- CI exists (`.github/workflows/ci.yml`): Pest, Pint, PHPStan, `composer audit` and a Postgres migrate/rollback job run on every PR and push to `main`/`dev` (§12). Branch protection and CD are still to do.
 - Horizon's `viewHorizon` and Pulse's `viewPulse` gates are closed in production unless the request comes from an address in `SUPER_ADMIN_DASHBOARD_IPS` (and `SUPER_ADMIN_ENABLED=true`): **VERIFY** your own address gets in and nobody else does, and put both behind a VPN or Cloudflare Access as well (§3.3).
 - Production services are four images: `Dockerfile.web` (nginx + php-fpm, `/up` health check), `Dockerfile.horizon` (`artisan horizon`), `Dockerfile.scheduler` (`schedule:work`), `Dockerfile.reverb` (`reverb:start` on :8000).
 - `.env.example` defaults are all development values (sqlite, database queue/cache, `BROADCAST_CONNECTION=log`, `MAIL_MAILER=log`, local disk, `LOG_LEVEL=debug`).
@@ -121,7 +121,7 @@ Write the answer to each in one line at the top of your launch notes. They chang
 - [ ] TLS everywhere, auto-renewal verified, HSTS enabled after you are sure HTTPS works.
 - [ ] Only 80/443 public. Postgres, Redis, Horizon, Reverb internal ports are **not** reachable from the internet.
 - [ ] CDN/WAF in front (e.g. Cloudflare): bot management, basic WAF rules, DDoS protection, caching rules that never cache authenticated API responses.
-- [ ] Real client IP is trusted correctly (trusted proxies configured) so rate limits (`->by($request->ip())`) and audit logs do not all see the proxy IP. **VERIFY**: this silently breaks every per-IP limiter if wrong.
+- [ ] Real client IP is trusted correctly (trusted proxies configured) so rate limits (`->by($request->ip())`) and audit logs do not all see the proxy IP. **Code done** (`config/trustedproxy.php`, tested): **set `TRUSTED_PROXIES` in production** and **VERIFY** an endpoint reports your real public IP. This silently breaks every per-IP limiter if wrong.
 - [ ] Request size limits at the proxy match `TRIGGERS_MAX_WEBHOOK_BODY_KB` and upload limits; request timeouts match streaming/long AI responses (SSE/websocket idle timeouts).
 - [ ] Outbound egress policy: workflows call arbitrary URLs. Prefer an egress proxy or network policy that blocks internal ranges and cloud metadata (§3.5).
 
@@ -168,6 +168,7 @@ Write the answer to each in one line at the top of your launch notes. They chang
 - [ ] Use a secrets manager; limit who can read production env vars; enable audit logs on the hosting account.
 
 ### 3.5 Outbound requests and SSRF
+- [x] Hardened client exists (`SsrfGuard` + `GuardedHttp`: private/CGNAT/link-local/metadata ranges blocked, DNS pinned, every redirect hop re-checked, headers dropped on cross-origin redirects), used by `CallApiNode` and `FilePayload`. **Still VERIFY** the other URL fetchers listed here also go through it.
 - [ ] Every node/feature that fetches a user-supplied URL (HTTP/Call API node, webhook delivery, knowledge-base URL sync, skill sources, page assets, connectors) goes through one hardened HTTP client: blocks private/loopback/link-local ranges and cloud metadata IPs, re-validates after redirects and DNS resolution (anti DNS rebinding), enforces timeouts, response size caps and allowed schemes.
 - [ ] Redirect limits and content-type checks for downloads.
 
@@ -180,7 +181,7 @@ Write the answer to each in one line at the top of your launch notes. They chang
 
 ### 3.7 Webhooks and inbound surfaces
 - [ ] Trigger webhooks: unguessable URLs/tokens, optional signature verification, replay protection, body size cap (`TRIGGERS_MAX_WEBHOOK_BODY_KB`), rate limit (`TRIGGERS_HOOK_RATE_LIMIT_PER_MINUTE`).
-- [ ] Stripe webhook: signature verified with `STRIPE_WEBHOOK_SECRET`, excluded from CSRF, idempotent (`processed_webhook_events`).
+- [x] Stripe webhook: signature verified with `STRIPE_WEBHOOK_SECRET` (the endpoint answers 503 if the secret is missing), idempotent (`processed_webhook_events`), failed events recorded in `StripeWebhookFailure`. Still to do: set the live secret and send a real live-mode test event.
 - [ ] Assistant inbound email/Slack/SMS endpoints: signature/token checked, sender authenticated (`ASSISTANT_EMAIL_REQUIRE_AUTH=true`), impersonation (spoofed From) cannot trigger actions on someone's behalf.
 
 ### 3.8 HTTP hardening
@@ -269,10 +270,11 @@ Write the answer to each in one line at the top of your launch notes. They chang
 ## 6. Reliability, data and correctness (BLOCKER)
 
 ### 6.1 Backups and recovery
+- Procedure and restore steps are written down in [BACKUP_RESTORE_RUNBOOK.md](BACKUP_RESTORE_RUNBOOK.md); nothing below is ticked until it has actually been set up and tested.
 - [ ] Automated Postgres backups, off-site copy, encryption, retention policy.
 - [ ] **A restore has actually been performed** into a fresh instance and the app booted against it. Record the time it took.
 - [ ] RPO (acceptable data loss) and RTO (acceptable downtime) written down and achievable with the above.
-- [ ] Redis loss plan: what is lost (queued jobs, cache, locks, Horizon metrics) and how the system recovers (stuck-run reapers rebuild state; verify).
+- [ ] Redis loss plan: what is lost (queued jobs, cache, locks, Horizon metrics) and how the system recovers (stuck-run reapers rebuild state: `FailStuckNodeRunsJob`, `FailStuckAgentTurnsJob`, `ExpireStaleWaitsJob`; verify).
 - [ ] Object storage versioning/backup for user files.
 - [ ] Take a manual full backup immediately before launch day.
 
@@ -283,7 +285,7 @@ Write the answer to each in one line at the top of your launch notes. They chang
 - [ ] Foreign keys and cascades checked: deleting a workspace/user removes or anonymizes dependent data deliberately.
 
 ### 6.3 Execution engine behavior
-- [ ] Kill a Horizon worker mid-run on staging: the run resumes, retries or fails cleanly and visibly; no run stays "running" forever (verify the reapers: `ExpireStaleWaitsJob`, `FailStuckAgentTurnsJob`, `triggers:retry-stuck`).
+- [ ] Kill a Horizon worker mid-run on staging: the run resumes, retries or fails cleanly and visibly; no run stays "running" forever (verify the reapers: `FailStuckNodeRunsJob` (steps running more than 15 minutes), `ExpireStaleWaitsJob`, `FailStuckAgentTurnsJob`, `triggers:retry-stuck`). Also raise the Horizon container's stop timeout in Coolify to at least 330 seconds so a deploy lets in-flight jobs finish.
 - [ ] Kill Redis briefly, kill the DB briefly, kill the AI provider (block egress) and confirm graceful degradation and recovery.
 - [ ] Idempotency: a retried job never double-sends an email, double-charges, double-posts, or double-debits credits. Confirm node-by-node for side-effecting nodes.
 - [ ] Cancellation works for runs and agent turns; cancelled runs stop spending.
@@ -405,7 +407,8 @@ Write the answer to each in one line at the top of your launch notes. They chang
 
 ## 12. Engineering process (before you scale the team or the codebase)
 
-- [ ] **CI** (none exists today): GitHub Actions workflow running `composer install`, Pint, tests (Postgres + Redis services), `composer audit`, on every PR and push to the default branch.
+- [x] **CI**: `.github/workflows/ci.yml` runs Pest, Pint, PHPStan, `composer audit` and a Postgres migrate/rollback on every PR and push. Still to do: run the suite against Postgres + Redis services, not only SQLite.
+- [x] `DB::prohibitDestructiveCommands` is on in production (`migrate:fresh`, `migrate:refresh`, `migrate:reset` and `db:wipe` are refused when `APP_ENV=production`).
 - [ ] Branch protection: required checks, required review, no direct pushes to the default branch.
 - [ ] CD: automatic deploy to staging on merge; production deploy gated/manual with the release procedure (§2.2).
 - [ ] Staging and production use separate credentials for everything.
