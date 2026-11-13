@@ -63,6 +63,7 @@ use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
@@ -114,6 +115,17 @@ class AppServiceProvider extends ServiceProvider
         $this->configureSchedulerRecording();
         $this->configureAiCallLedger();
         $this->configureAiProviderRetries();
+        $this->configureDestructiveDatabaseCommands();
+    }
+
+    /**
+     * `migrate:fresh`, `migrate:refresh`, `migrate:reset` and `db:wipe` refuse
+     * to run in production, so a mistyped command on the live server cannot
+     * drop the database.
+     */
+    private function configureDestructiveDatabaseCommands(): void
+    {
+        DB::prohibitDestructiveCommands($this->app->isProduction());
     }
 
     /**
