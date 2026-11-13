@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tag_agent', function (Blueprint $table) {
             $table->foreignUuid('tag_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('agent_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('agent_id')->index()->constrained()->cascadeOnDelete();
             $table->primary(['tag_id', 'agent_id']);
         });
     }

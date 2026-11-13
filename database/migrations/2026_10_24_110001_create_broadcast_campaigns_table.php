@@ -43,7 +43,7 @@ return new class extends Migration
         Schema::create('broadcast_recipients', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('campaign_id')->constrained('broadcast_campaigns')->cascadeOnDelete();
-            $table->foreignUuid('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignUuid('user_id')->index()->nullable()->constrained()->nullOnDelete();
             $table->string('email');
             $table->string('status')->default('pending');
             $table->unsignedSmallInteger('attempts')->default(0);

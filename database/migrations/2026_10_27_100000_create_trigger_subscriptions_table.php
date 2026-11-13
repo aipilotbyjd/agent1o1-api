@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('trigger_subscriptions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('workspace_id')->index()->constrained()->cascadeOnDelete();
             $table->foreignUuid('trigger_id')->unique()->constrained()->cascadeOnDelete();
             $table->string('provider');
             $table->string('mechanism')->default('push');

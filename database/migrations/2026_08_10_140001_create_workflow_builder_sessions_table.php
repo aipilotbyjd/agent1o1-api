@@ -21,8 +21,8 @@ return new class extends Migration
         Schema::create('workflow_builder_sessions', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('workflow_id')->nullable()->constrained('workflows')->nullOnDelete();
+            $table->foreignUuid('user_id')->index()->constrained()->cascadeOnDelete();
+            $table->foreignUuid('workflow_id')->index()->nullable()->constrained('workflows')->nullOnDelete();
             $table->string('title')->default('Untitled workflow');
             $table->json('draft_graph')->nullable();
             $table->unsignedInteger('draft_lock_version')->default(0);

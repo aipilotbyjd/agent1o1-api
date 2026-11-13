@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('assistants', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('user_id')->index()->constrained()->cascadeOnDelete();
             $table->foreignUuid('model_catalog_id')->nullable()->constrained('model_catalog')->nullOnDelete();
             $table->text('instructions')->nullable();
             $table->json('settings')->nullable();

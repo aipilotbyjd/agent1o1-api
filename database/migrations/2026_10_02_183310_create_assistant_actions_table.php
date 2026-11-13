@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('assistant_actions', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('assistant_session_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('assistant_turn_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('assistant_turn_id')->index()->constrained()->cascadeOnDelete();
             $table->string('tool_call_id');
             $table->string('tool');
             $table->json('arguments')->nullable();

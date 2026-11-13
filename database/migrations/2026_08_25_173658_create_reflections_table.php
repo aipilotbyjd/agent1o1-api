@@ -16,9 +16,9 @@ return new class extends Migration
     {
         Schema::create('reflections', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('workspace_id')->index()->constrained()->cascadeOnDelete();
             $table->foreignUuid('agent_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('reflection_run_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('reflection_run_id')->index()->constrained()->cascadeOnDelete();
             $table->string('type');
             $table->string('title');
             $table->text('rationale');

@@ -21,7 +21,7 @@ return new class extends Migration
         Schema::create('credit_transactions', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('usage_period_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignUuid('usage_period_id')->index()->nullable()->constrained()->nullOnDelete();
             $table->string('source_type');
             $table->uuid('source_id');
             $table->unsignedInteger('credits');

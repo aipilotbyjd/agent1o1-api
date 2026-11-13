@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('workspace_members', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('user_id')->index()->constrained()->cascadeOnDelete();
             $table->string('role');
             $table->foreignUuid('invited_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('joined_at')->nullable();

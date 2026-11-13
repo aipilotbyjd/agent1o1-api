@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('next_step')->nullable();
             $table->json('sources')->nullable();
             $table->string('status')->default('open');
-            $table->foreignUuid('assistant_session_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignUuid('assistant_session_id')->index()->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
 
             $table->index(['assistant_id', 'status']);

@@ -25,7 +25,7 @@ return new class extends Migration
         Schema::create('plan_grants', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('plan_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('plan_id')->index()->constrained()->cascadeOnDelete();
             $table->foreignUuid('purchased_by')->nullable()->constrained('users')->nullOnDelete();
             $table->string('source')->default('lifetime_purchase');
             $table->string('status')->default('pending');

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('notification_preferences', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('user_id')->index()->constrained()->cascadeOnDelete();
             $table->string('event_key');
             $table->boolean('in_app')->default(true);
             $table->boolean('email')->default(false);

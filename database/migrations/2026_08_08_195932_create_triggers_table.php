@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('triggers', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('workspace_id')->index()->constrained()->cascadeOnDelete();
             $table->uuidMorphs('target');
             $table->string('type');
             $table->foreignUuid('preset_id')->nullable()->constrained('trigger_presets')->nullOnDelete();
@@ -25,7 +25,7 @@ return new class extends Migration
 
             // No FK yet: connector_credentials doesn't exist until Connectors ship
             // (docs/NODES_CATALOG.md build order). Column is real; constraint follows.
-            $table->foreignUuid('credential_id')->nullable()->constrained('connector_credentials')->nullOnDelete();
+            $table->foreignUuid('credential_id')->index()->nullable()->constrained('connector_credentials')->nullOnDelete();
 
             $table->json('poll_cursor')->nullable();
             $table->unsignedInteger('consecutive_failure_count')->default(0);

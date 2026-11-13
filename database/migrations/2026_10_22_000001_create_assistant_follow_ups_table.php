@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('assistant_follow_ups', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('assistant_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('assistant_session_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignUuid('assistant_session_id')->index()->nullable()->constrained()->nullOnDelete();
             $table->string('thread_id');
             $table->string('subject')->nullable();
             $table->text('note')->nullable();

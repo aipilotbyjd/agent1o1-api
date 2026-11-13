@@ -60,10 +60,10 @@ return new class extends Migration
 
         Schema::create('workflow_page_submissions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('workspace_id')->constrained('workspaces')->cascadeOnDelete();
+            $table->foreignUuid('workspace_id')->index()->constrained('workspaces')->cascadeOnDelete();
             $table->foreignUuid('workflow_page_id')->constrained('workflow_pages')->cascadeOnDelete();
-            $table->foreignUuid('run_id')->nullable()->constrained('runs')->nullOnDelete();
-            $table->foreignUuid('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignUuid('run_id')->index()->nullable()->constrained('runs')->nullOnDelete();
+            $table->foreignUuid('user_id')->index()->nullable()->constrained('users')->nullOnDelete();
             $table->string('visitor_hash', 64)->nullable();
             $table->string('secret_hash', 64);
             $table->boolean('is_test')->default(false);

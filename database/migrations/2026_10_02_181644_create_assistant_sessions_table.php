@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('assistant_sessions', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('assistant_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('assistant_trigger_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignUuid('assistant_trigger_id')->index()->nullable()->constrained()->nullOnDelete();
             $table->string('title')->nullable();
             $table->string('status')->default('active');
             $table->string('origin')->default('web');

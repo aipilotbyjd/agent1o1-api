@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('assistant_feedback', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('assistant_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('assistant_id')->index()->constrained()->cascadeOnDelete();
             $table->foreignUuid('assistant_message_id')->constrained()->cascadeOnDelete();
             $table->string('rating');
             $table->text('comment')->nullable();

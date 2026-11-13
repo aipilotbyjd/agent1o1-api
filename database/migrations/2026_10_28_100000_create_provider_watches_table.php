@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('provider_watches', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('credential_id')->nullable()->constrained('connector_credentials')->cascadeOnDelete();
+            $table->foreignUuid('workspace_id')->index()->constrained()->cascadeOnDelete();
+            $table->foreignUuid('credential_id')->index()->nullable()->constrained('connector_credentials')->cascadeOnDelete();
             $table->string('provider');
 
             // What is watched, so triggers on the same thing share one watch
@@ -41,7 +41,7 @@ return new class extends Migration
         });
 
         Schema::table('trigger_subscriptions', function (Blueprint $table) {
-            $table->foreignUuid('watch_id')->nullable()->constrained('provider_watches')->nullOnDelete();
+            $table->foreignUuid('watch_id')->index()->nullable()->constrained('provider_watches')->nullOnDelete();
         });
     }
 

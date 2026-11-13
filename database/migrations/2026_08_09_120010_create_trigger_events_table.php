@@ -19,7 +19,7 @@ return new class extends Migration
 
             // No FK yet: workflow_runs doesn't exist until the workflow engine ships
             // (docs/WORKFLOWS_PLAN.md). Column is real; constraint follows.
-            $table->foreignUuid('run_id')->nullable()->constrained('runs')->nullOnDelete();
+            $table->foreignUuid('run_id')->index()->nullable()->constrained('runs')->nullOnDelete();
 
             $table->json('payload')->nullable();
             $table->text('payload_snippet')->nullable();

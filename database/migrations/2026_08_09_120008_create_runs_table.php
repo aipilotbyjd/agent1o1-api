@@ -19,9 +19,9 @@ return new class extends Migration
             $table->primary('id');
             $table->foreignUuid('workspace_id')->constrained()->cascadeOnDelete();
             $table->uuidMorphs('runnable');
-            $table->foreignUuid('workflow_id')->nullable()->constrained('workflows')->cascadeOnDelete();
-            $table->foreignUuid('workflow_version_id')->nullable()->constrained('workflow_versions')->nullOnDelete();
-            $table->uuid('parent_run_id')->nullable();
+            $table->foreignUuid('workflow_id')->index()->nullable()->constrained('workflows')->cascadeOnDelete();
+            $table->foreignUuid('workflow_version_id')->index()->nullable()->constrained('workflow_versions')->nullOnDelete();
+            $table->uuid('parent_run_id')->index()->nullable();
 
             // FK to node_runs added once that table exists: see
             // create_node_runs_table / the parent_node_id foreign-key follow-up
@@ -36,10 +36,10 @@ return new class extends Migration
             $table->json('input')->nullable();
             $table->json('output')->nullable();
             $table->text('error')->nullable();
-            $table->foreignUuid('triggered_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignUuid('triggered_by')->index()->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('started_at')->nullable();
             $table->timestamp('finished_at')->nullable();
-            $table->foreignUuid('retried_from_run_id')->nullable()->constrained('runs')->nullOnDelete();
+            $table->foreignUuid('retried_from_run_id')->index()->nullable()->constrained('runs')->nullOnDelete();
             $table->json('agent_context')->nullable();
             // The trigger node a trigger-fired run starts from. Null runs
             // start at every entry node, as they always have.
