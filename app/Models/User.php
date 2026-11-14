@@ -7,6 +7,7 @@ use App\Enums\Onboarding\DiscoverySource;
 use App\Enums\Onboarding\JobRole;
 use App\Enums\Onboarding\OnboardingStep;
 use App\Models\Auth\AuthEventLog;
+use App\Models\Changelog\ChangelogRead;
 use App\Models\Credentials\OAuthConnection;
 use App\Models\Nodes\NodeCategory;
 use App\Models\Notifications\NotificationPreference;
@@ -153,6 +154,14 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     public function oauthConnections(): HasMany
     {
         return $this->hasMany(OAuthConnection::class);
+    }
+
+    /**
+     * @return HasMany<ChangelogRead, $this>
+     */
+    public function changelogReads(): HasMany
+    {
+        return $this->hasMany(ChangelogRead::class);
     }
 
     /**
