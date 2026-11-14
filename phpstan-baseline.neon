@@ -15407,3 +15407,51 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Services/Workspaces/WorkspaceService.php
+
+		-
+			message: '#^Cannot call method greaterThan\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/SuperAdmin/V1/Backups/BackupController.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/SuperAdmin/V1/Backups/BackupController.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: app/Http/Resources/Api/SuperAdmin/V1/Backups/BackupResource.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 1
+			path: app/Models/System/Backup.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\System\\BackupStatus\:\:Completed will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Models/System/Backup.php
+
+		-
+			message: '#^Constant App\\Services\\System\\Backups\\BackupService\:\:ERROR_LIMIT is unused\.$#'
+			identifier: classConstant.unused
+			count: 1
+			path: app/Services/System/Backups/BackupService.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and App\\Enums\\System\\BackupStatus\:\:Pending will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Services/System/Backups/BackupService.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Services/System/Backups/BackupService.php
