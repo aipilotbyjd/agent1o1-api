@@ -289,6 +289,10 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('page-reads', fn (Request $request): Limit => Limit::perMinute(120)
             ->by('page-read:'.$request->ip()));
+
+        // The public changelog and its feeds: cheap cached reads, capped per address.
+        RateLimiter::for('changelog-reads', fn (Request $request): Limit => Limit::perMinute(60)
+            ->by('changelog-read:'.$request->ip()));
     }
 
     /**
