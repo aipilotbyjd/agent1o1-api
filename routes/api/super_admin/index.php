@@ -45,6 +45,7 @@ Route::group($attributes, function () {
     require __DIR__.'/broadcasts.php';
     require __DIR__.'/system.php';
     require __DIR__.'/alerts.php';
+    require __DIR__.'/backups.php';
     require __DIR__.'/revenue.php';
     require __DIR__.'/pricing.php';
     require __DIR__.'/intelligence.php';

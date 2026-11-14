@@ -55,6 +55,12 @@ Schedule::onOneServer()->withoutOverlapping()->group(function (): void {
     Schedule::command('alerts:prune')->dailyAt('05:30')->when(fn (): bool => (bool) config('super_admin.enabled'));
     Schedule::command('revenue:snapshot')->dailyAt('00:10')->when(fn (): bool => (bool) config('super_admin.enabled'));
 
+    // Backups. `backup:clean` is deliberately never scheduled: backups are
+    // immutable and expire through the bucket's own lifecycle rule.
+    Schedule::command('system:backup')->dailyAt((string) config('backups.schedule.nightly_at'))->when(fn (): bool => (bool) config('backups.enabled'));
+    Schedule::command('system:backup')->hourly()->when(fn (): bool => (bool) config('backups.enabled') && (bool) config('backups.schedule.hourly'));
+    Schedule::command('backup:monitor')->dailyAt((string) config('backups.schedule.monitor_at'))->when(fn (): bool => (bool) config('backups.enabled'));
+
     // Broadcasts
     Schedule::command('broadcasts:dispatch-due')->everyMinute();
 
