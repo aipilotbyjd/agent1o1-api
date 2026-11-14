@@ -47,6 +47,35 @@ Store `APP_KEY`, the Passport keys and the rest of the production env in the pas
 ### 2.5 File storage
 Turn on versioning on the uploads bucket so overwritten or deleted files can be recovered.
 
+### 2.6 Immutable app backups (Super Admin → Backups)
+
+A second, independent copy made by the app itself (`spatie/laravel-backup`), nightly or on demand from the Super Admin panel. It is for a stolen server or a hostile admin, so it cannot be deleted from inside the app, by anyone.
+
+**Bucket.** Create an S3 bucket in a **separate AWS account** from production, **with Object Lock enabled at creation** (it cannot be added later). Set a default retention in **compliance mode** (for example 30 to 90 days): until it ends nobody, root included, can delete or overwrite an object. Add a lifecycle rule to expire objects after the retention period, since the app never deletes.
+
+**Key.** Create an IAM user for the app that may only read, write and list:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": ["s3:PutObject", "s3:GetObject", "s3:ListBucket"],
+    "Resource": ["arn:aws:s3:::YOUR-BUCKET", "arn:aws:s3:::YOUR-BUCKET/*"]
+  }]
+}
+```
+
+No `s3:DeleteObject`, no `s3:PutObjectRetention`, no `s3:BypassGovernanceRetention`.
+
+**App.** Set `BACKUPS_ENABLED=true`, the `BACKUP_AWS_*` values, and `BACKUP_ARCHIVE_PASSWORD` (store it in the password manager: without it the zip cannot be opened). The app image needs `pg_dump` matching the Postgres major version. Restart Horizon and the scheduler.
+
+**Using it.** Super Admin → Backups lists every run, starts one ("Back up now"), and issues a download link that lasts a few minutes. Owners only; it needs a reason and a fresh authenticator code and is recorded in the audit log. The schedule is `BACKUP_NIGHTLY_AT` (default 02:30), with an optional hourly run (`BACKUP_HOURLY=true`). `backup:monitor` emails when the newest backup is older than a day.
+
+**Restoring** from one of these: download the zip, unzip it with the archive password, and load the dump as in section 3 (plain SQL, so `psql -f`).
+
+**Limits.** The dump runs as a queued job with a 15 minute timeout. If the database outgrows that, raise `RunBackupJob::$timeout` and the `supervisor-long-running` timeout together, or move to physical backups. It is a nightly snapshot, not point-in-time recovery.
+
 ---
 
 ## 3. Restore test (before launch, then monthly)
