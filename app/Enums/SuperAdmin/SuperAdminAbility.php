@@ -31,6 +31,9 @@ enum SuperAdminAbility: string
     case SystemManage = 'system.manage';
     case AlertsView = 'alerts.view';
     case AlertsManage = 'alerts.manage';
+    case BackupsView = 'backups.view';
+    case BackupsRun = 'backups.run';
+    case BackupsDownload = 'backups.download';
     case RevenueView = 'revenue.view';
     case ModelsView = 'models.view';
     case ModelsManage = 'models.manage';
