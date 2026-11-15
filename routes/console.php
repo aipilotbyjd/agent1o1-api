@@ -53,6 +53,7 @@ Schedule::onOneServer()->withoutOverlapping()->group(function (): void {
     Schedule::command('alerts:evaluate')->everyMinute()->when(fn (): bool => (bool) config('super_admin.enabled'));
     Schedule::command('alerts:digest')->dailyAt('07:30')->when(fn (): bool => (bool) config('super_admin.enabled'));
     Schedule::command('alerts:prune')->dailyAt('05:30')->when(fn (): bool => (bool) config('super_admin.enabled'));
+    Schedule::command('operations:digest')->dailyAt((string) config('operations.digest_at'))->when(fn (): bool => (bool) config('super_admin.enabled'));
     Schedule::command('revenue:snapshot')->dailyAt('00:10')->when(fn (): bool => (bool) config('super_admin.enabled'));
 
     // Backups. `backup:clean` is deliberately never scheduled: backups are
