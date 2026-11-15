@@ -64,6 +64,7 @@ Schedule::onOneServer()->withoutOverlapping()->group(function (): void {
 
     // Broadcasts
     Schedule::command('broadcasts:dispatch-due')->everyMinute();
+    Schedule::command('changelog:publish-due')->everyMinute();
 
     // Models
     Schedule::command('model-catalog:retire-due')->dailyAt('04:00');

@@ -52,6 +52,7 @@ return Application::configure(basePath: dirname(__DIR__))
             __DIR__.'/../routes/api/public/index.php',
             __DIR__.'/../routes/webhooks.php',
             __DIR__.'/../routes/api/pages.php',
+            __DIR__.'/../routes/api/changelog.php',
             __DIR__.'/../routes/api/super_admin/index.php',
         ],
         commands: __DIR__.'/../routes/console.php',

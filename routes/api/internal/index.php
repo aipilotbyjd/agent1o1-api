@@ -30,4 +30,5 @@ Route::prefix('v1')->group(function () {
     require __DIR__.'/library.php';
     require __DIR__.'/referrals.php';
     require __DIR__.'/announcements.php';
+    require __DIR__.'/changelog.php';
 });
