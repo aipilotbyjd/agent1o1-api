@@ -78,6 +78,25 @@ it('changes the spend controls with a reason, audited, for an operator only', fu
     expect(SuperAdminAuditLog::query()->where('action', 'intelligence.spend_controls.updated')->exists())->toBeTrue();
 });
 
+it('lists the workspaces the spend guard flags, with their pause', function () {
+    config(['model_operations.workspace.hourly_usd' => 5.0]);
+    $workspace = app(WorkspaceService::class)->create(User::factory()->create(), ['name' => 'Acme']);
+    AiCallEvent::factory()->forWorkspace($workspace->id)->costing(9)->create();
+    $headers = superAdminHeaders(superAdmin(SuperAdminRole::Operator));
+
+    $this->withHeaders($headers)->getJson(saUrl('intelligence/spend-controls'))
+        ->assertOk()
+        ->assertJsonCount(1, 'data.workspace_alerts')
+        ->assertJsonPath('data.workspace_alerts.0.code', 'workspace_over_hourly_limit')
+        ->assertJsonPath('data.workspace_alerts.0.workspace_id', $workspace->id)
+        ->assertJsonPath('data.workspace_alerts.0.throttle', null);
+
+    app(SpendControls::class)->throttle($workspace->id, now()->addHours(2), 'Too expensive');
+
+    $this->withHeaders($headers)->getJson(saUrl('intelligence/spend-controls'))
+        ->assertJsonPath('data.workspace_alerts.0.throttle.reason', 'Too expensive');
+});
+
 it('pauses and resumes one workspace', function () {
     $workspace = app(WorkspaceService::class)->create(User::factory()->create(), ['name' => 'Acme']);
     $headers = superAdminHeaders(superAdmin(SuperAdminRole::Operator));

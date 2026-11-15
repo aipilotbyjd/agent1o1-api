@@ -41,6 +41,13 @@ return [
     | daily average over the previous seven days, once it has also passed
     | "spike_min_usd" (so a workspace going from 10 cents to 80 is not a spike).
     |
+    | "hourly_usd" is the most any one workspace should cost in a rolling hour,
+    | read from the call ledger so it reacts within minutes. Null switches it off.
+    |
+    | "margin_cost_ratio" flags a paying workspace whose provider cost this month
+    | has reached that share of what it paid (after the card fee), once the cost
+    | has also passed "margin_min_usd". Null switches it off.
+    |
     */
 
     'budget' => [
@@ -53,6 +60,9 @@ return [
         'spike_factor' => (float) env('MODEL_WORKSPACE_SPIKE_FACTOR', 5),
         'spike_min_usd' => (float) env('MODEL_WORKSPACE_SPIKE_MIN_USD', 5),
         'auto_throttle' => (bool) env('MODEL_WORKSPACE_AUTO_THROTTLE', true),
+        'hourly_usd' => env('MODEL_WORKSPACE_HOURLY_USD') === null ? null : (float) env('MODEL_WORKSPACE_HOURLY_USD'),
+        'margin_cost_ratio' => env('MODEL_WORKSPACE_MARGIN_RATIO') === null ? 0.8 : (float) env('MODEL_WORKSPACE_MARGIN_RATIO'),
+        'margin_min_usd' => (float) env('MODEL_WORKSPACE_MARGIN_MIN_USD', 5),
     ],
 
     /*

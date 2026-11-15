@@ -1,11 +1,13 @@
 <?php
 
+use App\Models\Ai\AiCallEvent;
 use App\Models\Ai\ModelUsageDaily;
 use App\Models\User;
 use App\Notifications\SuperAdmin\SuperAdminAlertNotification;
 use App\Services\Ai\Operations\ModelHealthReport;
 use App\Services\Ai\Operations\SpendGuard;
 use App\Services\Workspaces\WorkspaceService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
@@ -179,4 +181,97 @@ it('runs from the command line', function () {
 
     $this->artisan('model-spend:check')->expectsOutputToContain('2 new alert(s) raised')->assertSuccessful();
     $this->artisan('model-spend:check')->expectsOutputToContain('0 new alert(s) raised')->assertSuccessful();
+});
+
+/**
+ * @param  array<string, mixed>  $overrides
+ */
+function monthFact(string $workspaceId, float $revenue, float $cost, bool $paying = true, array $overrides = []): void
+{
+    DB::table('fact_workspace_daily')->insert([
+        'date' => today()->toDateString(),
+        'workspace_id' => $workspaceId,
+        'plan_slug' => $paying ? 'pro' : null,
+        'is_paying' => $paying,
+        'revenue_usd' => $revenue,
+        'provider_cost_usd' => $cost,
+        ...$overrides,
+    ]);
+}
+
+it('flags a paying workspace whose cost has reached its share of what it pays', function () {
+    config(['model_operations.workspace.margin_cost_ratio' => 0.8, 'model_operations.workspace.margin_min_usd' => 5.0, 'billing.margin_floor.payment_fee_rate' => 0]);
+
+    monthFact($this->acme->id, 100, 85);
+    monthFact($this->globex->id, 100, 50);
+
+    $found = collect(app(SpendGuard::class)->findings())->where('code', 'workspace_over_margin');
+
+    expect($found)->toHaveCount(1)
+        ->and($found->first()['workspace_id'])->toBe($this->acme->id)
+        ->and($found->first()['message'])->toContain('"Acme"')->toContain('$85.00')->toContain('85%');
+});
+
+it('takes the card fee off what a workspace paid before comparing', function () {
+    config(['model_operations.workspace.margin_cost_ratio' => 0.8, 'model_operations.workspace.margin_min_usd' => 5.0, 'billing.margin_floor.payment_fee_rate' => 0.1]);
+
+    // 100 paid is 90 after fees, so a cost of 75 is 83% of it.
+    monthFact($this->acme->id, 100, 75);
+
+    expect(guardCodes())->toContain('workspace_over_margin');
+});
+
+it('leaves free workspaces, small costs and other months out of the margin check', function () {
+    config(['model_operations.workspace.margin_cost_ratio' => 0.8, 'model_operations.workspace.margin_min_usd' => 5.0, 'billing.margin_floor.payment_fee_rate' => 0]);
+
+    monthFact($this->acme->id, 0, 90, paying: false);
+    monthFact($this->globex->id, 4, 4.5);
+    monthFact($this->globex->id, 100, 500, overrides: ['date' => today()->startOfMonth()->subDay()->toDateString()]);
+
+    expect(guardCodes())->not->toContain('workspace_over_margin');
+});
+
+it('keeps the margin check off when its ratio is cleared', function () {
+    config(['model_operations.workspace.margin_cost_ratio' => null]);
+
+    monthFact($this->acme->id, 100, 500);
+
+    expect(guardCodes())->not->toContain('workspace_over_margin');
+});
+
+it('flags a workspace that costs more in the last hour than the hourly limit', function () {
+    config(['model_operations.workspace.hourly_usd' => 5.0]);
+
+    AiCallEvent::factory()->forWorkspace($this->acme->id)->costing(3)->create();
+    AiCallEvent::factory()->forWorkspace($this->acme->id)->costing(3)->create(['occurred_at' => now()->subMinutes(30)]);
+    AiCallEvent::factory()->forWorkspace($this->globex->id)->costing(40)->create(['occurred_at' => now()->subHours(2)]);
+    AiCallEvent::factory()->forWorkspace($this->globex->id)->costing(40)->create(['is_byok' => true]);
+
+    $found = collect(app(SpendGuard::class)->findings())->where('code', 'workspace_over_hourly_limit');
+
+    expect($found)->toHaveCount(1)
+        ->and($found->first()['workspace_id'])->toBe($this->acme->id)
+        ->and($found->first()['message'])->toContain('"Acme"')->toContain('$6.00')->toContain('last hour');
+});
+
+it('keeps the hourly check off unless a limit is set', function () {
+    AiCallEvent::factory()->forWorkspace($this->acme->id)->costing(500)->create();
+
+    expect(guardCodes())->not->toContain('workspace_over_hourly_limit');
+});
+
+it('raises an hourly finding again in the next hour but not within the same one', function () {
+    Notification::fake();
+    config(['super_admin_alerts.recipients.mail' => ['security@example.test'], 'model_operations.workspace.hourly_usd' => 5.0]);
+    $this->travelTo(today()->setTime(10, 5));
+
+    AiCallEvent::factory()->forWorkspace($this->acme->id)->costing(9)->create();
+
+    expect(app(SpendGuard::class)->alert())->toBe(1)
+        ->and(app(SpendGuard::class)->alert())->toBe(0);
+
+    $this->travelTo(today()->setTime(11, 5));
+    AiCallEvent::factory()->forWorkspace($this->acme->id)->costing(9)->create();
+
+    expect(app(SpendGuard::class)->alert())->toBe(1);
 });
