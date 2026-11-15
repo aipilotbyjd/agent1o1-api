@@ -46,4 +46,6 @@ enum SuperAdminAbility: string
     case PricingPrices = 'pricing.prices';
     case BroadcastsView = 'broadcasts.view';
     case BroadcastsManage = 'broadcasts.manage';
+    case ChangelogView = 'changelog.view';
+    case ChangelogManage = 'changelog.manage';
 }
