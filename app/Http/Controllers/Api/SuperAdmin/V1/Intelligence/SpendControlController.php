@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\SuperAdmin\V1\ReasonRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Workspaces\Workspace;
+use App\Services\Ai\Operations\SpendGuard;
 use App\Services\Billing\BillingSettings;
 use App\Services\Billing\SpendControls;
 use App\Services\SuperAdmin\Audit\SuperAdminAuditLogger;
@@ -22,13 +23,14 @@ class SpendControlController extends Controller
 {
     public function __construct(
         private readonly SpendControls $controls,
+        private readonly SpendGuard $guard,
         private readonly BillingSettings $settings,
         private readonly SuperAdminAuditLogger $audit,
     ) {}
 
     public function show()
     {
-        return ApiResponse::success($this->state());
+        return ApiResponse::success([...$this->state(), 'workspace_alerts' => $this->workspaceAlerts()]);
     }
 
     public function update(ReasonRequest $request)
@@ -74,6 +76,27 @@ class SpendControlController extends Controller
         $this->audit->record($request->user('super-admin'), 'intelligence.workspace.unthrottled', $workspace, null, null, $request->validated('reason'));
 
         return ApiResponse::success(null, 'Workspace resumed.');
+    }
+
+    /**
+     * The workspaces the spend guard flags right now (a spike, a daily or hourly
+     * limit, or cost eating its plan's revenue), each with its pause if it has
+     * one, so the operator can pause it from the same list.
+     *
+     * @return list<array{code: string, message: string, workspace_id: string, throttle: array{until: string, reason: string}|null}>
+     */
+    private function workspaceAlerts(): array
+    {
+        return collect($this->guard->findings())
+            ->filter(fn (array $finding): bool => $finding['workspace_id'] !== null)
+            ->map(fn (array $finding): array => [
+                'code' => $finding['code'],
+                'message' => $finding['message'],
+                'workspace_id' => $finding['workspace_id'],
+                'throttle' => $this->controls->currentThrottle($finding['workspace_id']),
+            ])
+            ->values()
+            ->all();
     }
 
     /**

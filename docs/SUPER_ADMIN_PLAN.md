@@ -471,6 +471,26 @@ Also: `users` and `workspaces` lists and details carry `tags` and take `?tag=`; 
 ### 11.11 System: `system.php` [`system.manage`] (later)
 `GET /system/health` (queues/Horizon summary, failed jobs count, Reverb), `POST /system/failed-jobs/{id}/retry`, feature flags if introduced.
 
+### 11.11a Operations checklist: `operations.php` [`operations.view`, `operations.manage`, `operations.configure`]
+The recurring setup, daily, weekly and monthly tasks, so nothing is forgotten. Everyone can read it; operators tick tasks off; only owners change the list.
+
+| Endpoint | Ability | What it does |
+|---|---|---|
+| `GET /operations` | `operations.view` | Every enabled task with its status (`done`, `due`, `overdue`, `snoozed`) and the counts for the caller |
+| `GET /operations/summary` | `operations.view` | Just the counts (the header badge) |
+| `GET /operations/history` | `operations.view` | Who ticked off or snoozed what, newest first; `?type=`, `?task_id=` |
+| `POST /operations/tasks/{task}/complete` | `operations.manage` | Marks a manual task done for the current period; `note` optional |
+| `DELETE /operations/tasks/{task}/complete` | `operations.manage` | Takes the tick back |
+| `POST /operations/tasks/{task}/snooze` | `operations.manage` | `hours` (24, 72 or 168) and a `reason` |
+| `GET/POST /operations/tasks`, `PATCH/DELETE /operations/tasks/{task}` | `operations.configure` | Edit the list. Built-in tasks can be reworded, assigned and switched off, not re-timed or deleted |
+
+How it works:
+- **Two kinds of task.** *Manual* tasks are ticked by a person for one period (UTC day, ISO week, month, or once for setup) and start fresh in the next. *Automatic* tasks are checked by the platform (`Services/SuperAdmin/Operations/Checks`): scheduler heartbeat, system health, backups, failed jobs, stuck work, open alerts, failing Stripe events, audit-log integrity, and an open maintenance window. They cannot be ticked.
+- **Status.** A manual task is `due` until its deadline (`due_after_hours` from the start of the period, or from when it was added if later), then `overdue`. An automatic check maps all clear to `done`, a warning to `due` and a failure to `overdue`.
+- **Built-in tasks** live in `TaskCatalog` and are added by the migration; `php artisan operations:sync-tasks` adds new ones after a deploy without touching existing ones.
+- **Reminders.** `operations:digest` runs each morning (`OPERATIONS_DIGEST_AT`, UTC) and sends what needs attention through the admin alert channels. It sends nothing when all is done.
+- Every tick, undo, snooze and edit is written to the audit log.
+
 ### 11.12 Impersonation (v2, optional)
 `POST /users/{id}/impersonate` **S**, requires reason ≥ 20 chars, issues a user token with a distinct `impersonated_by` claim, 15-minute TTL, read-only unless `write: true` and owner role, banner header for the frontend, audited at start and end, and Internal-API middleware refuses billing/security changes (password, email, 2FA, API keys) while impersonated. Do not build until the rest is stable.
 

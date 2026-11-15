@@ -105,7 +105,7 @@ class ForecastService
             ->where('date', '>=', $since->toDateString())
             ->selectRaw('workspace_id, sum(credits_used) as credits')
             ->groupBy('workspace_id')
-            ->having('credits', '>', 0)
+            ->havingRaw('sum(credits_used) > 0')
             ->pluck('credits', 'workspace_id');
 
         $results = [];
