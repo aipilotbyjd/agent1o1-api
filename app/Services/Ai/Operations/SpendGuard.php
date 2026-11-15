@@ -2,12 +2,14 @@
 
 namespace App\Services\Ai\Operations;
 
+use App\Models\Ai\AiCallEvent;
 use App\Models\Ai\ModelUsageDaily;
 use App\Models\Workspaces\Workspace;
 use App\Services\Billing\CostGuard;
 use App\Services\Billing\SpendControls;
 use App\Services\SuperAdmin\Alerts\SuperAdminAlerter;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Watches what the platform pays model providers, from the daily rollup, and
@@ -32,7 +34,7 @@ class SpendGuard
      */
     public function findings(): array
     {
-        return [...$this->budgetFindings(), ...$this->workspaceFindings()];
+        return [...$this->budgetFindings(), ...$this->workspaceFindings(), ...$this->hourlyFindings(), ...$this->marginFindings()];
     }
 
     /**
@@ -44,9 +46,10 @@ class SpendGuard
         $raised = 0;
 
         foreach ($this->findings() as $finding) {
-            $key = 'model-spend-alert:'.today()->toDateString().':'.$finding['code'].':'.($finding['workspace_id'] ?? 'platform');
+            $hourly = $finding['code'] === 'workspace_over_hourly_limit';
+            $key = 'model-spend-alert:'.($hourly ? now()->format('Y-m-d-H') : today()->toDateString()).':'.$finding['code'].':'.($finding['workspace_id'] ?? 'platform');
 
-            if (! Cache::add($key, true, now()->endOfDay())) {
+            if (! Cache::add($key, true, $hourly ? now()->endOfHour() : now()->endOfDay())) {
                 continue;
             }
 
@@ -156,6 +159,73 @@ class SpendGuard
         }
 
         return $findings;
+    }
+
+    /**
+     * A workspace whose provider cost in the last hour passed the hourly limit
+     * (`model_operations.workspace.hourly_usd`), from the call ledger so it
+     * shows within minutes instead of at the next rollup.
+     *
+     * @return list<array{code: string, severity: string, message: string, workspace_id: ?string, alert: string}>
+     */
+    private function hourlyFindings(): array
+    {
+        $limit = config('model_operations.workspace.hourly_usd');
+
+        if (! is_numeric($limit) || $limit <= 0) {
+            return [];
+        }
+
+        $rows = AiCallEvent::query()
+            ->where('occurred_at', '>=', now()->subHour())
+            ->where('is_byok', false)
+            ->whereNotNull('workspace_id')
+            ->selectRaw('workspace_id, sum(provider_cost_usd) as cost')
+            ->groupBy('workspace_id')
+            ->havingRaw('sum(provider_cost_usd) >= '.number_format((float) $limit, 6, '.', ''))
+            ->toBase()
+            ->get();
+
+        $names = Workspace::query()->whereIn('id', $rows->pluck('workspace_id'))->pluck('name', 'id');
+
+        return $rows->map(fn (object $row): array => $this->finding('workspace_over_hourly_limit', 'spend_spike', sprintf('Workspace "%s" has cost $%.2f in the last hour, over the $%.2f a workspace should cost in an hour.', $names[$row->workspace_id] ?? $row->workspace_id, (float) $row->cost, (float) $limit), $row->workspace_id))->all();
+    }
+
+    /**
+     * A paying workspace whose provider cost this month is heading above what
+     * its plan brings in: cost has reached `margin_cost_ratio` of what it paid
+     * after the card fee, once it is also past `margin_min_usd`. Read from the
+     * daily facts, so it is as fresh as their last rebuild.
+     *
+     * @return list<array{code: string, severity: string, message: string, workspace_id: ?string, alert: string}>
+     */
+    private function marginFindings(): array
+    {
+        $ratio = config('model_operations.workspace.margin_cost_ratio');
+
+        if (! is_numeric($ratio) || $ratio <= 0) {
+            return [];
+        }
+
+        $minimum = (float) config('model_operations.workspace.margin_min_usd');
+        $feeRate = (float) config('billing.margin_floor.payment_fee_rate', 0);
+
+        $rows = DB::table('fact_workspace_daily')
+            ->whereBetween('date', [today()->startOfMonth()->toDateString(), today()->toDateString()])
+            ->selectRaw('workspace_id, sum(revenue_usd) as revenue, sum(provider_cost_usd) as cost')
+            ->groupBy('workspace_id')
+            ->havingRaw('max(case when is_paying then 1 else 0 end) = 1')
+            ->havingRaw('sum(provider_cost_usd) >= '.number_format($minimum, 6, '.', ''))
+            ->get()
+            ->filter(fn (object $row): bool => (float) $row->cost >= (float) $ratio * (float) $row->revenue * (1 - $feeRate));
+
+        $names = Workspace::query()->whereIn('id', $rows->pluck('workspace_id'))->pluck('name', 'id');
+
+        return $rows->map(function (object $row) use ($names, $feeRate): array {
+            $net = (float) $row->revenue * (1 - $feeRate);
+
+            return $this->finding('workspace_over_margin', 'spend_spike', sprintf('Workspace "%s" has cost $%.2f this month against $%.2f it has paid after fees (%s of it).', $names[$row->workspace_id] ?? $row->workspace_id, (float) $row->cost, $net, $net > 0 ? round((float) $row->cost / $net * 100).'%' : 'all'), $row->workspace_id);
+        })->values()->all();
     }
 
     /**
