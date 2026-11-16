@@ -275,12 +275,37 @@ class OnboardingService
         }
 
         $current = $user->onboarding_current_step ?? OnboardingStep::first();
+        $target = $this->heldAtAccountSetup($user, $step, $current, $step->next() ?? $step);
 
-        if ($this->ordinal($step) < $this->ordinal($current)) {
-            return;
+        if ($this->ordinal($target) > $this->ordinal($current)) {
+            $user->update(['onboarding_current_step' => $target]);
+        }
+    }
+
+    /**
+     * Saved progress means "everything before this is behind me", and a plan
+     * counts as chosen once progress is past it. So finishing a later step
+     * first (answering the survey, say) must not carry progress over a
+     * workspace or plan step that is still open: it stops there instead.
+     */
+    private function heldAtAccountSetup(User $user, OnboardingStep $step, OnboardingStep $current, OnboardingStep $target): OnboardingStep
+    {
+        foreach ([OnboardingStep::CreateWorkspace, OnboardingStep::ChoosePlan] as $required) {
+            if ($this->ordinal($required) >= $this->ordinal($target)) {
+                break;
+            }
+
+            $isBehind = $required === $step || $this->ordinal($required) < $this->ordinal($current);
+            $isDone = $required === OnboardingStep::CreateWorkspace
+                ? $user->current_workspace_id !== null
+                : $this->hasPlan($user);
+
+            if (! $isBehind && ! $isDone) {
+                return $required;
+            }
         }
 
-        $user->update(['onboarding_current_step' => $step->next() ?? $step]);
+        return $target;
     }
 
     private function ordinal(OnboardingStep $step): int
