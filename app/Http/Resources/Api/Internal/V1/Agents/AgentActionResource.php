@@ -2,7 +2,10 @@
 
 namespace App\Http\Resources\Api\Internal\V1\Agents;
 
+use App\Authorization\WorkspaceContext;
+use App\Enums\Workspaces\Permission;
 use App\Models\Agents\AgentAction;
+use App\Services\Agents\Approvals\ActionApprovers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Str;
@@ -45,6 +48,7 @@ class AgentActionResource extends JsonResource
             'review_reason' => $this->review['reason'] ?? null,
             'result' => $this->result === null ? null : Str::limit($this->result, self::RESULT_LIMIT),
             'approvers' => $this->approvers,
+            'can_decide' => $this->viewerCanDecide($request),
             'requested_at' => $this->requested_at,
             'expires_at' => $this->expires_at,
             'decided_by' => $this->decided_by,
@@ -67,5 +71,22 @@ class AgentActionResource extends JsonResource
             ]),
             'created_at' => $this->created_at,
         ];
+    }
+
+    /**
+     * Whether the person asking may approve or reject this action: the same
+     * rule the decision endpoints enforce, so the app only offers the buttons
+     * to someone they will work for.
+     */
+    private function viewerCanDecide(Request $request): bool
+    {
+        $user = $request->user();
+        $role = app()->bound(WorkspaceContext::class) ? app(WorkspaceContext::class)->role : null;
+
+        if ($user === null || $role === null || ! $role->has(Permission::AgentChat)) {
+            return false;
+        }
+
+        return app(ActionApprovers::class)->canDecideAs($user, $role, $this->resource);
     }
 }
