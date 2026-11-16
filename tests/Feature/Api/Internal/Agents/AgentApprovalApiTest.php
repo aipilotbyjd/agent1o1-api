@@ -149,6 +149,22 @@ it('forbids a plain member from deciding someone else\'s action', function () {
     Http::assertNothingSent();
 });
 
+it('tells each viewer whether they may decide a waiting action', function () {
+    ($this->pause)();
+    $url = "{$this->base}/agent-actions";
+
+    $this->getJson($url)->assertOk()->assertJsonPath('data.0.can_decide', true);
+
+    Passport::actingAs(($this->addMember)(Role::Editor));
+    $this->getJson($url)->assertOk()->assertJsonPath('data.0.can_decide', true);
+
+    Passport::actingAs(($this->addMember)(Role::Member));
+    $this->getJson($url)->assertOk()->assertJsonPath('data.0.can_decide', false);
+
+    Passport::actingAs(($this->addMember)(Role::Viewer));
+    $this->getJson($url)->assertOk()->assertJsonPath('data.0.can_decide', false);
+});
+
 it('lets an editor decide, and remembers "always allow" only for someone who manages agents', function () {
     ($this->pause)();
     Passport::actingAs(($this->addMember)(Role::Editor));

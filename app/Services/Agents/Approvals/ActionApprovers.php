@@ -24,13 +24,17 @@ class ActionApprovers
 {
     public function canDecide(User $user, AgentAction $action): bool
     {
-        $workspace = $action->workspace;
-        $role = WorkspaceContext::resolveRole($workspace, $user);
+        $role = WorkspaceContext::resolveRole($action->workspace, $user);
 
-        if ($role === null) {
-            return false;
-        }
+        return $role !== null && $this->canDecideAs($user, $role, $action);
+    }
 
+    /**
+     * The same rule for a role already resolved, so a list of actions can be
+     * checked without looking the membership up for each one.
+     */
+    public function canDecideAs(User $user, Role $role, AgentAction $action): bool
+    {
         // A question is for the person in the conversation, not an approver.
         if ($action->tool_kind === ActionToolKind::Question) {
             return $action->session?->user_id === $user->id;
