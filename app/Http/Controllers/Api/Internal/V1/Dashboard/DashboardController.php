@@ -10,6 +10,7 @@ use App\Http\Responses\ApiResponse;
 use App\Models\Workspaces\Workspace;
 use App\Services\Dashboard\DashboardMetrics;
 use App\Services\Dashboard\DashboardWindow;
+use App\Services\Dashboard\GettingStarted;
 use App\Services\Workflows\NodeTester;
 
 class DashboardController extends Controller
@@ -21,7 +22,10 @@ class DashboardController extends Controller
      */
     private const int RECENT_RUNS = 5;
 
-    public function __construct(private readonly DashboardMetrics $metrics) {}
+    public function __construct(
+        private readonly DashboardMetrics $metrics,
+        private readonly GettingStarted $gettingStarted,
+    ) {}
 
     /**
      * The whole home screen in one read, the way `BillingController::overview`
@@ -33,6 +37,10 @@ class DashboardController extends Controller
      * and deliberately are not: a run stuck since last week and an approval
      * nobody has actioned are the two things a dashboard exists to surface,
      * and a window would hide exactly the oldest, worst cases.
+     *
+     * `getting_started` is the checklist a new workspace works through; like
+     * `counts` it is current-state, since "has this workspace ever run a
+     * workflow" has no window.
      *
      * `credits` is null when the caller can't view billing. Every workspace
      * role can today, so in practice it is always present; it degrades rather
@@ -53,6 +61,7 @@ class DashboardController extends Controller
             'pending_agent_actions' => $this->metrics->pendingAgentActions($workspace)->count(),
             'credits' => $this->credits($request, $workspace, $window),
             'counts' => $this->counts($workspace),
+            'getting_started' => $this->gettingStarted->for($workspace, $request->user()),
             'recent_runs' => RunResource::collection(
                 $workspace->runs()
                     ->whereNull('parent_run_id')

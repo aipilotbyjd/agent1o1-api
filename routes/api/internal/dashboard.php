@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Internal\V1\Dashboard\CreditUsageController;
 use App\Http\Controllers\Api\Internal\V1\Dashboard\DashboardController;
+use App\Http\Controllers\Api\Internal\V1\Dashboard\GettingStartedController;
 use App\Http\Controllers\Api\Internal\V1\Dashboard\PendingApprovalController;
 use App\Http\Controllers\Api\Internal\V1\Dashboard\RunStatsController;
 use Illuminate\Support\Facades\Route;
@@ -15,4 +16,5 @@ Route::middleware(['auth:api', 'workspace.context'])
         Route::get('run-stats', [RunStatsController::class, 'index'])->name('run-stats.index');
         Route::get('credit-usage', [CreditUsageController::class, 'index'])->name('credit-usage.index');
         Route::get('pending-approvals', [PendingApprovalController::class, 'index'])->name('pending-approvals.index');
+        Route::post('getting-started/dismiss', [GettingStartedController::class, 'dismiss'])->name('getting-started.dismiss');
     });

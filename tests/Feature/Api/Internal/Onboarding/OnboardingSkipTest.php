@@ -27,7 +27,7 @@ it('moves past a skipped step and records it as skipped, not completed', functio
         ->postJson('/api/v1/onboarding/skip', ['step' => 'connect_apps'])
         ->assertOk()
         ->assertJsonPath('message', 'Step skipped.')
-        ->assertJsonPath('data.current_step', 'discovery_survey');
+        ->assertJsonPath('data.current_step', 'invite_team');
 
     $plan = collect($response->json('data.steps'))->firstWhere('key', 'connect_apps');
 
@@ -48,7 +48,7 @@ it('does not send the user back to a skipped step at the next sign-in', function
     $this->withToken($second['access_token'])
         ->getJson('/api/v1/user/onboarding')
         ->assertOk()
-        ->assertJsonPath('data.current_step', 'discovery_survey');
+        ->assertJsonPath('data.current_step', 'invite_team');
 });
 
 it('records a step once however many times it is skipped', function () {
@@ -73,7 +73,7 @@ it('clears the skipped mark when the step is finished later', function () {
 
     $response = $client->postJson('/api/v1/onboarding/continue', ['step' => 'connect_apps'])
         ->assertOk()
-        ->assertJsonPath('data.current_step', 'discovery_survey');
+        ->assertJsonPath('data.current_step', 'invite_team');
 
     $plan = collect($response->json('data.steps'))->firstWhere('key', 'connect_apps');
 
@@ -91,7 +91,21 @@ it('refuses to skip the account setup steps', function (string $step) {
         ->assertStatus(422);
 
     expect($user->fresh()->onboarding_skipped_steps)->toBeNull();
-})->with(['profile_picture', 'create_workspace', 'choose_plan']);
+})->with(['create_workspace', 'choose_plan']);
+
+it('lets the profile picture be postponed', function () {
+    $user = onboardingSkipUser(OnboardingStep::ProfilePicture);
+    $tokens = onboardingSkipTokens($user->email, 'Password1!');
+
+    $response = $this->withToken($tokens['access_token'])
+        ->postJson('/api/v1/onboarding/skip', ['step' => 'profile_picture'])
+        ->assertOk();
+
+    $picture = collect($response->json('data.steps'))->firstWhere('key', 'profile_picture');
+
+    expect($picture['skipped'])->toBeTrue()
+        ->and($picture['completed'])->toBeFalse();
+});
 
 it('rejects an unknown step', function () {
     $user = onboardingSkipUser(OnboardingStep::ConnectApps);

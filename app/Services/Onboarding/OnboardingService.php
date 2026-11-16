@@ -29,7 +29,7 @@ class OnboardingService
      */
     public function state(User $user): array
     {
-        $currentStep = $user->onboarding_current_step ?? OnboardingStep::ProfilePicture;
+        $currentStep = $user->onboarding_current_step ?? OnboardingStep::first();
 
         $steps = collect(OnboardingStep::cases())->map(fn (OnboardingStep $step) => [
             'key' => $step->value,
@@ -117,7 +117,7 @@ class OnboardingService
         );
 
         abort_if(
-            $step === OnboardingStep::ChoosePlan && ! $this->isStepCompleted($user, $step, $user->onboarding_current_step ?? OnboardingStep::ProfilePicture),
+            $step === OnboardingStep::ChoosePlan && ! $this->isStepCompleted($user, $step, $user->onboarding_current_step ?? OnboardingStep::first()),
             422,
             'Choose a plan before continuing.',
         );
@@ -172,7 +172,7 @@ class OnboardingService
     {
         abort_if($user->current_workspace_id === null, 422, 'Create a workspace to finish onboarding.');
 
-        $current = $user->onboarding_current_step ?? OnboardingStep::ProfilePicture;
+        $current = $user->onboarding_current_step ?? OnboardingStep::first();
 
         abort_unless($this->isStepCompleted($user, OnboardingStep::ChoosePlan, $current), 422, 'Choose a plan to finish onboarding.');
     }
@@ -274,7 +274,7 @@ class OnboardingService
             $user->update(['onboarding_skipped_steps' => $this->toValues($remaining)]);
         }
 
-        $current = $user->onboarding_current_step ?? OnboardingStep::ProfilePicture;
+        $current = $user->onboarding_current_step ?? OnboardingStep::first();
 
         if ($this->ordinal($step) < $this->ordinal($current)) {
             return;
