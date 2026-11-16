@@ -52,6 +52,19 @@ it('returns run totals, in-flight state and entity counts in one read', function
     expect($response->json('data.window.days'))->toBe(30);
 });
 
+it('names the workflow behind each recent run, even after it is deleted', function () {
+    [$workspace, $owner] = [$this->workspace, $this->owner];
+    $workflow = Workflow::factory()->forWorkspace($workspace)->create(['name' => 'Lead enrichment']);
+    Run::factory()->forWorkflow($workflow)->create(['status' => RunStatus::Failed]);
+    $workflow->delete();
+
+    Passport::actingAs($owner);
+
+    $this->getJson("/api/v1/workspaces/{$workspace->id}/dashboard")
+        ->assertOk()
+        ->assertJsonPath('data.recent_runs.0.workflow.name', 'Lead enrichment');
+});
+
 it('leaves success_rate null until something has finished', function () {
     [$workspace, $owner] = [$this->workspace, $this->owner];
     $workflow = Workflow::factory()->forWorkspace($workspace)->create();
