@@ -16,21 +16,21 @@ function onboardingContinueUser(array $attributes = []): User
     return User::factory()->create(['password' => 'Password1!', ...$attributes]);
 }
 
-it('saves the profile picture step so the next sign-in resumes at the workspace step', function () {
-    $user = onboardingContinueUser(['avatar' => 'avatars/logo.png']);
+it('saves a continued step so the next sign-in resumes after it', function () {
+    $user = onboardingContinueUser(['onboarding_current_step' => OnboardingStep::RoleSelection]);
 
     $first = onboardingContinueTokens($user->email, 'Password1!');
     $this->withToken($first['access_token'])
-        ->postJson('/api/v1/onboarding/continue', ['step' => 'profile_picture'])
+        ->postJson('/api/v1/onboarding/continue', ['step' => 'role_selection'])
         ->assertOk()
         ->assertJsonPath('message', 'Progress saved.')
-        ->assertJsonPath('data.current_step', 'create_workspace');
+        ->assertJsonPath('data.current_step', 'choose_plan');
 
     $second = onboardingContinueTokens($user->email, 'Password1!');
     $this->withToken($second['access_token'])
         ->getJson('/api/v1/user/onboarding')
         ->assertOk()
-        ->assertJsonPath('data.current_step', 'create_workspace');
+        ->assertJsonPath('data.current_step', 'choose_plan');
 });
 
 it('does not let the profile picture step continue without a picture', function () {
@@ -42,7 +42,7 @@ it('does not let the profile picture step continue without a picture', function 
         ->assertStatus(422)
         ->assertJsonPath('message', 'Add a profile picture before continuing.');
 
-    expect($user->fresh()->onboarding_current_step)->toBe(OnboardingStep::ProfilePicture);
+    expect($user->fresh()->onboarding_current_step)->toBe(OnboardingStep::CreateWorkspace);
 });
 
 it('does not let the workspace step continue without a workspace', function () {
@@ -68,7 +68,7 @@ it('saves the workspace step once a workspace exists', function () {
 
     $client->postJson('/api/v1/onboarding/continue', ['step' => 'create_workspace'])
         ->assertOk()
-        ->assertJsonPath('data.current_step', 'invite_team');
+        ->assertJsonPath('data.current_step', 'role_selection');
 });
 
 it('saves a step that collects nothing, such as connect apps', function () {
@@ -78,15 +78,15 @@ it('saves a step that collects nothing, such as connect apps', function () {
     $this->withToken($tokens['access_token'])
         ->postJson('/api/v1/onboarding/continue', ['step' => 'connect_apps'])
         ->assertOk()
-        ->assertJsonPath('data.current_step', 'discovery_survey');
+        ->assertJsonPath('data.current_step', 'invite_team');
 });
 
 it('never moves progress backwards', function () {
-    $user = onboardingContinueUser(['onboarding_current_step' => OnboardingStep::ChoosePlan, 'avatar' => 'avatars/logo.png']);
+    $user = onboardingContinueUser(['onboarding_current_step' => OnboardingStep::ChoosePlan]);
     $tokens = onboardingContinueTokens($user->email, 'Password1!');
 
     $this->withToken($tokens['access_token'])
-        ->postJson('/api/v1/onboarding/continue', ['step' => 'profile_picture'])
+        ->postJson('/api/v1/onboarding/continue', ['step' => 'role_selection'])
         ->assertOk()
         ->assertJsonPath('data.current_step', 'choose_plan');
 });

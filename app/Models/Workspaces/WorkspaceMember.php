@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['workspace_id', 'user_id', 'role', 'invited_by', 'joined_at'])]
+#[Fillable(['workspace_id', 'user_id', 'role', 'invited_by', 'joined_at', 'getting_started_dismissed_at'])]
 class WorkspaceMember extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
@@ -21,6 +21,7 @@ class WorkspaceMember extends Model
         return [
             'role' => Role::class,
             'joined_at' => 'datetime',
+            'getting_started_dismissed_at' => 'datetime',
         ];
     }
 

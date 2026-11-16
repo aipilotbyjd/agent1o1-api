@@ -38,7 +38,7 @@ it('returns the onboarding state shape with meta', function () {
                 ],
             ],
         ])
-        ->assertJsonPath('data.current_step', 'profile_picture')
+        ->assertJsonPath('data.current_step', 'create_workspace')
         ->assertJsonPath('data.percent', 0)
         ->assertJsonPath('data.completed', false)
         ->assertJsonPath('data.dismissed', false);

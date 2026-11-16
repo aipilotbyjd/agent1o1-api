@@ -46,4 +46,25 @@ enum JobRole: string
             self::Finance => 'Sync invoice systems with data sheets.',
         };
     }
+
+    /**
+     * The template categories to suggest first to someone in this role, most
+     * relevant first. Roles with no category of their own borrow the nearest.
+     *
+     * @return array<int, string>
+     */
+    public function templateCategories(): array
+    {
+        return match ($this) {
+            self::Sales => ['Sales & Outreach'],
+            self::Marketing => ['Marketing & Content'],
+            self::Operations => ['Productivity & Ops', 'Data & Analytics'],
+            self::Support => ['Support & Success'],
+            self::Engineering, self::Security => ['Engineering & IT'],
+            self::Product => ['Productivity & Ops', 'Data & Analytics'],
+            self::HR => ['HR & Recruiting'],
+            self::Legal => ['Legal & Compliance'],
+            self::Finance => ['Finance & Accounting'],
+        };
+    }
 }
