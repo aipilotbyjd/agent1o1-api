@@ -11,19 +11,18 @@ function onboardingFlowTokens(string $email, string $password): array
     ])->json('data.tokens');
 }
 
-it('walks through all seven onboarding steps in order', function () {
+it('walks through the onboarding steps in order', function () {
     Plan::factory()->create(['slug' => 'free', 'is_active' => true]);
 
     $user = User::factory()->create(['password' => 'Password1!']);
     $tokens = onboardingFlowTokens($user->email, 'Password1!');
     $client = $this->withToken($tokens['access_token']);
 
-    // Step 0: profile_picture: no dedicated onboarding endpoint, avatar upload advances it implicitly via data only.
     $client->getJson('/api/v1/user/onboarding')
         ->assertOk()
-        ->assertJsonPath('data.current_step', 'profile_picture');
+        ->assertJsonPath('data.current_step', 'create_workspace');
 
-    // Step 1: create_workspace
+    // create_workspace
     $workspaceId = $client->postJson('/api/v1/workspaces', ['name' => 'Acme Inc'])
         ->assertCreated()
         ->json('data.workspace.id');
@@ -31,35 +30,42 @@ it('walks through all seven onboarding steps in order', function () {
     $client->postJson('/api/v1/user/switch-workspace', ['workspace_id' => $workspaceId])
         ->assertOk();
 
-    // Step 2: invite_team
+    $client->postJson('/api/v1/onboarding/continue', ['step' => 'create_workspace'])
+        ->assertOk()
+        ->assertJsonPath('data.current_step', 'role_selection');
+
+    // role_selection
+    $client->postJson('/api/v1/onboarding/role', ['job_role' => 'engineering'])
+        ->assertOk()
+        ->assertJsonPath('data.current_step', 'choose_plan');
+
+    // choose_plan
+    $client->postJson('/api/v1/onboarding/plan', ['plan_slug' => 'free'])
+        ->assertOk()
+        ->assertJsonPath('data.current_step', 'connect_ai');
+
+    // connect_ai is skippable; the member starts on the free model.
+    $client->postJson('/api/v1/onboarding/skip', ['step' => 'connect_ai'])
+        ->assertOk()
+        ->assertJsonPath('data.current_step', 'connect_apps');
+
+    // connect_apps collects nothing of its own.
+    $client->postJson('/api/v1/onboarding/continue', ['step' => 'connect_apps'])
+        ->assertOk()
+        ->assertJsonPath('data.current_step', 'invite_team');
+
+    // invite_team
     $client->postJson('/api/v1/onboarding/invite-team', [
         'emails' => ['teammate@example.com'],
         'role' => 'member',
     ])
         ->assertOk()
-        ->assertJsonPath('data.current_step', 'role_selection');
+        ->assertJsonPath('data.current_step', 'discovery_survey');
 
-    // Step 3: role_selection
-    $client->postJson('/api/v1/onboarding/role', ['job_role' => 'engineering'])
-        ->assertOk()
-        ->assertJsonPath('data.current_step', 'choose_plan');
-
-    // Step 4: choose_plan
-    $client->postJson('/api/v1/onboarding/plan', ['plan_slug' => 'free'])
-        ->assertOk()
-        ->assertJsonPath('data.current_step', 'connect_ai');
-
-    // Step 5: connect_ai is skippable; the member starts on the free model.
-    $client->postJson('/api/v1/onboarding/skip', ['step' => 'connect_ai'])
-        ->assertOk()
-        ->assertJsonPath('data.current_step', 'connect_apps');
-
-    // Step 6: connect_apps has no backend call; jump straight to discovery.
-
-    // Step 7: discovery_survey
+    // discovery_survey leaves only the optional profile picture.
     $response = $client->postJson('/api/v1/onboarding/discovery', ['discovery_source' => 'google_search'])
         ->assertOk()
-        ->assertJsonPath('data.current_step', 'discovery_survey');
+        ->assertJsonPath('data.current_step', 'profile_picture');
 
     expect($response->json('data.completed'))->toBeFalse();
 

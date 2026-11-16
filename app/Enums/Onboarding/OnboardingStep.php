@@ -2,16 +2,30 @@
 
 namespace App\Enums\Onboarding;
 
+/**
+ * The onboarding wizard's steps, in the order they are shown. The two that set
+ * the account up (workspace, plan) come as early as they can; everything after
+ * the plan is optional, and the profile picture is last because nothing else
+ * depends on it.
+ */
 enum OnboardingStep: string
 {
-    case ProfilePicture = 'profile_picture';
     case CreateWorkspace = 'create_workspace';
-    case InviteTeam = 'invite_team';
     case RoleSelection = 'role_selection';
     case ChoosePlan = 'choose_plan';
     case ConnectAi = 'connect_ai';
     case ConnectApps = 'connect_apps';
+    case InviteTeam = 'invite_team';
     case DiscoverySurvey = 'discovery_survey';
+    case ProfilePicture = 'profile_picture';
+
+    /**
+     * Where a user who has not started yet is.
+     */
+    public static function first(): self
+    {
+        return self::cases()[0];
+    }
 
     public function label(): string
     {
@@ -42,11 +56,11 @@ enum OnboardingStep: string
     }
 
     /**
-     * Profile picture, workspace and plan set the account up and cannot be postponed.
+     * Workspace and plan set the account up and cannot be postponed.
      */
     public function isSkippable(): bool
     {
-        return ! in_array($this, [self::ProfilePicture, self::CreateWorkspace, self::ChoosePlan], strict: true);
+        return ! in_array($this, [self::CreateWorkspace, self::ChoosePlan], strict: true);
     }
 
     public function next(): ?self
