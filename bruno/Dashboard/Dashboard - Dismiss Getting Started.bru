@@ -1,0 +1,27 @@
+meta {
+  name: Dashboard - Dismiss Getting Started
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/dashboard/getting-started/dismiss
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Hides the getting-started checklist for the caller in this workspace only;
+  other members still see it. Requires `run.view`.
+
+  The checklist itself comes back on `Dashboard - Overview` as
+  `getting_started: { dismissed, completed, milestones: [{ key, label,
+  description, completed }], recommended_templates }`. Milestones are read off
+  what the workspace has done, so they can't be set from here.
+
+  Responds `204 No Content` with no envelope.
+}
