@@ -2,6 +2,7 @@
 
 use App\Models\Billing\Plan;
 use App\Models\User;
+use App\Services\Workspaces\WorkspaceService;
 
 function onboardingFlowTokens(string $email, string $password): array
 {
@@ -75,4 +76,33 @@ it('walks through the onboarding steps in order', function () {
 
     $user->refresh();
     expect($user->onboarding_completed_at)->not->toBeNull();
+});
+
+it('does not let a later step carry progress past an open workspace step', function () {
+    $user = User::factory()->create(['password' => 'Password1!']);
+    $tokens = onboardingFlowTokens($user->email, 'Password1!');
+
+    $this->withToken($tokens['access_token'])
+        ->postJson('/api/v1/onboarding/discovery', ['discovery_source' => 'google_search'])
+        ->assertOk()
+        ->assertJsonPath('data.current_step', 'create_workspace');
+});
+
+it('does not count the plan as chosen because a later step was finished first', function () {
+    $user = User::factory()->create(['password' => 'Password1!']);
+    app(WorkspaceService::class)->create($user, ['name' => 'Acme']);
+    $tokens = onboardingFlowTokens($user->email, 'Password1!');
+    $client = $this->withToken($tokens['access_token']);
+
+    $response = $client->postJson('/api/v1/onboarding/discovery', ['discovery_source' => 'google_search'])
+        ->assertOk()
+        ->assertJsonPath('data.current_step', 'choose_plan');
+
+    expect(collect($response->json('data.steps'))->firstWhere('key', 'choose_plan')['completed'])->toBeFalse();
+
+    $client->postJson('/api/v1/onboarding/complete')->assertUnprocessable();
+    $client->postJson('/api/v1/user/dismiss-onboarding')->assertUnprocessable();
+
+    expect($user->fresh()->onboarding_completed_at)->toBeNull()
+        ->and($user->fresh()->onboarding_dismissed_at)->toBeNull();
 });

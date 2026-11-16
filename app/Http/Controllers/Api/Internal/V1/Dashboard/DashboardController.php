@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Internal\V1\Dashboard\DashboardWindowRequest;
 use App\Http\Resources\Api\Internal\V1\Runs\RunResource;
 use App\Http\Responses\ApiResponse;
+use App\Models\Runs\Run;
 use App\Models\Workspaces\Workspace;
 use App\Services\Dashboard\DashboardMetrics;
 use App\Services\Dashboard\DashboardWindow;
@@ -38,6 +39,9 @@ class DashboardController extends Controller
      * nobody has actioned are the two things a dashboard exists to surface,
      * and a window would hide exactly the oldest, worst cases.
      *
+     * Each of `recent_runs` names its workflow or agent, so a failure on the
+     * home screen says what failed without a second request.
+     *
      * `getting_started` is the checklist a new workspace works through; like
      * `counts` it is current-state, since "has this workspace ever run a
      * workflow" has no window.
@@ -66,7 +70,7 @@ class DashboardController extends Controller
                 $workspace->runs()
                     ->whereNull('parent_run_id')
                     ->where('trigger_type', '!=', NodeTester::TRIGGER_TYPE)
-                    ->with('nodeRuns.creditTransaction')
+                    ->with(['nodeRuns.creditTransaction', ...Run::withOwnerNames()])
                     ->latest()
                     ->limit(self::RECENT_RUNS)
                     ->get(),
