@@ -31,16 +31,25 @@ class OAuthConnectorState extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<Connector, $this>
+     */
     public function connector(): BelongsTo
     {
         return $this->belongsTo(Connector::class);

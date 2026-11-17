@@ -39,11 +39,17 @@ class WorkspaceModelSettings extends Model
             ?? new self(['workspace_id' => $workspaceId]);
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<ModelCatalog, $this>
+     */
     public function defaultModel(): BelongsTo
     {
         return $this->belongsTo(ModelCatalog::class, 'default_model_catalog_id');

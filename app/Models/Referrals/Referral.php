@@ -58,41 +58,65 @@ class Referral extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<ReferralProgram, $this>
+     */
     public function program(): BelongsTo
     {
         return $this->belongsTo(ReferralProgram::class, 'program_id')->withTrashed();
     }
 
+    /**
+     * @return BelongsTo<ReferralCode, $this>
+     */
     public function code(): BelongsTo
     {
         return $this->belongsTo(ReferralCode::class, 'referral_code_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function referrer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'referrer_user_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function referredUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'referred_user_id');
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function referredWorkspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class, 'referred_workspace_id');
     }
 
+    /**
+     * @return BelongsTo<ReferralVisit, $this>
+     */
     public function visit(): BelongsTo
     {
         return $this->belongsTo(ReferralVisit::class, 'visit_id');
     }
 
+    /**
+     * @return HasMany<ReferralReward, $this>
+     */
     public function rewards(): HasMany
     {
         return $this->hasMany(ReferralReward::class);
     }
 
+    /**
+     * @return HasMany<ReferralPayment, $this>
+     */
     public function payments(): HasMany
     {
         return $this->hasMany(ReferralPayment::class);

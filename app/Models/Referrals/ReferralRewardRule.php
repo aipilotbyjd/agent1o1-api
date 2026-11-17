@@ -103,6 +103,9 @@ class ReferralRewardRule extends Model
         static::restored(fn () => ReferralSettings::flush());
     }
 
+    /**
+     * @return BelongsTo<ReferralProgram, $this>
+     */
     public function program(): BelongsTo
     {
         return $this->belongsTo(ReferralProgram::class, 'program_id');

@@ -23,11 +23,17 @@ class TemplateCollectionItem extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<TemplateCollection, $this>
+     */
     public function collection(): BelongsTo
     {
         return $this->belongsTo(TemplateCollection::class, 'collection_id');
     }
 
+    /**
+     * @return MorphTo<Model, $this>
+     */
     public function templatable(): MorphTo
     {
         return $this->morphTo();

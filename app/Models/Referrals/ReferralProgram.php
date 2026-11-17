@@ -130,16 +130,25 @@ class ReferralProgram extends Model
         static::restored(fn () => ReferralSettings::flush());
     }
 
+    /**
+     * @return HasMany<ReferralRewardRule, $this>
+     */
     public function rules(): HasMany
     {
         return $this->hasMany(ReferralRewardRule::class, 'program_id')->orderBy('sort_order');
     }
 
+    /**
+     * @return HasMany<ReferralCode, $this>
+     */
     public function codes(): HasMany
     {
         return $this->hasMany(ReferralCode::class, 'program_id');
     }
 
+    /**
+     * @return HasMany<Referral, $this>
+     */
     public function referrals(): HasMany
     {
         return $this->hasMany(Referral::class, 'program_id');

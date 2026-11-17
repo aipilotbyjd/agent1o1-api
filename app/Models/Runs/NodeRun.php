@@ -82,11 +82,17 @@ class NodeRun extends Model
         return $moved;
     }
 
+    /**
+     * @return BelongsTo<Run, $this>
+     */
     public function run(): BelongsTo
     {
         return $this->belongsTo(Run::class);
     }
 
+    /**
+     * @return HasOne<WorkflowApproval, $this>
+     */
     public function approval(): HasOne
     {
         return $this->hasOne(WorkflowApproval::class);
@@ -95,6 +101,8 @@ class NodeRun extends Model
     /**
      * Child `runs` started against this `NodeRun` as their `parent_node_id`:
      * a `subflow` node has one, a `loop` node has one per item.
+     *
+     * @return HasMany<Run, $this>
      */
     public function childRuns(): HasMany
     {
@@ -108,6 +116,8 @@ class NodeRun extends Model
      * real Eloquent morph (it's a `CreditTransactionType` string, not a
      * class name), so this pins the type explicitly rather than using
      * `morphOne`.
+     *
+     * @return HasOne<CreditTransaction, $this>
      */
     public function creditTransaction(): HasOne
     {

@@ -52,26 +52,41 @@ class Reflection extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<Agent, $this>
+     */
     public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
     }
 
+    /**
+     * @return BelongsTo<ReflectionRun, $this>
+     */
     public function reflectionRun(): BelongsTo
     {
         return $this->belongsTo(ReflectionRun::class);
     }
 
+    /**
+     * @return BelongsTo<Skill, $this>
+     */
     public function targetSkill(): BelongsTo
     {
         return $this->belongsTo(Skill::class, 'target_skill_id');
     }
 
+    /**
+     * @return BelongsTo<Run, $this>
+     */
     public function appliedRun(): BelongsTo
     {
         return $this->belongsTo(Run::class, 'applied_run_id');

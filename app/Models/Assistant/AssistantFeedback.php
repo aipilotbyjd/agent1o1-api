@@ -39,11 +39,17 @@ class AssistantFeedback extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Assistant, $this>
+     */
     public function assistant(): BelongsTo
     {
         return $this->belongsTo(Assistant::class);
     }
 
+    /**
+     * @return BelongsTo<AssistantMessage, $this>
+     */
     public function message(): BelongsTo
     {
         return $this->belongsTo(AssistantMessage::class, 'assistant_message_id');

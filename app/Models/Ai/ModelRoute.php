@@ -51,6 +51,9 @@ class ModelRoute extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<ModelCatalog, $this>
+     */
     public function modelCatalog(): BelongsTo
     {
         return $this->belongsTo(ModelCatalog::class);

@@ -86,21 +86,33 @@ class ReferralReward extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Referral, $this>
+     */
     public function referral(): BelongsTo
     {
         return $this->belongsTo(Referral::class);
     }
 
+    /**
+     * @return BelongsTo<ReferralRewardRule, $this>
+     */
     public function rule(): BelongsTo
     {
         return $this->belongsTo(ReferralRewardRule::class, 'rule_id')->withTrashed();
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function recipient(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recipient_user_id');
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
@@ -114,11 +126,17 @@ class ReferralReward extends Model
         return $this->belongsTo(Plan::class);
     }
 
+    /**
+     * @return BelongsTo<PlanGrant, $this>
+     */
     public function planGrant(): BelongsTo
     {
         return $this->belongsTo(PlanGrant::class);
     }
 
+    /**
+     * @return BelongsTo<SuperAdmin, $this>
+     */
     public function grantedBy(): BelongsTo
     {
         return $this->belongsTo(SuperAdmin::class, 'granted_by');

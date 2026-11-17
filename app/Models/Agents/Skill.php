@@ -75,16 +75,25 @@ class Skill extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * @return BelongsTo<SkillSource, $this>
+     */
     public function source(): BelongsTo
     {
         return $this->belongsTo(SkillSource::class, 'skill_source_id');
@@ -98,6 +107,9 @@ class Skill extends Model
         return $this->skill_source_id !== null;
     }
 
+    /**
+     * @return BelongsToMany<Agent, $this>
+     */
     public function agents(): BelongsToMany
     {
         return $this->belongsToMany(Agent::class, 'agent_skill')->withTimestamps();
@@ -127,11 +139,17 @@ class Skill extends Model
         $this->increment('version');
     }
 
+    /**
+     * @return HasMany<SkillReference, $this>
+     */
     public function references(): HasMany
     {
         return $this->hasMany(SkillReference::class)->orderBy('sort_order');
     }
 
+    /**
+     * @return HasMany<SkillScript, $this>
+     */
     public function scripts(): HasMany
     {
         return $this->hasMany(SkillScript::class);

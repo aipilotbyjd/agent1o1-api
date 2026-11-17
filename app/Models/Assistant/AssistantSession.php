@@ -49,31 +49,49 @@ class AssistantSession extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Assistant, $this>
+     */
     public function assistant(): BelongsTo
     {
         return $this->belongsTo(Assistant::class);
     }
 
+    /**
+     * @return BelongsTo<AssistantTrigger, $this>
+     */
     public function trigger(): BelongsTo
     {
         return $this->belongsTo(AssistantTrigger::class, 'assistant_trigger_id');
     }
 
+    /**
+     * @return HasMany<AssistantMessage, $this>
+     */
     public function messages(): HasMany
     {
         return $this->hasMany(AssistantMessage::class);
     }
 
+    /**
+     * @return HasMany<AssistantTurn, $this>
+     */
     public function turns(): HasMany
     {
         return $this->hasMany(AssistantTurn::class);
     }
 
+    /**
+     * @return HasMany<AssistantAction, $this>
+     */
     public function actions(): HasMany
     {
         return $this->hasMany(AssistantAction::class);
     }
 
+    /**
+     * @return HasMany<AssistantQueuedInput, $this>
+     */
     public function queuedInputs(): HasMany
     {
         return $this->hasMany(AssistantQueuedInput::class);
@@ -92,6 +110,8 @@ class AssistantSession extends Model
 
     /**
      * The cloud computer this conversation runs code on, once it has.
+     *
+     * @return HasOne<AssistantSandbox, $this>
      */
     public function sandbox(): HasOne
     {

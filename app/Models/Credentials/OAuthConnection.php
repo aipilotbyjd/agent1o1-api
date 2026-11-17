@@ -20,6 +20,9 @@ class OAuthConnection extends Model
      */
     protected $table = 'oauth_connections';
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

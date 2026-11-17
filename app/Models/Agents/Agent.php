@@ -115,16 +115,25 @@ class Agent extends Model
         return $this->hasMany(self::class, 'workspace_id', 'workspace_id');
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<Folder, $this>
+     */
     public function folder(): BelongsTo
     {
         return $this->belongsTo(Folder::class);
     }
 
+    /**
+     * @return BelongsToMany<Tag, $this>
+     */
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'tag_agent');
@@ -134,27 +143,41 @@ class Agent extends Model
      * The public model identity this agent runs against, when opted in:
      * see `Services\Ai\ModelCatalogResolver`. `null` means this agent still
      * runs on its plain `provider`/`model` columns directly.
+     *
+     * @return BelongsTo<ModelCatalog, $this>
      */
     public function modelCatalog(): BelongsTo
     {
         return $this->belongsTo(ModelCatalog::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * @return HasMany<AgentVersion, $this>
+     */
     public function versions(): HasMany
     {
         return $this->hasMany(AgentVersion::class);
     }
 
+    /**
+     * @return HasMany<AgentSession, $this>
+     */
     public function sessions(): HasMany
     {
         return $this->hasMany(AgentSession::class);
     }
 
+    /**
+     * @return HasMany<Artifact, $this>
+     */
     public function artifacts(): HasMany
     {
         return $this->hasMany(Artifact::class);
@@ -165,6 +188,8 @@ class Agent extends Model
      * docblock for the security-boundary design. Not a `BelongsToMany`
      * (unlike `workflows()` below) since built-in nodes have no row of
      * their own to belong to.
+     *
+     * @return HasMany<AgentToolBinding, $this>
      */
     public function toolBindings(): HasMany
     {
@@ -175,6 +200,8 @@ class Agent extends Model
      * Workflows attached as tools (`Ai/Tools/WorkflowTool`): a real
      * `BelongsToMany` since, unlike built-in nodes, a `Workflow` is a real
      * Eloquent row.
+     *
+     * @return BelongsToMany<Workflow, $this>
      */
     public function workflows(): BelongsToMany
     {
@@ -185,6 +212,8 @@ class Agent extends Model
 
     /**
      * Other agents this one may hand work to through `InvokeAgentTool`.
+     *
+     * @return BelongsToMany<self, $this>
      */
     public function subagents(): BelongsToMany
     {
@@ -194,6 +223,8 @@ class Agent extends Model
     /**
      * Reusable instruction snippets injected into the system prompt
      * alongside `instructions()`: see `Services\Agents\SkillInjector`.
+     *
+     * @return BelongsToMany<Skill, $this>
      */
     public function skills(): BelongsToMany
     {
@@ -205,6 +236,8 @@ class Agent extends Model
      * each searched on demand or put in its prompt on every turn (`mode`):
      * the opt-in scoping `ToolRegistry` prefers over its workspace-wide
      * fallback, and what `SkillInjector` reads always-included knowledge from.
+     *
+     * @return HasMany<AgentKnowledgeCollection, $this>
      */
     public function knowledgeCollections(): HasMany
     {
@@ -224,6 +257,8 @@ class Agent extends Model
 
     /**
      * Durable key/value facts read/written across sessions.
+     *
+     * @return HasMany<AgentMemory, $this>
      */
     public function memories(): HasMany
     {
@@ -234,6 +269,8 @@ class Agent extends Model
      * The memories a conversation with `$userId` may see: that user's own
      * plus workspace-wide ones (user_id null): a memory tied to one user
      * must never reach another user's conversation.
+     *
+     * @return HasMany<AgentMemory, $this>
      */
     public function memoriesVisibleTo(?string $userId): HasMany
     {
@@ -242,6 +279,8 @@ class Agent extends Model
 
     /**
      * Saved test suites graded against this agent: see `EvalRunner`.
+     *
+     * @return HasMany<AgentEvalSuite, $this>
      */
     public function evalSuites(): HasMany
     {
@@ -251,12 +290,17 @@ class Agent extends Model
     /**
      * Whether/how this agent periodically reviews its own past sessions:
      * see `Services\Agents\ReflectionAnalyzer`.
+     *
+     * @return HasOne<ReflectionSettings, $this>
      */
     public function reflectionSettings(): HasOne
     {
         return $this->hasOne(ReflectionSettings::class);
     }
 
+    /**
+     * @return HasMany<ReflectionRun, $this>
+     */
     public function reflectionRuns(): HasMany
     {
         return $this->hasMany(ReflectionRun::class);
@@ -265,17 +309,25 @@ class Agent extends Model
     /**
      * Whether/how this agent's live sessions are automatically graded after
      * each turn: see `Services\Agents\SessionEvaluator`.
+     *
+     * @return HasOne<AgentEvaluationSettings, $this>
      */
     public function evaluationSettings(): HasOne
     {
         return $this->hasOne(AgentEvaluationSettings::class);
     }
 
+    /**
+     * @return HasMany<AgentSessionEvaluation, $this>
+     */
     public function sessionEvaluations(): HasMany
     {
         return $this->hasMany(AgentSessionEvaluation::class);
     }
 
+    /**
+     * @return HasMany<Reflection, $this>
+     */
     public function reflections(): HasMany
     {
         return $this->hasMany(Reflection::class);
@@ -284,12 +336,17 @@ class Agent extends Model
     /**
      * Every side-effecting tool call this agent made or tried to make:
      * see `Services\Agents\Approvals\ActionGate`.
+     *
+     * @return HasMany<AgentAction, $this>
      */
     public function actions(): HasMany
     {
         return $this->hasMany(AgentAction::class);
     }
 
+    /**
+     * @return HasMany<AgentPlan, $this>
+     */
     public function plans(): HasMany
     {
         return $this->hasMany(AgentPlan::class);

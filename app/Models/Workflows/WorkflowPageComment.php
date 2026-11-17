@@ -29,21 +29,33 @@ class WorkflowPageComment extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<WorkflowPage, $this>
+     */
     public function page(): BelongsTo
     {
         return $this->belongsTo(WorkflowPage::class, 'workflow_page_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function resolver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'resolved_by');
     }
 
+    /**
+     * @return HasMany<self, $this>
+     */
     public function replies(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id')->oldest();

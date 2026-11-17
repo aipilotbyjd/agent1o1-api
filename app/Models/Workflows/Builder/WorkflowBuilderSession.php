@@ -80,16 +80,25 @@ class WorkflowBuilderSession extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<Workflow, $this>
+     */
     public function workflow(): BelongsTo
     {
         return $this->belongsTo(Workflow::class);
@@ -103,11 +112,17 @@ class WorkflowBuilderSession extends Model
         return ['version' => 'draftVersions'];
     }
 
+    /**
+     * @return HasMany<WorkflowBuilderDraftVersion, $this>
+     */
     public function draftVersions(): HasMany
     {
         return $this->hasMany(WorkflowBuilderDraftVersion::class, 'session_id');
     }
 
+    /**
+     * @return HasMany<WorkflowBuilderMessage, $this>
+     */
     public function messages(): HasMany
     {
         return $this->hasMany(WorkflowBuilderMessage::class, 'session_id');

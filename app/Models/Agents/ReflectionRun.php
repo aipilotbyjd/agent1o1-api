@@ -48,21 +48,33 @@ class ReflectionRun extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<Agent, $this>
+     */
     public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
     }
 
+    /**
+     * @return HasMany<Reflection, $this>
+     */
     public function reflections(): HasMany
     {
         return $this->hasMany(Reflection::class);
     }
 
+    /**
+     * @return MorphMany<Run, $this>
+     */
     public function runs(): MorphMany
     {
         return $this->morphMany(Run::class, 'runnable');

@@ -46,16 +46,25 @@ class SuperAdmin extends Authenticatable
         ];
     }
 
+    /**
+     * @return BelongsTo<self, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(self::class, 'created_by');
     }
 
+    /**
+     * @return HasMany<SuperAdminToken, $this>
+     */
     public function tokens(): HasMany
     {
         return $this->hasMany(SuperAdminToken::class);
     }
 
+    /**
+     * @return HasMany<SuperAdminLoginEvent, $this>
+     */
     public function loginEvents(): HasMany
     {
         return $this->hasMany(SuperAdminLoginEvent::class);

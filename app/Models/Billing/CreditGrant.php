@@ -76,6 +76,9 @@ class CreditGrant extends Model
         return $this->belongsTo(UsagePeriod::class);
     }
 
+    /**
+     * @return MorphTo<Model, $this>
+     */
     public function reference(): MorphTo
     {
         return $this->morphTo();

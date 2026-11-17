@@ -18,6 +18,9 @@ class SuperAdminAccountNote extends Model
     /** @use HasFactory<SuperAdminAccountNoteFactory> */
     use HasFactory, HasUuids;
 
+    /**
+     * @return BelongsTo<SuperAdmin, $this>
+     */
     public function author(): BelongsTo
     {
         return $this->belongsTo(SuperAdmin::class, 'super_admin_id');

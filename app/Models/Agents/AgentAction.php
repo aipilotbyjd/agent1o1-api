@@ -59,41 +59,65 @@ class AgentAction extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<Agent, $this>
+     */
     public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
     }
 
+    /**
+     * @return BelongsTo<AgentSession, $this>
+     */
     public function session(): BelongsTo
     {
         return $this->belongsTo(AgentSession::class, 'agent_session_id');
     }
 
+    /**
+     * @return BelongsTo<Run, $this>
+     */
     public function run(): BelongsTo
     {
         return $this->belongsTo(Run::class);
     }
 
+    /**
+     * @return BelongsTo<NodeRun, $this>
+     */
     public function nodeRun(): BelongsTo
     {
         return $this->belongsTo(NodeRun::class);
     }
 
+    /**
+     * @return BelongsTo<AgentMessage, $this>
+     */
     public function message(): BelongsTo
     {
         return $this->belongsTo(AgentMessage::class, 'agent_message_id');
     }
 
+    /**
+     * @return BelongsTo<AgentPlan, $this>
+     */
     public function plan(): BelongsTo
     {
         return $this->belongsTo(AgentPlan::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function decidedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'decided_by');

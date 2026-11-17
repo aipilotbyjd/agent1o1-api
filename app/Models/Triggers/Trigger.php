@@ -190,6 +190,8 @@ class Trigger extends Model
 
     /**
      * The trigger's push subscription, when it has one.
+     *
+     * @return HasOne<TriggerSubscription, $this>
      */
     public function subscription(): HasOne
     {
@@ -280,6 +282,8 @@ class Trigger extends Model
 
     /**
      * The workspace the trigger belongs to.
+     *
+     * @return BelongsTo<Workspace, $this>
      */
     public function workspace(): BelongsTo
     {
@@ -288,6 +292,8 @@ class Trigger extends Model
 
     /**
      * The provider preset it was made from, if any (API triggers only).
+     *
+     * @return BelongsTo<TriggerPreset, $this>
      */
     public function preset(): BelongsTo
     {
@@ -296,6 +302,8 @@ class Trigger extends Model
 
     /**
      * The workflow or agent it starts.
+     *
+     * @return MorphTo<Model, $this>
      */
     public function target(): MorphTo
     {
@@ -305,6 +313,8 @@ class Trigger extends Model
     /**
      * Who set it up. Runs it starts are attributed to them, and they decide
      * which personal accounts it may use.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function creator(): BelongsTo
     {
@@ -313,6 +323,8 @@ class Trigger extends Model
 
     /**
      * Everything that has arrived for it, newest last.
+     *
+     * @return HasMany<TriggerEvent, $this>
      */
     public function events(): HasMany
     {

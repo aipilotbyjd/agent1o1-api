@@ -40,16 +40,25 @@ class AgentEvalSuite extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<Agent, $this>
+     */
     public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -63,11 +72,17 @@ class AgentEvalSuite extends Model
         return ['evalRun' => 'runs'];
     }
 
+    /**
+     * @return HasMany<AgentEvalCase, $this>
+     */
     public function cases(): HasMany
     {
         return $this->hasMany(AgentEvalCase::class)->orderBy('sort_order')->orderBy('id');
     }
 
+    /**
+     * @return HasMany<AgentEvalRun, $this>
+     */
     public function runs(): HasMany
     {
         return $this->hasMany(AgentEvalRun::class);

@@ -55,6 +55,8 @@ class TriggerPreset extends Model
 
     /**
      * Triggers created from this preset.
+     *
+     * @return HasMany<Trigger, $this>
      */
     public function triggers(): HasMany
     {
