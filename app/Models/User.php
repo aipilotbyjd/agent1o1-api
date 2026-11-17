@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Casts\Timezone;
+use App\Models\Account\DataExport;
 use App\Enums\Onboarding\DiscoverySource;
 use App\Enums\Onboarding\JobRole;
 use App\Enums\Onboarding\OnboardingStep;
@@ -158,6 +159,14 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         return $this->belongsToMany(Workspace::class, 'workspace_members')
             ->withPivot('role', 'joined_at')
             ->withTimestamps();
+    }
+
+    /**
+     * @return HasMany<DataExport, $this>
+     */
+    public function dataExports(): HasMany
+    {
+        return $this->hasMany(DataExport::class);
     }
 
     /**

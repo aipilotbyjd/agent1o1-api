@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Internal\V1\Auth\ApiKeyController;
 use App\Http\Controllers\Api\Internal\V1\Auth\AuthController;
 use App\Http\Controllers\Api\Internal\V1\Auth\TwoFactorController;
+use App\Http\Controllers\Api\Internal\V1\User\DataExportController;
 use App\Http\Controllers\Api\Internal\V1\User\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -65,11 +66,19 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('user')->as('user.')->group(function () {
         Route::get('/', [UserController::class, 'show'])->name('show');
         Route::patch('/', [UserController::class, 'update'])->name('update');
-        Route::delete('/', [UserController::class, 'destroy'])->name('destroy');
+        Route::delete('/', [UserController::class, 'destroy'])->middleware('throttle:5,1')->name('destroy');
         Route::delete('pending-email', [UserController::class, 'cancelEmailChange'])->name('pending-email.destroy');
         Route::post('switch-workspace', [UserController::class, 'switchWorkspace'])->name('switch-workspace');
         Route::post('avatar', [UserController::class, 'uploadAvatar'])->name('avatar.store');
         Route::delete('avatar', [UserController::class, 'deleteAvatar'])->name('avatar.destroy');
+
+        Route::get('deletion-blockers', [UserController::class, 'deletionBlockers'])->name('deletion-blockers');
+
+        Route::prefix('data-exports')->as('data-exports.')->group(function () {
+            Route::get('/', [DataExportController::class, 'index'])->name('index');
+            Route::post('/', [DataExportController::class, 'store'])->middleware('throttle:5,60')->name('store');
+            Route::get('{dataExport}/download', [DataExportController::class, 'download'])->whereUuid('dataExport')->name('download');
+        });
     });
 
     Route::prefix('workspaces/{workspace}/api-keys')->as('api-keys.')->middleware('workspace.context')->scopeBindings()->group(function () {
