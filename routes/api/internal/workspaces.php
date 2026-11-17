@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\Internal\V1\Notifications\NotificationChannelController;
+use App\Http\Controllers\Api\Internal\V1\Notifications\NotificationChannelDeliveryController;
 use App\Http\Controllers\Api\Internal\V1\Notifications\NotificationPreferenceController;
+use App\Http\Controllers\Api\Internal\V1\Notifications\NotificationRouteController;
 use App\Http\Controllers\Api\Internal\V1\Workspaces\AuditLogController;
 use App\Http\Controllers\Api\Internal\V1\Workspaces\WorkspaceController;
 use App\Http\Controllers\Api\Internal\V1\Workspaces\WorkspaceInvitationController;
@@ -37,10 +39,18 @@ Route::middleware('auth:api')->prefix('workspaces')->group(function () {
         Route::patch('notification-channels/{notificationChannel}', [NotificationChannelController::class, 'update']);
         Route::delete('notification-channels/{notificationChannel}', [NotificationChannelController::class, 'destroy']);
         Route::post('notification-channels/{notificationChannel}/test', [NotificationChannelController::class, 'test']);
+        Route::post('notification-channels/{notificationChannel}/rotate-secret', [NotificationChannelController::class, 'rotateSecret']);
+        Route::get('notification-channels/{notificationChannel}/deliveries', [NotificationChannelDeliveryController::class, 'index']);
+
+        Route::get('notification-routes', [NotificationRouteController::class, 'index']);
+        Route::post('notification-routes', [NotificationRouteController::class, 'store']);
+        Route::patch('notification-routes/{notificationRoute}', [NotificationRouteController::class, 'update']);
+        Route::delete('notification-routes/{notificationRoute}', [NotificationRouteController::class, 'destroy']);
 
         Route::get('audit-logs', [AuditLogController::class, 'index']);
 
         Route::get('notification-preferences', [NotificationPreferenceController::class, 'index']);
         Route::put('notification-preferences', [NotificationPreferenceController::class, 'upsert']);
+        Route::put('notification-preferences/bulk', [NotificationPreferenceController::class, 'bulk']);
     });
 });

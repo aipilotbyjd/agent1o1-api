@@ -421,13 +421,10 @@ class Trigger extends Model
     {
         $dispatcher = app(NotificationDispatcher::class);
 
-        $recipients = $dispatcher->ownersAndAdmins($this->workspace)
-            ->push($this->creator)
-            ->filter()
-            ->unique('id')
-            ->values();
-
-        $dispatcher->dispatch($recipients, new TriggerDisabledNotification($this, $reason));
+        $dispatcher->dispatch(
+            $dispatcher->ownersAdminsAnd($this->workspace, $this->creator),
+            new TriggerDisabledNotification($this, $reason),
+        );
     }
 
     /**

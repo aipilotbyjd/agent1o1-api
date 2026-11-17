@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\SuperAdmin\V1\System\NotificationHealthController;
 use App\Http\Controllers\Api\SuperAdmin\V1\System\SystemFailedJobController;
 use App\Http\Controllers\Api\SuperAdmin\V1\System\SystemHealthController;
 use App\Http\Controllers\Api\SuperAdmin\V1\System\SystemMaintenanceController;
@@ -19,6 +20,7 @@ Route::prefix('system')->as('system.')->group(function () use ($base) {
         Route::get('horizon', [SystemHealthController::class, 'horizon'])->name('horizon');
         Route::get('stuck', [SystemHealthController::class, 'stuck'])->name('stuck');
         Route::get('history', [SystemHealthController::class, 'history'])->name('history');
+        Route::get('notifications', NotificationHealthController::class)->name('notifications');
 
         Route::get('failed-jobs', [SystemFailedJobController::class, 'index'])->name('failed-jobs.index');
         Route::get('failed-jobs/summary', [SystemFailedJobController::class, 'summary'])->name('failed-jobs.summary');

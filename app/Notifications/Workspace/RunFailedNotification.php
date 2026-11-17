@@ -19,6 +19,7 @@ class RunFailedNotification extends WorkspaceEventNotification
 
     public function __construct(Workspace $workspace, Run $run)
     {
+
         parent::__construct(
             workspace: $workspace,
             event: NotificationEvent::RunFailed,
@@ -30,6 +31,14 @@ class RunFailedNotification extends WorkspaceEventNotification
                 'error' => $run->error,
             ],
         );
+    }
+
+    /**
+     * A run fails once: a retried listener must not report it twice.
+     */
+    public function idempotencyKey(): ?string
+    {
+        return 'run-failed:'.$this->data['run_id'];
     }
 
     /**

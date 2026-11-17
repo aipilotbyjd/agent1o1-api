@@ -1,15 +1,16 @@
 <?php
 
-use App\Jobs\Notifications\DeliverWorkspaceWebhookJob;
+use App\Enums\Notifications\DeliveryStatus;
+use App\Jobs\Notifications\DeliverIntegrationJob;
 use App\Models\Notifications\NotificationChannel;
+use App\Models\Notifications\NotificationDelivery;
 use App\Models\User;
-use App\Notifications\Channels\WorkspaceWebhookChannel;
+use App\Notifications\Workspace\IntegrationChannelDisabledNotification;
 use App\Services\Http\SsrfGuard;
 use App\Services\Workspaces\WorkspaceService;
 use Illuminate\Http\Client\Request;
-use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Notification;
 use Laravel\Passport\Passport;
 
 beforeEach(function () {
@@ -115,30 +116,6 @@ it('reports a failed delivery by status code', function () {
         ->assertJsonPath('message', 'Delivery failed: HTTP 500.');
 });
 
-it('hands each endpoint its own queued delivery instead of sending inline', function () {
-    Bus::fake();
-    Http::fake();
-
-    $channel = NotificationChannel::factory()->create([
-        'workspace_id' => $this->workspace->id,
-        'config' => ['url' => 'https://hooks.example.com/hook'],
-    ]);
-    $workspaceId = $this->workspace->id;
-
-    app(WorkspaceWebhookChannel::class)->send($this->owner, new class($workspaceId, $channel->id) extends Notification
-    {
-        public function __construct(private readonly string $workspaceId, private readonly string $channelId) {}
-
-        public function toWorkspaceChannel(object $notifiable): array
-        {
-            return ['workspace_id' => $this->workspaceId, 'channel_ids' => [$this->channelId], 'message' => 'Hello'];
-        }
-    });
-
-    Bus::assertDispatched(DeliverWorkspaceWebhookJob::class, fn (DeliverWorkspaceWebhookJob $job): bool => $job->channelId === $channel->id && $job->message === 'Hello');
-    Http::assertNothingSent();
-});
-
 it('retries a delivery that failed with a server error', function () {
     Http::fake(['https://hooks.example.com/*' => Http::response('nope', 503)]);
 
@@ -146,9 +123,12 @@ it('retries a delivery that failed with a server error', function () {
         'workspace_id' => $this->workspace->id,
         'config' => ['url' => 'https://hooks.example.com/hook'],
     ]);
+    $delivery = NotificationDelivery::factory()->create(['notification_channel_id' => $channel->id]);
 
-    expect(fn () => (new DeliverWorkspaceWebhookJob($channel->id, 'Hello'))->handle(app(WorkspaceWebhookChannel::class)))
+    expect(fn () => app()->call([new DeliverIntegrationJob($delivery->id), 'handle']))
         ->toThrow(RuntimeException::class, 'HTTP 503');
+
+    expect($delivery->fresh())->status->toBe(DeliveryStatus::Pending)->attempts->toBe(1);
 });
 
 it('drops a delivery that failed permanently instead of retrying it', function () {
@@ -158,10 +138,67 @@ it('drops a delivery that failed permanently instead of retrying it', function (
         'workspace_id' => $this->workspace->id,
         'config' => ['url' => 'https://hooks.example.com/hook'],
     ]);
+    $delivery = NotificationDelivery::factory()->create(['notification_channel_id' => $channel->id]);
 
-    (new DeliverWorkspaceWebhookJob($channel->id, 'Hello'))->handle(app(WorkspaceWebhookChannel::class));
+    app()->call([new DeliverIntegrationJob($delivery->id), 'handle']);
 
     Http::assertSentCount(1);
+    expect($delivery->fresh())->status->toBe(DeliveryStatus::Failed)->error->toBe('Delivery failed: HTTP 404.')
+        ->and($channel->fresh()->consecutive_failures)->toBe(1);
+});
+
+it('signs a webhook delivery with the channel secret and a timestamp', function () {
+    Http::fake(['https://hooks.example.com/*' => Http::response('ok')]);
+
+    $channel = NotificationChannel::factory()->create([
+        'workspace_id' => $this->workspace->id,
+        'config' => ['url' => 'https://hooks.example.com/hook'],
+    ]);
+    $delivery = NotificationDelivery::factory()->create([
+        'notification_channel_id' => $channel->id,
+        'payload' => ['id' => 'evt', 'type' => 'run.failed', 'message' => 'Hello'],
+    ]);
+
+    app()->call([new DeliverIntegrationJob($delivery->id), 'handle']);
+
+    Http::assertSent(function (Request $request) use ($channel): bool {
+        $timestamp = $request->header('X-Notification-Timestamp')[0] ?? '';
+        $expected = 'sha256='.hash_hmac('sha256', $timestamp.'.'.$request->body(), $channel->signing_secret);
+
+        return $request->header('X-Notification-Signature') === [$expected];
+    });
+    expect($delivery->fresh()->status)->toBe(DeliveryStatus::Sent)
+        ->and($channel->fresh()->last_delivered_at)->not->toBeNull();
+});
+
+it('switches a channel off after too many failures in a row and tells the admins', function () {
+    Http::fake(['https://hooks.example.com/*' => Http::response('gone', 410)]);
+    Notification::fake();
+    config(['notifications.integrations.disable_after_failures' => 2]);
+
+    $channel = NotificationChannel::factory()->create([
+        'workspace_id' => $this->workspace->id,
+        'config' => ['url' => 'https://hooks.example.com/hook'],
+        'consecutive_failures' => 1,
+    ]);
+    $delivery = NotificationDelivery::factory()->create(['notification_channel_id' => $channel->id]);
+
+    app()->call([new DeliverIntegrationJob($delivery->id), 'handle']);
+
+    expect($channel->fresh())->is_active->toBeFalse()->disabled_at->not->toBeNull();
+    Notification::assertSentTo($this->owner, IntegrationChannelDisabledNotification::class);
+});
+
+it('skips a delivery whose channel was switched off meanwhile', function () {
+    Http::fake();
+
+    $channel = NotificationChannel::factory()->create(['workspace_id' => $this->workspace->id, 'is_active' => false]);
+    $delivery = NotificationDelivery::factory()->create(['notification_channel_id' => $channel->id]);
+
+    app()->call([new DeliverIntegrationJob($delivery->id), 'handle']);
+
+    Http::assertNothingSent();
+    expect($delivery->fresh()->status)->toBe(DeliveryStatus::Skipped);
 });
 
 it('keeps a notification channel when the member who created it is deleted', function () {

@@ -3,6 +3,8 @@
 use App\Jobs\System\ExpireStaleWaitsJob;
 use App\Jobs\System\FailStuckAgentTurnsJob;
 use App\Jobs\System\FailStuckNodeRunsJob;
+use App\Models\Notifications\InboxNotification;
+use App\Models\Notifications\NotificationDelivery;
 use Illuminate\Support\Facades\Schedule;
 
 /*
@@ -61,6 +63,10 @@ Schedule::onOneServer()->withoutOverlapping()->group(function (): void {
     Schedule::command('system:backup')->dailyAt((string) config('backups.schedule.nightly_at'))->when(fn (): bool => (bool) config('backups.enabled'));
     Schedule::command('system:backup')->hourly()->when(fn (): bool => (bool) config('backups.enabled') && (bool) config('backups.schedule.hourly'));
     Schedule::command('backup:monitor')->dailyAt((string) config('backups.schedule.monitor_at'))->when(fn (): bool => (bool) config('backups.enabled'));
+
+    // Notifications
+    Schedule::command('notifications:send-digests')->dailyAt((string) config('notifications.digest.send_at'));
+    Schedule::command('model:prune', ['--model' => [InboxNotification::class, NotificationDelivery::class]])->dailyAt('04:50');
 
     // Broadcasts
     Schedule::command('broadcasts:dispatch-due')->everyMinute();

@@ -28,7 +28,7 @@ class NotifyOnRunFailure
         }
 
         $this->dispatcher->dispatch(
-            $this->dispatcher->ownersAndAdmins($workspace),
+            $this->dispatcher->ownersAdminsAnd($workspace, $run->triggeredBy),
             new RunFailedNotification($workspace, $run),
         );
     }

@@ -25,4 +25,12 @@ class RunApprovalRequestedNotification extends WorkspaceEventNotification
             ],
         );
     }
+
+    /**
+     * One approval is asked for once.
+     */
+    public function idempotencyKey(): ?string
+    {
+        return 'run-approval:'.$this->data['approval_id'];
+    }
 }

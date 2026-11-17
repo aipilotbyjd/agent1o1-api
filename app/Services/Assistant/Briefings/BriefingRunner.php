@@ -17,6 +17,7 @@ use App\Services\Assistant\Personalization\StyleProfiles;
 use App\Services\Assistant\Runtime\AssistantModel;
 use App\Services\Assistant\Tools\ConnectorToolProvider;
 use App\Services\Billing\CreditGate;
+use App\Services\Notifications\NotificationDispatcher;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -233,7 +234,7 @@ class BriefingRunner
         $results = ['app' => true];
 
         if (($config->delivery['email'] ?? false) === true) {
-            $assistant->user->notify(new DailyReportNotification($run->refresh(), $this->brands->current($assistant->workspace)->feature('daily')));
+            app(NotificationDispatcher::class)->dispatchTo($assistant->user, new DailyReportNotification($run->refresh(), $this->brands->current($assistant->workspace)->feature('daily')));
             $results['email'] = true;
         }
 

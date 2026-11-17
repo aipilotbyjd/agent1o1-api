@@ -26,6 +26,7 @@ use App\Models\Concerns\ResolvesScopedRouteBindings;
 use App\Models\Connectors\ConnectorCredential;
 use App\Models\Nodes\CustomNode;
 use App\Models\Notifications\NotificationChannel;
+use App\Models\Notifications\NotificationRoute;
 use App\Models\Notifications\NotificationPreference;
 use App\Models\Referrals\ReferralReward;
 use App\Models\Runs\Run;
@@ -143,6 +144,11 @@ class Workspace extends Model
     public function notificationChannels(): HasMany
     {
         return $this->hasMany(NotificationChannel::class);
+    }
+
+    public function notificationRoutes(): HasMany
+    {
+        return $this->hasMany(NotificationRoute::class);
     }
 
     public function notificationPreferences(): HasMany

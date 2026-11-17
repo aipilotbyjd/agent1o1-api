@@ -39,7 +39,7 @@ class PublishRequestDecidedNotification extends WorkspaceEventNotification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $mail = (new MailMessage)->subject($this->title);
+        $mail = $this->mailMessage($notifiable);
 
         if (filled($this->publishRequest->review_notes)) {
             $mail->line('Reviewer note: '.$this->publishRequest->review_notes);
