@@ -7,3 +7,7 @@ parameters:
         - app
     level: 5
     tmpDir: .phpstan.cache
+    # The models' `casts()` methods are typed `array<string, string>`, which
+    # tells Larastan nothing about each column; parse their bodies instead so
+    # an enum or array cast is typed as such, not as the raw database string.
+    parseModelCastsMethod: true
