@@ -24,7 +24,7 @@ final class NotificationLinks
             return null;
         }
 
-        if (preg_match('#^https://[^\s/?#]+#i', $path) === 1) {
+        if (preg_match('~^https://[^\s/?#]+~i', $path) === 1) {
             return $path;
         }
 
