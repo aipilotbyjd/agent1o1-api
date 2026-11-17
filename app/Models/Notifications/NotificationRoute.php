@@ -3,8 +3,8 @@
 namespace App\Models\Notifications;
 
 use App\Enums\Notifications\NotificationCategory;
-use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationSeverity;
+use App\Enums\Notifications\NotificationType;
 use App\Models\User;
 use App\Models\Workspaces\Workspace;
 use Database\Factories\Notifications\NotificationRouteFactory;

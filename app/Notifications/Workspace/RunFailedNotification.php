@@ -2,7 +2,6 @@
 
 namespace App\Notifications\Workspace;
 
-use App\Notifications\AppNotification;
 use App\Enums\Notifications\NotificationType;
 use App\Models\Agents\AgentEvalRun;
 use App\Models\Agents\AgentSession;
@@ -11,6 +10,7 @@ use App\Models\Agents\ReflectionRun;
 use App\Models\Runs\Run;
 use App\Models\Workflows\Workflow;
 use App\Models\Workspaces\Workspace;
+use App\Notifications\AppNotification;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 

@@ -2,11 +2,11 @@
 
 namespace App\Notifications\Workspace;
 
-use App\Notifications\AppNotification;
 use App\Enums\Notifications\NotificationType;
 use App\Enums\Workspaces\Role;
 use App\Models\Workspaces\Workspace;
 use App\Models\Workspaces\WorkspaceMember;
+use App\Notifications\AppNotification;
 
 class MemberRoleChangedNotification extends AppNotification
 {

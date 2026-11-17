@@ -1,9 +1,10 @@
 <?php
 
+use App\Enums\Auth\AuthEvent;
 use App\Enums\Notifications\DeliveryStatus;
 use App\Enums\Notifications\NotificationCategory;
-use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationSeverity;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Workspaces\Role;
 use App\Events\Notifications\InboxNotificationChanged;
 use App\Jobs\Notifications\DeliverIntegrationJob;
@@ -26,7 +27,6 @@ use App\Notifications\Workspace\MemberJoinedNotification;
 use App\Notifications\Workspace\RunFailedNotification;
 use App\Services\Notifications\NotificationDispatcher;
 use App\Services\Workspaces\WorkspaceService;
-use App\Enums\Auth\AuthEvent;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;

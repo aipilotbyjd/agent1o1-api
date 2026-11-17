@@ -4,8 +4,8 @@ namespace App\Notifications\Ai;
 
 use App\Enums\Notifications\NotificationType;
 use App\Models\Workspaces\Workspace;
-use App\Notifications\Channels\InboxChannel;
 use App\Notifications\AppNotification;
+use App\Notifications\Channels\InboxChannel;
 
 /**
  * A super admin turned customer keys for a provider off, or back on, and

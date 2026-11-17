@@ -2,12 +2,12 @@
 
 namespace App\Notifications\Workspace;
 
-use App\Notifications\AppNotification;
 use App\Enums\Notifications\NotificationType;
 use App\Models\Runs\NodeRun;
 use App\Models\Runs\Run;
 use App\Models\Workflows\WorkflowApproval;
 use App\Models\Workspaces\Workspace;
+use App\Notifications\AppNotification;
 
 class RunApprovalRequestedNotification extends AppNotification
 {

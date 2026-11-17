@@ -2,8 +2,8 @@
 
 namespace App\Services\Notifications;
 
-use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationScope;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Notifications\AccountNotificationPreference;
 use App\Models\Notifications\NotificationPreference;
 use App\Models\User;

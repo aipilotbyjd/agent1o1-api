@@ -1,8 +1,8 @@
 <?php
 
 use App\Enums\Notifications\NotificationCategory;
-use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationScope;
+use App\Enums\Notifications\NotificationType;
 use App\Notifications\AppNotification;
 
 arch('member-facing notifications extend AppNotification, so their channels come from preferences')

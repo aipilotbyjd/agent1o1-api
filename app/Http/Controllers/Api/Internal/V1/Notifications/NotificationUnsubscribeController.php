@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api\Internal\V1\Notifications;
 
-use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationScope;
+use App\Enums\Notifications\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Internal\V1\Notifications\UpdateNotificationPreferencesRequest;
 use App\Http\Responses\ApiResponse;

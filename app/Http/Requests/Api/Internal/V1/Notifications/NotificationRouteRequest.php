@@ -3,9 +3,9 @@
 namespace App\Http\Requests\Api\Internal\V1\Notifications;
 
 use App\Enums\Notifications\NotificationCategory;
-use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationScope;
 use App\Enums\Notifications\NotificationSeverity;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Workspaces\Permission;
 use App\Models\Workspaces\Workspace;
 use Illuminate\Contracts\Validation\ValidationRule;
