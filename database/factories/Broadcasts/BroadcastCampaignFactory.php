@@ -3,6 +3,7 @@
 namespace Database\Factories\Broadcasts;
 
 use App\Enums\Broadcasts\BroadcastCategory;
+use App\Enums\Broadcasts\BroadcastChannel;
 use App\Enums\Broadcasts\BroadcastStatus;
 use App\Models\Broadcasts\BroadcastCampaign;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -32,6 +33,29 @@ class BroadcastCampaignFactory extends Factory
     public function service(): static
     {
         return $this->state(fn () => ['category' => BroadcastCategory::Service]);
+    }
+
+    /**
+     * Goes to the notification bell only: a summary, no email body.
+     */
+    public function inApp(): static
+    {
+        return $this->state(fn () => [
+            'channel' => BroadcastChannel::InApp,
+            'body_markdown' => null,
+            'notification_summary' => fake()->sentence(12),
+        ]);
+    }
+
+    /**
+     * Goes by email and to the notification bell.
+     */
+    public function emailAndInApp(): static
+    {
+        return $this->state(fn () => [
+            'channel' => BroadcastChannel::EmailAndInApp,
+            'notification_summary' => fake()->sentence(12),
+        ]);
     }
 
     public function status(BroadcastStatus $status): static

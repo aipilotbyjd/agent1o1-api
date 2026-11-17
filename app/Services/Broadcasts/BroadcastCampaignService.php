@@ -3,6 +3,7 @@
 namespace App\Services\Broadcasts;
 
 use App\Enums\Broadcasts\BroadcastCategory;
+use App\Enums\Broadcasts\BroadcastChannel;
 use App\Enums\Broadcasts\BroadcastRecipientStatus;
 use App\Enums\Broadcasts\BroadcastStatus;
 use App\Jobs\Broadcasts\SendBroadcastCampaignJob;
@@ -10,15 +11,18 @@ use App\Mail\Broadcasts\BroadcastCampaignMail;
 use App\Models\Broadcasts\BroadcastCampaign;
 use App\Models\Broadcasts\BroadcastRecipient;
 use App\Models\SuperAdmin\SuperAdmin;
+use App\Models\User;
+use App\Notifications\Broadcasts\AdminMessageNotification;
 use App\Services\SuperAdmin\Audit\SuperAdminAuditLogger;
 use Carbon\CarbonInterface;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
- * The life of an email campaign: write it (draft), check who it reaches
+ * The life of a campaign (email, notification bell, or both): write it (draft), check who it reaches
  * (preview), try it on yourself (test send), then start or schedule it. A send
  * is guarded four ways: the admin must echo the recipient count they previewed,
  * the audience is capped per campaign and per day, a start needs a fresh
@@ -26,8 +30,9 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  * once because a recipient row is claimed before its message leaves.
  *
  * Starting only records the intent and queues `SendBroadcastCampaignJob`; the
- * mail itself goes out from the `system-broadcast` queue at a throttled rate.
- * Every change here is audited; a start by the scheduler is attributed to `system`.
+ * messages go out from the `system-broadcast` queue, at a throttled rate when
+ * email is involved. A bell notification can be recalled afterwards; an email
+ * can't. Every change here is audited; a start by the scheduler is attributed to `system`.
  */
 class BroadcastCampaignService
 {
@@ -88,21 +93,33 @@ class BroadcastCampaignService
      * @param  array<string, mixed>|null  $audience
      * @return array{recipient_count: int, sample: list<array{id: string, name: string, email: string}>}
      */
-    public function previewAudience(?array $audience, BroadcastCategory $category): array
+    public function previewAudience(?array $audience, BroadcastCategory $category, BroadcastChannel $channel = BroadcastChannel::Email): array
     {
         return [
-            'recipient_count' => $this->audience->count($audience, $category),
-            'sample' => $this->audience->sample($audience, $category)
+            'recipient_count' => $this->audience->count($audience, $category, $channel),
+            'sample' => $this->audience->sample($audience, $category, $channel)
                 ->map(fn ($user): array => ['id' => $user->id, 'name' => $user->name, 'email' => $user->email])
                 ->all(),
         ];
     }
 
     /**
-     * Mails the campaign to the admin alone. Limited per admin per hour.
+     * Sends the campaign to the admin alone: the email to their address, and
+     * the bell notification to the member account with the same address.
+     * Limited per admin per hour.
      */
     public function testSend(SuperAdmin $actor, BroadcastCampaign $campaign): void
     {
+        $this->ensureComplete($campaign);
+
+        $member = $campaign->channel->includesInApp() ? User::query()->where('email', $actor->email)->first() : null;
+
+        abort_if(
+            $campaign->channel->includesInApp() && $member === null,
+            422,
+            "A test notification goes to the member account that uses {$actor->email}, and there isn't one.",
+        );
+
         $limited = ! RateLimiter::attempt(
             'broadcast-test:'.$actor->id,
             (int) config('broadcasts.test_sends_per_hour'),
@@ -112,16 +129,20 @@ class BroadcastCampaignService
 
         abort_if($limited, 429, 'Too many test sends. Try again later.');
 
-        Mail::to($actor->email)->send(new BroadcastCampaignMail(
-            campaignSubject: $campaign->subject,
-            bodyMarkdown: $campaign->body_markdown,
-            recipientName: $actor->name,
-            recipientEmail: $actor->email,
-            unsubscribeUrl: $campaign->category->respectsOptOut() ? url('/broadcasts/unsubscribe/preview') : null,
-            isTest: true,
-        ));
+        if ($campaign->channel->includesEmail()) {
+            Mail::to($actor->email)->send(new BroadcastCampaignMail(
+                campaignSubject: $campaign->subject,
+                bodyMarkdown: (string) $campaign->body_markdown,
+                recipientName: $actor->name,
+                recipientEmail: $actor->email,
+                unsubscribeUrl: $campaign->category->respectsOptOut() ? url('/broadcasts/unsubscribe/preview') : null,
+                isTest: true,
+            ));
+        }
 
-        $this->audit->record($actor, 'broadcasts.test_sent', $campaign, after: ['to' => $actor->email]);
+        $member?->notifyNow(new AdminMessageNotification($campaign, isTest: true));
+
+        $this->audit->record($actor, 'broadcasts.test_sent', $campaign, after: ['to' => $actor->email, 'channel' => $campaign->channel->value]);
     }
 
     /**
@@ -145,6 +166,8 @@ class BroadcastCampaignService
     public function schedule(SuperAdmin $actor, BroadcastCampaign $campaign, CarbonInterface $at, int $expectedRecipients, string $reason): BroadcastCampaign
     {
         abort_unless($campaign->status->canStart(), 409, "A {$campaign->status->value} campaign can't be scheduled.");
+
+        $this->ensureComplete($campaign);
 
         $count = $this->guardedRecipientCount($campaign, $expectedRecipients);
 
@@ -234,6 +257,55 @@ class BroadcastCampaignService
     }
 
     /**
+     * Takes the campaign's notifications back out of every bell they reached
+     * and stops any still waiting. Emails already sent stay sent.
+     *
+     * @return array{campaign: BroadcastCampaign, removed: int, emailed: int}
+     */
+    public function recall(SuperAdmin $actor, BroadcastCampaign $campaign, string $reason): array
+    {
+        abort_unless($campaign->channel->includesInApp(), 409, 'Only a campaign with in-app notifications can be recalled. Sent emails cannot be taken back.');
+        abort_if($campaign->isRecalled(), 409, 'This campaign was already recalled.');
+        abort_unless(
+            in_array($campaign->status, [BroadcastStatus::Sending, BroadcastStatus::Sent, BroadcastStatus::Failed], true),
+            409,
+            "A {$campaign->status->value} campaign has nothing to recall.",
+        );
+
+        $result = DB::transaction(function () use ($actor, $campaign, $reason): array {
+            $before = $this->snapshot($campaign);
+
+            $removed = DatabaseNotification::query()
+                ->whereIn('id', $campaign->recipients()->whereNotNull('notification_id')->select('notification_id'))
+                ->delete();
+
+            $emailed = $campaign->recipients()->whereNotNull('sent_at')->count();
+
+            $campaign->recipients()
+                ->where('status', BroadcastRecipientStatus::Pending)
+                ->update(['status' => BroadcastRecipientStatus::Skipped, 'error' => 'Campaign recalled', 'updated_at' => now()]);
+
+            $campaign->forceFill([
+                'recalled_at' => now(),
+                'status' => $campaign->status === BroadcastStatus::Sending ? BroadcastStatus::Cancelled : $campaign->status,
+                'finished_at' => $campaign->finished_at ?? now(),
+            ])->save();
+
+            $this->audit->record($actor, 'broadcasts.recalled', $campaign, $before, [
+                ...$this->snapshot($campaign),
+                'notifications_removed' => $removed,
+                'emails_already_sent' => $emailed,
+            ], $reason);
+
+            return ['removed' => $removed, 'emailed' => $emailed];
+        });
+
+        $this->refreshProgress($campaign);
+
+        return ['campaign' => $campaign, ...$result];
+    }
+
+    /**
      * Gives every failed recipient another go, without touching anyone who
      * already received the message.
      */
@@ -244,6 +316,8 @@ class BroadcastCampaignService
             409,
             "A {$campaign->status->value} campaign has nothing to retry.",
         );
+
+        abort_if($campaign->isRecalled(), 409, 'This campaign was recalled, so nothing more is sent.');
 
         $failed = $campaign->recipients()->where('status', BroadcastRecipientStatus::Failed)->count();
 
@@ -323,7 +397,7 @@ class BroadcastCampaignService
 
         return new BroadcastCampaignMail(
             campaignSubject: $campaign->subject,
-            bodyMarkdown: $campaign->body_markdown,
+            bodyMarkdown: (string) $campaign->body_markdown,
             recipientName: $user?->name ?? '',
             recipientEmail: $recipient->email,
             unsubscribeUrl: $marketing && $user ? $this->preferences->pageUrl($user) : null,
@@ -341,6 +415,8 @@ class BroadcastCampaignService
             $locked = BroadcastCampaign::query()->whereKey($campaign->id)->lockForUpdate()->firstOrFail();
 
             abort_unless($locked->status->canStart(), 409, "A {$locked->status->value} campaign can't be started.");
+
+            $this->ensureComplete($locked);
 
             $count = $this->guardedRecipientCount($locked, $expectedRecipients);
             $before = $this->snapshot($locked);
@@ -366,22 +442,36 @@ class BroadcastCampaignService
      */
     private function guardedRecipientCount(BroadcastCampaign $campaign, ?int $expected): int
     {
-        $count = $this->audience->count($campaign->audience, $campaign->category);
+        $count = $this->audience->count($campaign->audience, $campaign->category, $campaign->channel);
 
         abort_if($count === 0, 422, 'This audience has no one to send to.');
         abort_if($count > (int) config('broadcasts.max_recipients'), 422, "This audience has {$count} people; a campaign may reach at most ".config('broadcasts.max_recipients').'.');
 
-        $sentToday = (int) BroadcastCampaign::query()
-            ->whereKeyNot($campaign->id)
-            ->whereIn('status', [BroadcastStatus::Sending, BroadcastStatus::Sent])
-            ->where('started_at', '>=', now()->startOfDay())
-            ->sum('recipient_count');
+        if ($campaign->channel->includesEmail()) {
+            $sentToday = (int) BroadcastCampaign::query()
+                ->whereKeyNot($campaign->id)
+                ->whereIn('status', [BroadcastStatus::Sending, BroadcastStatus::Sent])
+                ->where('channel', '!=', BroadcastChannel::InApp)
+                ->where('started_at', '>=', now()->startOfDay())
+                ->sum('recipient_count');
 
-        abort_if($sentToday + $count > (int) config('broadcasts.daily_limit'), 422, 'This would go over the daily sending limit of '.config('broadcasts.daily_limit').' emails.');
+            abort_if($sentToday + $count > (int) config('broadcasts.daily_limit'), 422, 'This would go over the daily sending limit of '.config('broadcasts.daily_limit').' emails.');
+        }
 
         abort_if($expected !== null && $expected !== $count, 409, "The audience changed: it now has {$count} people, not {$expected}. Preview it again to confirm.");
 
         return $count;
+    }
+
+    /**
+     * Refuses to send a campaign missing what one of its channels shows: the
+     * email body, or the bell's summary. Validation catches this on the way
+     * in; this catches a draft whose channel was changed afterwards.
+     */
+    private function ensureComplete(BroadcastCampaign $campaign): void
+    {
+        abort_if($campaign->channel->includesEmail() && blank($campaign->body_markdown), 422, 'Write the email before sending: this campaign goes out by email.');
+        abort_if($campaign->channel->includesInApp() && blank($campaign->notification_summary), 422, 'Write the notification summary before sending: this campaign goes to the notification bell.');
     }
 
     /**
@@ -402,6 +492,9 @@ class BroadcastCampaignService
      */
     private function snapshot(BroadcastCampaign $campaign): array
     {
-        return $campaign->only(['name', 'category', 'subject', 'body_markdown', 'audience', 'status', 'scheduled_at', 'recipient_count']);
+        return $campaign->only([
+            'name', 'category', 'channel', 'subject', 'body_markdown', 'notification_summary', 'action_label',
+            'action_url', 'audience', 'status', 'scheduled_at', 'recalled_at', 'recipient_count',
+        ]);
     }
 }

@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 /**
- * Delivery status, person by person.
+ * Delivery status, person by person, and whether they opened the notification.
  */
 class BroadcastRecipientController extends Controller
 {
@@ -20,10 +20,12 @@ class BroadcastRecipientController extends Controller
         $request->validate(['status' => ['nullable', Rule::enum(BroadcastRecipientStatus::class)]]);
 
         $recipients = $campaign->recipients()
-            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')->toString()))
-            ->when($request->filled('q'), fn ($query) => $query->whereLike('email', '%'.$request->string('q').'%'))
-            ->orderBy('email')
-            ->orderBy('id')
+            ->leftJoin('notifications', 'notifications.id', '=', 'broadcast_recipients.notification_id')
+            ->select('broadcast_recipients.*', 'notifications.read_at as notification_read_at')
+            ->when($request->filled('status'), fn ($query) => $query->where('broadcast_recipients.status', $request->string('status')->toString()))
+            ->when($request->filled('q'), fn ($query) => $query->whereLike('broadcast_recipients.email', '%'.$request->string('q').'%'))
+            ->orderBy('broadcast_recipients.email')
+            ->orderBy('broadcast_recipients.id')
             ->paginate($this->perPage($request, 50, 200));
 
         return ApiResponse::paginated(BroadcastRecipientResource::collection($recipients));
