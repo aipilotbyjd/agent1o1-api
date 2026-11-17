@@ -6,7 +6,7 @@ meta {
 
 post {
   url: {{baseUrl}}/v1/workspaces/:workspace/billing/subscription/cancel
-  body: none
+  body: json
   auth: inherit
 }
 
@@ -14,10 +14,22 @@ params:path {
   workspace: {{workspaceId}}
 }
 
+body:json {
+  {
+    "reason": "too_expensive",
+    "comment": "Optional free text."
+  }
+}
+
 docs {
   Cancels the workspace's subscription at the end of the current billing
   period. Requires the `billing.manage` permission. Returns `404` when the
   workspace has no active subscription.
+
+  `reason` and `comment` are both optional: cancelling never fails because
+  one is missing. `reason` is one of the values listed by
+  `Subscription - Cancellation Options`; `comment` is at most 2000
+  characters. What was sent is stored for the Super Admin churn report.
 
   Response is wrapped: `{ success, statusCode, message, data: { subscription } }`.
 }
