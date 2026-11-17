@@ -92,6 +92,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Cancellation Flow
+    |--------------------------------------------------------------------------
+    |
+    | The one discount the cancellation flow may offer a customer who says the
+    | plan costs too much: `discount_percent` off for `discount_months`
+    | monthly invoices. Set the percent to 0 to never offer a discount. A
+    | workspace is offered it at most once every `offer_cooldown_months`.
+    |
+    */
+
+    'cancellation' => [
+        'discount_percent' => (int) env('BILLING_CANCELLATION_DISCOUNT_PERCENT', 5),
+        'discount_months' => (int) env('BILLING_CANCELLATION_DISCOUNT_MONTHS', 3),
+        'offer_cooldown_months' => (int) env('BILLING_CANCELLATION_OFFER_COOLDOWN_MONTHS', 12),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Billing Intervals
     |--------------------------------------------------------------------------
     |

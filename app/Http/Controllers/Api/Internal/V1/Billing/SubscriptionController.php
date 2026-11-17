@@ -8,9 +8,11 @@ use App\Actions\Billing\CheckoutSubscriptionAction;
 use App\Actions\Billing\PreviewSubscriptionSwapAction;
 use App\Actions\Billing\ResumeSubscriptionAction;
 use App\Enums\Billing\BillingInterval;
+use App\Enums\Billing\CancellationReason;
 use App\Enums\Workspaces\AuditAction;
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Internal\V1\Billing\CancelSubscriptionRequest;
 use App\Http\Requests\Api\Internal\V1\Billing\CheckoutSubscriptionRequest;
 use App\Http\Requests\Api\Internal\V1\Billing\PreviewSubscriptionSwapRequest;
 use App\Http\Resources\Api\Internal\V1\Billing\InvoiceResource;
@@ -92,12 +94,14 @@ class SubscriptionController extends Controller
         return ApiResponse::success(['invoice' => $invoice ? InvoiceResource::make($invoice) : null]);
     }
 
-    public function cancel(Request $request, Workspace $workspace, CancelSubscriptionAction $cancel)
+    public function cancel(CancelSubscriptionRequest $request, Workspace $workspace, CancelSubscriptionAction $cancel)
     {
         $this->requirePermission(Permission::BillingManage);
 
-        $subscription = $cancel->execute($workspace);
-        $this->audit->record($workspace->id, AuditAction::SubscriptionCanceled);
+        $reason = CancellationReason::tryFrom((string) $request->validated('reason'));
+
+        $subscription = $cancel->execute($workspace, $request->user(), $reason, $request->validated('comment'));
+        $this->audit->record($workspace->id, AuditAction::SubscriptionCanceled, metadata: array_filter(['reason' => $reason?->value]));
 
         return ApiResponse::success(['subscription' => SubscriptionResource::make($subscription->load('plan'))], 'Subscription canceled.');
     }
