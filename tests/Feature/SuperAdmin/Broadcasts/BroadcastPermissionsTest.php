@@ -44,6 +44,7 @@ it('keeps a view-only role from changing or sending anything that exists', funct
     $this->withHeaders($headers)->postJson(saUrl("broadcasts/campaigns/{$campaign->id}/test-send"))->assertForbidden();
     $this->withHeaders($headers)->postJson(saUrl("broadcasts/campaigns/{$campaign->id}/start"), ['expected_recipient_count' => 1])->assertForbidden();
     $this->withHeaders($headers)->postJson(saUrl("broadcasts/campaigns/{$campaign->id}/cancel"))->assertForbidden();
+    $this->withHeaders($headers)->postJson(saUrl("broadcasts/campaigns/{$campaign->id}/recall"), ['reason' => 'Sent by mistake'])->assertForbidden();
 
     expect(Announcement::query()->count())->toBe(1)->and($campaign->fresh()->status->value)->toBe('draft');
 });

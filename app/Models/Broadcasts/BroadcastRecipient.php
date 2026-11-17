@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['campaign_id', 'user_id', 'email', 'status', 'attempts', 'sent_at', 'error'])]
+#[Fillable(['campaign_id', 'user_id', 'email', 'notification_id', 'status', 'attempts', 'sent_at', 'notified_at', 'error'])]
 class BroadcastRecipient extends Model
 {
     /** @use HasFactory<BroadcastRecipientFactory> */
@@ -33,6 +33,7 @@ class BroadcastRecipient extends Model
         return [
             'status' => BroadcastRecipientStatus::class,
             'sent_at' => 'datetime',
+            'notified_at' => 'datetime',
         ];
     }
 

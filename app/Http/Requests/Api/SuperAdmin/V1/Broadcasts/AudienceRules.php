@@ -17,13 +17,15 @@ final class AudienceRules
     public static function for(string $key = 'audience'): array
     {
         return [
-            $key => ['sometimes', 'nullable', 'array:plans,roles,workspace_ids,inactive_days'],
+            $key => ['sometimes', 'nullable', 'array:plans,roles,workspace_ids,inactive_days,user_ids'],
             "{$key}.plans" => ['sometimes', 'array', 'max:20'],
             "{$key}.plans.*" => ['string', Rule::exists('plans', 'slug')],
             "{$key}.roles" => ['sometimes', Rule::in(BroadcastAudience::ROLES)],
             "{$key}.workspace_ids" => ['sometimes', 'array', 'max:100'],
             "{$key}.workspace_ids.*" => ['uuid', Rule::exists('workspaces', 'id')],
             "{$key}.inactive_days" => ['sometimes', 'nullable', 'integer', 'min:1', 'max:3650'],
+            "{$key}.user_ids" => ['sometimes', 'array', 'max:100'],
+            "{$key}.user_ids.*" => ['uuid', Rule::exists('users', 'id')],
         ];
     }
 }

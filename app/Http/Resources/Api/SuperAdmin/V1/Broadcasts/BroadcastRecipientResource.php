@@ -23,6 +23,8 @@ class BroadcastRecipientResource extends JsonResource
             'status' => $this->status,
             'attempts' => $this->attempts,
             'sent_at' => $this->sent_at,
+            'notified_at' => $this->notified_at,
+            'notification_read_at' => $this->notification_read_at,
             'error' => $this->error,
         ];
     }

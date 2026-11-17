@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\SuperAdmin\V1\Broadcasts;
 
+use App\Enums\Broadcasts\BroadcastChannel;
 use App\Enums\Broadcasts\BroadcastStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\SuperAdmin\V1\Broadcasts\BroadcastCampaignRequest;
@@ -22,10 +23,14 @@ class BroadcastCampaignController extends Controller
 
     public function index(Request $request)
     {
-        $request->validate(['status' => ['nullable', Rule::enum(BroadcastStatus::class)]]);
+        $request->validate([
+            'status' => ['nullable', Rule::enum(BroadcastStatus::class)],
+            'channel' => ['nullable', Rule::enum(BroadcastChannel::class)],
+        ]);
 
         $campaigns = BroadcastCampaign::query()
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')->toString()))
+            ->when($request->filled('channel'), fn ($query) => $query->where('channel', $request->string('channel')->toString()))
             ->when($request->filled('q'), fn ($query) => $query->where(fn ($inner) => $inner->whereLike('name', '%'.$request->string('q').'%')->orWhereLike('subject', '%'.$request->string('q').'%')))
             ->latest()
             ->orderBy('id')
@@ -43,7 +48,7 @@ class BroadcastCampaignController extends Controller
 
     public function show(Request $request, BroadcastCampaign $campaign)
     {
-        return ApiResponse::success((new BroadcastCampaignResource($campaign))->resolve($request));
+        return ApiResponse::success((new BroadcastCampaignResource($campaign))->withEngagement()->resolve($request));
     }
 
     public function update(BroadcastCampaignRequest $request, BroadcastCampaign $campaign)
