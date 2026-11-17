@@ -280,7 +280,7 @@ it('recalls the notifications of that campaign only, and records it', function (
         ->and(SuperAdminAuditLog::query()->where('action', 'broadcasts.recalled')->where('subject_id', $campaign->id)->exists())->toBeTrue();
 
     $this->withHeaders($this->headers)
-        ->postJson(saUrl("broadcasts/campaigns/{$campaign->id}/recall"), ['reason' => 'Again'])
+        ->postJson(saUrl("broadcasts/campaigns/{$campaign->id}/recall"), ['reason' => 'Recalling it again'])
         ->assertStatus(409);
 });
 
@@ -310,8 +310,8 @@ it('cannot recall an email-only campaign or a draft', function () {
     $email = BroadcastCampaign::factory()->status(BroadcastStatus::Sent)->create();
     $draft = inAppCampaign();
 
-    $this->withHeaders($this->headers)->postJson(saUrl("broadcasts/campaigns/{$email->id}/recall"), ['reason' => 'Oops'])->assertStatus(409);
-    $this->withHeaders($this->headers)->postJson(saUrl("broadcasts/campaigns/{$draft->id}/recall"), ['reason' => 'Oops'])->assertStatus(409);
+    $this->withHeaders($this->headers)->postJson(saUrl("broadcasts/campaigns/{$email->id}/recall"), ['reason' => 'Recall by mistake'])->assertStatus(409);
+    $this->withHeaders($this->headers)->postJson(saUrl("broadcasts/campaigns/{$draft->id}/recall"), ['reason' => 'Recall by mistake'])->assertStatus(409);
 });
 
 it('says how many bells it reached and how many were read', function () {

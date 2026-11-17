@@ -71,6 +71,7 @@ it('sends nothing in the morning when everything is done', function () {
 });
 
 it('reminds you in the morning of what needs attention, loudest when something is overdue', function () {
+    $this->travelTo(today()->setTime(8, 0));
     $alerts = fakeDigestAlerts();
     OperationsTask::query()->delete();
     OperationsTask::factory()->create(['title' => 'Glance at the dashboard', 'created_at' => now()->subDay()]);
