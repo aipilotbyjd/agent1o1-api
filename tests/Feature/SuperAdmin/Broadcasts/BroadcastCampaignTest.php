@@ -3,8 +3,8 @@
 use App\Enums\Broadcasts\BroadcastRecipientStatus;
 use App\Enums\Broadcasts\BroadcastStatus;
 use App\Enums\SuperAdmin\SuperAdminRole;
+use App\Jobs\Broadcasts\DeliverBroadcastRecipientJob;
 use App\Jobs\Broadcasts\SendBroadcastCampaignJob;
-use App\Jobs\Broadcasts\SendBroadcastEmailJob;
 use App\Mail\Broadcasts\BroadcastCampaignMail;
 use App\Models\Billing\Plan;
 use App\Models\Broadcasts\BroadcastCampaign;
@@ -267,25 +267,25 @@ it('resumes a stopped campaign without mailing anyone twice', function () {
     $people = collect(range(1, 3))->map(fn () => referralUser());
     $campaign = draftCampaign();
 
-    Bus::fake([SendBroadcastEmailJob::class]);
+    Bus::fake([DeliverBroadcastRecipientJob::class]);
     app(BroadcastCampaignService::class)->start($this->admin, $campaign, 3, 'Launch');
 
     // The fan-out wrote the rows and queued the mail, but nothing has gone out yet.
     expect(BroadcastRecipient::query()->where('status', 'pending')->count())->toBe(3);
-    Bus::assertDispatchedTimes(SendBroadcastEmailJob::class, 3);
+    Bus::assertDispatchedTimes(DeliverBroadcastRecipientJob::class, 3);
 
     // One message goes out; then the worker dies and the whole fan-out runs again.
     $first = BroadcastRecipient::query()->first();
-    (new SendBroadcastEmailJob($first->id))->handle(app(BroadcastCampaignService::class), app(BroadcastAudience::class));
+    (new DeliverBroadcastRecipientJob($first->id))->handle(app(BroadcastCampaignService::class), app(BroadcastAudience::class));
 
     (new SendBroadcastCampaignJob($campaign->id))->handle(app(BroadcastAudience::class), app(BroadcastCampaignService::class));
 
     expect(BroadcastRecipient::query()->count())->toBe(3);
-    Bus::assertDispatchedTimes(SendBroadcastEmailJob::class, 5);
+    Bus::assertDispatchedTimes(DeliverBroadcastRecipientJob::class, 5);
 
     // Every queued job runs, including the duplicate for the person already mailed.
     foreach (BroadcastRecipient::query()->get() as $recipient) {
-        (new SendBroadcastEmailJob($recipient->id))->handle(app(BroadcastCampaignService::class), app(BroadcastAudience::class));
+        (new DeliverBroadcastRecipientJob($recipient->id))->handle(app(BroadcastCampaignService::class), app(BroadcastAudience::class));
     }
 
     Mail::assertSent(BroadcastCampaignMail::class, 3);
@@ -301,13 +301,13 @@ it('skips someone who opts out between the start and their message', function ()
     $leaves = referralUser();
     $campaign = draftCampaign();
 
-    Bus::fake([SendBroadcastEmailJob::class]);
+    Bus::fake([DeliverBroadcastRecipientJob::class]);
     app(BroadcastCampaignService::class)->start($this->admin, $campaign, 2, 'Launch');
 
     $leaves->forceFill(['marketing_opted_out_at' => now()])->save();
 
     foreach (BroadcastRecipient::query()->get() as $recipient) {
-        (new SendBroadcastEmailJob($recipient->id))->handle(app(BroadcastCampaignService::class), app(BroadcastAudience::class));
+        (new DeliverBroadcastRecipientJob($recipient->id))->handle(app(BroadcastCampaignService::class), app(BroadcastAudience::class));
     }
 
     Mail::assertSent(BroadcastCampaignMail::class, 1);
@@ -325,7 +325,7 @@ it('cancels: nothing more is sent and the waiting rows are skipped', function ()
     referralUser();
     $campaign = draftCampaign();
 
-    Bus::fake([SendBroadcastEmailJob::class]);
+    Bus::fake([DeliverBroadcastRecipientJob::class]);
     app(BroadcastCampaignService::class)->start($this->admin, $campaign, 2, 'Launch');
 
     $this->withHeaders($this->headers)
@@ -334,7 +334,7 @@ it('cancels: nothing more is sent and the waiting rows are skipped', function ()
         ->assertJsonPath('data.status', 'cancelled');
 
     foreach (BroadcastRecipient::query()->get() as $recipient) {
-        (new SendBroadcastEmailJob($recipient->id))->handle(app(BroadcastCampaignService::class), app(BroadcastAudience::class));
+        (new DeliverBroadcastRecipientJob($recipient->id))->handle(app(BroadcastCampaignService::class), app(BroadcastAudience::class));
     }
 
     Mail::assertNothingSent();
@@ -377,11 +377,11 @@ it('marks a failed message failed once its attempts run out, and closes the camp
     referralUser();
     $campaign = draftCampaign();
 
-    Bus::fake([SendBroadcastEmailJob::class]);
+    Bus::fake([DeliverBroadcastRecipientJob::class]);
     app(BroadcastCampaignService::class)->start($this->admin, $campaign, 1, 'Launch');
 
     $recipient = BroadcastRecipient::query()->firstOrFail();
-    (new SendBroadcastEmailJob($recipient->id))->failed(new RuntimeException('SMTP 550 mailbox unavailable'));
+    (new DeliverBroadcastRecipientJob($recipient->id))->failed(new RuntimeException('SMTP 550 mailbox unavailable'));
 
     expect($recipient->fresh()->status)->toBe(BroadcastRecipientStatus::Failed)
         ->and($recipient->fresh()->error)->toContain('550')
@@ -441,17 +441,17 @@ it('resumes a campaign whose sending stalled', function () {
     referralUser();
     $campaign = draftCampaign();
 
-    Bus::fake([SendBroadcastEmailJob::class]);
+    Bus::fake([DeliverBroadcastRecipientJob::class]);
     app(BroadcastCampaignService::class)->start($this->admin, $campaign, 1, 'Launch');
-    Bus::assertDispatchedTimes(SendBroadcastEmailJob::class, 1);
+    Bus::assertDispatchedTimes(DeliverBroadcastRecipientJob::class, 1);
 
     $this->artisan('broadcasts:dispatch-due')->assertSuccessful();
-    Bus::assertDispatchedTimes(SendBroadcastEmailJob::class, 1);
+    Bus::assertDispatchedTimes(DeliverBroadcastRecipientJob::class, 1);
 
     $this->travel(11)->minutes();
     $this->artisan('broadcasts:dispatch-due')->assertSuccessful();
 
-    Bus::assertDispatchedTimes(SendBroadcastEmailJob::class, 2);
+    Bus::assertDispatchedTimes(DeliverBroadcastRecipientJob::class, 2);
     expect(BroadcastRecipient::query()->count())->toBe(1);
 });
 
@@ -459,7 +459,7 @@ it('gives an abandoned claim back to the queue', function () {
     referralUser();
     $campaign = draftCampaign();
 
-    Bus::fake([SendBroadcastEmailJob::class]);
+    Bus::fake([DeliverBroadcastRecipientJob::class]);
     app(BroadcastCampaignService::class)->start($this->admin, $campaign, 1, 'Launch');
 
     BroadcastRecipient::query()->update(['status' => BroadcastRecipientStatus::Sending, 'updated_at' => now()->subMinutes(30)]);

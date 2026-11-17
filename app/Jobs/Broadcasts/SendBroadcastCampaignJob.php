@@ -20,7 +20,7 @@ use Throwable;
 
 /**
  * Fans a started campaign out: writes one recipient row per person in the
- * audience, then queues one `SendBroadcastEmailJob` per row still waiting.
+ * audience, then queues one `DeliverBroadcastRecipientJob` per row still waiting.
  *
  * Safe to run again at any point (a retry, `broadcasts:dispatch-due` resuming a
  * stalled campaign): rows are unique per `(campaign, user)` and inserted with
@@ -54,12 +54,14 @@ class SendBroadcastCampaignJob implements ShouldQueue
         $this->writeRecipients($campaign, $audience);
         $this->releaseAbandonedClaims($campaign);
 
+        $throttled = $campaign->channel->includesEmail();
+
         $campaign->recipients()
             ->where('status', BroadcastRecipientStatus::Pending)
             ->select('id')
-            ->chunkById((int) config('broadcasts.chunk_size'), function (Collection $recipients): void {
+            ->chunkById((int) config('broadcasts.chunk_size'), function (Collection $recipients) use ($throttled): void {
                 foreach ($recipients as $recipient) {
-                    SendBroadcastEmailJob::dispatch($recipient->id);
+                    DeliverBroadcastRecipientJob::dispatch($recipient->id, $throttled);
                 }
             });
 
@@ -107,7 +109,7 @@ class SendBroadcastCampaignJob implements ShouldQueue
             BroadcastRecipient::query()->insertOrIgnore($rows);
 
             $remaining -= count($rows);
-        });
+        }, $campaign->channel);
     }
 
     private function releaseAbandonedClaims(BroadcastCampaign $campaign): void

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 | Telling members things: in-app announcements (banners and maintenance
-| notices) and email campaigns.
+| notices) and campaigns, by email, to the notification bell, or both.
 |
 | Reading needs `broadcasts.view` (every role); writing needs
 | `broadcasts.manage`. Starting or scheduling a campaign also needs a fresh
@@ -47,6 +47,7 @@ Route::prefix('broadcasts')->as('broadcasts.')->group(function () use ($base) {
         Route::middleware('throttle:super-admin-sensitive')->group(function () {
             Route::post('campaigns/{campaign}/test-send', [BroadcastCampaignActionController::class, 'testSend'])->whereUuid('campaign')->name('campaigns.test-send');
             Route::post('campaigns/{campaign}/cancel', [BroadcastCampaignActionController::class, 'cancel'])->whereUuid('campaign')->name('campaigns.cancel');
+            Route::post('campaigns/{campaign}/recall', [BroadcastCampaignActionController::class, 'recall'])->whereUuid('campaign')->name('campaigns.recall');
 
             Route::middleware('super-admin.idempotent')->group(function () {
                 Route::post('campaigns/{campaign}/start', [BroadcastCampaignActionController::class, 'start'])->whereUuid('campaign')->name('campaigns.start');
