@@ -61,16 +61,25 @@ class SubagentTask extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Agent, $this>
+     */
     public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
     }
 
+    /**
+     * @return BelongsTo<AgentSession, $this>
+     */
     public function parentSession(): BelongsTo
     {
         return $this->belongsTo(AgentSession::class, 'parent_session_id');
     }
 
+    /**
+     * @return BelongsTo<AgentSession, $this>
+     */
     public function session(): BelongsTo
     {
         return $this->belongsTo(AgentSession::class, 'session_id');

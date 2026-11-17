@@ -26,6 +26,9 @@ class AssistantQueuedInput extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<AssistantSession, $this>
+     */
     public function session(): BelongsTo
     {
         return $this->belongsTo(AssistantSession::class, 'assistant_session_id');

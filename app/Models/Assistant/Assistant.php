@@ -36,71 +36,113 @@ class Assistant extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<ModelCatalog, $this>
+     */
     public function modelCatalog(): BelongsTo
     {
         return $this->belongsTo(ModelCatalog::class);
     }
 
+    /**
+     * @return HasMany<AssistantSession, $this>
+     */
     public function sessions(): HasMany
     {
         return $this->hasMany(AssistantSession::class);
     }
 
+    /**
+     * @return HasMany<AssistantMemory, $this>
+     */
     public function memories(): HasMany
     {
         return $this->hasMany(AssistantMemory::class);
     }
 
+    /**
+     * @return HasMany<AssistantFollowUp, $this>
+     */
     public function followUps(): HasMany
     {
         return $this->hasMany(AssistantFollowUp::class);
     }
 
+    /**
+     * @return HasMany<AssistantStyleProfile, $this>
+     */
     public function styleProfiles(): HasMany
     {
         return $this->hasMany(AssistantStyleProfile::class);
     }
 
+    /**
+     * @return HasMany<AssistantFeedback, $this>
+     */
     public function feedback(): HasMany
     {
         return $this->hasMany(AssistantFeedback::class);
     }
 
+    /**
+     * @return HasMany<AssistantBriefingConfig, $this>
+     */
     public function briefingConfigs(): HasMany
     {
         return $this->hasMany(AssistantBriefingConfig::class);
     }
 
+    /**
+     * @return HasMany<AssistantMeeting, $this>
+     */
     public function meetings(): HasMany
     {
         return $this->hasMany(AssistantMeeting::class);
     }
 
+    /**
+     * @return HasOne<AssistantInboxConfig, $this>
+     */
     public function inbox(): HasOne
     {
         return $this->hasOne(AssistantInboxConfig::class);
     }
 
+    /**
+     * @return HasMany<AssistantTrigger, $this>
+     */
     public function triggers(): HasMany
     {
         return $this->hasMany(AssistantTrigger::class);
     }
 
+    /**
+     * @return HasMany<AssistantSituation, $this>
+     */
     public function situations(): HasMany
     {
         return $this->hasMany(AssistantSituation::class);
     }
 
+    /**
+     * @return HasMany<AssistantToolRule, $this>
+     */
     public function toolRules(): HasMany
     {
         return $this->hasMany(AssistantToolRule::class);

@@ -36,21 +36,33 @@ class AssistantSituation extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Assistant, $this>
+     */
     public function assistant(): BelongsTo
     {
         return $this->belongsTo(Assistant::class);
     }
 
+    /**
+     * @return BelongsTo<AssistantBriefingRun, $this>
+     */
     public function run(): BelongsTo
     {
         return $this->belongsTo(AssistantBriefingRun::class, 'assistant_briefing_run_id');
     }
 
+    /**
+     * @return HasMany<AssistantSituationStep, $this>
+     */
     public function steps(): HasMany
     {
         return $this->hasMany(AssistantSituationStep::class)->orderBy('position');
     }
 
+    /**
+     * @return BelongsTo<AssistantSession, $this>
+     */
     public function session(): BelongsTo
     {
         return $this->belongsTo(AssistantSession::class, 'assistant_session_id');

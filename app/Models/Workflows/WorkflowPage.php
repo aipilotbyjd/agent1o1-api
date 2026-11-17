@@ -83,26 +83,41 @@ class WorkflowPage extends Model
         return Str::random(32);
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<Workflow, $this>
+     */
     public function workflow(): BelongsTo
     {
         return $this->belongsTo(Workflow::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function publisher(): BelongsTo
     {
         return $this->belongsTo(User::class, 'published_by');
     }
 
+    /**
+     * @return HasMany<WorkflowPageSubmission, $this>
+     */
     public function submissions(): HasMany
     {
         return $this->hasMany(WorkflowPageSubmission::class);
@@ -143,21 +158,33 @@ class WorkflowPage extends Model
         return $published ? $this->published_content : $this->content;
     }
 
+    /**
+     * @return HasMany<WorkflowPageEvent, $this>
+     */
     public function events(): HasMany
     {
         return $this->hasMany(WorkflowPageEvent::class);
     }
 
+    /**
+     * @return HasMany<WorkflowPageVersion, $this>
+     */
     public function versions(): HasMany
     {
         return $this->hasMany(WorkflowPageVersion::class);
     }
 
+    /**
+     * @return HasMany<WorkflowPageComment, $this>
+     */
     public function comments(): HasMany
     {
         return $this->hasMany(WorkflowPageComment::class);
     }
 
+    /**
+     * @return HasMany<WorkflowPageGeneration, $this>
+     */
     public function generations(): HasMany
     {
         return $this->hasMany(WorkflowPageGeneration::class);

@@ -50,11 +50,17 @@ class CreditPack extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function purchasedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'purchased_by');

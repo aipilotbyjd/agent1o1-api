@@ -47,16 +47,25 @@ class CustomNode extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<NodeCategory, $this>
+     */
     public function category(): BelongsTo
     {
         return $this->belongsTo(NodeCategory::class, 'category_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

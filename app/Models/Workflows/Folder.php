@@ -30,26 +30,41 @@ class Folder extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<Folder, $this>
+     */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Folder::class, 'parent_id');
     }
 
+    /**
+     * @return HasMany<Folder, $this>
+     */
     public function children(): HasMany
     {
         return $this->hasMany(Folder::class, 'parent_id')->orderBy('position');
     }
 
+    /**
+     * @return HasMany<Workflow, $this>
+     */
     public function workflows(): HasMany
     {
         return $this->hasMany(Workflow::class);
     }
 
+    /**
+     * @return HasMany<Agent, $this>
+     */
     public function agents(): HasMany
     {
         return $this->hasMany(Agent::class);

@@ -16,6 +16,9 @@ class AssistantMemory extends Model
 {
     use HasUuids;
 
+    /**
+     * @return BelongsTo<Assistant, $this>
+     */
     public function assistant(): BelongsTo
     {
         return $this->belongsTo(Assistant::class);

@@ -53,21 +53,33 @@ class AgentSessionEvaluation extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<Agent, $this>
+     */
     public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
     }
 
+    /**
+     * @return BelongsTo<AgentSession, $this>
+     */
     public function session(): BelongsTo
     {
         return $this->belongsTo(AgentSession::class, 'agent_session_id');
     }
 
+    /**
+     * @return MorphMany<Run, $this>
+     */
     public function runs(): MorphMany
     {
         return $this->morphMany(Run::class, 'runnable');
@@ -77,6 +89,8 @@ class AgentSessionEvaluation extends Model
      * The `CreditTransaction` this grading was billed under: see
      * `NodeRun::creditTransaction()`'s docblock for why this isn't a real
      * `morphOne`.
+     *
+     * @return HasOne<CreditTransaction, $this>
      */
     public function creditTransaction(): HasOne
     {

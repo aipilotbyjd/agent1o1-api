@@ -40,16 +40,25 @@ class AssistantMeeting extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Assistant, $this>
+     */
     public function assistant(): BelongsTo
     {
         return $this->belongsTo(Assistant::class);
     }
 
+    /**
+     * @return HasMany<AssistantBriefingRun, $this>
+     */
     public function runs(): HasMany
     {
         return $this->hasMany(AssistantBriefingRun::class);
     }
 
+    /**
+     * @return HasOne<AssistantBriefingRun, $this>
+     */
     public function latestRun(): HasOne
     {
         return $this->hasOne(AssistantBriefingRun::class)->latestOfMany();

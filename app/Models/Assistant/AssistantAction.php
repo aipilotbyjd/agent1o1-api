@@ -43,11 +43,17 @@ class AssistantAction extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<AssistantSession, $this>
+     */
     public function session(): BelongsTo
     {
         return $this->belongsTo(AssistantSession::class, 'assistant_session_id');
     }
 
+    /**
+     * @return BelongsTo<AssistantTurn, $this>
+     */
     public function turn(): BelongsTo
     {
         return $this->belongsTo(AssistantTurn::class, 'assistant_turn_id');

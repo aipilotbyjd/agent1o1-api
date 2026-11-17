@@ -45,12 +45,17 @@ class NodeCategory extends Model
 
     /**
      * The users who pinned this app to their "Your apps" in the editor.
+     *
+     * @return BelongsToMany<User, $this>
      */
     public function pinnedByUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'node_category_pins')->withTimestamps();
     }
 
+    /**
+     * @return HasMany<CustomNode, $this>
+     */
     public function customNodes(): HasMany
     {
         return $this->hasMany(CustomNode::class, 'category_id');

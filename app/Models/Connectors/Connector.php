@@ -89,6 +89,9 @@ class Connector extends Model
             && filled(config("services.{$this->key}.client_secret"));
     }
 
+    /**
+     * @return HasMany<ConnectorCredential, $this>
+     */
     public function credentials(): HasMany
     {
         return $this->hasMany(ConnectorCredential::class);

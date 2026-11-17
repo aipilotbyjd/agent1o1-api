@@ -35,16 +35,25 @@ class WorkflowApproval extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Run, $this>
+     */
     public function run(): BelongsTo
     {
         return $this->belongsTo(Run::class);
     }
 
+    /**
+     * @return BelongsTo<NodeRun, $this>
+     */
     public function nodeRun(): BelongsTo
     {
         return $this->belongsTo(NodeRun::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function decidedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'decided_by');

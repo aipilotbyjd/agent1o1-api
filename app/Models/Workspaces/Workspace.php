@@ -100,6 +100,9 @@ class Workspace extends Model
         return $this->suspended_at !== null;
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
@@ -126,36 +129,57 @@ class Workspace extends Model
         ];
     }
 
+    /**
+     * @return HasMany<WorkspaceMember, $this>
+     */
     public function members(): HasMany
     {
         return $this->hasMany(WorkspaceMember::class);
     }
 
+    /**
+     * @return HasMany<WorkspaceInvitation, $this>
+     */
     public function invitations(): HasMany
     {
         return $this->hasMany(WorkspaceInvitation::class);
     }
 
+    /**
+     * @return HasMany<AuditLog, $this>
+     */
     public function auditLogs(): HasMany
     {
         return $this->hasMany(AuditLog::class);
     }
 
+    /**
+     * @return HasMany<NotificationChannel, $this>
+     */
     public function notificationChannels(): HasMany
     {
         return $this->hasMany(NotificationChannel::class);
     }
 
+    /**
+     * @return HasMany<NotificationRoute, $this>
+     */
     public function notificationRoutes(): HasMany
     {
         return $this->hasMany(NotificationRoute::class);
     }
 
+    /**
+     * @return HasMany<NotificationPreference, $this>
+     */
     public function notificationPreferences(): HasMany
     {
         return $this->hasMany(NotificationPreference::class);
     }
 
+    /**
+     * @return BelongsToMany<User, $this>
+     */
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'workspace_members')
@@ -163,111 +187,177 @@ class Workspace extends Model
             ->withTimestamps();
     }
 
+    /**
+     * @return HasMany<ApiKey, $this>
+     */
     public function apiKeys(): HasMany
     {
         return $this->hasMany(ApiKey::class);
     }
 
+    /**
+     * @return HasMany<Trigger, $this>
+     */
     public function triggers(): HasMany
     {
         return $this->hasMany(Trigger::class);
     }
 
+    /**
+     * @return HasMany<Workflow, $this>
+     */
     public function workflows(): HasMany
     {
         return $this->hasMany(Workflow::class);
     }
 
+    /**
+     * @return HasMany<WorkflowPage, $this>
+     */
     public function workflowPages(): HasMany
     {
         return $this->hasMany(WorkflowPage::class);
     }
 
+    /**
+     * @return HasMany<Folder, $this>
+     */
     public function folders(): HasMany
     {
         return $this->hasMany(Folder::class);
     }
 
+    /**
+     * @return HasMany<Tag, $this>
+     */
     public function tags(): HasMany
     {
         return $this->hasMany(Tag::class);
     }
 
+    /**
+     * @return HasMany<WorkflowBuilderSession, $this>
+     */
     public function builderSessions(): HasMany
     {
         return $this->hasMany(WorkflowBuilderSession::class);
     }
 
+    /**
+     * @return HasMany<Run, $this>
+     */
     public function runs(): HasMany
     {
         return $this->hasMany(Run::class);
     }
 
+    /**
+     * @return HasMany<Agent, $this>
+     */
     public function agents(): HasMany
     {
         return $this->hasMany(Agent::class);
     }
 
+    /**
+     * @return HasMany<AgentSession, $this>
+     */
     public function agentSessions(): HasMany
     {
         return $this->hasMany(AgentSession::class);
     }
 
+    /**
+     * @return HasMany<Artifact, $this>
+     */
     public function artifacts(): HasMany
     {
         return $this->hasMany(Artifact::class);
     }
 
+    /**
+     * @return HasMany<Skill, $this>
+     */
     public function skills(): HasMany
     {
         return $this->hasMany(Skill::class);
     }
 
+    /**
+     * @return HasMany<SkillSource, $this>
+     */
     public function skillSources(): HasMany
     {
         return $this->hasMany(SkillSource::class);
     }
 
+    /**
+     * @return HasMany<CustomNode, $this>
+     */
     public function customNodes(): HasMany
     {
         return $this->hasMany(CustomNode::class);
     }
 
+    /**
+     * @return HasMany<ConnectorCredential, $this>
+     */
     public function connectorCredentials(): HasMany
     {
         return $this->hasMany(ConnectorCredential::class);
     }
 
+    /**
+     * @return HasMany<AiProviderCredential, $this>
+     */
     public function aiProviderCredentials(): HasMany
     {
         return $this->hasMany(AiProviderCredential::class);
     }
 
+    /**
+     * @return HasOne<WorkspaceAiKeyPolicy, $this>
+     */
     public function aiKeyPolicy(): HasOne
     {
         return $this->hasOne(WorkspaceAiKeyPolicy::class);
     }
 
+    /**
+     * @return HasMany<Secret, $this>
+     */
     public function secrets(): HasMany
     {
         return $this->hasMany(Secret::class);
     }
 
+    /**
+     * @return HasMany<AgentAction, $this>
+     */
     public function agentActions(): HasMany
     {
         return $this->hasMany(AgentAction::class);
     }
 
+    /**
+     * @return HasMany<KnowledgeSource, $this>
+     */
     public function knowledgeSources(): HasMany
     {
         return $this->hasMany(KnowledgeSource::class);
     }
 
+    /**
+     * @return HasMany<DocumentEmbedding, $this>
+     */
     public function documentEmbeddings(): HasMany
     {
         return $this->hasMany(DocumentEmbedding::class);
     }
 
+    /**
+     * @return HasMany<CreditTransaction, $this>
+     */
     public function creditTransactions(): HasMany
     {
         return $this->hasMany(CreditTransaction::class);
@@ -281,6 +371,9 @@ class Workspace extends Model
         return $this->hasMany(CreditGrant::class);
     }
 
+    /**
+     * @return HasMany<CreditPack, $this>
+     */
     public function creditPacks(): HasMany
     {
         return $this->hasMany(CreditPack::class);
@@ -294,36 +387,57 @@ class Workspace extends Model
         return $this->hasMany(PlanGrant::class);
     }
 
+    /**
+     * @return HasMany<ReferralReward, $this>
+     */
     public function referralRewards(): HasMany
     {
         return $this->hasMany(ReferralReward::class);
     }
 
+    /**
+     * @return HasMany<UsagePeriod, $this>
+     */
     public function usagePeriods(): HasMany
     {
         return $this->hasMany(UsagePeriod::class);
     }
 
+    /**
+     * @return HasMany<WorkflowTemplate, $this>
+     */
     public function workflowTemplates(): HasMany
     {
         return $this->hasMany(WorkflowTemplate::class);
     }
 
+    /**
+     * @return HasMany<AgentTemplate, $this>
+     */
     public function agentTemplates(): HasMany
     {
         return $this->hasMany(AgentTemplate::class);
     }
 
+    /**
+     * @return HasMany<PageSection, $this>
+     */
     public function pageSections(): HasMany
     {
         return $this->hasMany(PageSection::class);
     }
 
+    /**
+     * @return HasMany<PageTemplate, $this>
+     */
     public function pageTemplates(): HasMany
     {
         return $this->hasMany(PageTemplate::class);
     }
 
+    /**
+     * @return HasMany<TemplateCollection, $this>
+     */
     public function templateCollections(): HasMany
     {
         return $this->hasMany(TemplateCollection::class);

@@ -56,21 +56,33 @@ class SkillSource extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * @return BelongsTo<ConnectorCredential, $this>
+     */
     public function credential(): BelongsTo
     {
         return $this->belongsTo(ConnectorCredential::class, 'connector_credential_id');
     }
 
+    /**
+     * @return HasMany<Skill, $this>
+     */
     public function skills(): HasMany
     {
         return $this->hasMany(Skill::class);

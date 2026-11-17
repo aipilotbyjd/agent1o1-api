@@ -39,11 +39,17 @@ class AgentEvalCaseResult extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<AgentEvalRun, $this>
+     */
     public function evalRun(): BelongsTo
     {
         return $this->belongsTo(AgentEvalRun::class, 'agent_eval_run_id');
     }
 
+    /**
+     * @return BelongsTo<AgentEvalCase, $this>
+     */
     public function evalCase(): BelongsTo
     {
         return $this->belongsTo(AgentEvalCase::class, 'agent_eval_case_id');

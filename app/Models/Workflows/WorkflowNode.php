@@ -27,11 +27,17 @@ class WorkflowNode extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workflow, $this>
+     */
     public function workflow(): BelongsTo
     {
         return $this->belongsTo(Workflow::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function pinnedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'pinned_by');
@@ -42,11 +48,17 @@ class WorkflowNode extends Model
         return $this->pinned_data !== null;
     }
 
+    /**
+     * @return HasMany<WorkflowEdge, $this>
+     */
     public function outgoingEdges(): HasMany
     {
         return $this->hasMany(WorkflowEdge::class, 'from_node_id');
     }
 
+    /**
+     * @return HasMany<WorkflowEdge, $this>
+     */
     public function incomingEdges(): HasMany
     {
         return $this->hasMany(WorkflowEdge::class, 'to_node_id');

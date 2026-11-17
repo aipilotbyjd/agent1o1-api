@@ -35,21 +35,33 @@ class AssistantInboxConfig extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Assistant, $this>
+     */
     public function assistant(): BelongsTo
     {
         return $this->belongsTo(Assistant::class);
     }
 
+    /**
+     * @return BelongsTo<ConnectorCredential, $this>
+     */
     public function credential(): BelongsTo
     {
         return $this->belongsTo(ConnectorCredential::class, 'connector_credential_id');
     }
 
+    /**
+     * @return HasMany<AssistantInboxLabel, $this>
+     */
     public function labels(): HasMany
     {
         return $this->hasMany(AssistantInboxLabel::class)->orderBy('position');
     }
 
+    /**
+     * @return HasMany<AssistantInboxMessage, $this>
+     */
     public function messages(): HasMany
     {
         return $this->hasMany(AssistantInboxMessage::class);

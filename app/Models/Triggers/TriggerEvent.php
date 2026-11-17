@@ -60,6 +60,8 @@ class TriggerEvent extends Model
 
     /**
      * The trigger it arrived for.
+     *
+     * @return BelongsTo<Trigger, $this>
      */
     public function trigger(): BelongsTo
     {
@@ -69,6 +71,8 @@ class TriggerEvent extends Model
     /**
      * The run it started: a workflow run or an agent turn, depending on the
      * trigger's target. Null until the event is fired.
+     *
+     * @return BelongsTo<Run, $this>
      */
     public function run(): BelongsTo
     {

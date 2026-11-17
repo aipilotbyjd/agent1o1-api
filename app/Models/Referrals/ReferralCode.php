@@ -54,26 +54,41 @@ class ReferralCode extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<ReferralProgram, $this>
+     */
     public function program(): BelongsTo
     {
         return $this->belongsTo(ReferralProgram::class, 'program_id');
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function rewardWorkspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class, 'reward_workspace_id');
     }
 
+    /**
+     * @return HasMany<Referral, $this>
+     */
     public function referrals(): HasMany
     {
         return $this->hasMany(Referral::class);
     }
 
+    /**
+     * @return HasMany<ReferralVisit, $this>
+     */
     public function visits(): HasMany
     {
         return $this->hasMany(ReferralVisit::class);
