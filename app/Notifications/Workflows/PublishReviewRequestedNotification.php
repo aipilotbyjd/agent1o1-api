@@ -33,8 +33,7 @@ class PublishReviewRequestedNotification extends WorkspaceEventNotification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $mail = (new MailMessage)
-            ->subject($this->title)
+        $mail = $this->mailMessage($notifiable)
             ->line('Nothing goes live until someone approves it.');
 
         if (filled($this->publishRequest->notes)) {

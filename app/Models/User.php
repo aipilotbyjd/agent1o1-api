@@ -10,6 +10,8 @@ use App\Models\Auth\AuthEventLog;
 use App\Models\Changelog\ChangelogRead;
 use App\Models\Credentials\OAuthConnection;
 use App\Models\Nodes\NodeCategory;
+use App\Models\Notifications\AccountNotificationPreference;
+use App\Models\Notifications\InboxNotification;
 use App\Models\Notifications\NotificationPreference;
 use App\Models\Referrals\Referral;
 use App\Models\Referrals\ReferralCode;
@@ -29,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -185,6 +188,23 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     public function notificationPreferences(): HasMany
     {
         return $this->hasMany(NotificationPreference::class);
+    }
+
+    public function accountNotificationPreferences(): HasMany
+    {
+        return $this->hasMany(AccountNotificationPreference::class);
+    }
+
+    /**
+     * The member's inbox, newest occurrence first. Replaces the trait's
+     * relation so rows come back as `InboxNotification`, with the inbox
+     * columns cast.
+     *
+     * @return MorphMany<InboxNotification, $this>
+     */
+    public function notifications(): MorphMany
+    {
+        return $this->morphMany(InboxNotification::class, 'notifiable')->newestFirst();
     }
 
     public function referralCode(): HasOne

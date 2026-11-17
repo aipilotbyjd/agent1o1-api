@@ -7,6 +7,7 @@ use App\Enums\Assistant\AssistantSessionOrigin;
 use App\Models\Assistant\AssistantFollowUp;
 use App\Notifications\Assistant\FollowUpReminderNotification;
 use App\Services\Assistant\Channels\ChannelReplies;
+use App\Services\Notifications\NotificationDispatcher;
 use Throwable;
 
 /**
@@ -51,7 +52,7 @@ class FollowUpChecker
         }
 
         $this->settle($followUp, AssistantFollowUpStatus::Reminded);
-        $assistant->user->notify(new FollowUpReminderNotification($followUp));
+        app(NotificationDispatcher::class)->dispatchTo($assistant->user, new FollowUpReminderNotification($followUp));
         $this->remindInConversation($followUp);
 
         return AssistantFollowUpStatus::Reminded;

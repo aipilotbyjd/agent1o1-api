@@ -151,7 +151,7 @@ it('alerts the owner and logs the event when a password changes', function () {
     Notification::assertSentTo(
         $user,
         SecurityAlertNotification::class,
-        fn (SecurityAlertNotification $n) => $n->event === AuthEvent::PasswordChanged,
+        fn (SecurityAlertNotification $n) => $n->authEvent === AuthEvent::PasswordChanged,
     );
 
     expect($user->authEvents()->pluck('event')->all())->toContain(AuthEvent::PasswordChanged);

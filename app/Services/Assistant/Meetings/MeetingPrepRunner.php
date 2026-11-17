@@ -17,6 +17,7 @@ use App\Services\Assistant\Briefings\SettlesBriefingRuns;
 use App\Services\Assistant\Personalization\StyleProfiles;
 use App\Services\Assistant\Runtime\AssistantModel;
 use App\Services\Billing\CreditGate;
+use App\Services\Notifications\NotificationDispatcher;
 use Illuminate\Support\Collection;
 use Throwable;
 
@@ -155,7 +156,7 @@ class MeetingPrepRunner
         $results = ['app' => true];
 
         if (($config->delivery['email'] ?? false) === true) {
-            $assistant->user->notify(new MeetingBriefNotification($run->refresh(), $this->brands->current($assistant->workspace)->feature('meeting_prep')));
+            app(NotificationDispatcher::class)->dispatchTo($assistant->user, new MeetingBriefNotification($run->refresh(), $this->brands->current($assistant->workspace)->feature('meeting_prep')));
             $results['email'] = true;
         }
 

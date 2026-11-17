@@ -13,6 +13,7 @@ use App\Models\Billing\Plan;
 use App\Models\Billing\PlanGrant;
 use App\Models\User;
 use App\Notifications\Assistant\FollowUpReminderNotification;
+use App\Notifications\Channels\InboxChannel;
 use App\Services\Assistant\Channels\ChannelReplies;
 use App\Services\Assistant\Inbox\FollowUpChecker;
 use App\Services\Assistant\Inbox\Mailbox;
@@ -148,7 +149,7 @@ it('queues a check only for follow-ups that are due', function () {
 
 it('also sends the in-app notification', function () {
     expect((new FollowUpReminderNotification(AssistantFollowUp::factory()->create(['assistant_id' => $this->assistant->id])))->via($this->owner))
-        ->toBe(['mail', 'database']);
+        ->toBe([InboxChannel::class, 'mail']);
 });
 
 it('reminds in the Slack or text conversation the follow-up was asked for in', function (AssistantSessionOrigin $origin, int $expectedMessages) {

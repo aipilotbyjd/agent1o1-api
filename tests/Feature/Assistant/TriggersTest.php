@@ -11,7 +11,7 @@ use App\Models\Assistant\AssistantSession;
 use App\Models\Assistant\AssistantTrigger;
 use App\Models\Assistant\AssistantTurn;
 use App\Models\User;
-use App\Notifications\Assistant\TriggerDisabledNotification;
+use App\Notifications\Assistant\AssistantTriggerDisabledNotification;
 use App\Services\Assistant\Runtime\AssistantLoop;
 use App\Services\Assistant\Triggers\TriggerDefinitions;
 use App\Services\Assistant\Triggers\TriggerOutcomes;
@@ -133,7 +133,7 @@ it('switches a trigger off after three failed runs in a row and tells the owner 
     }
 
     expect($trigger->refresh()->status)->toBe(AssistantTriggerStatus::Disabled);
-    Notification::assertSentToTimes($this->owner, TriggerDisabledNotification::class, 1);
+    Notification::assertSentToTimes($this->owner, AssistantTriggerDisabledNotification::class, 1);
 });
 
 it('lets the assistant create a trigger from chat once the owner approves', function () {

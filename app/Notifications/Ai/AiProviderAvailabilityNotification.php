@@ -4,6 +4,7 @@ namespace App\Notifications\Ai;
 
 use App\Enums\Notifications\NotificationEvent;
 use App\Models\Workspaces\Workspace;
+use App\Notifications\Channels\InboxChannel;
 use App\Notifications\Workspace\WorkspaceEventNotification;
 
 /**
@@ -11,7 +12,7 @@ use App\Notifications\Workspace\WorkspaceEventNotification;
  * chose to tell the workspaces that have a key for it. Unlike other
  * workspace events, the super admin decides the channels for this one
  * notice (in-app only, or in-app and email) instead of each member's
- * notification preferences.
+ * notification preferences, which is why the event isn't configurable.
  */
 class AiProviderAvailabilityNotification extends WorkspaceEventNotification
 {
@@ -38,6 +39,6 @@ class AiProviderAvailabilityNotification extends WorkspaceEventNotification
      */
     public function via(object $notifiable): array
     {
-        return $this->sendEmail ? ['database', 'broadcast', 'mail'] : ['database', 'broadcast'];
+        return $this->sendEmail ? [InboxChannel::class, 'mail'] : [InboxChannel::class];
     }
 }

@@ -41,7 +41,7 @@ it('warns the old address as soon as a change is requested', function () {
     Notification::assertSentTo(
         $user,
         SecurityAlertNotification::class,
-        fn (SecurityAlertNotification $n) => $n->event === AuthEvent::EmailChangeRequested,
+        fn (SecurityAlertNotification $n) => $n->authEvent === AuthEvent::EmailChangeRequested,
     );
 });
 
@@ -83,7 +83,7 @@ it('tells the old address after the change lands', function () {
 
     Notification::assertSentOnDemand(
         SecurityAlertNotification::class,
-        fn (SecurityAlertNotification $n, array $channels, object $notifiable) => $n->event === AuthEvent::EmailChanged
+        fn (SecurityAlertNotification $n, array $channels, object $notifiable) => $n->authEvent === AuthEvent::EmailChanged
             && $notifiable->routes['mail'] === 'jane@example.com',
     );
 });

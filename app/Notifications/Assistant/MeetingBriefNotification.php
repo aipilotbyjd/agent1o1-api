@@ -2,51 +2,58 @@
 
 namespace App\Notifications\Assistant;
 
-use App\Enums\Queue;
+use App\Enums\Notifications\NotificationEvent;
 use App\Models\Assistant\AssistantBriefingRun;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Notifications\AppNotification;
+use App\Services\Notifications\NotificationLinks;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 use Illuminate\Support\Str;
 
 /**
- * A Meeting Prep brief by email, ahead of the meeting.
+ * A Meeting Prep brief, ahead of the meeting: by email (on by default) and
+ * optionally in the bell.
  */
-class MeetingBriefNotification extends Notification implements ShouldQueue
+class MeetingBriefNotification extends AppNotification
 {
-    use Queueable;
-
     public function __construct(
         public readonly AssistantBriefingRun $run,
-        public readonly string $title,
+        string $title,
     ) {
-        $this->onQueue(Queue::Notification->value);
-        $this->afterCommit();
+        $meetingTitle = $run->meeting?->title;
+
+        parent::__construct(
+            event: NotificationEvent::AssistantMeetingBrief,
+            title: $meetingTitle !== null ? "{$title}: {$meetingTitle}" : $title,
+            body: $run->summary !== null ? Str::limit((string) $run->summary, 500) : null,
+            data: [
+                'assistant_briefing_run_id' => $run->id,
+                'meeting_title' => $meetingTitle,
+            ],
+            workspaceId: $run->config->assistant->workspace_id,
+        );
     }
 
     /**
-     * @return list<string>
+     * One brief is sent once, however often its job runs.
      */
-    public function via(object $notifiable): array
+    public function idempotencyKey(): ?string
     {
-        return ['mail'];
+        return 'meeting-brief:'.$this->run->id;
+    }
+
+    public function actionPath(): ?string
+    {
+        return '/'.rawurlencode((string) $this->workspaceId).'/assistant?tab=prep';
     }
 
     public function toMail(object $notifiable): MailMessage
     {
-        $meeting = $this->run->meeting;
-
-        $mail = (new MailMessage)
-            ->subject("{$this->title}: {$meeting?->title}")
-            ->line((string) $this->run->summary);
+        $mail = $this->mailMessage($notifiable)->line((string) $this->run->summary);
 
         if (filled($this->run->document)) {
             $mail->line(Str::limit((string) $this->run->document, 3000));
         }
 
-        $workspaceId = $this->run->config->assistant->workspace_id;
-
-        return $mail->action('Open the brief', config('app.frontend_url')."/{$workspaceId}/assistant?tab=prep");
+        return $mail->action('Open the brief', (string) NotificationLinks::absolute($this->actionPath()));
     }
 }

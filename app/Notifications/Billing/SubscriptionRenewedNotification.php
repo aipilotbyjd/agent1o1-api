@@ -28,4 +28,12 @@ class SubscriptionRenewedNotification extends WorkspaceEventNotification
             ],
         );
     }
+
+    /**
+     * Stripe retries its webhooks: each renewal invoice is reported once.
+     */
+    public function idempotencyKey(): ?string
+    {
+        return isset($this->data['invoice_id']) ? 'subscription-renewed:'.$this->data['invoice_id'] : null;
+    }
 }

@@ -54,4 +54,12 @@ class PaymentFailedNotification extends WorkspaceEventNotification
 
         return $opening.$consequence.$next;
     }
+
+    /**
+     * Stripe retries its webhooks: each failed attempt on an invoice is reported once.
+     */
+    public function idempotencyKey(): ?string
+    {
+        return $this->data['invoice_id'] === null ? null : "payment-failed:{$this->data['invoice_id']}:{$this->data['attempt']}";
+    }
 }
