@@ -5,6 +5,7 @@ use App\Jobs\Account\BuildDataExportJob;
 use App\Models\Account\DataExport;
 use App\Models\User;
 use App\Notifications\Account\DataExportReadyNotification;
+use App\Services\Account\DataExportService;
 use App\Services\Workspaces\WorkspaceService;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
@@ -42,7 +43,7 @@ it('builds an archive of the account data and emails the owner', function () {
     app(WorkspaceService::class)->create($user, ['name' => 'Acme']);
     $export = DataExport::factory()->for($user)->create();
 
-    (new BuildDataExportJob($export->id))->handle(app(App\Services\Account\DataExportService::class));
+    (new BuildDataExportJob($export->id))->handle(app(DataExportService::class));
 
     $export->refresh();
     expect($export->status)->toBe(DataExportStatus::Completed)

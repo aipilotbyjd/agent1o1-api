@@ -8,8 +8,9 @@ use App\Models\User;
 use App\Models\Workspaces\Workspace;
 use App\Services\Workspaces\WorkspaceService;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Testing\TestResponse;
 
-function deleteAccount(User $user, array $payload = []): Illuminate\Testing\TestResponse
+function deleteAccount(User $user, array $payload = []): TestResponse
 {
     return test()->actingAs($user, 'api')->deleteJson('/api/v1/user', [
         'confirm_email' => $user->email,
