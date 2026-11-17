@@ -3,7 +3,7 @@
 namespace App\Services\SuperAdmin\System;
 
 use App\Enums\Notifications\DeliveryStatus;
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Notifications\InboxNotification;
 use App\Models\Notifications\NotificationChannel;
 use App\Models\Notifications\NotificationDelivery;
@@ -49,7 +49,7 @@ class NotificationHealth
                 ->groupBy('event_key')
                 ->map(fn (Collection $rows, string $eventKey): array => [
                     'event_key' => $eventKey,
-                    'label' => NotificationEvent::tryFrom($eventKey)?->label() ?? $eventKey,
+                    'label' => NotificationType::tryFrom($eventKey)?->label() ?? $eventKey,
                     ...$this->countsByStatus($rows),
                 ])
                 ->sortByDesc(fn (array $row): int => $row['sent'] + $row['failed'])

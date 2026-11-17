@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -50,7 +50,7 @@ return new class extends Migration
                     $payload = $this->repairedFollowUp($payload);
                 }
 
-                $event = is_string($payload['type'] ?? null) ? NotificationEvent::tryFrom($payload['type']) : null;
+                $event = is_string($payload['type'] ?? null) ? NotificationType::tryFrom($payload['type']) : null;
                 $workspaceId = $payload['workspace_id'] ?? null;
 
                 DB::table('notifications')->where('id', $notification->id)->update([
@@ -87,7 +87,7 @@ return new class extends Migration
 
         return [
             'workspace_id' => $payload['workspace_id'] ?? null,
-            'type' => NotificationEvent::AssistantFollowUp->value,
+            'type' => NotificationType::AssistantFollowUp->value,
             'title' => "No reply yet: {$subject}",
             'body' => $payload['message'] ?? "Nobody has replied to \"{$subject}\" yet.",
             'data' => array_filter([

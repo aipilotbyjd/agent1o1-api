@@ -2,14 +2,14 @@
 
 namespace App\Notifications\Broadcasts;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Broadcasts\BroadcastCampaign;
 use App\Notifications\AppNotification;
 use Ramsey\Uuid\Uuid;
 
 /**
  * A campaign's message in a member's notification bell
- * (`NotificationEvent::PlatformMessage`). It belongs to the account, not a
+ * (`NotificationType::PlatformMessage`). It belongs to the account, not a
  * workspace, so `workspace_id` is null. The event is mandatory: whether a
  * member gets marketing at all is decided by the marketing opt-out when the
  * campaign's audience is built, not by notification preferences.
@@ -28,7 +28,7 @@ class AdminMessageNotification extends AppNotification
         public readonly bool $isTest = false,
     ) {
         parent::__construct(
-            event: NotificationEvent::PlatformMessage,
+            type: NotificationType::PlatformMessage,
             title: ($isTest ? '[TEST] ' : '').$campaign->subject,
             body: $campaign->notification_summary,
             data: [

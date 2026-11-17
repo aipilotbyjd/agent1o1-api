@@ -3,7 +3,7 @@
 namespace App\Models\Notifications;
 
 use App\Enums\Notifications\NotificationCategory;
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationSeverity;
 use App\Models\User;
 use App\Models\Workspaces\Workspace;
@@ -32,7 +32,7 @@ class NotificationRoute extends Model
     protected function casts(): array
     {
         return [
-            'event_key' => NotificationEvent::class,
+            'event_key' => NotificationType::class,
             'category' => NotificationCategory::class,
             'min_severity' => NotificationSeverity::class,
         ];
@@ -58,7 +58,7 @@ class NotificationRoute extends Model
      *
      * @param  Builder<self>  $query
      */
-    public function scopeCovering(Builder $query, NotificationEvent $event): void
+    public function scopeCovering(Builder $query, NotificationType $event): void
     {
         $query->where(function (Builder $query) use ($event): void {
             $query->where('event_key', $event->value)

@@ -1,7 +1,7 @@
 <?php
 
 use App\Enums\Notifications\NotificationCategory;
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Workspaces\Role;
 use App\Models\Notifications\AccountNotificationPreference;
 use App\Models\Notifications\InboxNotification;
@@ -26,7 +26,7 @@ beforeEach(function () {
 /**
  * @param  array<string, mixed>  $attributes
  */
-function inboxRow(User $user, NotificationEvent $event, ?Workspace $workspace = null, array $attributes = []): InboxNotification
+function inboxRow(User $user, NotificationType $event, ?Workspace $workspace = null, array $attributes = []): InboxNotification
 {
     $definition = $event->definition();
 
@@ -54,7 +54,7 @@ function inboxRow(User $user, NotificationEvent $event, ?Workspace $workspace = 
 
 describe('inbox', function () {
     it('returns category, severity and an in-app link for each notification', function () {
-        inboxRow($this->user, NotificationEvent::RunFailed, $this->workspace);
+        inboxRow($this->user, NotificationType::RunFailed, $this->workspace);
 
         $this->getJson('/api/v1/notifications')
             ->assertOk()
@@ -65,7 +65,7 @@ describe('inbox', function () {
     });
 
     it('derives category and severity for rows stored before the inbox columns existed', function () {
-        $row = inboxRow($this->user, NotificationEvent::PaymentFailed, $this->workspace, ['category' => null, 'severity' => null, 'event_key' => null]);
+        $row = inboxRow($this->user, NotificationType::PaymentFailed, $this->workspace, ['category' => null, 'severity' => null, 'event_key' => null]);
 
         $this->getJson('/api/v1/notifications')
             ->assertOk()
@@ -75,9 +75,9 @@ describe('inbox', function () {
     });
 
     it('filters by category, workspace and needing action', function () {
-        $billing = inboxRow($this->user, NotificationEvent::PaymentFailed, $this->workspace);
-        $joined = inboxRow($this->user, NotificationEvent::MemberJoined, $this->workspace);
-        $security = inboxRow($this->user, NotificationEvent::SecurityAlert);
+        $billing = inboxRow($this->user, NotificationType::PaymentFailed, $this->workspace);
+        $joined = inboxRow($this->user, NotificationType::MemberJoined, $this->workspace);
+        $security = inboxRow($this->user, NotificationType::SecurityAlert);
 
         $this->getJson('/api/v1/notifications?category=billing')->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $billing->id);
         $this->getJson('/api/v1/notifications?workspace_id=none')->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $security->id);
@@ -92,8 +92,8 @@ describe('inbox', function () {
     });
 
     it('lists the most recent occurrence first', function () {
-        $older = inboxRow($this->user, NotificationEvent::MemberJoined, $this->workspace, ['occurred_at' => now()->subHour()]);
-        $newer = inboxRow($this->user, NotificationEvent::MemberRemoved, $this->workspace);
+        $older = inboxRow($this->user, NotificationType::MemberJoined, $this->workspace, ['occurred_at' => now()->subHour()]);
+        $newer = inboxRow($this->user, NotificationType::MemberRemoved, $this->workspace);
         $older->forceFill(['occurred_at' => now()->addMinute()])->save();
 
         $this->getJson('/api/v1/notifications')
@@ -102,7 +102,7 @@ describe('inbox', function () {
     });
 
     it('archives notifications out of the inbox and back', function () {
-        $row = inboxRow($this->user, NotificationEvent::MemberJoined, $this->workspace);
+        $row = inboxRow($this->user, NotificationType::MemberJoined, $this->workspace);
 
         $this->postJson('/api/v1/notifications/archive', ['ids' => [$row->id]])->assertOk()->assertJsonPath('data.updated', 1);
         $this->getJson('/api/v1/notifications')->assertJsonCount(0, 'data');
@@ -113,7 +113,7 @@ describe('inbox', function () {
     });
 
     it('does not archive or mark read another member\'s notifications', function () {
-        $other = inboxRow(User::factory()->create(), NotificationEvent::MemberJoined);
+        $other = inboxRow(User::factory()->create(), NotificationType::MemberJoined);
 
         $this->postJson('/api/v1/notifications/archive', ['ids' => [$other->id]])->assertOk()->assertJsonPath('data.updated', 0);
         $this->postJson('/api/v1/notifications/read', ['ids' => [$other->id]])->assertOk()->assertJsonPath('data.updated', 0);
@@ -122,8 +122,8 @@ describe('inbox', function () {
     });
 
     it('marks every unread notification in one category read', function () {
-        $billing = inboxRow($this->user, NotificationEvent::PaymentFailed, $this->workspace);
-        $joined = inboxRow($this->user, NotificationEvent::MemberJoined, $this->workspace);
+        $billing = inboxRow($this->user, NotificationType::PaymentFailed, $this->workspace);
+        $joined = inboxRow($this->user, NotificationType::MemberJoined, $this->workspace);
 
         $this->postJson('/api/v1/notifications/read', ['all' => true, 'category' => 'billing'])->assertOk()->assertJsonPath('data.updated', 1);
 
@@ -136,11 +136,11 @@ describe('inbox', function () {
     });
 
     it('summarises unread notifications by category and workspace, leaving out archived ones', function () {
-        inboxRow($this->user, NotificationEvent::PaymentFailed, $this->workspace);
-        inboxRow($this->user, NotificationEvent::MemberJoined, $this->workspace);
-        inboxRow($this->user, NotificationEvent::SecurityAlert);
-        inboxRow($this->user, NotificationEvent::MemberRemoved, $this->workspace, ['archived_at' => now()]);
-        inboxRow($this->user, NotificationEvent::MemberRemoved, $this->workspace, ['read_at' => now()]);
+        inboxRow($this->user, NotificationType::PaymentFailed, $this->workspace);
+        inboxRow($this->user, NotificationType::MemberJoined, $this->workspace);
+        inboxRow($this->user, NotificationType::SecurityAlert);
+        inboxRow($this->user, NotificationType::MemberRemoved, $this->workspace, ['archived_at' => now()]);
+        inboxRow($this->user, NotificationType::MemberRemoved, $this->workspace, ['read_at' => now()]);
 
         $this->getJson('/api/v1/notifications/summary')
             ->assertOk()
@@ -160,7 +160,7 @@ describe('catalog', function () {
 
         $keys = collect($response->json('data.categories'))->flatMap(fn (array $category): array => array_column($category['events'], 'key'));
 
-        expect($keys->sort()->values()->all())->toBe(collect(NotificationEvent::cases())->map->value->sort()->values()->all());
+        expect($keys->sort()->values()->all())->toBe(collect(NotificationType::cases())->map->value->sort()->values()->all());
         $response->assertJsonPath('data.categories.0.key', NotificationCategory::Workspace->value);
     });
 });
@@ -170,7 +170,7 @@ describe('workspace preferences', function () {
         NotificationPreference::factory()->create([
             'workspace_id' => $this->workspace->id,
             'user_id' => $this->user->id,
-            'event_key' => NotificationEvent::PaymentFailed->value,
+            'event_key' => NotificationType::PaymentFailed->value,
             'email' => true,
         ]);
 
@@ -190,15 +190,15 @@ describe('workspace preferences', function () {
         ])->assertUnprocessable()
             ->assertJsonValidationErrors(['preferences.0.key' => 'This notification setting can\'t be changed here.']);
     })->with([
-        'a mandatory event' => NotificationEvent::SecurityAlert->value,
-        'an event a super admin decides' => NotificationEvent::AiProviderAvailabilityChanged->value,
-        'an account-level event' => NotificationEvent::AssistantDailyReport->value,
+        'a mandatory event' => NotificationType::SecurityAlert->value,
+        'an event a super admin decides' => NotificationType::AiProviderAvailabilityChanged->value,
+        'an account-level event' => NotificationType::AssistantDailyReport->value,
         'an unknown key' => 'nope',
     ]);
 
     it('still accepts the single-event upsert the settings page sends', function () {
         $this->putJson("/api/v1/workspaces/{$this->workspace->id}/notification-preferences", [
-            'event_key' => NotificationEvent::TriggerDisabled->value,
+            'event_key' => NotificationType::TriggerDisabled->value,
             'email' => false,
         ])->assertOk()
             ->assertJsonPath('data.preference.in_app', true)
@@ -217,11 +217,11 @@ describe('workspace preferences', function () {
 describe('account preferences', function () {
     it('saves account-level choices', function () {
         $this->putJson('/api/v1/notifications/preferences', [
-            'preferences' => [['key' => NotificationEvent::AssistantDailyReport->value, 'email' => false, 'in_app' => true]],
+            'preferences' => [['key' => NotificationType::AssistantDailyReport->value, 'email' => false, 'in_app' => true]],
         ])->assertOk();
 
         expect(AccountNotificationPreference::query()->sole())
-            ->key->toBe(NotificationEvent::AssistantDailyReport->value)
+            ->key->toBe(NotificationType::AssistantDailyReport->value)
             ->email->toBeFalse()
             ->in_app->toBeTrue();
     });
@@ -242,26 +242,26 @@ describe('account preferences', function () {
 
     it('refuses workspace events on the account', function () {
         $this->putJson('/api/v1/notifications/preferences', [
-            'preferences' => [['key' => NotificationEvent::PaymentFailed->value, 'email' => false]],
+            'preferences' => [['key' => NotificationType::PaymentFailed->value, 'email' => false]],
         ])->assertUnprocessable()->assertJsonValidationErrors('preferences.0.key');
     });
 });
 
 describe('one-click unsubscribe', function () {
     it('switches one event\'s email off from the signed link', function () {
-        $url = NotificationLinks::oneClickUnsubscribe($this->user, NotificationEvent::PaymentFailed, $this->workspace->id);
+        $url = NotificationLinks::oneClickUnsubscribe($this->user, NotificationType::PaymentFailed, $this->workspace->id);
 
         app('auth')->forgetGuards();
         $this->postJson($url)->assertOk();
 
         expect(NotificationPreference::query()->sole())
-            ->event_key->toBe(NotificationEvent::PaymentFailed->value)
+            ->event_key->toBe(NotificationType::PaymentFailed->value)
             ->email->toBeFalse()
             ->in_app->toBeTrue();
     });
 
     it('returns 403 for a tampered link', function () {
-        $url = NotificationLinks::oneClickUnsubscribe($this->user, NotificationEvent::PaymentFailed, $this->workspace->id);
+        $url = NotificationLinks::oneClickUnsubscribe($this->user, NotificationType::PaymentFailed, $this->workspace->id);
 
         $this->postJson(str_replace('billing.payment_failed', 'billing.credits_low', $url))->assertForbidden();
     });

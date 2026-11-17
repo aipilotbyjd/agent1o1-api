@@ -2,9 +2,9 @@
 
 namespace App\Notifications\Billing;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Workspaces\Workspace;
-use App\Notifications\Workspace\WorkspaceEventNotification;
+use App\Notifications\AppNotification;
 
 /**
  * Gumloop's Credit Usage Notification: "an email when usage crosses a
@@ -16,7 +16,7 @@ use App\Notifications\Workspace\WorkspaceEventNotification;
  * well past a threshold, and saying both is what makes the message
  * actionable rather than alarming.
  */
-class CreditsLowNotification extends WorkspaceEventNotification
+class CreditsLowNotification extends AppNotification
 {
     public function __construct(
         Workspace $workspace,
@@ -29,7 +29,7 @@ class CreditsLowNotification extends WorkspaceEventNotification
 
         parent::__construct(
             workspace: $workspace,
-            event: NotificationEvent::CreditsLow,
+            type: NotificationType::CreditsLow,
             title: "{$workspace->name} has used {$thresholdPercent}% of its credits",
             body: "{$creditsUsed} of {$creditsLimit} credits used this period ({$percentUsed}%). Consider a top-up or an upgrade before you run out.",
             data: [

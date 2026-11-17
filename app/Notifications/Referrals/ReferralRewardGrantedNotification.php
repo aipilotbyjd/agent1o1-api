@@ -2,13 +2,13 @@
 
 namespace App\Notifications\Referrals;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Referrals\ReferralReward;
 use App\Models\Workspaces\Workspace;
-use App\Notifications\Workspace\WorkspaceEventNotification;
+use App\Notifications\AppNotification;
 use App\Services\Referrals\ReferralRuleDescriber;
 
-class ReferralRewardGrantedNotification extends WorkspaceEventNotification
+class ReferralRewardGrantedNotification extends AppNotification
 {
     public function __construct(Workspace $workspace, ReferralReward $reward)
     {
@@ -16,7 +16,7 @@ class ReferralRewardGrantedNotification extends WorkspaceEventNotification
 
         parent::__construct(
             workspace: $workspace,
-            event: NotificationEvent::ReferralRewardGranted,
+            type: NotificationType::ReferralRewardGranted,
             title: "Referral reward: {$summary}",
             body: "{$summary} has been added to {$workspace->name}.",
             data: [

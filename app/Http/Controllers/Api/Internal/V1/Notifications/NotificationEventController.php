@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Internal\V1\Notifications;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -18,7 +18,7 @@ class NotificationEventController extends Controller
      */
     public function index(): JsonResponse
     {
-        return ApiResponse::success(NotificationEvent::catalog());
+        return ApiResponse::success(NotificationType::catalog());
     }
 
     /**
@@ -26,6 +26,6 @@ class NotificationEventController extends Controller
      */
     public function catalog(): JsonResponse
     {
-        return ApiResponse::success(['categories' => NotificationEvent::categorizedCatalog()]);
+        return ApiResponse::success(['categories' => NotificationType::categorizedCatalog()]);
     }
 }

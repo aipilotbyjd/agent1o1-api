@@ -40,7 +40,7 @@ class IntegrationRouter
 
         $channels = NotificationRoute::query()
             ->where('workspace_id', $notification->workspaceId)
-            ->covering($notification->event)
+            ->covering($notification->type)
             ->with('channel')
             ->get()
             ->filter(fn (NotificationRoute $route): bool => $route->allowsSeverity($severity)
@@ -57,8 +57,8 @@ class IntegrationRouter
         $message = $notification->toIntegration();
         $event = [
             'id' => (string) Str::uuid(),
-            'type' => $notification->event->value,
-            'category' => $notification->event->definition()->category->value,
+            'type' => $notification->type->value,
+            'category' => $notification->type->definition()->category->value,
             'severity' => $severity->value,
             'workspace_id' => $notification->workspaceId,
             'data' => $notification->data,
@@ -74,7 +74,7 @@ class IntegrationRouter
             $delivery = NotificationDelivery::query()->create([
                 'workspace_id' => $notification->workspaceId,
                 'notification_channel_id' => $channel->id,
-                'event_key' => $notification->event->value,
+                'event_key' => $notification->type->value,
                 'channel' => $channel->type,
                 'target' => $channel->name,
                 'status' => DeliveryStatus::Pending,

@@ -12,7 +12,7 @@ use App\Enums\Notifications\NotificationSeverity;
  * what it does by default, whether a member may switch it off, and how
  * repeats are folded together.
  *
- * Built by `NotificationEvent::definition()`. Notification classes only
+ * Built by `NotificationType::definition()`. Notification classes only
  * supply content (title, body, data); they never choose channels.
  */
 final readonly class NotificationDefinition

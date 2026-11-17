@@ -2,7 +2,7 @@
 
 namespace App\Notifications\Assistant;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Assistant\AssistantBriefingRun;
 use App\Notifications\AppNotification;
 use App\Services\Notifications\NotificationLinks;
@@ -22,14 +22,14 @@ class MeetingBriefNotification extends AppNotification
         $meetingTitle = $run->meeting?->title;
 
         parent::__construct(
-            event: NotificationEvent::AssistantMeetingBrief,
+            type: NotificationType::AssistantMeetingBrief,
             title: $meetingTitle !== null ? "{$title}: {$meetingTitle}" : $title,
             body: $run->summary !== null ? Str::limit((string) $run->summary, 500) : null,
             data: [
                 'assistant_briefing_run_id' => $run->id,
                 'meeting_title' => $meetingTitle,
             ],
-            workspaceId: $run->config->assistant->workspace_id,
+            workspace: $run->config->assistant->workspace_id,
         );
     }
 

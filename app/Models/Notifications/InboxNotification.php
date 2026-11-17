@@ -3,7 +3,7 @@
 namespace App\Models\Notifications;
 
 use App\Enums\Notifications\NotificationCategory;
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationSeverity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\MassPrunable;
@@ -41,11 +41,11 @@ class InboxNotification extends DatabaseNotification
         ];
     }
 
-    public function event(): ?NotificationEvent
+    public function event(): ?NotificationType
     {
         $key = $this->event_key ?? ($this->data['type'] ?? null);
 
-        return is_string($key) ? NotificationEvent::tryFrom($key) : null;
+        return is_string($key) ? NotificationType::tryFrom($key) : null;
     }
 
     public function resolvedCategory(): ?NotificationCategory
@@ -89,7 +89,7 @@ class InboxNotification extends DatabaseNotification
     public function scopeNeedingAction(Builder $query): void
     {
         $query->where(function (Builder $query): void {
-            $query->whereIn('event_key', NotificationEvent::needingAction())
+            $query->whereIn('event_key', NotificationType::needingAction())
                 ->orWhere('severity', NotificationSeverity::Critical->value);
         });
     }

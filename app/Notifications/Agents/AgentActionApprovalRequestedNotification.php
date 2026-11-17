@@ -2,11 +2,11 @@
 
 namespace App\Notifications\Agents;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Agents\AgentAction;
 use App\Models\Agents\AgentSession;
 use App\Models\Agents\WorkspaceAgentPolicy;
-use App\Notifications\Workspace\WorkspaceEventNotification;
+use App\Notifications\AppNotification;
 use App\Services\Agents\Approvals\ChatApprovalLinks;
 use App\Services\Notifications\IntegrationMessage;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -27,7 +27,7 @@ use Illuminate\Support\Str;
  * Slack channels get approve/reject buttons when the workspace allows
  * deciding from chat (`WorkspaceAgentPolicy::$allow_chat_approvals`).
  */
-class AgentActionApprovalRequestedNotification extends WorkspaceEventNotification
+class AgentActionApprovalRequestedNotification extends AppNotification
 {
     /** How many actions an email or chat message lists before summarising the rest. */
     public const int LISTED_ACTIONS = 5;
@@ -44,7 +44,7 @@ class AgentActionApprovalRequestedNotification extends WorkspaceEventNotificatio
 
         parent::__construct(
             workspace: $session->workspace,
-            event: NotificationEvent::AgentActionApprovalRequested,
+            type: NotificationType::AgentActionApprovalRequested,
             title: $count === 1
                 ? "{$agent->name} wants to {$this->describe($actions->first())}"
                 : "{$agent->name} is waiting for approval on {$count} actions",
@@ -102,7 +102,7 @@ class AgentActionApprovalRequestedNotification extends WorkspaceEventNotificatio
     {
         $message = parent::toIntegration();
 
-        if (! WorkspaceAgentPolicy::forWorkspace($this->workspace->id)->allow_chat_approvals) {
+        if (! WorkspaceAgentPolicy::forWorkspace((string) $this->workspaceId)->allow_chat_approvals) {
             return $message;
         }
 

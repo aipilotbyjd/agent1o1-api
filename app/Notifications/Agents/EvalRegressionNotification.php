@@ -2,11 +2,11 @@
 
 namespace App\Notifications\Agents;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Agents\AgentEvalRun;
-use App\Notifications\Workspace\WorkspaceEventNotification;
+use App\Notifications\AppNotification;
 
-class EvalRegressionNotification extends WorkspaceEventNotification
+class EvalRegressionNotification extends AppNotification
 {
     public function __construct(AgentEvalRun $evalRun)
     {
@@ -16,7 +16,7 @@ class EvalRegressionNotification extends WorkspaceEventNotification
 
         parent::__construct(
             workspace: $suite->workspace,
-            event: NotificationEvent::EvalRegressed,
+            type: NotificationType::EvalRegressed,
             title: "{$agent->name} got worse on \"{$suite->name}\"",
             body: "After the latest change it passed {$evalRun->passed} of {$total} cases, fewer than before.",
             data: [

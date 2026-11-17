@@ -2,12 +2,12 @@
 
 namespace App\Notifications\Referrals;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Billing\PlanGrant;
 use App\Models\Workspaces\Workspace;
-use App\Notifications\Workspace\WorkspaceEventNotification;
+use App\Notifications\AppNotification;
 
-class ReferralPlanTimeEndingNotification extends WorkspaceEventNotification
+class ReferralPlanTimeEndingNotification extends AppNotification
 {
     public function __construct(Workspace $workspace, PlanGrant $grant)
     {
@@ -16,7 +16,7 @@ class ReferralPlanTimeEndingNotification extends WorkspaceEventNotification
 
         parent::__construct(
             workspace: $workspace,
-            event: NotificationEvent::ReferralPlanTimeEnding,
+            type: NotificationType::ReferralPlanTimeEnding,
             title: "Your free {$planName} time ends {$endsOn}",
             body: "The {$planName} time you earned through referrals runs out on {$endsOn}. Subscribe to keep it, or refer more friends to earn more.",
             data: [

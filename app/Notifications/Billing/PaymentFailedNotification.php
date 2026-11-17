@@ -2,9 +2,9 @@
 
 namespace App\Notifications\Billing;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Workspaces\Workspace;
-use App\Notifications\Workspace\WorkspaceEventNotification;
+use App\Notifications\AppNotification;
 use Carbon\CarbonInterface;
 
 /**
@@ -16,7 +16,7 @@ use Carbon\CarbonInterface;
  * `Workspace::activeSubscription()`), since every workflow run costs real
  * model spend. Softening that to "you may lose access" would be a lie.
  */
-class PaymentFailedNotification extends WorkspaceEventNotification
+class PaymentFailedNotification extends AppNotification
 {
     public function __construct(
         Workspace $workspace,
@@ -26,7 +26,7 @@ class PaymentFailedNotification extends WorkspaceEventNotification
     ) {
         parent::__construct(
             workspace: $workspace,
-            event: NotificationEvent::PaymentFailed,
+            type: NotificationType::PaymentFailed,
             title: $attempt > 1
                 ? "Payment for {$workspace->name} failed again (attempt {$attempt})"
                 : "A payment for {$workspace->name} failed",

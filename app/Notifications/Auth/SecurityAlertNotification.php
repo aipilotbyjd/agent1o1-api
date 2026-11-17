@@ -3,7 +3,7 @@
 namespace App\Notifications\Auth;
 
 use App\Enums\Auth\AuthEvent;
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\User;
 use App\Notifications\AppNotification;
 use App\Services\Timezones\Timezones;
@@ -20,7 +20,7 @@ use Illuminate\Notifications\Messages\MailMessage;
  * when a worker picks the job up, because by then the request is long gone.
  * The time is shown in the member's own timezone.
  *
- * `NotificationEvent::SecurityAlert` is mandatory, so it always reaches the
+ * `NotificationType::SecurityAlert` is mandatory, so it always reaches the
  * member's email and bell whatever their preferences.
  */
 class SecurityAlertNotification extends AppNotification
@@ -35,7 +35,7 @@ class SecurityAlertNotification extends AppNotification
         $this->occurredAt = CarbonImmutable::now();
 
         parent::__construct(
-            event: NotificationEvent::SecurityAlert,
+            type: NotificationType::SecurityAlert,
             title: $authEvent->label(),
             body: $authEvent->remediation(),
             data: array_filter([

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
  * the feature this mirrors.
  *
  * Report delivery itself (email/in-app/webhook) rides the existing
- * `NotificationEvent::ReflectionRunCompleted`/`NotificationPreference`
+ * `NotificationType::ReflectionRunCompleted`/`NotificationPreference`
  * system, not a bespoke toggle here: `notify_on_skip` is the one setting
  * that doesn't fit that system, since it decides whether a *skipped* run
  * fires a notification at all, not which channel a completed one uses.

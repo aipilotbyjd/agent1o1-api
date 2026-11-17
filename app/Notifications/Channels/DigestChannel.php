@@ -21,7 +21,7 @@ class DigestChannel
         NotificationDigestItem::query()->create([
             'user_id' => $notifiable->getKey(),
             'workspace_id' => $notification->workspaceId,
-            'event_key' => $notification->event->value,
+            'event_key' => $notification->type->value,
             'title' => $notification->title,
             'body' => $notification->body,
             'action_url' => $notification->actionUrl(),

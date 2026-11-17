@@ -2,7 +2,8 @@
 
 namespace App\Notifications\Workspace;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Notifications\AppNotification;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Agents\AgentEvalRun;
 use App\Models\Agents\AgentSession;
 use App\Models\Agents\AgentSessionEvaluation;
@@ -13,7 +14,7 @@ use App\Models\Workspaces\Workspace;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 
-class RunFailedNotification extends WorkspaceEventNotification
+class RunFailedNotification extends AppNotification
 {
     private const MAX_ERROR_LENGTH = 300;
 
@@ -22,7 +23,7 @@ class RunFailedNotification extends WorkspaceEventNotification
 
         parent::__construct(
             workspace: $workspace,
-            event: NotificationEvent::RunFailed,
+            type: NotificationType::RunFailed,
             title: self::titleFor($run),
             body: self::bodyFor($run->error),
             data: [

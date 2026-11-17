@@ -1,7 +1,7 @@
 <?php
 
 use App\Enums\Notifications\NotificationCategory;
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationScope;
 use App\Notifications\AppNotification;
 
@@ -22,28 +22,28 @@ arch('member-facing notifications extend AppNotification, so their channels come
         'App\Notifications\Workflows\PublishRequestLink',
     ]);
 
-test('every event is filed under a category the settings page lists', function (NotificationEvent $event) {
+test('every event is filed under a category the settings page lists', function (NotificationType $event) {
     $definition = $event->definition();
 
-    expect(NotificationEvent::inCategory($definition->category))->toContain($event)
+    expect(NotificationType::inCategory($definition->category))->toContain($event)
         ->and($event->label())->not->toBe('')
         ->and($event->description())->not->toBe('');
-})->with(NotificationEvent::cases());
+})->with(NotificationType::cases());
 
 test('account-level categories hold only account-scoped events', function (NotificationCategory $category) {
-    $scopes = collect(NotificationEvent::inCategory($category))->map(fn (NotificationEvent $event) => $event->definition()->scope)->unique();
+    $scopes = collect(NotificationType::inCategory($category))->map(fn (NotificationType $event) => $event->definition()->scope)->unique();
 
     expect($scopes->all())->toBe($category->isAccountLevel() ? [NotificationScope::Account] : [NotificationScope::Workspace]);
-})->with(fn () => array_filter(NotificationCategory::cases(), fn (NotificationCategory $category): bool => NotificationEvent::inCategory($category) !== []));
+})->with(fn () => array_filter(NotificationCategory::cases(), fn (NotificationCategory $category): bool => NotificationType::inCategory($category) !== []));
 
 test('a grouped event names data its notifications carry', function () {
-    expect(NotificationEvent::RunFailed->definition()->grouping?->by)->toBe('workflow_id')
-        ->and(NotificationEvent::ConnectorCredentialExpired->definition()->grouping?->by)->toBe('connector_credential_id');
+    expect(NotificationType::RunFailed->definition()->grouping?->by)->toBe('workflow_id')
+        ->and(NotificationType::ConnectorCredentialExpired->definition()->grouping?->by)->toBe('connector_credential_id');
 });
 
 it('links a workspace event into the app and leaves an account event without a workspace unlinked', function () {
-    expect(NotificationEvent::ConnectorCredentialExpired->actionPath('ws-1', ['connector_credential_id' => 'cred-1']))->toBe('/ws-1/apps?account=cred-1')
-        ->and(NotificationEvent::EvalRegressed->actionPath('ws-1', []))->toBeNull()
-        ->and(NotificationEvent::SecurityAlert->actionPath(null, []))->toBeNull()
-        ->and(NotificationEvent::PlatformMessage->actionPath(null, ['action_url' => '/:workspace/apps']))->toBe('/:workspace/apps');
+    expect(NotificationType::ConnectorCredentialExpired->actionPath('ws-1', ['connector_credential_id' => 'cred-1']))->toBe('/ws-1/apps?account=cred-1')
+        ->and(NotificationType::EvalRegressed->actionPath('ws-1', []))->toBeNull()
+        ->and(NotificationType::SecurityAlert->actionPath(null, []))->toBeNull()
+        ->and(NotificationType::PlatformMessage->actionPath(null, ['action_url' => '/:workspace/apps']))->toBe('/:workspace/apps');
 });

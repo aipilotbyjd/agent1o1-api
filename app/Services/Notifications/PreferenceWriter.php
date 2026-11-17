@@ -3,7 +3,7 @@
 namespace App\Services\Notifications;
 
 use App\Enums\Notifications\NotificationCategory;
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Notifications\AccountNotificationPreference;
 use App\Models\Notifications\NotificationPreference;
 use App\Models\User;
@@ -129,12 +129,12 @@ class PreferenceWriter
      */
     private function defaultsFor(string $key): array
     {
-        $event = NotificationEvent::tryFrom($key);
+        $event = NotificationType::tryFrom($key);
 
         if ($event === null) {
             $category = NotificationCategory::fromPreferenceKey($key);
-            $event = $category === null ? null : collect(NotificationEvent::inCategory($category))
-                ->first(fn (NotificationEvent $event): bool => in_array($event, NotificationEvent::configurable(), true));
+            $event = $category === null ? null : collect(NotificationType::inCategory($category))
+                ->first(fn (NotificationType $event): bool => in_array($event, NotificationType::configurable(), true));
         }
 
         return $event?->definition()->defaults() ?? ['in_app' => true, 'email' => false];
@@ -145,6 +145,6 @@ class PreferenceWriter
      */
     private function eventKeysIn(NotificationCategory $category): array
     {
-        return array_map(fn (NotificationEvent $event): string => $event->value, NotificationEvent::inCategory($category));
+        return array_map(fn (NotificationType $event): string => $event->value, NotificationType::inCategory($category));
     }
 }

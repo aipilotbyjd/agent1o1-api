@@ -2,7 +2,7 @@
 
 namespace App\Notifications\Assistant;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Assistant\AssistantBriefingRun;
 use App\Notifications\AppNotification;
 use App\Services\Notifications\NotificationLinks;
@@ -20,11 +20,11 @@ class DailyReportNotification extends AppNotification
         string $title,
     ) {
         parent::__construct(
-            event: NotificationEvent::AssistantDailyReport,
+            type: NotificationType::AssistantDailyReport,
             title: $title,
             body: $run->summary !== null ? Str::limit((string) $run->summary, 500) : null,
             data: ['assistant_briefing_run_id' => $run->id],
-            workspaceId: $run->config->assistant->workspace_id,
+            workspace: $run->config->assistant->workspace_id,
         );
     }
 

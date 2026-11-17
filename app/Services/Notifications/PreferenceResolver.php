@@ -2,7 +2,7 @@
 
 namespace App\Services\Notifications;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationScope;
 use App\Models\Notifications\AccountNotificationPreference;
 use App\Models\Notifications\NotificationPreference;
@@ -74,7 +74,7 @@ class PreferenceResolver
         }
     }
 
-    public function resolve(User $user, NotificationEvent $event, ?string $workspaceId): ResolvedPreference
+    public function resolve(User $user, NotificationType $event, ?string $workspaceId): ResolvedPreference
     {
         $definition = $event->definition();
         $defaults = new ResolvedPreference($definition->defaultInApp, $definition->defaultEmail);

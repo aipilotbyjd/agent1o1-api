@@ -3,7 +3,7 @@
 namespace App\Http\Requests\Api\Internal\V1\Notifications;
 
 use App\Enums\Notifications\NotificationCategory;
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationScope;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -80,13 +80,13 @@ class UpdateNotificationPreferencesRequest extends FormRequest
             $categoryScope = $category->isAccountLevel() ? NotificationScope::Account : NotificationScope::Workspace;
 
             return $categoryScope === $scope
-                && collect(NotificationEvent::inCategory($category))->contains(fn (NotificationEvent $event): bool => in_array($event, NotificationEvent::configurable(), true));
+                && collect(NotificationType::inCategory($category))->contains(fn (NotificationType $event): bool => in_array($event, NotificationType::configurable(), true));
         }
 
-        $event = NotificationEvent::tryFrom($key);
+        $event = NotificationType::tryFrom($key);
 
         return $event !== null
-            && in_array($event, NotificationEvent::configurable(), true)
+            && in_array($event, NotificationType::configurable(), true)
             && $event->definition()->scope === $scope;
     }
 }

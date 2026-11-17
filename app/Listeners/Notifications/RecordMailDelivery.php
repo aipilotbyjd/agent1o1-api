@@ -48,7 +48,7 @@ class RecordMailDelivery
             'notification_id' => $notification->id,
             'workspace_id' => $notification->workspaceId,
             'user_id' => $notifiable instanceof User ? $notifiable->getKey() : null,
-            'event_key' => $notification->event->value,
+            'event_key' => $notification->type->value,
             'channel' => NotificationDelivery::CHANNEL_MAIL,
             'target' => $this->maskedAddress($notifiable),
             'status' => $status,
