@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Internal\V1\Billing\CreditOverageController;
 use App\Http\Controllers\Api\Internal\V1\Billing\CreditPackController;
 use App\Http\Controllers\Api\Internal\V1\Billing\InvoiceController;
 use App\Http\Controllers\Api\Internal\V1\Billing\PlanController;
+use App\Http\Controllers\Api\Internal\V1\Billing\SubscriptionCancellationController;
 use App\Http\Controllers\Api\Internal\V1\Billing\SubscriptionController;
 use App\Http\Controllers\Api\Internal\V1\Billing\UsageInsightsController;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,8 @@ Route::middleware(['auth:api', 'workspace.context'])
         Route::get('subscription', [SubscriptionController::class, 'show'])->name('subscription.show');
         Route::post('subscription/checkout', [SubscriptionController::class, 'checkout'])->name('subscription.checkout');
         Route::get('subscription/preview', [SubscriptionController::class, 'previewSwap'])->name('subscription.preview');
+        Route::get('subscription/cancellation', [SubscriptionCancellationController::class, 'show'])->name('subscription.cancellation.show');
+        Route::post('subscription/cancellation/accept-offer', [SubscriptionCancellationController::class, 'accept'])->name('subscription.cancellation.accept');
         Route::post('subscription/cancel', [SubscriptionController::class, 'cancel'])->name('subscription.cancel');
         Route::post('subscription/resume', [SubscriptionController::class, 'resume'])->name('subscription.resume');
 
