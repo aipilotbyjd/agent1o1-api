@@ -2,18 +2,19 @@
 
 namespace App\Notifications\Workspace;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\User;
 use App\Models\Workspaces\Workspace;
 use App\Models\Workspaces\WorkspaceInvitation;
+use App\Notifications\AppNotification;
 
-class MemberInvitedNotification extends WorkspaceEventNotification
+class MemberInvitedNotification extends AppNotification
 {
     public function __construct(Workspace $workspace, WorkspaceInvitation $invitation, User $inviter)
     {
         parent::__construct(
             workspace: $workspace,
-            event: NotificationEvent::MemberInvited,
+            type: NotificationType::MemberInvited,
             title: "{$inviter->name} invited {$invitation->email} to {$workspace->name}",
             data: [
                 'invitation_id' => $invitation->id,

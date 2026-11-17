@@ -2,18 +2,19 @@
 
 namespace App\Notifications\Ai;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Workspaces\Workspace;
-use App\Notifications\Workspace\WorkspaceEventNotification;
+use App\Notifications\AppNotification;
+use App\Notifications\Channels\InboxChannel;
 
 /**
  * A super admin turned customer keys for a provider off, or back on, and
  * chose to tell the workspaces that have a key for it. Unlike other
  * workspace events, the super admin decides the channels for this one
  * notice (in-app only, or in-app and email) instead of each member's
- * notification preferences.
+ * notification preferences, which is why the event isn't configurable.
  */
-class AiProviderAvailabilityNotification extends WorkspaceEventNotification
+class AiProviderAvailabilityNotification extends AppNotification
 {
     public function __construct(
         Workspace $workspace,
@@ -24,7 +25,7 @@ class AiProviderAvailabilityNotification extends WorkspaceEventNotification
     ) {
         parent::__construct(
             workspace: $workspace,
-            event: NotificationEvent::AiProviderAvailabilityChanged,
+            type: NotificationType::AiProviderAvailabilityChanged,
             title: $available ? "{$providerLabel} is available again" : "{$providerLabel} is turned off for now",
             body: $available
                 ? "Your {$providerLabel} keys are being used again for AI calls. Nothing to do on your side."
@@ -38,6 +39,6 @@ class AiProviderAvailabilityNotification extends WorkspaceEventNotification
      */
     public function via(object $notifiable): array
     {
-        return $this->sendEmail ? ['database', 'broadcast', 'mail'] : ['database', 'broadcast'];
+        return $this->sendEmail ? [InboxChannel::class, 'mail'] : [InboxChannel::class];
     }
 }

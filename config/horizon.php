@@ -210,7 +210,7 @@ return [
         // Drains `broadcasts` first: the Reverb deliveries of `BroadcastsReliably`
         // events, so a live screen never waits behind mail or housekeeping.
         // Also drains `system-notification` and `system-maintenance`: every
-        // notification in the app (`WorkspaceEventNotification` for tenants,
+        // notification in the app (`AppNotification` for tenants,
         // `AdminAlertNotification` for operators) and the housekeeping jobs
         // (`ExpireStaleWaitsJob`, `RefreshConnectorCredentialJob`) are queued
         // there, and without a supervisor consuming them those jobs would sit

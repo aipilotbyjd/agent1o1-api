@@ -2,9 +2,9 @@
 
 namespace App\Notifications\Agents;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Agents\AgentSessionEvaluation;
-use App\Notifications\Workspace\WorkspaceEventNotification;
+use App\Notifications\AppNotification;
 
 /**
  * Fired the moment a `SessionEvaluator` run grades `needs_attention`: a
@@ -12,7 +12,7 @@ use App\Notifications\Workspace\WorkspaceEventNotification;
  * reaches the agent's owners/admins, never the end user who was chatting
  * with the agent.
  */
-class SessionEvaluationNotifyNotification extends WorkspaceEventNotification
+class SessionEvaluationNotifyNotification extends AppNotification
 {
     public function __construct(AgentSessionEvaluation $evaluation)
     {
@@ -24,7 +24,7 @@ class SessionEvaluationNotifyNotification extends WorkspaceEventNotification
 
         parent::__construct(
             workspace: $evaluation->workspace,
-            event: NotificationEvent::SessionEvaluationNotify,
+            type: NotificationType::SessionEvaluationNotify,
             title: "Session needs attention for {$agent->name}",
             body: $failed !== '' ? "Failed: {$failed}" : $evaluation->summary,
             data: [

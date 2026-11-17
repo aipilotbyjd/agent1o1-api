@@ -2,10 +2,10 @@
 
 namespace App\Notifications\Triggers;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Triggers\TriggerDisabledReason;
 use App\Models\Triggers\Trigger;
-use App\Notifications\Workspace\WorkspaceEventNotification;
+use App\Notifications\AppNotification;
 
 /**
  * Tells a workspace's owners and admins, and the trigger's creator, that the
@@ -13,7 +13,7 @@ use App\Notifications\Workspace\WorkspaceEventNotification;
  *
  * Sent once, by Trigger::switchOff().
  */
-class TriggerDisabledNotification extends WorkspaceEventNotification
+class TriggerDisabledNotification extends AppNotification
 {
     /**
      * Build the message for the reason the trigger was switched off.
@@ -24,7 +24,7 @@ class TriggerDisabledNotification extends WorkspaceEventNotification
 
         parent::__construct(
             workspace: $trigger->workspace,
-            event: NotificationEvent::TriggerDisabled,
+            type: NotificationType::TriggerDisabled,
             title: "A {$trigger->type->value} trigger on \"{$targetName}\" was switched off",
             body: match ($reason) {
                 TriggerDisabledReason::Failures => "It failed {$trigger->consecutive_failure_count} times in a row, so it was switched off to stop the failures. Check its recent events, fix the cause (often an expired account or a changed URL), then switch it back on.",

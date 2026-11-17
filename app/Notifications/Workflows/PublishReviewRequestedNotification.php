@@ -2,9 +2,9 @@
 
 namespace App\Notifications\Workflows;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Workflows\WorkflowPublishRequest;
-use App\Notifications\Workspace\WorkspaceEventNotification;
+use App\Notifications\AppNotification;
 use Illuminate\Notifications\Messages\MailMessage;
 
 /**
@@ -12,7 +12,7 @@ use Illuminate\Notifications\Messages\MailMessage;
  * sent to the workspace's other admins and owners
  * (`PublishRequests::approvers()`).
  */
-class PublishReviewRequestedNotification extends WorkspaceEventNotification
+class PublishReviewRequestedNotification extends AppNotification
 {
     public function __construct(private readonly WorkflowPublishRequest $publishRequest)
     {
@@ -21,7 +21,7 @@ class PublishReviewRequestedNotification extends WorkspaceEventNotification
 
         parent::__construct(
             workspace: $publishRequest->workspace,
-            event: NotificationEvent::PublishReviewRequested,
+            type: NotificationType::PublishReviewRequested,
             title: "{$requester} asked you to review changes to {$workflow->name}",
             body: $publishRequest->notes,
             data: [
@@ -33,8 +33,7 @@ class PublishReviewRequestedNotification extends WorkspaceEventNotification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $mail = (new MailMessage)
-            ->subject($this->title)
+        $mail = $this->mailMessage($notifiable)
             ->line('Nothing goes live until someone approves it.');
 
         if (filled($this->publishRequest->notes)) {

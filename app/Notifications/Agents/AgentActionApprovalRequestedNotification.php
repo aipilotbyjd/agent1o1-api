@@ -2,12 +2,13 @@
 
 namespace App\Notifications\Agents;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Agents\AgentAction;
 use App\Models\Agents\AgentSession;
 use App\Models\Agents\WorkspaceAgentPolicy;
-use App\Notifications\Workspace\WorkspaceEventNotification;
+use App\Notifications\AppNotification;
 use App\Services\Agents\Approvals\ChatApprovalLinks;
+use App\Services\Notifications\IntegrationMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\URL;
@@ -26,7 +27,7 @@ use Illuminate\Support\Str;
  * Slack channels get approve/reject buttons when the workspace allows
  * deciding from chat (`WorkspaceAgentPolicy::$allow_chat_approvals`).
  */
-class AgentActionApprovalRequestedNotification extends WorkspaceEventNotification
+class AgentActionApprovalRequestedNotification extends AppNotification
 {
     /** How many actions an email or chat message lists before summarising the rest. */
     public const int LISTED_ACTIONS = 5;
@@ -43,7 +44,7 @@ class AgentActionApprovalRequestedNotification extends WorkspaceEventNotificatio
 
         parent::__construct(
             workspace: $session->workspace,
-            event: NotificationEvent::AgentActionApprovalRequested,
+            type: NotificationType::AgentActionApprovalRequested,
             title: $count === 1
                 ? "{$agent->name} wants to {$this->describe($actions->first())}"
                 : "{$agent->name} is waiting for approval on {$count} actions",
@@ -58,8 +59,7 @@ class AgentActionApprovalRequestedNotification extends WorkspaceEventNotificatio
 
     public function toMail(object $notifiable): MailMessage
     {
-        $mail = (new MailMessage)
-            ->subject($this->title)
+        $mail = $this->mailMessage($notifiable)
             ->line("{$this->session->agent->name} paused and is waiting for a decision before it continues.");
 
         foreach ($this->actions->take(self::LISTED_ACTIONS) as $action) {
@@ -84,17 +84,35 @@ class AgentActionApprovalRequestedNotification extends WorkspaceEventNotificatio
     }
 
     /**
-     * @return array{workspace_id: string, channel_ids: array<int, int>, message: string, slack_blocks?: array<int, mixed>}
+     * One set of actions is one request, however many times it is sent.
      */
-    public function toWorkspaceChannel(object $notifiable): array
+    public function idempotencyKey(): ?string
     {
-        $payload = parent::toWorkspaceChannel($notifiable);
+        $actionIds = $this->actions->modelKeys();
+        sort($actionIds);
 
-        if (! WorkspaceAgentPolicy::forWorkspace($this->workspace->id)->allow_chat_approvals) {
-            return $payload;
+        return 'agent-actions:'.implode(',', $actionIds);
+    }
+
+    /**
+     * Slack channels get approve/reject buttons when the workspace allows
+     * deciding from chat.
+     */
+    public function toIntegration(): IntegrationMessage
+    {
+        $message = parent::toIntegration();
+
+        if (! WorkspaceAgentPolicy::forWorkspace((string) $this->workspaceId)->allow_chat_approvals) {
+            return $message;
         }
 
-        return [...$payload, 'slack_blocks' => app(ChatApprovalLinks::class)->slackBlocks($this->title, $this->actions->take(self::LISTED_ACTIONS))];
+        return new IntegrationMessage(
+            title: $message->title,
+            body: $message->body,
+            actionUrl: $message->actionUrl,
+            actionLabel: $message->actionLabel,
+            slackBlocks: app(ChatApprovalLinks::class)->slackBlocks($this->title, $this->actions->take(self::LISTED_ACTIONS)),
+        );
     }
 
     private function describe(AgentAction $action): string

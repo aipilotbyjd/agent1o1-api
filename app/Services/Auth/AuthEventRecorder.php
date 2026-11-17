@@ -6,6 +6,7 @@ use App\Enums\Auth\AuthEvent;
 use App\Models\Auth\AuthEventLog;
 use App\Models\User;
 use App\Notifications\Auth\SecurityAlertNotification;
+use App\Services\Notifications\NotificationDispatcher;
 
 /**
  * Writes the `auth_events` audit trail and, for the events
@@ -39,7 +40,7 @@ class AuthEventRecorder
         ]);
 
         if ($user !== null && $event->notifiesUser()) {
-            $user->notify(new SecurityAlertNotification($event, $ipAddress, $userAgent));
+            app(NotificationDispatcher::class)->dispatchTo($user, new SecurityAlertNotification($event, $ipAddress, $userAgent));
         }
 
         return $log;
@@ -61,7 +62,7 @@ class AuthEventRecorder
         $this->record(AuthEvent::LoggedIn, $user, context: ['new_device' => ! $isKnownDevice]);
 
         if (! $isKnownDevice) {
-            $user->notify(new SecurityAlertNotification(AuthEvent::LoggedIn, request()->ip(), $this->userAgent()));
+            app(NotificationDispatcher::class)->dispatchTo($user, new SecurityAlertNotification(AuthEvent::LoggedIn, request()->ip(), $this->userAgent()));
         }
     }
 
