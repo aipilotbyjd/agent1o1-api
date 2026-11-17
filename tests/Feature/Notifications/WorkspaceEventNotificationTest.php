@@ -1,7 +1,7 @@
 <?php
 
 use App\Actions\Workflows\StartWorkflowRunAction;
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Workspaces\Role;
 use App\Models\User;
 use App\Models\Workflows\Workflow;
@@ -27,6 +27,6 @@ it('notifies workspace owners and admins when a run needs approval', function ()
     app(StartWorkflowRunAction::class)->execute($workflow->fresh());
 
     Notification::assertSentTo([$owner, $admin], RunApprovalRequestedNotification::class, function (RunApprovalRequestedNotification $notification): bool {
-        return $notification->event === NotificationEvent::RunApprovalRequested;
+        return $notification->type === NotificationType::RunApprovalRequested;
     });
 });

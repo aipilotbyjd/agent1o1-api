@@ -2,9 +2,9 @@
 
 namespace App\Notifications\Billing;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Workspaces\Workspace;
-use App\Notifications\Workspace\WorkspaceEventNotification;
+use App\Notifications\AppNotification;
 use Carbon\CarbonInterface;
 
 /**
@@ -13,13 +13,13 @@ use Carbon\CarbonInterface;
  * only caller and marks `trial_ending_notified_at` right after, so this
  * never fires twice for the same trial.
  */
-class TrialEndingNotification extends WorkspaceEventNotification
+class TrialEndingNotification extends AppNotification
 {
     public function __construct(Workspace $workspace, CarbonInterface $trialEndsAt)
     {
         parent::__construct(
             workspace: $workspace,
-            event: NotificationEvent::TrialEnding,
+            type: NotificationType::TrialEnding,
             title: "Your trial for {$workspace->name} ends soon",
             body: "Your trial ends on {$trialEndsAt->toFormattedDateString()}. After that, your card on file will be charged to continue on the paid plan.",
             data: [

@@ -15,10 +15,10 @@ use App\Models\Workspaces\Workspace;
 use App\Models\Workspaces\WorkspaceMember;
 use App\Notifications\Workflows\PublishRequestDecidedNotification;
 use App\Notifications\Workflows\PublishReviewRequestedNotification;
+use App\Services\Notifications\NotificationDispatcher;
 use App\Services\Workspaces\AuditLogger;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
 
 /**
  * Review before publishing: in a workspace that requires it
@@ -79,7 +79,7 @@ class PublishRequests
             'workflow_name' => $workflow->name,
         ]);
 
-        Notification::send(
+        app(NotificationDispatcher::class)->dispatch(
             $this->approvers($workspace)->reject(fn (User $user): bool => $user->is($requester)),
             new PublishReviewRequestedNotification($publishRequest),
         );
@@ -232,7 +232,7 @@ class PublishRequests
         $requester = $publishRequest->requester;
 
         if ($requester !== null && ! $requester->is($reviewer)) {
-            $requester->notify(new PublishRequestDecidedNotification($publishRequest));
+            app(NotificationDispatcher::class)->dispatchTo($requester, new PublishRequestDecidedNotification($publishRequest));
         }
     }
 }

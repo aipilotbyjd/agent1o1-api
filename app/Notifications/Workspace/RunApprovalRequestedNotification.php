@@ -2,19 +2,20 @@
 
 namespace App\Notifications\Workspace;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Runs\NodeRun;
 use App\Models\Runs\Run;
 use App\Models\Workflows\WorkflowApproval;
 use App\Models\Workspaces\Workspace;
+use App\Notifications\AppNotification;
 
-class RunApprovalRequestedNotification extends WorkspaceEventNotification
+class RunApprovalRequestedNotification extends AppNotification
 {
     public function __construct(Workspace $workspace, Run $run, NodeRun $nodeRun, WorkflowApproval $approval)
     {
         parent::__construct(
             workspace: $workspace,
-            event: NotificationEvent::RunApprovalRequested,
+            type: NotificationType::RunApprovalRequested,
             title: "Approval needed in {$workspace->name}",
             body: "Workflow run {$run->id} is waiting for approval at {$nodeRun->key}.",
             data: [
@@ -24,5 +25,13 @@ class RunApprovalRequestedNotification extends WorkspaceEventNotification
                 'approval_id' => $approval->id,
             ],
         );
+    }
+
+    /**
+     * One approval is asked for once.
+     */
+    public function idempotencyKey(): ?string
+    {
+        return 'run-approval:'.$this->data['approval_id'];
     }
 }

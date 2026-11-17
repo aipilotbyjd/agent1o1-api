@@ -56,6 +56,7 @@ use App\Services\Assistant\Tools\ConnectorToolProvider;
 use App\Services\Assistant\Tools\KnowledgeToolProvider;
 use App\Services\Assistant\Tools\ToolCatalog;
 use App\Services\Auth\Grants\SocialExchangeGrant;
+use App\Services\Notifications\PreferenceResolver;
 use App\Services\SuperAdmin\System\ScheduledCommandRecorder;
 use App\Services\Triggers\TargetRunStarter;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -88,6 +89,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(OperatorEndpoints::class);
         $this->app->scoped(AiCallContext::class);
         $this->app->scoped(AiProviderSettings::class);
+        $this->app->scoped(PreferenceResolver::class);
         $this->app->bind(BrandRepository::class, ConfigBrandRepository::class);
         $this->app->bind(SandboxDriver::class, E2BSandboxDriver::class);
         $this->app->tag([ConnectorToolProvider::class, KnowledgeToolProvider::class, ComputerToolProvider::class], ToolCatalog::TAG);

@@ -11,7 +11,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['workspace_id', 'user_id', 'event_key', 'in_app', 'email', 'channel_ids'])]
+/**
+ * A member's choice, in one workspace, for one event or a whole category of
+ * them. `event_key` is an event key (`run.failed`) or a category key
+ * (`category:runs`); the event's own row wins over its category's.
+ *
+ * Which chat or webhook channels hear about an event is the workspace's
+ * decision, not a member's: see `NotificationRoute`.
+ */
+#[Fillable(['workspace_id', 'user_id', 'event_key', 'in_app', 'email', 'email_digest'])]
 class NotificationPreference extends Model
 {
     /** @use HasFactory<NotificationPreferenceFactory> */
@@ -22,7 +30,7 @@ class NotificationPreference extends Model
         return [
             'in_app' => 'boolean',
             'email' => 'boolean',
-            'channel_ids' => 'array',
+            'email_digest' => 'boolean',
         ];
     }
 

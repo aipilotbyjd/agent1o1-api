@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Workspaces\Role;
 use App\Models\User;
 use App\Notifications\Workspace\MemberInvitedNotification;
@@ -15,8 +15,8 @@ it('lists the notification event catalogue for an authenticated user', function 
 
     $this->getJson('/api/v1/notifications/events')
         ->assertOk()
-        ->assertJsonPath('data.0.key', NotificationEvent::MemberInvited->value)
-        ->assertJsonCount(count(NotificationEvent::cases()), 'data');
+        ->assertJsonPath('data.0.key', NotificationType::MemberInvited->value)
+        ->assertJsonCount(count(NotificationType::cases()), 'data');
 });
 
 it('lists, marks read, and deletes only the authenticated users notifications', function () {
@@ -65,11 +65,11 @@ it('stores workspace-scoped notification preferences', function () {
     Passport::actingAs($user);
 
     $this->putJson("/api/v1/workspaces/{$workspace->id}/notification-preferences", [
-        'event_key' => NotificationEvent::RunApprovalRequested->value,
+        'event_key' => NotificationType::RunApprovalRequested->value,
         'in_app' => false,
         'email' => true,
     ])->assertOk()
-        ->assertJsonPath('data.preference.event_key', NotificationEvent::RunApprovalRequested->value)
+        ->assertJsonPath('data.preference.event_key', NotificationType::RunApprovalRequested->value)
         ->assertJsonPath('data.preference.in_app', false)
         ->assertJsonPath('data.preference.email', true);
 });
@@ -143,7 +143,7 @@ it('changes only the preference fields a partial update names', function () {
     $workspace = app(WorkspaceService::class)->create($user, ['name' => 'Acme']);
     Passport::actingAs($user);
     $url = "/api/v1/workspaces/{$workspace->id}/notification-preferences";
-    $event = NotificationEvent::RunApprovalRequested->value;
+    $event = NotificationType::RunApprovalRequested->value;
 
     $this->putJson($url, ['event_key' => $event, 'in_app' => false, 'email' => true])->assertOk();
     $this->putJson($url, ['event_key' => $event, 'email' => false])

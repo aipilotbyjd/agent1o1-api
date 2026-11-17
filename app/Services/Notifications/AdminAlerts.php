@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Cache;
  * The two systems are deliberately independent. There are no admin user
  * accounts, so this one has no notifiables, no preferences and no database
  * table: destinations come from `config/admin_alerts.php` alone. Alert keys
- * are plain strings and must never be added to `NotificationEvent`, which
+ * are plain strings and must never be added to `NotificationType`, which
  * backs the customer-facing `GET /notifications/events` catalogue.
  *
  * Adding an alert is a single `raise()` call from wherever the condition is

@@ -1,7 +1,7 @@
 <?php
 
 use App\Enums\Notifications\AlertSeverity;
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Notifications\Admin\AdminAlertNotification;
 use App\Notifications\Channels\AdminAlertChannel;
 use App\Services\Notifications\AdminAlerts;
@@ -246,7 +246,7 @@ it('disables discord mention parsing so a workspace name cannot ping the channel
 });
 
 it('keeps admin alert keys out of the tenant notification catalogue', function () {
-    $tenantKeys = array_column(NotificationEvent::catalog(), 'key');
+    $tenantKeys = array_column(NotificationType::catalog(), 'key');
 
     expect($tenantKeys)->not->toContain('usage.threshold_crossed');
     expect($tenantKeys)->not->toContain('usage.limit_exhausted');

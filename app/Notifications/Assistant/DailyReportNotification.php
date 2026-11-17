@@ -2,41 +2,48 @@
 
 namespace App\Notifications\Assistant;
 
-use App\Enums\Queue;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Assistant\AssistantBriefingRun;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Notifications\AppNotification;
+use App\Services\Notifications\NotificationLinks;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 use Illuminate\Support\Str;
 
 /**
- * The Daily report by email: the summary and catch-up, with a link to the
- * full report and its Situations in the app.
+ * The Daily report: by email (on by default) with the summary and catch-up,
+ * and optionally in the bell, linking to the full report and its Situations.
  */
-class DailyReportNotification extends Notification implements ShouldQueue
+class DailyReportNotification extends AppNotification
 {
-    use Queueable;
-
     public function __construct(
         public readonly AssistantBriefingRun $run,
-        public readonly string $title,
+        string $title,
     ) {
-        $this->onQueue(Queue::Notification->value);
-        $this->afterCommit();
+        parent::__construct(
+            type: NotificationType::AssistantDailyReport,
+            title: $title,
+            body: $run->summary !== null ? Str::limit((string) $run->summary, 500) : null,
+            data: ['assistant_briefing_run_id' => $run->id],
+            workspace: $run->config->assistant->workspace_id,
+        );
     }
 
     /**
-     * @return list<string>
+     * One report is sent once, however often its job runs.
      */
-    public function via(object $notifiable): array
+    public function idempotencyKey(): ?string
     {
-        return ['mail'];
+        return 'daily-report:'.$this->run->id;
+    }
+
+    public function actionPath(): ?string
+    {
+        return '/'.rawurlencode((string) $this->workspaceId).'/assistant?tab=daily';
     }
 
     public function toMail(object $notifiable): MailMessage
     {
-        $mail = (new MailMessage)
+        $mail = $this->mailMessage($notifiable)
             ->subject($this->title.' - '.now()->toFormattedDayDateString())
             ->line((string) $this->run->summary);
 
@@ -44,8 +51,6 @@ class DailyReportNotification extends Notification implements ShouldQueue
             $mail->line(Str::limit((string) $this->run->document, 3000));
         }
 
-        $workspaceId = $this->run->config->assistant->workspace_id;
-
-        return $mail->action('Open the full report', config('app.frontend_url')."/{$workspaceId}/assistant?tab=daily");
+        return $mail->action('Open the full report', (string) NotificationLinks::absolute($this->actionPath()));
     }
 }

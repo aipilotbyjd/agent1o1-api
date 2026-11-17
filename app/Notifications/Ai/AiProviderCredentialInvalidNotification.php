@@ -3,11 +3,11 @@
 namespace App\Notifications\Ai;
 
 use App\Enums\Connectors\ConnectorCredentialScope;
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Ai\AiProviderCredential;
-use App\Notifications\Workspace\WorkspaceEventNotification;
+use App\Notifications\AppNotification;
 
-class AiProviderCredentialInvalidNotification extends WorkspaceEventNotification
+class AiProviderCredentialInvalidNotification extends AppNotification
 {
     public function __construct(AiProviderCredential $credential, string $label)
     {
@@ -28,7 +28,7 @@ class AiProviderCredentialInvalidNotification extends WorkspaceEventNotification
 
         parent::__construct(
             workspace: $credential->workspace,
-            event: NotificationEvent::AiProviderCredentialInvalid,
+            type: NotificationType::AiProviderCredentialInvalid,
             title: $title,
             body: $body,
             data: [

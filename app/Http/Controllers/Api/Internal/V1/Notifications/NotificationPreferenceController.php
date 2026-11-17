@@ -2,70 +2,81 @@
 
 namespace App\Http\Controllers\Api\Internal\V1\Notifications;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationScope;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Internal\V1\Notifications\UpdateNotificationPreferencesRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Notifications\NotificationPreference;
 use App\Models\Workspaces\Workspace;
+use App\Services\Notifications\PreferenceWriter;
+use Closure;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
+/**
+ * A member's notification choices in one workspace: per event, or per
+ * category (`category:<name>`). Account-level events are set on the
+ * account (`AccountNotificationPreferenceController`).
+ */
 class NotificationPreferenceController extends Controller
 {
+    public function __construct(private readonly PreferenceWriter $writer) {}
+
     public function index(Request $request, Workspace $workspace): JsonResponse
     {
-        $preferences = NotificationPreference::query()
-            ->whereBelongsTo($workspace)
-            ->whereBelongsTo($request->user())
-            ->get();
-
-        return ApiResponse::success(['preferences' => $preferences]);
+        return ApiResponse::success(['preferences' => $this->preferencesFor($request, $workspace)]);
     }
 
+    /**
+     * One change, as the settings page has always sent it.
+     */
     public function upsert(Request $request, Workspace $workspace): JsonResponse
     {
         $data = $request->validate([
-            'event_key' => ['required', Rule::enum(NotificationEvent::class)],
-            'in_app' => ['nullable', 'boolean'],
-            'email' => ['nullable', 'boolean'],
-            'channel_ids' => ['nullable', 'array'],
-            'channel_ids.*' => [
-                'integer',
-                Rule::exists('notification_channels', 'id')->where('workspace_id', $workspace->id),
-            ],
+            'event_key' => ['required', 'string', function (string $attribute, mixed $value, Closure $fail): void {
+                if (! is_string($value) || ! UpdateNotificationPreferencesRequest::acceptsKey($value, NotificationScope::Workspace)) {
+                    $fail('This notification setting can\'t be changed here.');
+                }
+            }],
+            'in_app' => ['sometimes', 'boolean'],
+            'email' => ['sometimes', 'boolean'],
+            'email_digest' => ['sometimes', 'boolean'],
         ]);
 
-        $preference = NotificationPreference::query()->firstOrNew([
-            'workspace_id' => $workspace->id,
-            'user_id' => $request->user()->id,
-            'event_key' => $data['event_key'],
-        ]);
+        $this->writer->applyToWorkspace($request->user(), $workspace, [[
+            'key' => $data['event_key'],
+            ...array_intersect_key($data, array_flip(['in_app', 'email', 'email_digest'])),
+        ]]);
 
-        // A partial update changes only what it names; a brand-new preference
-        // starts from the event defaults.
-        if (! $preference->exists) {
-            $preference->fill([
-                'in_app' => NotificationEvent::DEFAULT_IN_APP,
-                'email' => NotificationEvent::DEFAULT_EMAIL,
-                'channel_ids' => null,
-            ]);
-        }
-
-        if ($request->has('in_app')) {
-            $preference->in_app = $data['in_app'] ?? NotificationEvent::DEFAULT_IN_APP;
-        }
-
-        if ($request->has('email')) {
-            $preference->email = $data['email'] ?? NotificationEvent::DEFAULT_EMAIL;
-        }
-
-        if ($request->has('channel_ids')) {
-            $preference->channel_ids = $data['channel_ids'] ?? null;
-        }
-
-        $preference->save();
+        $preference = NotificationPreference::query()
+            ->whereBelongsTo($workspace)
+            ->whereBelongsTo($request->user())
+            ->where('event_key', $data['event_key'])
+            ->firstOrFail();
 
         return ApiResponse::success(['preference' => $preference], 'Notification preference saved.');
+    }
+
+    /**
+     * Several changes at once: a whole category, or every row of the
+     * settings page.
+     */
+    public function bulk(UpdateNotificationPreferencesRequest $request, Workspace $workspace): JsonResponse
+    {
+        $this->writer->applyToWorkspace($request->user(), $workspace, $request->changes());
+
+        return ApiResponse::success(['preferences' => $this->preferencesFor($request, $workspace)], 'Notification preferences saved.');
+    }
+
+    /**
+     * @return Collection<int, NotificationPreference>
+     */
+    private function preferencesFor(Request $request, Workspace $workspace): Collection
+    {
+        return NotificationPreference::query()
+            ->whereBelongsTo($workspace)
+            ->whereBelongsTo($request->user())
+            ->get();
     }
 }

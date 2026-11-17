@@ -29,7 +29,7 @@ class NotificationPreferenceFactory extends Factory
             'event_key' => 'workspace.member_invited',
             'in_app' => true,
             'email' => false,
-            'channel_ids' => null,
+            'email_digest' => false,
         ];
     }
 }

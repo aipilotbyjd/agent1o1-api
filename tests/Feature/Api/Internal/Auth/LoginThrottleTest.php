@@ -106,7 +106,7 @@ it('tells the owner and logs it when their account locks', function () {
     Notification::assertSentTo(
         $user,
         SecurityAlertNotification::class,
-        fn (SecurityAlertNotification $n) => $n->event === AuthEvent::AccountLocked,
+        fn (SecurityAlertNotification $n) => $n->authEvent === AuthEvent::AccountLocked,
     );
 
     expect(AuthEventLog::query()->where('event', AuthEvent::LoginFailed->value)->count())->toBe(5);

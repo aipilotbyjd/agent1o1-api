@@ -417,7 +417,7 @@ class ReflectionAnalyzer
         }
 
         // Which channel(s) each recipient actually receives this on (email,
-        // in-app, webhook) is decided by `WorkspaceEventNotification::via()`
+        // in-app, webhook) is decided by `AppNotification::via()`
         // against their own `NotificationPreference` for
         // `ReflectionRunCompleted`: this only decides whether the event
         // fires at all.

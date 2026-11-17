@@ -2,7 +2,7 @@
 
 namespace App\Notifications\Workspace;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Agents\AgentEvalRun;
 use App\Models\Agents\AgentSession;
 use App\Models\Agents\AgentSessionEvaluation;
@@ -10,18 +10,20 @@ use App\Models\Agents\ReflectionRun;
 use App\Models\Runs\Run;
 use App\Models\Workflows\Workflow;
 use App\Models\Workspaces\Workspace;
+use App\Notifications\AppNotification;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 
-class RunFailedNotification extends WorkspaceEventNotification
+class RunFailedNotification extends AppNotification
 {
     private const MAX_ERROR_LENGTH = 300;
 
     public function __construct(Workspace $workspace, Run $run)
     {
+
         parent::__construct(
             workspace: $workspace,
-            event: NotificationEvent::RunFailed,
+            type: NotificationType::RunFailed,
             title: self::titleFor($run),
             body: self::bodyFor($run->error),
             data: [
@@ -30,6 +32,14 @@ class RunFailedNotification extends WorkspaceEventNotification
                 'error' => $run->error,
             ],
         );
+    }
+
+    /**
+     * A run fails once: a retried listener must not report it twice.
+     */
+    public function idempotencyKey(): ?string
+    {
+        return 'run-failed:'.$this->data['run_id'];
     }
 
     /**

@@ -50,6 +50,7 @@ return [
             'api/v1/announcements*',
             'api/v1/communication-preferences',
             'api/v1/broadcasts/*',
+            'api/v1/notifications/unsubscribe/*',
             'api/broadcasting/auth',
             // Inbound webhooks only queue work; refusing them would lose events from outside.
             'api/hooks/*',

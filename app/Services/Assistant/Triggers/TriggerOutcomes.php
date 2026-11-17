@@ -5,7 +5,8 @@ namespace App\Services\Assistant\Triggers;
 use App\Enums\Assistant\AssistantTriggerStatus;
 use App\Enums\Assistant\AssistantTurnStatus;
 use App\Models\Assistant\AssistantTurn;
-use App\Notifications\Assistant\TriggerDisabledNotification;
+use App\Notifications\Assistant\AssistantTriggerDisabledNotification;
+use App\Services\Notifications\NotificationDispatcher;
 
 /**
  * Counts a trigger's failed runs in a row; past the limit it switches off
@@ -40,7 +41,7 @@ class TriggerOutcomes
         ])->save();
 
         if ($failures === $limit) {
-            $trigger->assistant->user->notify(new TriggerDisabledNotification($trigger, (string) $turn->error));
+            app(NotificationDispatcher::class)->dispatchTo($trigger->assistant->user, new AssistantTriggerDisabledNotification($trigger, (string) $turn->error));
         }
     }
 }
