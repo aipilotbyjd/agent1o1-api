@@ -18,16 +18,25 @@ class Tag extends Model
     /** @use HasFactory<TagFactory> */
     use HasFactory, HasUuids;
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsToMany<Workflow, $this>
+     */
     public function workflows(): BelongsToMany
     {
         return $this->belongsToMany(Workflow::class, 'tag_workflow');
     }
 
+    /**
+     * @return BelongsToMany<Agent, $this>
+     */
     public function agents(): BelongsToMany
     {
         return $this->belongsToMany(Agent::class, 'tag_agent');

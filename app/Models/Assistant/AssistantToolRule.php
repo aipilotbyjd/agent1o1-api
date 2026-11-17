@@ -27,6 +27,9 @@ class AssistantToolRule extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Assistant, $this>
+     */
     public function assistant(): BelongsTo
     {
         return $this->belongsTo(Assistant::class);

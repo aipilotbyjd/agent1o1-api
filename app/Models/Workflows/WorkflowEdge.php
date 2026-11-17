@@ -20,16 +20,25 @@ class WorkflowEdge extends Model
 
     public const string ERROR_CONDITION = 'error';
 
+    /**
+     * @return BelongsTo<Workflow, $this>
+     */
     public function workflow(): BelongsTo
     {
         return $this->belongsTo(Workflow::class);
     }
 
+    /**
+     * @return BelongsTo<WorkflowNode, $this>
+     */
     public function fromNode(): BelongsTo
     {
         return $this->belongsTo(WorkflowNode::class, 'from_node_id');
     }
 
+    /**
+     * @return BelongsTo<WorkflowNode, $this>
+     */
     public function toNode(): BelongsTo
     {
         return $this->belongsTo(WorkflowNode::class, 'to_node_id');

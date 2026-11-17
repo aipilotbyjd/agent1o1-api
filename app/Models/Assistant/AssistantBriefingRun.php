@@ -34,16 +34,25 @@ class AssistantBriefingRun extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<AssistantBriefingConfig, $this>
+     */
     public function config(): BelongsTo
     {
         return $this->belongsTo(AssistantBriefingConfig::class, 'assistant_briefing_config_id');
     }
 
+    /**
+     * @return BelongsTo<AssistantMeeting, $this>
+     */
     public function meeting(): BelongsTo
     {
         return $this->belongsTo(AssistantMeeting::class, 'assistant_meeting_id');
     }
 
+    /**
+     * @return HasMany<AssistantSituation, $this>
+     */
     public function situations(): HasMany
     {
         return $this->hasMany(AssistantSituation::class);

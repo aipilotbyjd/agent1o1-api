@@ -30,11 +30,17 @@ class AssistantStyleProfile extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Assistant, $this>
+     */
     public function assistant(): BelongsTo
     {
         return $this->belongsTo(Assistant::class);
     }
 
+    /**
+     * @return HasMany<AssistantStyleRevision, $this>
+     */
     public function revisions(): HasMany
     {
         return $this->hasMany(AssistantStyleRevision::class);

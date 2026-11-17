@@ -37,16 +37,25 @@ class AssistantMessage extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<AssistantSession, $this>
+     */
     public function session(): BelongsTo
     {
         return $this->belongsTo(AssistantSession::class, 'assistant_session_id');
     }
 
+    /**
+     * @return HasOne<AssistantFeedback, $this>
+     */
     public function feedback(): HasOne
     {
         return $this->hasOne(AssistantFeedback::class);
     }
 
+    /**
+     * @return BelongsTo<self, $this>
+     */
     public function compactedInto(): BelongsTo
     {
         return $this->belongsTo(self::class, 'compacted_into_id');

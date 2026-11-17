@@ -47,16 +47,25 @@ class WorkflowTemplate extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<Workflow, $this>
+     */
     public function sourceWorkflow(): BelongsTo
     {
         return $this->belongsTo(Workflow::class, 'source_workflow_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

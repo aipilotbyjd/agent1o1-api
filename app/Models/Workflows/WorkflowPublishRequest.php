@@ -40,31 +40,49 @@ class WorkflowPublishRequest extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<Workflow, $this>
+     */
     public function workflow(): BelongsTo
     {
         return $this->belongsTo(Workflow::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function requester(): BelongsTo
     {
         return $this->belongsTo(User::class, 'requested_by');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
+    /**
+     * @return BelongsTo<WorkflowVersion, $this>
+     */
     public function baseVersion(): BelongsTo
     {
         return $this->belongsTo(WorkflowVersion::class, 'base_version_id');
     }
 
+    /**
+     * @return BelongsTo<WorkflowVersion, $this>
+     */
     public function publishedVersion(): BelongsTo
     {
         return $this->belongsTo(WorkflowVersion::class, 'published_version_id');

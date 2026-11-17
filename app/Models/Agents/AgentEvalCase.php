@@ -37,6 +37,9 @@ class AgentEvalCase extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<AgentEvalSuite, $this>
+     */
     public function suite(): BelongsTo
     {
         return $this->belongsTo(AgentEvalSuite::class, 'agent_eval_suite_id');

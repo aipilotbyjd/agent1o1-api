@@ -59,11 +59,17 @@ class AgentEvalRun extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<AgentEvalSuite, $this>
+     */
     public function suite(): BelongsTo
     {
         return $this->belongsTo(AgentEvalSuite::class, 'agent_eval_suite_id');
@@ -71,22 +77,33 @@ class AgentEvalRun extends Model
 
     /**
      * The agent behavior that was graded: see the migration's docblock.
+     *
+     * @return BelongsTo<AgentVersion, $this>
      */
     public function agentVersion(): BelongsTo
     {
         return $this->belongsTo(AgentVersion::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function triggeredBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'triggered_by');
     }
 
+    /**
+     * @return HasMany<AgentEvalCaseResult, $this>
+     */
     public function results(): HasMany
     {
         return $this->hasMany(AgentEvalCaseResult::class);
     }
 
+    /**
+     * @return MorphMany<Run, $this>
+     */
     public function runs(): MorphMany
     {
         return $this->morphMany(Run::class, 'runnable');

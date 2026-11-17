@@ -42,6 +42,9 @@ class WorkflowPageEvent extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<WorkflowPage, $this>
+     */
     public function page(): BelongsTo
     {
         return $this->belongsTo(WorkflowPage::class, 'workflow_page_id');

@@ -36,16 +36,25 @@ class WorkflowPageSubmission extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<WorkflowPage, $this>
+     */
     public function page(): BelongsTo
     {
         return $this->belongsTo(WorkflowPage::class, 'workflow_page_id');
     }
 
+    /**
+     * @return BelongsTo<Run, $this>
+     */
     public function run(): BelongsTo
     {
         return $this->belongsTo(Run::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

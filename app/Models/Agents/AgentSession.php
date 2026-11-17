@@ -55,11 +55,17 @@ class AgentSession extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<Agent, $this>
+     */
     public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
@@ -68,6 +74,8 @@ class AgentSession extends Model
     /**
      * The agent behavior this conversation started with: see the
      * `agent_version_id` migration.
+     *
+     * @return BelongsTo<AgentVersion, $this>
      */
     public function agentVersion(): BelongsTo
     {
@@ -110,6 +118,9 @@ class AgentSession extends Model
         ]);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -117,6 +128,8 @@ class AgentSession extends Model
 
     /**
      * The conversation that handed this one its task, when a subagent runs it.
+     *
+     * @return BelongsTo<self, $this>
      */
     public function parentSession(): BelongsTo
     {
@@ -125,17 +138,25 @@ class AgentSession extends Model
 
     /**
      * Subagents this conversation started: see `InvokeAgentTool`.
+     *
+     * @return HasMany<SubagentTask, $this>
      */
     public function subagentTasks(): HasMany
     {
         return $this->hasMany(SubagentTask::class, 'parent_session_id');
     }
 
+    /**
+     * @return HasMany<AgentMessage, $this>
+     */
     public function messages(): HasMany
     {
         return $this->hasMany(AgentMessage::class);
     }
 
+    /**
+     * @return MorphMany<Run, $this>
+     */
     public function runs(): MorphMany
     {
         return $this->morphMany(Run::class, 'runnable');
@@ -146,6 +167,8 @@ class AgentSession extends Model
      * `Services\Agents\SessionEvaluator`. A `HasOne` because a session that
      * continues and completes again replaces its evaluation rather than
      * accumulating one per turn.
+     *
+     * @return HasOne<AgentSessionEvaluation, $this>
      */
     public function evaluation(): HasOne
     {
@@ -154,6 +177,8 @@ class AgentSession extends Model
 
     /**
      * Tool calls made in this conversation: see `Models\Agents\AgentAction`.
+     *
+     * @return HasMany<AgentAction, $this>
      */
     public function actions(): HasMany
     {
@@ -162,12 +187,17 @@ class AgentSession extends Model
 
     /**
      * Actions in this conversation still waiting for someone to decide.
+     *
+     * @return HasMany<AgentAction, $this>
      */
     public function pendingActions(): HasMany
     {
         return $this->actions()->where('status', AgentActionStatus::Pending);
     }
 
+    /**
+     * @return HasMany<AgentPlan, $this>
+     */
     public function plans(): HasMany
     {
         return $this->hasMany(AgentPlan::class);

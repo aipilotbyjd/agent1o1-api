@@ -26,11 +26,17 @@ class WorkflowBuilderDraftVersion extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<WorkflowBuilderSession, $this>
+     */
     public function session(): BelongsTo
     {
         return $this->belongsTo(WorkflowBuilderSession::class, 'session_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function triggeredBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'triggered_by');

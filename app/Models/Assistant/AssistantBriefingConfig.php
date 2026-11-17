@@ -39,16 +39,25 @@ class AssistantBriefingConfig extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Assistant, $this>
+     */
     public function assistant(): BelongsTo
     {
         return $this->belongsTo(Assistant::class);
     }
 
+    /**
+     * @return HasMany<AssistantBriefingRun, $this>
+     */
     public function runs(): HasMany
     {
         return $this->hasMany(AssistantBriefingRun::class);
     }
 
+    /**
+     * @return HasMany<AssistantSourceCursor, $this>
+     */
     public function cursors(): HasMany
     {
         return $this->hasMany(AssistantSourceCursor::class);

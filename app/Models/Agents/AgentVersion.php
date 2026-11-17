@@ -28,11 +28,17 @@ class AgentVersion extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Agent, $this>
+     */
     public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function changedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'changed_by');

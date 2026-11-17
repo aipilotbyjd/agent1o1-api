@@ -13,11 +13,17 @@ class ArtifactShare extends Model
 {
     use HasUuids;
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function grantedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'granted_by');

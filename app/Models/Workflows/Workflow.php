@@ -53,61 +53,97 @@ class Workflow extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<Folder, $this>
+     */
     public function folder(): BelongsTo
     {
         return $this->belongsTo(Folder::class);
     }
 
+    /**
+     * @return BelongsToMany<Tag, $this>
+     */
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'tag_workflow');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * @return HasMany<WorkflowVersion, $this>
+     */
     public function versions(): HasMany
     {
         return $this->hasMany(WorkflowVersion::class);
     }
 
+    /**
+     * @return BelongsTo<WorkflowVersion, $this>
+     */
     public function currentVersion(): BelongsTo
     {
         return $this->belongsTo(WorkflowVersion::class, 'current_version_id');
     }
 
+    /**
+     * @return HasMany<WorkflowNode, $this>
+     */
     public function nodes(): HasMany
     {
         return $this->hasMany(WorkflowNode::class);
     }
 
+    /**
+     * @return HasMany<WorkflowEdge, $this>
+     */
     public function edges(): HasMany
     {
         return $this->hasMany(WorkflowEdge::class);
     }
 
+    /**
+     * @return BelongsToMany<User, $this>
+     */
     public function favoritedByUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'workflow_favorites')->withTimestamps();
     }
 
+    /**
+     * @return HasMany<Run, $this>
+     */
     public function runs(): HasMany
     {
         return $this->hasMany(Run::class);
     }
 
+    /**
+     * @return HasMany<WorkflowPage, $this>
+     */
     public function pages(): HasMany
     {
         return $this->hasMany(WorkflowPage::class);
     }
 
+    /**
+     * @return HasMany<WorkflowPublishRequest, $this>
+     */
     public function publishRequests(): HasMany
     {
         return $this->hasMany(WorkflowPublishRequest::class);

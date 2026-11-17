@@ -43,21 +43,33 @@ class AssistantTurn extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<AssistantSession, $this>
+     */
     public function session(): BelongsTo
     {
         return $this->belongsTo(AssistantSession::class, 'assistant_session_id');
     }
 
+    /**
+     * @return BelongsTo<AssistantMessage, $this>
+     */
     public function userMessage(): BelongsTo
     {
         return $this->belongsTo(AssistantMessage::class, 'user_message_id');
     }
 
+    /**
+     * @return BelongsTo<AssistantMessage, $this>
+     */
     public function assistantMessage(): BelongsTo
     {
         return $this->belongsTo(AssistantMessage::class, 'assistant_message_id');
     }
 
+    /**
+     * @return HasMany<AssistantAction, $this>
+     */
     public function actions(): HasMany
     {
         return $this->hasMany(AssistantAction::class);

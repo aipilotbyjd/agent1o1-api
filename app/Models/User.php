@@ -142,11 +142,17 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         return $this->onboarding_completed_at !== null;
     }
 
+    /**
+     * @return HasMany<Workspace, $this>
+     */
     public function ownedWorkspaces(): HasMany
     {
         return $this->hasMany(Workspace::class, 'owner_id');
     }
 
+    /**
+     * @return BelongsToMany<Workspace, $this>
+     */
     public function workspaces(): BelongsToMany
     {
         return $this->belongsToMany(Workspace::class, 'workspace_members')
@@ -154,6 +160,9 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
             ->withTimestamps();
     }
 
+    /**
+     * @return HasMany<OAuthConnection, $this>
+     */
     public function oauthConnections(): HasMany
     {
         return $this->hasMany(OAuthConnection::class);
@@ -169,27 +178,41 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
 
     /**
      * The apps this user pinned to their "Your apps" in the editor.
+     *
+     * @return BelongsToMany<NodeCategory, $this>
      */
     public function pinnedNodeCategories(): BelongsToMany
     {
         return $this->belongsToMany(NodeCategory::class, 'node_category_pins')->withTimestamps();
     }
 
+    /**
+     * @return BelongsToMany<Workflow, $this>
+     */
     public function favoriteWorkflows(): BelongsToMany
     {
         return $this->belongsToMany(Workflow::class, 'workflow_favorites')->withTimestamps();
     }
 
+    /**
+     * @return HasMany<AuthEventLog, $this>
+     */
     public function authEvents(): HasMany
     {
         return $this->hasMany(AuthEventLog::class);
     }
 
+    /**
+     * @return HasMany<NotificationPreference, $this>
+     */
     public function notificationPreferences(): HasMany
     {
         return $this->hasMany(NotificationPreference::class);
     }
 
+    /**
+     * @return HasMany<AccountNotificationPreference, $this>
+     */
     public function accountNotificationPreferences(): HasMany
     {
         return $this->hasMany(AccountNotificationPreference::class);
@@ -207,6 +230,9 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         return $this->morphMany(InboxNotification::class, 'notifiable')->newestFirst();
     }
 
+    /**
+     * @return HasOne<ReferralCode, $this>
+     */
     public function referralCode(): HasOne
     {
         return $this->hasOne(ReferralCode::class);
@@ -214,12 +240,17 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
 
     /**
      * The referral this user signed up through, if any.
+     *
+     * @return HasOne<Referral, $this>
      */
     public function referral(): HasOne
     {
         return $this->hasOne(Referral::class, 'referred_user_id');
     }
 
+    /**
+     * @return HasMany<Referral, $this>
+     */
     public function referralsMade(): HasMany
     {
         return $this->hasMany(Referral::class, 'referrer_user_id');
@@ -227,12 +258,17 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
 
     /**
      * Rewards this user received, as referrer or as the referred user.
+     *
+     * @return HasMany<ReferralReward, $this>
      */
     public function referralRewards(): HasMany
     {
         return $this->hasMany(ReferralReward::class, 'recipient_user_id');
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function currentWorkspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class, 'current_workspace_id');

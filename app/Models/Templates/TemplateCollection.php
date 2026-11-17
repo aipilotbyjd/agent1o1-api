@@ -32,16 +32,25 @@ class TemplateCollection extends Model
         'visibility' => 'private',
     ];
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * @return HasMany<TemplateCollectionItem, $this>
+     */
     public function items(): HasMany
     {
         return $this->hasMany(TemplateCollectionItem::class, 'collection_id')->orderBy('position');

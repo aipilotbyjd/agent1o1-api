@@ -32,16 +32,25 @@ class WorkflowVersion extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workflow, $this>
+     */
     public function workflow(): BelongsTo
     {
         return $this->belongsTo(Workflow::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function publisher(): BelongsTo
     {
         return $this->belongsTo(User::class, 'published_by');
     }
 
+    /**
+     * @return HasMany<Run, $this>
+     */
     public function runs(): HasMany
     {
         return $this->hasMany(Run::class);

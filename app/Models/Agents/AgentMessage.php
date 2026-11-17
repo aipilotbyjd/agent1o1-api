@@ -50,6 +50,9 @@ class AgentMessage extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<AgentSession, $this>
+     */
     public function session(): BelongsTo
     {
         return $this->belongsTo(AgentSession::class, 'agent_session_id');
@@ -57,6 +60,8 @@ class AgentMessage extends Model
 
     /**
      * The skill the person picked for this (user) message, if any.
+     *
+     * @return BelongsTo<Skill, $this>
      */
     public function skill(): BelongsTo
     {
@@ -67,6 +72,8 @@ class AgentMessage extends Model
      * Files a member sent along with this (user) message. Stored as
      * `Artifact`s and handed to the model with the message on every turn:
      * see `AgentRunner::openTurn()` and `WorkspaceAgent::messages()`.
+     *
+     * @return HasMany<Artifact, $this>
      */
     public function attachments(): HasMany
     {
@@ -76,6 +83,8 @@ class AgentMessage extends Model
     /**
      * The calls this (assistant) turn paused on for approval: see
      * `Models\Agents\AgentAction`.
+     *
+     * @return HasMany<AgentAction, $this>
      */
     public function actions(): HasMany
     {
@@ -86,6 +95,8 @@ class AgentMessage extends Model
      * The `CreditTransaction` this turn was billed under: see
      * `NodeRun::creditTransaction()`'s docblock for why this isn't a real
      * `morphOne`.
+     *
+     * @return HasOne<CreditTransaction, $this>
      */
     public function creditTransaction(): HasOne
     {

@@ -47,16 +47,25 @@ class PageTemplate extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<WorkflowPage, $this>
+     */
     public function sourcePage(): BelongsTo
     {
         return $this->belongsTo(WorkflowPage::class, 'source_page_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

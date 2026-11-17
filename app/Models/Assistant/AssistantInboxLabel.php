@@ -30,6 +30,9 @@ class AssistantInboxLabel extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<AssistantInboxConfig, $this>
+     */
     public function config(): BelongsTo
     {
         return $this->belongsTo(AssistantInboxConfig::class, 'assistant_inbox_config_id');

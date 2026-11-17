@@ -39,6 +39,9 @@ class ReferralPayment extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Referral, $this>
+     */
     public function referral(): BelongsTo
     {
         return $this->belongsTo(Referral::class);

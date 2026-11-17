@@ -38,16 +38,25 @@ class NotificationRoute extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<NotificationChannel, $this>
+     */
     public function channel(): BelongsTo
     {
         return $this->belongsTo(NotificationChannel::class, 'notification_channel_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
