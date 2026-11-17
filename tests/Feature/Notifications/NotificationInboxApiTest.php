@@ -205,12 +205,12 @@ describe('workspace preferences', function () {
             ->assertJsonPath('data.preference.email', false);
     });
 
-    it('returns 404 for another workspace\'s preferences', function () {
+    it('returns 403 for another workspace\'s preferences', function () {
         $other = app(WorkspaceService::class)->create(User::factory()->create(), ['name' => 'Other']);
 
         $this->putJson("/api/v1/workspaces/{$other->id}/notification-preferences/bulk", [
             'preferences' => [['key' => 'category:billing', 'email' => false]],
-        ])->assertNotFound();
+        ])->assertForbidden();
     });
 });
 
