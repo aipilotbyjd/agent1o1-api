@@ -22,7 +22,7 @@ use Illuminate\Validation\Rule;
 class BroadcastCampaignRequest extends FormRequest
 {
     /** A path inside the app (not `//host`), or an https address. */
-    public const ACTION_URL_PATTERN = '#^(/(?![/\\\\])\S*|https://[^\s/?#]+\S*)$#i';
+    public const ACTION_URL_PATTERN = '~^(/(?![/\\\\])\S*|https://[^\s/?#]+\S*)$~i';
 
     public function authorize(): bool
     {
