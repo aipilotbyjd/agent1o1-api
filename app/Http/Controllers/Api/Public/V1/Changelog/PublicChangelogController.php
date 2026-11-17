@@ -11,6 +11,7 @@ use App\Services\Changelog\ChangelogReader;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 
 /**
@@ -103,7 +104,7 @@ class PublicChangelogController extends Controller
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, ChangelogEntry>
+     * @return Collection<int, ChangelogEntry>
      */
     private function latest()
     {
