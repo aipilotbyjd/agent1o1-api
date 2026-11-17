@@ -79,6 +79,7 @@ describe('recording', function () {
     it('records api keys being created and revoked without the key itself', function () {
         $response = $this->postJson("{$this->url}/api-keys", ['name' => 'CI', 'abilities' => ['runs:read']])->assertCreated();
         $plain = $response->json('data.plain_text_key');
+        expect($plain)->toMatch(ApiKey::PATTERN);
 
         $created = auditEntries($this->workspace, AuditAction::ApiKeyCreated)->sole();
         expect($created->metadata)->toMatchArray(['name' => 'CI', 'abilities' => ['runs:read']])
