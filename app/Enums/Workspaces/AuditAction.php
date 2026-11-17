@@ -60,4 +60,5 @@ enum AuditAction: string
     case SubscriptionCheckoutStarted = 'billing.checkout_started';
     case SubscriptionCanceled = 'billing.subscription_canceled';
     case SubscriptionResumed = 'billing.subscription_resumed';
+    case SubscriptionCancellationOfferAccepted = 'billing.cancellation_offer_accepted';
 }

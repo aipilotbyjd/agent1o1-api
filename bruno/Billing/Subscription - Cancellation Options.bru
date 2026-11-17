@@ -1,0 +1,37 @@
+meta {
+  name: Subscription - Cancellation Options
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/subscription/cancellation
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+docs {
+  Everything the cancellation screens need: the reasons to choose from, the
+  one offer (if any) that goes with each, and the date the plan would end.
+  Requires the `billing.manage` permission. Returns `404` when the workspace
+  has no subscription.
+
+  `offer` is `null` or `{ type, percent_off, months }`, where `type` is:
+
+  - `discount`: `percent_off` for `months` monthly invoices. Only for the
+    `too_expensive` reason, on a monthly subscription, once per workspace
+    per `BILLING_CANCELLATION_OFFER_COOLDOWN_MONTHS`. Never offered when
+    `BILLING_CANCELLATION_DISCOUNT_PERCENT` is 0.
+  - `downgrade`: a cheaper paid plan is on sale; send the customer to the
+    plans screen.
+  - `help`: the customer can ask for help instead of cancelling.
+
+  No offer is made to a subscription that is on trial, failing payment, or
+  already scheduled to end.
+
+  Response is wrapped: `{ success, statusCode, message, data: { ends_at, reasons: [{ value, label, comment_prompt, offer }] } }`.
+}

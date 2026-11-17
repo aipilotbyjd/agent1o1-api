@@ -1,0 +1,37 @@
+meta {
+  name: Subscription - Accept Cancellation Offer
+  type: http
+  seq: 22
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/billing/subscription/cancellation/accept-offer
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+body:json {
+  {
+    "offer": "discount",
+    "reason": "too_expensive",
+    "comment": "Optional free text."
+  }
+}
+
+docs {
+  The customer stays and takes the offer shown for their reason. Requires
+  the `billing.manage` permission.
+
+  `offer` is `discount` (applies the discount to the Stripe subscription,
+  alongside any discount it already holds) or `help` (alerts the team with
+  the comment). The offer is worked out again on the server: `422` when it
+  is not the one currently available for `reason`, including a second
+  discount inside the cooldown. `downgrade` is always `422` here, because it
+  is taken on the plans screen.
+
+  Response is wrapped: `{ success, statusCode, message, data: { outcome, percent_off, months, subscription } }`.
+}

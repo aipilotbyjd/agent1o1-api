@@ -2,11 +2,14 @@
 
 namespace App\Services\SuperAdmin\Revenue;
 
+use App\Enums\Billing\CancellationOutcome;
+use App\Enums\Billing\CancellationReason;
 use App\Enums\Billing\CreditPackStatus;
 use App\Enums\Billing\OverageInvoiceAttemptStatus;
 use App\Models\Billing\CreditPack;
 use App\Models\Billing\CreditTransaction;
 use App\Models\Billing\OverageInvoiceAttempt;
+use App\Models\Billing\SubscriptionCancellation;
 use App\Models\Billing\UsagePeriod;
 use App\Models\SuperAdmin\RevenueDailySnapshot;
 use Carbon\CarbonImmutable;
@@ -212,8 +215,66 @@ class RevenueMetrics
             'churned_mrr' => $lostMrr,
             'revenue_churn_percent' => $startingMrr === 0 ? null : round($lostMrr / $startingMrr * 100, 2),
             'by_plan' => $this->groupLost($lost),
-            // Stripe's cancellation reason is not stored locally.
-            'cancel_reasons' => null,
+            'cancel_reasons' => $this->cancelReasons($since),
+        ];
+    }
+
+    /**
+     * What customers said in the cancellation flow since `$since`: how many
+     * left and how many stayed for each reason, and their latest comments.
+     * A null reason is a cancellation that arrived without one.
+     *
+     * @return array{canceled: int, discounts_accepted: int, help_requested: int, reasons: list<array<string, mixed>>, comments: list<array<string, mixed>>}
+     */
+    private function cancelReasons(CarbonImmutable $since): array
+    {
+        $counts = SubscriptionCancellation::query()
+            ->where('created_at', '>=', $since)
+            ->selectRaw('reason, outcome, count(*) as total')
+            ->groupBy('reason', 'outcome')
+            ->toBase()
+            ->get();
+
+        $reasons = $counts
+            ->groupBy(fn (object $row): string => (string) $row->reason)
+            ->map(function ($rows, string $reason): array {
+                $canceled = (int) $rows->where('outcome', CancellationOutcome::Canceled->value)->sum('total');
+
+                return [
+                    'reason' => $reason === '' ? null : $reason,
+                    'label' => CancellationReason::tryFrom($reason)?->label() ?? 'No reason given',
+                    'canceled' => $canceled,
+                    'stayed' => (int) $rows->sum('total') - $canceled,
+                ];
+            })
+            ->sortByDesc(fn (array $row): int => $row['canceled'] + $row['stayed'])
+            ->values()
+            ->all();
+
+        $comments = SubscriptionCancellation::query()
+            ->with('workspace:id,name')
+            ->where('created_at', '>=', $since)
+            ->whereNotNull('comment')
+            ->latest()
+            ->limit(10)
+            ->get()
+            ->map(fn (SubscriptionCancellation $record): array => [
+                'workspace' => $record->workspace?->name,
+                'reason' => $record->reason?->label() ?? 'No reason given',
+                'outcome' => $record->outcome->value,
+                'comment' => $record->comment,
+                'at' => $record->created_at?->toIso8601String(),
+            ])
+            ->all();
+
+        $total = fn (CancellationOutcome $outcome): int => (int) $counts->where('outcome', $outcome->value)->sum('total');
+
+        return [
+            'canceled' => $total(CancellationOutcome::Canceled),
+            'discounts_accepted' => $total(CancellationOutcome::DiscountAccepted),
+            'help_requested' => $total(CancellationOutcome::HelpRequested),
+            'reasons' => $reasons,
+            'comments' => $comments,
         ];
     }
 

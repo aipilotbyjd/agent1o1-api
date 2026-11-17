@@ -1,10 +1,12 @@
 <?php
 
+use App\Enums\Billing\CancellationReason;
 use App\Enums\SuperAdmin\SuperAdminRole;
 use App\Models\Billing\CreditPack;
 use App\Models\Billing\CreditTransaction;
 use App\Models\Billing\Plan;
 use App\Models\Billing\Subscription;
+use App\Models\Billing\SubscriptionCancellation;
 use App\Models\SuperAdmin\RevenueDailySnapshot;
 use App\Models\SuperAdmin\SuperAdminAuditLog;
 use App\Models\User;
@@ -176,6 +178,28 @@ it('measures churn in customers and in revenue', function () {
         'churned_mrr' => 1000,
         'revenue_churn_percent' => 14.29,
     ])->and($data['by_plan'])->toBe([['plan' => 'starter', 'churned_subscribers' => 1, 'churned_mrr' => 1000]]);
+});
+
+it('reports why customers cancelled, how many stayed, and what they wrote', function () {
+    $left = SubscriptionCancellation::factory()->create(['reason' => CancellationReason::TooExpensive, 'comment' => 'Budget got cut.']);
+    SubscriptionCancellation::factory()->discountAccepted()->create();
+    SubscriptionCancellation::factory()->create(['reason' => null]);
+    SubscriptionCancellation::factory()->create(['reason' => CancellationReason::TooExpensive, 'created_at' => now()->subDays(60)]);
+
+    $reasons = $this->withHeaders($this->headers)->getJson(saUrl('revenue/churn?days=30'))->assertOk()->json('data.cancel_reasons');
+
+    expect($reasons)->toMatchArray(['canceled' => 2, 'discounts_accepted' => 1, 'help_requested' => 0])
+        ->and($reasons['reasons'])->toBe([
+            ['reason' => 'too_expensive', 'label' => 'It costs too much', 'canceled' => 1, 'stayed' => 1],
+            ['reason' => null, 'label' => 'No reason given', 'canceled' => 1, 'stayed' => 0],
+        ])
+        ->and($reasons['comments'])->toHaveCount(1)
+        ->and($reasons['comments'][0])->toMatchArray([
+            'workspace' => $left->workspace->name,
+            'reason' => 'It costs too much',
+            'outcome' => 'canceled',
+            'comment' => 'Budget got cut.',
+        ]);
 });
 
 it('measures how many trials convert', function () {
