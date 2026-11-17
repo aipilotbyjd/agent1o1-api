@@ -65,31 +65,49 @@ class Run extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return MorphTo<Model, $this>
+     */
     public function runnable(): MorphTo
     {
         return $this->morphTo();
     }
 
+    /**
+     * @return BelongsTo<Workflow, $this>
+     */
     public function workflow(): BelongsTo
     {
         return $this->belongsTo(Workflow::class);
     }
 
+    /**
+     * @return BelongsTo<WorkflowVersion, $this>
+     */
     public function workflowVersion(): BelongsTo
     {
         return $this->belongsTo(WorkflowVersion::class);
     }
 
+    /**
+     * @return BelongsTo<self, $this>
+     */
     public function parentRun(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_run_id');
     }
 
+    /**
+     * @return HasMany<self, $this>
+     */
     public function childRuns(): HasMany
     {
         return $this->hasMany(self::class, 'parent_run_id');
@@ -97,32 +115,49 @@ class Run extends Model
 
     /**
      * The run this one was retried from, if any: see `RetryRunAction`.
+     *
+     * @return BelongsTo<self, $this>
      */
     public function retriedFrom(): BelongsTo
     {
         return $this->belongsTo(self::class, 'retried_from_run_id');
     }
 
+    /**
+     * @return HasMany<self, $this>
+     */
     public function retries(): HasMany
     {
         return $this->hasMany(self::class, 'retried_from_run_id');
     }
 
+    /**
+     * @return BelongsTo<NodeRun, $this>
+     */
     public function parentNode(): BelongsTo
     {
         return $this->belongsTo(NodeRun::class, 'parent_node_id');
     }
 
+    /**
+     * @return HasMany<NodeRun, $this>
+     */
     public function nodeRuns(): HasMany
     {
         return $this->hasMany(NodeRun::class);
     }
 
+    /**
+     * @return HasMany<WorkflowApproval, $this>
+     */
     public function approvals(): HasMany
     {
         return $this->hasMany(WorkflowApproval::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function triggeredBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'triggered_by');

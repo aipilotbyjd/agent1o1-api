@@ -57,11 +57,17 @@ class AssistantTrigger extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Assistant, $this>
+     */
     public function assistant(): BelongsTo
     {
         return $this->belongsTo(Assistant::class);
     }
 
+    /**
+     * @return HasMany<AssistantSession, $this>
+     */
     public function sessions(): HasMany
     {
         return $this->hasMany(AssistantSession::class);

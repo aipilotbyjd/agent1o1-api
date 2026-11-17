@@ -33,6 +33,9 @@ class SuperAdminAuditLog extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<SuperAdmin, $this>
+     */
     public function admin(): BelongsTo
     {
         return $this->belongsTo(SuperAdmin::class, 'super_admin_id');

@@ -31,6 +31,9 @@ class AssistantSituationStep extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<AssistantSituation, $this>
+     */
     public function situation(): BelongsTo
     {
         return $this->belongsTo(AssistantSituation::class, 'assistant_situation_id');

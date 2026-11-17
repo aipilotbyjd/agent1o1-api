@@ -32,11 +32,17 @@ class AssistantFollowUp extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Assistant, $this>
+     */
     public function assistant(): BelongsTo
     {
         return $this->belongsTo(Assistant::class);
     }
 
+    /**
+     * @return BelongsTo<AssistantSession, $this>
+     */
     public function session(): BelongsTo
     {
         return $this->belongsTo(AssistantSession::class, 'assistant_session_id');

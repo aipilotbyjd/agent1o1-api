@@ -30,6 +30,10 @@ class EnsureApiKeyIsValid
 
             abort_if($plainTextKey === null, 401, 'Missing API key.');
 
+            // A key in the current format with a broken checksum was mistyped
+            // or made up: refused without a database lookup.
+            abort_if(ApiKey::hasCurrentPrefix($plainTextKey) && ! ApiKey::hasValidChecksum($plainTextKey), 401, 'Invalid API key.');
+
             $apiKey = ApiKey::query()->where('hashed_key', ApiKey::hash($plainTextKey))->first();
 
             abort_if($apiKey === null, 401, 'Invalid API key.');

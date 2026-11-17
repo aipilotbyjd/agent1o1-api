@@ -55,21 +55,33 @@ class NotificationChannel extends Model
         return 'whsec_'.Str::random(40);
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * @return HasMany<NotificationRoute, $this>
+     */
     public function routes(): HasMany
     {
         return $this->hasMany(NotificationRoute::class);
     }
 
+    /**
+     * @return HasMany<NotificationDelivery, $this>
+     */
     public function deliveries(): HasMany
     {
         return $this->hasMany(NotificationDelivery::class);

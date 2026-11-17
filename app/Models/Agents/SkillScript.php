@@ -39,6 +39,9 @@ class SkillScript extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Skill, $this>
+     */
     public function skill(): BelongsTo
     {
         return $this->belongsTo(Skill::class);

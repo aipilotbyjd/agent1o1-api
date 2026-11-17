@@ -47,26 +47,41 @@ class KnowledgeSource extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * @return BelongsTo<ConnectorCredential, $this>
+     */
     public function credential(): BelongsTo
     {
         return $this->belongsTo(ConnectorCredential::class, 'connector_credential_id');
     }
 
+    /**
+     * @return HasMany<DocumentEmbedding, $this>
+     */
     public function chunks(): HasMany
     {
         return $this->hasMany(DocumentEmbedding::class);

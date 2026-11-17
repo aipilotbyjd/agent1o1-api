@@ -48,6 +48,8 @@ class ModelCatalog extends Model
     /**
      * Candidate execution backends for this entry, in the order
      * `ModelCatalogResolver` should try them.
+     *
+     * @return HasMany<ModelRoute, $this>
      */
     public function routes(): HasMany
     {
@@ -82,6 +84,9 @@ class ModelCatalog extends Model
         return $this->belongsTo(Plan::class, 'min_plan_id');
     }
 
+    /**
+     * @return HasMany<Agent, $this>
+     */
     public function agents(): HasMany
     {
         return $this->hasMany(Agent::class);

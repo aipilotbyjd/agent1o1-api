@@ -33,11 +33,17 @@ class AgentMemory extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Agent, $this>
+     */
     public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -46,6 +52,8 @@ class AgentMemory extends Model
     /**
      * The conversation this fact was saved in, when it was saved by the
      * agent itself rather than added by hand.
+     *
+     * @return BelongsTo<AgentSession, $this>
      */
     public function session(): BelongsTo
     {

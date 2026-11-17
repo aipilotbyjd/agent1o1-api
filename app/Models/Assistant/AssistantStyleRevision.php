@@ -24,6 +24,9 @@ class AssistantStyleRevision extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<AssistantStyleProfile, $this>
+     */
     public function profile(): BelongsTo
     {
         return $this->belongsTo(AssistantStyleProfile::class, 'assistant_style_profile_id');

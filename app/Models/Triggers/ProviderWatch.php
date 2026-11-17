@@ -61,6 +61,8 @@ class ProviderWatch extends Model
 
     /**
      * The workspace the watch belongs to.
+     *
+     * @return BelongsTo<Workspace, $this>
      */
     public function workspace(): BelongsTo
     {
@@ -69,6 +71,8 @@ class ProviderWatch extends Model
 
     /**
      * The connected account the watch was made with.
+     *
+     * @return BelongsTo<ConnectorCredential, $this>
      */
     public function credential(): BelongsTo
     {
@@ -77,6 +81,8 @@ class ProviderWatch extends Model
 
     /**
      * The trigger subscriptions that use this watch.
+     *
+     * @return HasMany<TriggerSubscription, $this>
      */
     public function subscriptions(): HasMany
     {

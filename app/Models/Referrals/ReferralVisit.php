@@ -24,6 +24,9 @@ class ReferralVisit extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<ReferralCode, $this>
+     */
     public function code(): BelongsTo
     {
         return $this->belongsTo(ReferralCode::class, 'referral_code_id');

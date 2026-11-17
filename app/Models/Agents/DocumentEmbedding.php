@@ -50,11 +50,17 @@ class DocumentEmbedding extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<KnowledgeSource, $this>
+     */
     public function knowledgeSource(): BelongsTo
     {
         return $this->belongsTo(KnowledgeSource::class);

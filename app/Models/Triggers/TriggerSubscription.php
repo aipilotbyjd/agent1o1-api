@@ -54,6 +54,8 @@ class TriggerSubscription extends Model
 
     /**
      * The trigger events are routed to.
+     *
+     * @return BelongsTo<Trigger, $this>
      */
     public function trigger(): BelongsTo
     {
@@ -62,6 +64,8 @@ class TriggerSubscription extends Model
 
     /**
      * The shared provider watch behind this subscription, if it uses one.
+     *
+     * @return BelongsTo<ProviderWatch, $this>
      */
     public function watch(): BelongsTo
     {
@@ -70,6 +74,8 @@ class TriggerSubscription extends Model
 
     /**
      * The workspace the subscription belongs to.
+     *
+     * @return BelongsTo<Workspace, $this>
      */
     public function workspace(): BelongsTo
     {

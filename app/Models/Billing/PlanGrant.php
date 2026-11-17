@@ -63,6 +63,9 @@ class PlanGrant extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
@@ -76,6 +79,9 @@ class PlanGrant extends Model
         return $this->belongsTo(Plan::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function purchasedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'purchased_by');

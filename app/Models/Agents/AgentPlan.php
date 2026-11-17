@@ -52,31 +52,49 @@ class AgentPlan extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<Agent, $this>
+     */
     public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
     }
 
+    /**
+     * @return BelongsTo<AgentSession, $this>
+     */
     public function session(): BelongsTo
     {
         return $this->belongsTo(AgentSession::class, 'agent_session_id');
     }
 
+    /**
+     * @return BelongsTo<Run, $this>
+     */
     public function run(): BelongsTo
     {
         return $this->belongsTo(Run::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function decidedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'decided_by');
     }
 
+    /**
+     * @return HasMany<AgentAction, $this>
+     */
     public function actions(): HasMany
     {
         return $this->hasMany(AgentAction::class, 'plan_id');

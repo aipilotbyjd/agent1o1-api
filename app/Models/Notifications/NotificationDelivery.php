@@ -40,11 +40,17 @@ class NotificationDelivery extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<NotificationChannel, $this>
+     */
     public function notificationChannel(): BelongsTo
     {
         return $this->belongsTo(NotificationChannel::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

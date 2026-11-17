@@ -41,16 +41,25 @@ class Artifact extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Workspace, $this>
+     */
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
 
+    /**
+     * @return BelongsTo<Agent, $this>
+     */
     public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
     }
 
+    /**
+     * @return BelongsTo<AgentSession, $this>
+     */
     public function agentSession(): BelongsTo
     {
         return $this->belongsTo(AgentSession::class);
@@ -59,6 +68,8 @@ class Artifact extends Model
     /**
      * The chat message a member attached this file to, if any: see
      * `AgentMessage::attachments()`.
+     *
+     * @return BelongsTo<AgentMessage, $this>
      */
     public function agentMessage(): BelongsTo
     {
@@ -68,17 +79,25 @@ class Artifact extends Model
     /**
      * The workflow-builder chat message a member attached this file to, if
      * any: see `WorkflowBuilderMessage::attachments()`.
+     *
+     * @return BelongsTo<WorkflowBuilderMessage, $this>
      */
     public function workflowBuilderMessage(): BelongsTo
     {
         return $this->belongsTo(WorkflowBuilderMessage::class);
     }
 
+    /**
+     * @return BelongsTo<Run, $this>
+     */
     public function run(): BelongsTo
     {
         return $this->belongsTo(Run::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -87,6 +106,8 @@ class Artifact extends Model
     /**
      * Explicit per-user grants on this artifact's group, only consulted
      * when `general_access` is `restricted`.
+     *
+     * @return HasMany<ArtifactShare, $this>
      */
     public function shares(): HasMany
     {
@@ -95,6 +116,8 @@ class Artifact extends Model
 
     /**
      * All versions sharing this artifact's group_id, newest first.
+     *
+     * @return HasMany<self, $this>
      */
     public function versions(): HasMany
     {

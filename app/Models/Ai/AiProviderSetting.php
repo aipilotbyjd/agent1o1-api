@@ -52,6 +52,9 @@ class AiProviderSetting extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<SuperAdmin, $this>
+     */
     public function updater(): BelongsTo
     {
         return $this->belongsTo(SuperAdmin::class, 'updated_by');
