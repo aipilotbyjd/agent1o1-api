@@ -132,7 +132,7 @@ it('samples at most ten people, in a stable order', function () {
 
 it('normalises a definition, dropping unknown keys and bad values', function () {
     expect($this->audience->normalize(['plans' => ['pro'], 'roles' => 'everyone', 'nonsense' => 1, 'inactive_days' => '0']))
-        ->toBe(['plans' => ['pro'], 'roles' => 'owners', 'workspace_ids' => [], 'inactive_days' => null]);
+        ->toBe(['plans' => ['pro'], 'roles' => 'owners', 'workspace_ids' => [], 'inactive_days' => null, 'user_ids' => []]);
 });
 
 it('matches a banner audience for one member', function () {

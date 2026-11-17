@@ -15,7 +15,7 @@ use Illuminate\Support\Carbon;
 
 /**
  * What changes a campaign's course: test it on yourself, start it, schedule
- * it, stop it, retry what failed. Starting and scheduling need a fresh
+ * it, stop it, retry what failed, take its notifications back. Starting and scheduling need a fresh
  * authenticator code and the previewed recipient count.
  */
 class BroadcastCampaignActionController extends Controller
@@ -28,7 +28,13 @@ class BroadcastCampaignActionController extends Controller
 
         $this->campaigns->testSend($admin, $campaign);
 
-        return ApiResponse::success(null, "A test copy was sent to {$admin->email}.");
+        $where = match (true) {
+            ! $campaign->channel->includesInApp() => $admin->email,
+            ! $campaign->channel->includesEmail() => "the notification bell of {$admin->email}",
+            default => "{$admin->email} and its notification bell",
+        };
+
+        return ApiResponse::success(null, "A test copy was sent to {$where}.");
     }
 
     public function start(StartBroadcastRequest $request, BroadcastCampaign $campaign)
@@ -68,5 +74,18 @@ class BroadcastCampaignActionController extends Controller
         $campaign = $this->campaigns->retryFailed($request->user('super-admin'), $campaign, $request->validated('reason'));
 
         return ApiResponse::success((new BroadcastCampaignResource($campaign))->resolve($request), 'Retrying the failed messages.');
+    }
+
+    public function recall(ReasonRequest $request, BroadcastCampaign $campaign)
+    {
+        $result = $this->campaigns->recall($request->user('super-admin'), $campaign, $request->validated('reason'));
+
+        $message = "Removed {$result['removed']} ".str('notification')->plural($result['removed']).'.';
+
+        if ($result['emailed'] > 0) {
+            $message .= " {$result['emailed']} ".str('email')->plural($result['emailed']).' had already been sent and cannot be recalled.';
+        }
+
+        return ApiResponse::success((new BroadcastCampaignResource($result['campaign']))->resolve($request), $message);
     }
 }

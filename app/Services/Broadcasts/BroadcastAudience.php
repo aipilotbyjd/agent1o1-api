@@ -4,6 +4,7 @@ namespace App\Services\Broadcasts;
 
 use App\Enums\Auth\AuthEvent;
 use App\Enums\Broadcasts\BroadcastCategory;
+use App\Enums\Broadcasts\BroadcastChannel;
 use App\Models\Billing\Plan;
 use App\Models\User;
 use App\Models\Workspaces\Workspace;
@@ -25,8 +26,10 @@ use Illuminate\Support\Facades\DB;
  *    their employer's billing; banners default to everyone.
  *  - `workspace_ids`: only through these workspaces.
  *  - `inactive_days`: no sign-in and no run in any of their workspaces for this long.
- * An empty audience is everyone. Email sends additionally leave out suspended
- * and unverified members and, for marketing mail, those who opted out.
+ *  - `user_ids`: only these people (a message to one member, for example).
+ * An empty audience is everyone. Campaigns additionally leave out suspended
+ * members and, for marketing, those who opted out; email also needs a
+ * verified address, which the notification bell does not.
  */
 class BroadcastAudience
 {
@@ -42,11 +45,15 @@ class BroadcastAudience
      * stored audiences and API output always have the same shape.
      *
      * @param  array<string, mixed>|null  $audience
-     * @return array{plans: list<string>, roles: string, workspace_ids: list<string>, inactive_days: int|null}
+     * @return array{plans: list<string>, roles: string, workspace_ids: list<string>, inactive_days: int|null, user_ids: list<string>}
      */
     public function normalize(?array $audience, string $defaultRoles = 'owners'): array
     {
         $audience ??= [];
+        $userIds = array_values(array_unique(array_map('strval', (array) ($audience['user_ids'] ?? []))));
+
+        // People picked by name are reached whatever their role, unless the admin narrows it.
+        $defaultRoles = $userIds === [] ? $defaultRoles : 'all';
         $roles = $audience['roles'] ?? $defaultRoles;
 
         return [
@@ -54,6 +61,7 @@ class BroadcastAudience
             'roles' => in_array($roles, self::ROLES, true) ? $roles : $defaultRoles,
             'workspace_ids' => array_values(array_unique(array_map('strval', (array) ($audience['workspace_ids'] ?? [])))),
             'inactive_days' => isset($audience['inactive_days']) && (int) $audience['inactive_days'] > 0 ? (int) $audience['inactive_days'] : null,
+            'user_ids' => $userIds,
         ];
     }
 
@@ -87,15 +95,15 @@ class BroadcastAudience
     }
 
     /**
-     * How many people an email to this audience would reach.
+     * How many people a campaign to this audience would reach.
      *
      * @param  array<string, mixed>|null  $audience
      */
-    public function count(?array $audience, BroadcastCategory $category): int
+    public function count(?array $audience, BroadcastCategory $category, BroadcastChannel $channel = BroadcastChannel::Email): int
     {
         $total = 0;
 
-        $this->eachQuery($audience, $category, function (Builder $query) use (&$total): void {
+        $this->eachQuery($audience, $category, $channel, function (Builder $query) use (&$total): void {
             $total += (clone $query)->count();
         });
 
@@ -108,11 +116,11 @@ class BroadcastAudience
      * @param  array<string, mixed>|null  $audience
      * @return Collection<int, User>
      */
-    public function sample(?array $audience, BroadcastCategory $category): Collection
+    public function sample(?array $audience, BroadcastCategory $category, BroadcastChannel $channel = BroadcastChannel::Email): Collection
     {
         $sample = new Collection;
 
-        $this->eachQuery($audience, $category, function (Builder $query) use (&$sample): void {
+        $this->eachQuery($audience, $category, $channel, function (Builder $query) use (&$sample): void {
             if ($sample->count() < self::SAMPLE_SIZE) {
                 $sample = $sample->concat((clone $query)->orderBy('users.id')->limit(self::SAMPLE_SIZE - $sample->count())->get(['users.id', 'users.name', 'users.email']));
             }
@@ -127,9 +135,9 @@ class BroadcastAudience
      * @param  array<string, mixed>|null  $audience
      * @param  callable(Collection<int, User>): void  $callback
      */
-    public function each(?array $audience, BroadcastCategory $category, callable $callback): void
+    public function each(?array $audience, BroadcastCategory $category, callable $callback, BroadcastChannel $channel = BroadcastChannel::Email): void
     {
-        $this->eachQuery($audience, $category, function (Builder $query) use ($callback): void {
+        $this->eachQuery($audience, $category, $channel, function (Builder $query) use ($callback): void {
             (clone $query)->select('users.*')->chunkById(self::CHUNK, $callback, 'users.id', 'id');
         });
     }
@@ -141,7 +149,16 @@ class BroadcastAudience
      */
     public function isMailable(User $user, BroadcastCategory $category): bool
     {
-        return $this->onlyMailable(User::query(), $category)->whereKey($user->getKey())->exists();
+        return $this->isReachable($user, $category, BroadcastChannel::Email);
+    }
+
+    /**
+     * Whether this person may receive a `$category` campaign on `$channel`
+     * right now. Checked again just before each delivery, like `isMailable()`.
+     */
+    public function isReachable(User $user, BroadcastCategory $category, BroadcastChannel $channel): bool
+    {
+        return $this->onlyReachable(User::query(), $category, $channel)->whereKey($user->getKey())->exists();
     }
 
     /**
@@ -151,10 +168,10 @@ class BroadcastAudience
      * @param  array<string, mixed>|null  $audience
      * @param  callable(Builder<User>): void  $callback
      */
-    private function eachQuery(?array $audience, BroadcastCategory $category, callable $callback): void
+    private function eachQuery(?array $audience, BroadcastCategory $category, BroadcastChannel $channel, callable $callback): void
     {
         $definition = $this->normalize($audience);
-        $query = $this->onlyMailable($this->baseQuery($definition), $category);
+        $query = $this->onlyReachable($this->baseQuery($definition), $category, $channel);
 
         if ($definition['plans'] === []) {
             $callback($query);
@@ -168,29 +185,33 @@ class BroadcastAudience
     }
 
     /**
-     * Who can be emailed at all: not suspended, a verified address, and (for
-     * marketing) not opted out.
+     * Who can be reached at all: not suspended and (for marketing) not opted
+     * out, on any channel; email also needs a verified address.
      *
      * @param  Builder<User>  $query
      * @return Builder<User>
      */
-    private function onlyMailable(Builder $query, BroadcastCategory $category): Builder
+    private function onlyReachable(Builder $query, BroadcastCategory $category, BroadcastChannel $channel): Builder
     {
         return $query
             ->whereNull('users.suspended_at')
-            ->whereNotNull('users.email_verified_at')
+            ->when($channel->includesEmail(), fn (Builder $query) => $query->whereNotNull('users.email_verified_at'))
             ->when($category->respectsOptOut(), fn (Builder $query) => $query->whereNull('users.marketing_opted_out_at'));
     }
 
     /**
-     * The filters that SQL can answer: role, workspaces and inactivity.
+     * The filters that SQL can answer: people, role, workspaces and inactivity.
      *
-     * @param  array{plans: list<string>, roles: string, workspace_ids: list<string>, inactive_days: int|null}  $definition
+     * @param  array{plans: list<string>, roles: string, workspace_ids: list<string>, inactive_days: int|null, user_ids: list<string>}  $definition
      * @return Builder<User>
      */
     private function baseQuery(array $definition): Builder
     {
         $query = User::query();
+
+        if ($definition['user_ids'] !== []) {
+            $query->whereIn('users.id', $definition['user_ids']);
+        }
 
         if ($definition['workspace_ids'] !== [] || $definition['roles'] === 'owners') {
             $query->where(function (Builder $query) use ($definition): void {
@@ -216,7 +237,7 @@ class BroadcastAudience
 
     /**
      * @param  Builder<Workspace>  $workspaces
-     * @param  array{plans: list<string>, roles: string, workspace_ids: list<string>, inactive_days: int|null}  $definition
+     * @param  array{plans: list<string>, roles: string, workspace_ids: list<string>, inactive_days: int|null, user_ids: list<string>}  $definition
      */
     private function inScope(Builder $workspaces, array $definition): void
     {
@@ -228,7 +249,7 @@ class BroadcastAudience
     /**
      * The workspaces a member counts through for this audience.
      *
-     * @param  array{plans: list<string>, roles: string, workspace_ids: list<string>, inactive_days: int|null}  $definition
+     * @param  array{plans: list<string>, roles: string, workspace_ids: list<string>, inactive_days: int|null, user_ids: list<string>}  $definition
      * @return Collection<int, Workspace>
      */
     private function workspacesThrough(User $user, array $definition): Collection
@@ -251,7 +272,7 @@ class BroadcastAudience
      * plan isn't wanted, only workspaces that have ever held a subscription
      * or a grant can match, which skips the large free majority.
      *
-     * @param  array{plans: list<string>, roles: string, workspace_ids: list<string>, inactive_days: int|null}  $definition
+     * @param  array{plans: list<string>, roles: string, workspace_ids: list<string>, inactive_days: int|null, user_ids: list<string>}  $definition
      * @return list<string>
      */
     private function userIdsOnPlans(array $definition): array
