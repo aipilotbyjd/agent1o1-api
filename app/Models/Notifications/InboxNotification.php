@@ -3,11 +3,12 @@
 namespace App\Models\Notifications;
 
 use App\Enums\Notifications\NotificationCategory;
-use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationSeverity;
+use App\Enums\Notifications\NotificationType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Carbon;
 
 /**
  * A notification in a member's inbox: Laravel's database notification plus
@@ -24,8 +25,8 @@ use Illuminate\Notifications\DatabaseNotification;
  * @property string|null $severity
  * @property string|null $group_key
  * @property int $group_count
- * @property \Illuminate\Support\Carbon|null $occurred_at
- * @property \Illuminate\Support\Carbon|null $archived_at
+ * @property Carbon|null $occurred_at
+ * @property Carbon|null $archived_at
  */
 class InboxNotification extends DatabaseNotification
 {

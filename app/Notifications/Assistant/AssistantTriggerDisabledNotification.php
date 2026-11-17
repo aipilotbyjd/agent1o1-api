@@ -21,7 +21,7 @@ class AssistantTriggerDisabledNotification extends AppNotification
         parent::__construct(
             type: NotificationType::AssistantTriggerDisabled,
             title: "Trigger \"{$trigger->name}\" was switched off",
-            body: "It failed ".config('assistant.triggers.max_consecutive_failures').' times in a row. Last error: '.($lastError ?: 'unknown')
+            body: 'It failed '.config('assistant.triggers.max_consecutive_failures').' times in a row. Last error: '.($lastError ?: 'unknown')
                 .'. A common cause is an app connection that expired. Fix it, then turn the trigger back on.',
             data: [
                 'assistant_trigger_id' => $trigger->id,

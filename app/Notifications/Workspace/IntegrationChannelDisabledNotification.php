@@ -2,9 +2,9 @@
 
 namespace App\Notifications\Workspace;
 
-use App\Notifications\AppNotification;
 use App\Enums\Notifications\NotificationType;
 use App\Models\Notifications\NotificationChannel;
+use App\Notifications\AppNotification;
 
 /**
  * A chat or webhook channel failed too many deliveries in a row and was

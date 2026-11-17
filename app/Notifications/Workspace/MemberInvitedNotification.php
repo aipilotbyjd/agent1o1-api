@@ -2,11 +2,11 @@
 
 namespace App\Notifications\Workspace;
 
-use App\Notifications\AppNotification;
 use App\Enums\Notifications\NotificationType;
 use App\Models\User;
 use App\Models\Workspaces\Workspace;
 use App\Models\Workspaces\WorkspaceInvitation;
+use App\Notifications\AppNotification;
 
 class MemberInvitedNotification extends AppNotification
 {

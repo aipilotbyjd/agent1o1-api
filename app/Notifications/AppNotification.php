@@ -2,8 +2,8 @@
 
 namespace App\Notifications;
 
-use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationSeverity;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Queue;
 use App\Models\User;
 use App\Models\Workspaces\Workspace;
