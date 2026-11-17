@@ -127,6 +127,24 @@ parameters:
 			path: app/Actions/Artifacts/StoreArtifactAction.php
 
 		-
+			message: '#^Access to an undefined property Laravel\\Cashier\\Subscription\:\:\$plan\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Billing/AcceptCancellationOfferAction.php
+
+		-
+			message: '#^Parameter \#1 \$subscription of method App\\Services\\Billing\\CancellationOffers\:\:intervalOf\(\) expects App\\Models\\Billing\\Subscription, Laravel\\Cashier\\Subscription\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Billing/AcceptCancellationOfferAction.php
+
+		-
+			message: '#^Parameter \#1 \$subscription of method App\\Services\\Billing\\RetentionDiscount\:\:apply\(\) expects App\\Models\\Billing\\Subscription, Laravel\\Cashier\\Subscription\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Billing/AcceptCancellationOfferAction.php
+
+		-
 			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\Billing\\CreditPackStatus\:\:Active will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
@@ -183,6 +201,12 @@ parameters:
 		-
 			message: '#^Method App\\Actions\\Billing\\CancelSubscriptionAction\:\:execute\(\) should return App\\Models\\Billing\\Subscription but returns Laravel\\Cashier\\Subscription\.$#'
 			identifier: return.type
+			count: 1
+			path: app/Actions/Billing/CancelSubscriptionAction.php
+
+		-
+			message: '#^Parameter \#1 \$subscription of method App\\Services\\Billing\\CancellationOffers\:\:intervalOf\(\) expects App\\Models\\Billing\\Subscription, Laravel\\Cashier\\Subscription given\.$#'
+			identifier: argument.type
 			count: 1
 			path: app/Actions/Billing/CancelSubscriptionAction.php
 
@@ -253,12 +277,6 @@ parameters:
 			path: app/Actions/Referrals/AttributeReferralAction.php
 
 		-
-			message: '#^Parameter \#1 \$recipients of method App\\Services\\Notifications\\NotificationDispatcher\:\:dispatch\(\) expects iterable\<int, App\\Models\\User\>, array\<int, Illuminate\\Database\\Eloquent\\Model\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Actions/Referrals/AttributeReferralAction.php
-
-		-
 			message: '#^Cannot call method handler\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 1
@@ -267,12 +285,6 @@ parameters:
 		-
 			message: '#^Cannot call method isOpen\(\) on string\.$#'
 			identifier: method.nonObject
-			count: 1
-			path: app/Actions/Referrals/GrantReferralRewardAction.php
-
-		-
-			message: '#^Parameter \#1 \$recipients of method App\\Services\\Notifications\\NotificationDispatcher\:\:dispatch\(\) expects iterable\<int, App\\Models\\User\>, array\<int, Illuminate\\Database\\Eloquent\\Model\> given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Actions/Referrals/GrantReferralRewardAction.php
 
@@ -1771,6 +1783,12 @@ parameters:
 			path: app/Console/Commands/Triggers/SubscriptionsCommand.php
 
 		-
+			message: '#^Match arm comparison between \$this\(App\\Enums\\Notifications\\NotificationType\)&App\\Enums\\Notifications\\NotificationType\:\:SecurityAlert and App\\Enums\\Notifications\\NotificationType\:\:SecurityAlert is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 1
+			path: app/Enums/Notifications/NotificationType.php
+
+		-
 			message: '#^Parameter \#1 \$array \(array\{''signup_verified'', ''activated'', ''first_payment'', ''repeat_payment'', ''milestone''\}\) of array_values is already a list, call has no effect\.$#'
 			identifier: arrayValues.list
 			count: 1
@@ -2461,6 +2479,18 @@ parameters:
 			path: app/Http/Controllers/Api/Internal/V1/Billing/CreditNotificationController.php
 
 		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: app/Http/Controllers/Api/Internal/V1/Billing/SubscriptionCancellationController.php
+
+		-
+			message: '#^Relation ''plan'' is not found in Laravel\\Cashier\\Subscription model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Api/Internal/V1/Billing/SubscriptionCancellationController.php
+
+		-
 			message: '#^Relation ''plan'' is not found in Laravel\\Cashier\\Subscription model\.$#'
 			identifier: larastan.relationExistence
 			count: 2
@@ -2591,6 +2621,42 @@ parameters:
 			identifier: argument.type
 			count: 2
 			path: app/Http/Controllers/Api/Internal/V1/Nodes/NodeController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Internal/V1/Notifications/AccountNotificationPreferenceController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email_digest\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Internal/V1/Notifications/AccountNotificationPreferenceController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$in_app\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Internal/V1/Notifications/AccountNotificationPreferenceController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$key\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Internal/V1/Notifications/AccountNotificationPreferenceController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Internal/V1/Notifications/AccountNotificationPreferenceController.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$values of method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:push\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Internal/V1/Notifications/AccountNotificationPreferenceController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$claim_window_hours\.$#'
@@ -3073,6 +3139,42 @@ parameters:
 			path: app/Http/Controllers/Api/Internal/V1/Workspaces/WorkspaceMemberController.php
 
 		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/Public/V1/Changelog/PublicChangelogController.php
+
+		-
+			message: '#^Cannot call method label\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/Public/V1/Changelog/PublicChangelogController.php
+
+		-
+			message: '#^Cannot call method toRfc2822String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/Public/V1/Changelog/PublicChangelogController.php
+
+		-
+			message: '#^Cannot call method toRfc3339String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/Public/V1/Changelog/PublicChangelogController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\Changelog\\ChangelogEntry\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Public/V1/Changelog/PublicChangelogController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>published_at" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Api/Public/V1/Changelog/PublicChangelogController.php
+
+		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany\:\:visible\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -3089,6 +3191,30 @@ parameters:
 			identifier: property.onlyWritten
 			count: 1
 			path: app/Http/Controllers/Api/SuperAdmin/V1/Alerts/AlertEventController.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/SuperAdmin/V1/Backups/BackupController.php
+
+		-
+			message: '#^Cannot call method greaterThan\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/SuperAdmin/V1/Backups/BackupController.php
+
+		-
+			message: '#^Cannot call method includesEmail\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/SuperAdmin/V1/Broadcasts/BroadcastCampaignActionController.php
+
+		-
+			message: '#^Cannot call method includesInApp\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/SuperAdmin/V1/Broadcasts/BroadcastCampaignActionController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$category\.$#'
@@ -4213,58 +4339,46 @@ parameters:
 			path: app/Http/Resources/Api/Internal/V1/Nodes/NodeResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\Internal\\V1\\Notifications\\NotificationChannelResource\:\:\$created_at\.$#'
-			identifier: property.notFound
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
 			count: 1
-			path: app/Http/Resources/Api/Internal/V1/Notifications/NotificationChannelResource.php
+			path: app/Http/Resources/Api/Internal/V1/Notifications/NotificationDeliveryResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\Internal\\V1\\Notifications\\NotificationChannelResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/Internal/V1/Notifications/NotificationChannelResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\Internal\\V1\\Notifications\\NotificationChannelResource\:\:\$is_active\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/Internal/V1/Notifications/NotificationChannelResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\Internal\\V1\\Notifications\\NotificationChannelResource\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/Internal/V1/Notifications/NotificationChannelResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\Internal\\V1\\Notifications\\NotificationChannelResource\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/Internal/V1/Notifications/NotificationChannelResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\Internal\\V1\\Notifications\\NotificationChannelResource\:\:\$updated_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/Internal/V1/Notifications/NotificationChannelResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\Internal\\V1\\Notifications\\NotificationResource\:\:\$created_at\.$#'
-			identifier: property.notFound
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
 			count: 1
 			path: app/Http/Resources/Api/Internal/V1/Notifications/NotificationResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\Internal\\V1\\Notifications\\NotificationResource\:\:\$id\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/Api/Internal/V1/Notifications/NotificationResource.php
+			path: app/Http/Resources/Api/Internal/V1/Notifications/NotificationRouteResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\Internal\\V1\\Notifications\\NotificationResource\:\:\$read_at\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_active\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/Api/Internal/V1/Notifications/NotificationResource.php
+			path: app/Http/Resources/Api/Internal/V1/Notifications/NotificationRouteResource.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/Internal/V1/Notifications/NotificationRouteResource.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/Internal/V1/Notifications/NotificationRouteResource.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: app/Http/Resources/Api/Internal/V1/Notifications/NotificationRouteResource.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
@@ -4693,6 +4807,12 @@ parameters:
 			path: app/Http/Resources/Api/Public/V1/AgentSessionResource.php
 
 		-
+			message: '#^Cannot call method label\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Resources/Api/Public/V1/Changelog/ChangelogEntryResource.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$credits\.$#'
 			identifier: property.notFound
 			count: 1
@@ -4773,6 +4893,12 @@ parameters:
 		-
 			message: '#^Cannot access property \$value on string\.$#'
 			identifier: property.nonObject
+			count: 2
+			path: app/Http/Resources/Api/SuperAdmin/V1/Backups/BackupResource.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
 			count: 1
 			path: app/Http/Resources/Api/SuperAdmin/V1/Billing/CreditTransactionResource.php
 
@@ -4789,10 +4915,34 @@ parameters:
 			path: app/Http/Resources/Api/SuperAdmin/V1/Broadcasts/AnnouncementResource.php
 
 		-
+			message: '#^Cannot call method includesInApp\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Resources/Api/SuperAdmin/V1/Broadcasts/BroadcastCampaignResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\Api\\SuperAdmin\\V1\\Broadcasts\\BroadcastCampaignResource\:\:toArray\(\) should return array\<string, mixed\> but returns array\<int\|string, mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Http/Resources/Api/SuperAdmin/V1/Broadcasts/BroadcastCampaignResource.php
+
+		-
 			message: '#^Parameter \#1 \$audience of method App\\Services\\Broadcasts\\BroadcastAudience\:\:normalize\(\) expects array\<string, mixed\>\|null, string\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Resources/Api/SuperAdmin/V1/Broadcasts/BroadcastCampaignResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\SuperAdmin\\V1\\Broadcasts\\BroadcastRecipientResource\:\:\$notification_read_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/SuperAdmin/V1/Broadcasts/BroadcastRecipientResource.php
+
+		-
+			message: '#^Parameter \#1 \$audience of method App\\Services\\Broadcasts\\BroadcastAudience\:\:normalize\(\) expects array\<string, mixed\>\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Resources/Api/SuperAdmin/V1/Changelog/ChangelogEntryResource.php
 
 		-
 			message: '#^Cannot access property \$value on string\.$#'
@@ -4823,6 +4973,18 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Http/Resources/Api/SuperAdmin/V1/Models/SuperAdminModelResource.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: app/Http/Resources/Api/SuperAdmin/V1/Operations/OperationsTaskEntryResource.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: app/Http/Resources/Api/SuperAdmin/V1/Operations/OperationsTaskResource.php
 
 		-
 			message: '#^Cannot access property \$value on string\.$#'
@@ -5179,6 +5341,42 @@ parameters:
 			path: app/Jobs/Billing/ChargeNodeRunJob.php
 
 		-
+			message: '#^Cannot call method includesEmail\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Jobs/Broadcasts/DeliverBroadcastRecipientJob.php
+
+		-
+			message: '#^Cannot call method includesInApp\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Jobs/Broadcasts/DeliverBroadcastRecipientJob.php
+
+		-
+			message: '#^Parameter \#2 \$category of method App\\Services\\Broadcasts\\BroadcastAudience\:\:isReachable\(\) expects App\\Enums\\Broadcasts\\BroadcastCategory, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Jobs/Broadcasts/DeliverBroadcastRecipientJob.php
+
+		-
+			message: '#^Parameter \#3 \$channel of method App\\Services\\Broadcasts\\BroadcastAudience\:\:isReachable\(\) expects App\\Enums\\Broadcasts\\BroadcastChannel, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Jobs/Broadcasts/DeliverBroadcastRecipientJob.php
+
+		-
+			message: '#^Result of \|\| is always true\.$#'
+			identifier: booleanOr.alwaysTrue
+			count: 1
+			path: app/Jobs/Broadcasts/DeliverBroadcastRecipientJob.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and App\\Enums\\Broadcasts\\BroadcastStatus\:\:Sending will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Jobs/Broadcasts/DeliverBroadcastRecipientJob.php
+
+		-
 			message: '#^Method App\\Jobs\\Broadcasts\\SendBroadcastCampaignJob\:\:releaseAbandonedClaims\(\) is unused\.$#'
 			identifier: method.unused
 			count: 1
@@ -5209,6 +5407,12 @@ parameters:
 			path: app/Jobs/Broadcasts/SendBroadcastCampaignJob.php
 
 		-
+			message: '#^Parameter \#4 \$channel of method App\\Services\\Broadcasts\\BroadcastAudience\:\:each\(\) expects App\\Enums\\Broadcasts\\BroadcastChannel, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Jobs/Broadcasts/SendBroadcastCampaignJob.php
+
+		-
 			message: '#^Result of \|\| is always true\.$#'
 			identifier: booleanOr.alwaysTrue
 			count: 2
@@ -5227,18 +5431,6 @@ parameters:
 			path: app/Jobs/Broadcasts/SendBroadcastCampaignJob.php
 
 		-
-			message: '#^Parameter \#2 \$category of method App\\Services\\Broadcasts\\BroadcastAudience\:\:isMailable\(\) expects App\\Enums\\Broadcasts\\BroadcastCategory, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Jobs/Broadcasts/SendBroadcastEmailJob.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between string and App\\Enums\\Broadcasts\\BroadcastStatus\:\:Sending will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: app/Jobs/Broadcasts/SendBroadcastEmailJob.php
-
-		-
 			message: '#^Offset ''refresh_token'' on string on left side of \?\? does not exist\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
@@ -5249,6 +5441,24 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Jobs/Connectors/RefreshConnectorCredentialJob.php
+
+		-
+			message: '#^Result of \|\| is always true\.$#'
+			identifier: booleanOr.alwaysTrue
+			count: 1
+			path: app/Jobs/Notifications/DeliverIntegrationJob.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and App\\Enums\\Notifications\\DeliveryStatus\:\:Pending will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Jobs/Notifications/DeliverIntegrationJob.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Jobs/Notifications/DeliverIntegrationJob.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$content\.$#'
@@ -5291,6 +5501,18 @@ parameters:
 			identifier: argument.type
 			count: 2
 			path: app/Jobs/Pages/GeneratePageJob.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$workflowVersion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Jobs/System/FailStuckNodeRunsJob.php
+
+		-
+			message: '#^Parameter \#1 \$run of method App\\Services\\Workflows\\Engine\\StepFailureHandler\:\:handle\(\) expects App\\Models\\Runs\\Run, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Jobs/System/FailStuckNodeRunsJob.php
 
 		-
 			message: '#^Comparison operation "\>" between 0 and 0 is always false\.$#'
@@ -5617,7 +5839,13 @@ parameters:
 			path: app/Listeners/Workflows/NotifyOnRunFailure.php
 
 		-
-			message: '#^Parameter \#1 \$workspace of method App\\Services\\Notifications\\NotificationDispatcher\:\:ownersAndAdmins\(\) expects App\\Models\\Workspaces\\Workspace, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			message: '#^Parameter \#1 \$workspace of method App\\Services\\Notifications\\NotificationDispatcher\:\:ownersAdminsAnd\(\) expects App\\Models\\Workspaces\\Workspace, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Listeners/Workflows/NotifyOnRunFailure.php
+
+		-
+			message: '#^Parameter \#2 \.\.\.\$involved of method App\\Services\\Notifications\\NotificationDispatcher\:\:ownersAdminsAnd\(\) expects App\\Models\\User\|null, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Listeners/Workflows/NotifyOnRunFailure.php
@@ -6019,6 +6247,24 @@ parameters:
 			path: app/Models/Broadcasts/Announcement.php
 
 		-
+			message: '#^Cannot call method lte\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Models/Changelog/ChangelogEntry.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 2
+			path: app/Models/Changelog/ChangelogEntry.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\Changelog\\ChangelogStatus\:\:Published will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Models/Changelog/ChangelogEntry.php
+
+		-
 			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\Connectors\\ConnectorCredentialScope\:\:Personal will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
@@ -6107,6 +6353,30 @@ parameters:
 			identifier: assign.propertyType
 			count: 1
 			path: app/Models/Nodes/NodeCategory.php
+
+		-
+			message: '#^Method App\\Models\\Notifications\\InboxNotification\:\:prunable\(\) should return Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Notifications\\InboxNotification\> but returns Illuminate\\Database\\Eloquent\\Builder\<static\(App\\Models\\Notifications\\InboxNotification\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Notifications/InboxNotification.php
+
+		-
+			message: '#^Method App\\Models\\Notifications\\NotificationDelivery\:\:prunable\(\) should return Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Notifications\\NotificationDelivery\> but returns Illuminate\\Database\\Eloquent\\Builder\<static\(App\\Models\\Notifications\\NotificationDelivery\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Notifications/NotificationDelivery.php
+
+		-
+			message: '#^Parameter \#1 \$other of method App\\Enums\\Notifications\\NotificationSeverity\:\:isAtLeast\(\) expects App\\Enums\\Notifications\\NotificationSeverity, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/Notifications/NotificationRoute.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\Operations\\TaskKind\:\:Auto will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Models/Operations/OperationsTask.php
 
 		-
 			message: '#^Cannot call method rank\(\) on string\.$#'
@@ -6361,6 +6631,18 @@ parameters:
 			path: app/Models/SuperAdmin/SuperAdminToken.php
 
 		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 1
+			path: app/Models/System/Backup.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\System\\BackupStatus\:\:Completed will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Models/System/Backup.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
 			identifier: property.notFound
 			count: 2
@@ -6421,13 +6703,19 @@ parameters:
 			path: app/Models/Triggers/Trigger.php
 
 		-
-			message: '#^Parameter \#1 \$workspace of method App\\Services\\Notifications\\NotificationDispatcher\:\:ownersAndAdmins\(\) expects App\\Models\\Workspaces\\Workspace, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			message: '#^Parameter \#1 \$workspace of method App\\Services\\Notifications\\NotificationDispatcher\:\:ownersAdminsAnd\(\) expects App\\Models\\Workspaces\\Workspace, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
 			identifier: argument.type
-			count: 2
+			count: 1
 			path: app/Models/Triggers/Trigger.php
 
 		-
-			message: '#^Parameter \#1 \.\.\.\$values of method Illuminate\\Support\\Collection\<int,App\\Models\\User\>\:\:push\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			message: '#^Parameter \#1 \$workspace of method App\\Services\\Notifications\\NotificationDispatcher\:\:ownersAndAdmins\(\) expects App\\Models\\Workspaces\\Workspace, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/Triggers/Trigger.php
+
+		-
+			message: '#^Parameter \#2 \.\.\.\$involved of method App\\Services\\Notifications\\NotificationDispatcher\:\:ownersAdminsAnd\(\) expects App\\Models\\User\|null, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Models/Triggers/Trigger.php
@@ -6831,36 +7119,12 @@ parameters:
 		-
 			message: '#^Call to an undefined method Illuminate\\Support\\Collection\<int, App\\Models\\Agents\\AgentAction\>\:\:modelKeys\(\)\.$#'
 			identifier: method.notFound
-			count: 1
-			path: app/Notifications/Agents/AgentActionApprovalRequestedNotification.php
-
-		-
-			message: '#^Method App\\Notifications\\Agents\\AgentActionApprovalRequestedNotification\:\:toWorkspaceChannel\(\) should return array\{workspace_id\: string, channel_ids\: array\<int, int\>, message\: string, slack_blocks\?\: array\<int, mixed\>\} but returns array\{workspace_id\: int, channel_ids\: array\<int, int\>, message\: string, slack_blocks\: list\<array\<string, mixed\>\>\}\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Notifications/Agents/AgentActionApprovalRequestedNotification.php
-
-		-
-			message: '#^Method App\\Notifications\\Agents\\AgentActionApprovalRequestedNotification\:\:toWorkspaceChannel\(\) should return array\{workspace_id\: string, channel_ids\: array\<int, int\>, message\: string, slack_blocks\?\: array\<int, mixed\>\} but returns array\{workspace_id\: int, channel_ids\: array\<int, int\>, message\: string\}\.$#'
-			identifier: return.type
-			count: 1
+			count: 2
 			path: app/Notifications/Agents/AgentActionApprovalRequestedNotification.php
 
 		-
 			message: '#^Offset ''detail'' on string\|null on left side of \?\? does not exist\.$#'
 			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Notifications/Agents/AgentActionApprovalRequestedNotification.php
-
-		-
-			message: '#^Parameter \$workspace of method App\\Notifications\\Workspace\\WorkspaceEventNotification\:\:__construct\(\) expects App\\Models\\Workspaces\\Workspace, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Notifications/Agents/AgentActionApprovalRequestedNotification.php
-
-		-
-			message: '#^Return type \(array\{workspace_id\: string, channel_ids\: array\<int, int\>, message\: string, slack_blocks\?\: array\<int, mixed\>\}\) of method App\\Notifications\\Agents\\AgentActionApprovalRequestedNotification\:\:toWorkspaceChannel\(\) should be compatible with return type \(array\{workspace_id\: int, channel_ids\: array\<int, int\>, message\: string\}\) of method App\\Notifications\\Workspace\\WorkspaceEventNotification\:\:toWorkspaceChannel\(\)$#'
-			identifier: method.childReturnType
 			count: 1
 			path: app/Notifications/Agents/AgentActionApprovalRequestedNotification.php
 
@@ -6907,12 +7171,6 @@ parameters:
 			path: app/Notifications/Agents/ReflectionReportNotification.php
 
 		-
-			message: '#^Parameter \$workspace of method App\\Notifications\\Workspace\\WorkspaceEventNotification\:\:__construct\(\) expects App\\Models\\Workspaces\\Workspace, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Notifications/Agents/ReflectionReportNotification.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
@@ -6931,22 +7189,16 @@ parameters:
 			path: app/Notifications/Agents/SessionEvaluationNotifyNotification.php
 
 		-
-			message: '#^Parameter \$workspace of method App\\Notifications\\Workspace\\WorkspaceEventNotification\:\:__construct\(\) expects App\\Models\\Workspaces\\Workspace, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Notifications/Agents/SessionEvaluationNotifyNotification.php
-
-		-
-			message: '#^Parameter \$workspace of method App\\Notifications\\Workspace\\WorkspaceEventNotification\:\:__construct\(\) expects App\\Models\\Workspaces\\Workspace, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Notifications/Ai/AiProviderCredentialInvalidNotification.php
-
-		-
 			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\Connectors\\ConnectorCredentialScope\:\:Personal will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
 			path: app/Notifications/Ai/AiProviderCredentialInvalidNotification.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/Assistant/AssistantTriggerDisabledNotification.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$assistant\.$#'
@@ -6957,7 +7209,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$workspace_id\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/Notifications/Assistant/FollowUpReminderNotification.php
 
 		-
@@ -6973,28 +7225,16 @@ parameters:
 			path: app/Notifications/Assistant/MeetingBriefNotification.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$workspace_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Notifications/Assistant/TriggerDisabledNotification.php
-
-		-
 			message: '#^Parameter \#1 \$workspace of method App\\Models\\User\:\:timezoneIn\(\) expects App\\Models\\Workspaces\\Workspace\|null, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Notifications/Auth/SecurityAlertNotification.php
 
 		-
-			message: '#^Offset ''headers'' on string on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
 			count: 1
-			path: app/Notifications/Channels/WorkspaceWebhookChannel.php
-
-		-
-			message: '#^Offset ''url'' does not exist on string\.$#'
-			identifier: offsetAccess.notFound
-			count: 3
-			path: app/Notifications/Channels/WorkspaceWebhookChannel.php
+			path: app/Notifications/Broadcasts/AdminMessageNotification.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$key\.$#'
@@ -7005,12 +7245,6 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/Notifications/Connectors/ConnectorCredentialExpiredNotification.php
-
-		-
-			message: '#^Parameter \$workspace of method App\\Notifications\\Workspace\\WorkspaceEventNotification\:\:__construct\(\) expects App\\Models\\Workspaces\\Workspace, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Notifications/Connectors/ConnectorCredentialExpiredNotification.php
 
@@ -7051,12 +7285,6 @@ parameters:
 			path: app/Notifications/Triggers/TriggerDisabledNotification.php
 
 		-
-			message: '#^Parameter \$workspace of method App\\Notifications\\Workspace\\WorkspaceEventNotification\:\:__construct\(\) expects App\\Models\\Workspaces\\Workspace, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Notifications/Triggers/TriggerDisabledNotification.php
-
-		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
@@ -7083,12 +7311,6 @@ parameters:
 		-
 			message: '#^Cannot access property \$value on string\.$#'
 			identifier: property.nonObject
-			count: 1
-			path: app/Notifications/Workflows/PublishRequestDecidedNotification.php
-
-		-
-			message: '#^Parameter \$workspace of method App\\Notifications\\Workspace\\WorkspaceEventNotification\:\:__construct\(\) expects App\\Models\\Workspaces\\Workspace, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Notifications/Workflows/PublishRequestDecidedNotification.php
 
@@ -7123,16 +7345,16 @@ parameters:
 			path: app/Notifications/Workflows/PublishReviewRequestedNotification.php
 
 		-
-			message: '#^Parameter \$workspace of method App\\Notifications\\Workspace\\WorkspaceEventNotification\:\:__construct\(\) expects App\\Models\\Workspaces\\Workspace, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Notifications/Workflows/PublishReviewRequestedNotification.php
-
-		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Notifications/Workflows/PublishReviewRequestedNotification.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Notifications/Workspace/IntegrationChannelDisabledNotification.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Workspaces\\WorkspaceInvitation\:\:\$email\.$#'
@@ -7175,36 +7397,6 @@ parameters:
 			identifier: property.notFound
 			count: 4
 			path: app/Notifications/Workspace/RunFailedNotification.php
-
-		-
-			message: '#^Method App\\Notifications\\Workspace\\WorkspaceEventNotification\:\:toWorkspaceChannel\(\) should return array\{workspace_id\: int, channel_ids\: array\<int, int\>, message\: string\} but returns array\{workspace_id\: string, channel_ids\: array\{\}\|string, message\: string\}\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Notifications/Workspace/WorkspaceEventNotification.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>channel_ids" in empty\(\) is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Notifications/Workspace/WorkspaceEventNotification.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>channel_ids" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Notifications/Workspace/WorkspaceEventNotification.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>email" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Notifications/Workspace/WorkspaceEventNotification.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>in_app" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Notifications/Workspace/WorkspaceEventNotification.php
 
 		-
 			message: '#^Parameter \#2 \$changedBy of method App\\Services\\Agents\\AgentVersioner\:\:snapshot\(\) expects App\\Models\\User\|null, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
@@ -9541,12 +9733,6 @@ parameters:
 			path: app/Services/Assistant/Briefings/BriefingRunner.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:notify\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Services/Assistant/Briefings/BriefingRunner.php
-
-		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:steps\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -9578,6 +9764,12 @@ parameters:
 
 		-
 			message: '#^Parameter \#1 \$config of method App\\Services\\Assistant\\Briefings\\BriefingRunner\:\:write\(\) expects App\\Models\\Assistant\\AssistantBriefingConfig, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Assistant/Briefings/BriefingRunner.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\Notifications\\NotificationDispatcher\:\:dispatchTo\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Services/Assistant/Briefings/BriefingRunner.php
@@ -10087,12 +10279,6 @@ parameters:
 			path: app/Services/Assistant/Meetings/MeetingPrepRunner.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:notify\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Services/Assistant/Meetings/MeetingPrepRunner.php
-
-		-
 			message: '#^Offset ''email'' on string\|null on left side of \?\? does not exist\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
@@ -10112,6 +10298,12 @@ parameters:
 
 		-
 			message: '#^Parameter \#1 \$meeting of method App\\Services\\Assistant\\Meetings\\MeetingPrepRunner\:\:material\(\) expects App\\Models\\Assistant\\AssistantMeeting, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Assistant/Meetings/MeetingPrepRunner.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\Notifications\\NotificationDispatcher\:\:dispatchTo\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Services/Assistant/Meetings/MeetingPrepRunner.php
@@ -10837,6 +11029,24 @@ parameters:
 			path: app/Services/Auth/TwoFactorAuthService.php
 
 		-
+			message: '#^Parameter \#1 \$subscription of method App\\Services\\Billing\\CancellationOffers\:\:canBeOffered\(\) expects App\\Models\\Billing\\Subscription, Laravel\\Cashier\\Subscription given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Billing/CancellationOffers.php
+
+		-
+			message: '#^Parameter \#1 \$subscription of method App\\Services\\Billing\\CancellationOffers\:\:downgrade\(\) expects App\\Models\\Billing\\Subscription, Laravel\\Cashier\\Subscription given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Services/Billing/CancellationOffers.php
+
+		-
+			message: '#^Parameter \#2 \$subscription of method App\\Services\\Billing\\CancellationOffers\:\:discount\(\) expects App\\Models\\Billing\\Subscription, Laravel\\Cashier\\Subscription given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Billing/CancellationOffers.php
+
+		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:currentPlan\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -11181,19 +11391,19 @@ parameters:
 		-
 			message: '#^Call to function abort_unless\(\) with arguments false, 409 and non\-falsy\-string will always evaluate to false\.$#'
 			identifier: function.impossibleType
-			count: 1
+			count: 2
 			path: app/Services/Broadcasts/BroadcastCampaignService.php
 
 		-
 			message: '#^Call to function in_array\(\) with arguments string, array\{App\\Enums\\Broadcasts\\BroadcastStatus\:\:Sending, App\\Enums\\Broadcasts\\BroadcastStatus\:\:Sent, App\\Enums\\Broadcasts\\BroadcastStatus\:\:Failed\} and true will always evaluate to false\.$#'
 			identifier: function.impossibleType
-			count: 1
+			count: 2
 			path: app/Services/Broadcasts/BroadcastCampaignService.php
 
 		-
 			message: '#^Cannot access property \$value on string\.$#'
 			identifier: property.nonObject
-			count: 4
+			count: 6
 			path: app/Services/Broadcasts/BroadcastCampaignService.php
 
 		-
@@ -11212,6 +11422,18 @@ parameters:
 			message: '#^Cannot call method canStart\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 2
+			path: app/Services/Broadcasts/BroadcastCampaignService.php
+
+		-
+			message: '#^Cannot call method includesEmail\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 3
+			path: app/Services/Broadcasts/BroadcastCampaignService.php
+
+		-
+			message: '#^Cannot call method includesInApp\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 4
 			path: app/Services/Broadcasts/BroadcastCampaignService.php
 
 		-
@@ -11245,10 +11467,82 @@ parameters:
 			path: app/Services/Broadcasts/BroadcastCampaignService.php
 
 		-
+			message: '#^Parameter \#3 \$channel of method App\\Services\\Broadcasts\\BroadcastAudience\:\:count\(\) expects App\\Enums\\Broadcasts\\BroadcastChannel, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Broadcasts/BroadcastCampaignService.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between \*NEVER\* and App\\Enums\\Broadcasts\\BroadcastStatus\:\:Sending will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Services/Broadcasts/BroadcastCampaignService.php
+
+		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Services/Broadcasts/BroadcastCampaignService.php
+
+		-
+			message: '#^Parameter \#2 \$audience of method App\\Services\\Broadcasts\\BroadcastAudience\:\:matches\(\) expects array\<string, mixed\>\|null, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Changelog/ChangelogReader.php
+
+		-
+			message: '#^Call to function abort_if\(\) with arguments false, 409 and ''This entry is…'' will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: app/Services/Changelog/ChangelogService.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments string, array\{App\\Enums\\Changelog\\ChangelogStatus\:\:Draft\} and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: app/Services/Changelog/ChangelogService.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: app/Services/Changelog/ChangelogService.php
+
+		-
+			message: '#^Property App\\Models\\Changelog\\ChangelogEntry\:\:\$status \(string\) does not accept App\\Enums\\Changelog\\ChangelogStatus\:\:Archived\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Services/Changelog/ChangelogService.php
+
+		-
+			message: '#^Property App\\Models\\Changelog\\ChangelogEntry\:\:\$status \(string\) does not accept App\\Enums\\Changelog\\ChangelogStatus\:\:Draft\.$#'
+			identifier: assign.propertyType
+			count: 2
+			path: app/Services/Changelog/ChangelogService.php
+
+		-
+			message: '#^Property App\\Models\\Changelog\\ChangelogEntry\:\:\$status \(string\) does not accept App\\Enums\\Changelog\\ChangelogStatus\:\:Published\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Services/Changelog/ChangelogService.php
+
+		-
+			message: '#^Property App\\Models\\Changelog\\ChangelogEntry\:\:\$status \(string\) does not accept App\\Enums\\Changelog\\ChangelogStatus\:\:Scheduled\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Services/Changelog/ChangelogService.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\Changelog\\ChangelogStatus\:\:Archived will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Services/Changelog/ChangelogService.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\Changelog\\ChangelogStatus\:\:Published will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 2
+			path: app/Services/Changelog/ChangelogService.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$graph\.$#'
@@ -11587,6 +11881,18 @@ parameters:
 			path: app/Services/Dashboard/DashboardMetrics.php
 
 		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany\:\:visible\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Dashboard/GettingStarted.php
+
+		-
+			message: '#^Cannot call method templateCategories\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/Dashboard/GettingStarted.php
+
+		-
 			message: '#^Argument of an invalid type string supplied for foreach, only iterables are supported\.$#'
 			identifier: foreach.nonIterable
 			count: 1
@@ -11773,6 +12079,30 @@ parameters:
 			path: app/Services/Intelligence/UnitEconomics.php
 
 		-
+			message: '#^Offset ''headers'' on string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Notifications/IntegrationDeliverer.php
+
+		-
+			message: '#^Offset ''url'' does not exist on string\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: app/Services/Notifications/IntegrationDeliverer.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Notifications/IntegrationRouter.php
+
+		-
+			message: '#^Anonymous function should return App\\Models\\Notifications\\NotificationChannel but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Notifications/IntegrationRouter.php
+
+		-
 			message: '#^Method App\\Services\\Notifications\\NotificationDispatcher\:\:ownersAndAdmins\(\) should return Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\User\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\.$#'
 			identifier: return.type
 			count: 1
@@ -11783,6 +12113,24 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Services/Notifications/NotificationDispatcher.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Notifications/PreferenceWriter.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email_digest\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Notifications/PreferenceWriter.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$in_app\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Notifications/PreferenceWriter.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$owner_id\.$#'
@@ -12177,12 +12525,6 @@ parameters:
 		-
 			message: '#^Method App\\Services\\Referrals\\ReferralRuleEngine\:\:liveProgramFor\(\) should return App\\Models\\Referrals\\ReferralProgram\|null but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
 			identifier: return.type
-			count: 1
-			path: app/Services/Referrals/ReferralRuleEngine.php
-
-		-
-			message: '#^Parameter \#1 \$recipients of method App\\Services\\Notifications\\NotificationDispatcher\:\:dispatch\(\) expects iterable\<int, App\\Models\\User\>, array\<int, Illuminate\\Database\\Eloquent\\Model\> given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Services/Referrals/ReferralRuleEngine.php
 
@@ -12979,6 +13321,108 @@ parameters:
 			path: app/Services/SuperAdmin/Models/SuperAdminProviderSettingsService.php
 
 		-
+			message: '#^Cannot call method diffForHumans\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Services/SuperAdmin/Operations/Checks/AuditChainCheck.php
+
+		-
+			message: '#^Cannot call method lt\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/SuperAdmin/Operations/Checks/AuditChainCheck.php
+
+		-
+			message: '#^Cannot call method diffForHumans\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/SuperAdmin/Operations/Checks/BackupsCheck.php
+
+		-
+			message: '#^Cannot call method gt\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Services/SuperAdmin/Operations/Checks/BackupsCheck.php
+
+		-
+			message: '#^Cannot call method utc\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/SuperAdmin/Operations/Checks/MaintenanceWindowCheck.php
+
+		-
+			message: '#^Cannot call method isFuture\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/SuperAdmin/Operations/OperationsBoard.php
+
+		-
+			message: '#^Method App\\Services\\SuperAdmin\\Operations\\OperationsBoard\:\:entriesFor\(\) should return Illuminate\\Support\\Collection\<string, Illuminate\\Support\\Collection\<int, App\\Models\\Operations\\OperationsTaskEntry\>\> but returns Illuminate\\Database\\Eloquent\\Collection\<\(int\|string\), Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Operations\\OperationsTaskEntry\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/SuperAdmin/Operations/OperationsBoard.php
+
+		-
+			message: '#^Parameter \#1 \$cadence of method App\\Services\\SuperAdmin\\Operations\\OperationsBoard\:\:order\(\) expects App\\Enums\\Operations\\TaskCadence, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Services/SuperAdmin/Operations/OperationsBoard.php
+
+		-
+			message: '#^Parameter \#1 \$cadence of static method App\\Services\\SuperAdmin\\Operations\\TaskPeriod\:\:current\(\) expects App\\Enums\\Operations\\TaskCadence, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/SuperAdmin/Operations/OperationsBoard.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\Operations\\TaskEntryType\:\:Done will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Services/SuperAdmin/Operations/OperationsBoard.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\Operations\\TaskEntryType\:\:Snoozed will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Services/SuperAdmin/Operations/OperationsBoard.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\Operations\\TaskKind\:\:Auto will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Services/SuperAdmin/Operations/OperationsBoard.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\Operations\\TaskKind\:\:Manual will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Services/SuperAdmin/Operations/OperationsBoard.php
+
+		-
+			message: '#^Call to function abort_if\(\) with arguments false, 422 and ''This task checks…'' will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: app/Services/SuperAdmin/Operations/TaskActions.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Services/SuperAdmin/Operations/TaskActions.php
+
+		-
+			message: '#^Parameter \#1 \$cadence of static method App\\Services\\SuperAdmin\\Operations\\TaskPeriod\:\:current\(\) expects App\\Enums\\Operations\\TaskCadence, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/SuperAdmin/Operations/TaskActions.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\Operations\\TaskKind\:\:Auto will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Services/SuperAdmin/Operations/TaskActions.php
+
+		-
 			message: '#^Method App\\Services\\SuperAdmin\\Pricing\\PlanImpactPreview\:\:featuresRemoved\(\) should return list\<string\> but returns list\<0\>\.$#'
 			identifier: return.type
 			count: 1
@@ -13063,8 +13507,26 @@ parameters:
 			path: app/Services/SuperAdmin/Revenue/GrowthMetrics.php
 
 		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Services/SuperAdmin/Revenue/RevenueMetrics.php
+
+		-
+			message: '#^Cannot call method label\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/SuperAdmin/Revenue/RevenueMetrics.php
+
+		-
 			message: '#^Empty array passed to foreach\.$#'
 			identifier: foreach.emptyArray
+			count: 1
+			path: app/Services/SuperAdmin/Revenue/RevenueMetrics.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Billing\\SubscriptionCancellation\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
 			count: 1
 			path: app/Services/SuperAdmin/Revenue/RevenueMetrics.php
 
@@ -13105,6 +13567,24 @@ parameters:
 			path: app/Services/SuperAdmin/System/HealthSnapshotter.php
 
 		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Services/SuperAdmin/System/NotificationHealth.php
+
+		-
+			message: '#^Instanceof between string and App\\Enums\\Notifications\\DeliveryStatus will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 1
+			path: app/Services/SuperAdmin/System/NotificationHealth.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Notifications\\NotificationChannel\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/SuperAdmin/System/NotificationHealth.php
+
+		-
 			message: '#^Call to function method_exists\(\) with Illuminate\\Queue\\RedisQueue and ''creationTimeOfOldes…'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -13139,6 +13619,24 @@ parameters:
 			identifier: property.nonObject
 			count: 1
 			path: app/Services/SuperAdmin/Workspaces/SuperAdminWorkspaceService.php
+
+		-
+			message: '#^Constant App\\Services\\System\\Backups\\BackupService\:\:ERROR_LIMIT is unused\.$#'
+			identifier: classConstant.unused
+			count: 1
+			path: app/Services/System/Backups/BackupService.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and App\\Enums\\System\\BackupStatus\:\:Pending will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Services/System/Backups/BackupService.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Services/System/Backups/BackupService.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$config\.$#'
@@ -15049,12 +15547,6 @@ parameters:
 			path: app/Services/Workflows/PublishRequests.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:notify\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Services/Workflows/PublishRequests.php
-
-		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:publishGraph\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -15092,6 +15584,12 @@ parameters:
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:filter\(\) expects \(callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: bool\)\|null, Closure\(App\\Models\\User\)\: bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Workflows/PublishRequests.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\Notifications\\NotificationDispatcher\:\:dispatchTo\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Services/Workflows/PublishRequests.php
@@ -15407,51 +15905,3 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Services/Workspaces/WorkspaceService.php
-
-		-
-			message: '#^Cannot call method greaterThan\(\) on string\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/Http/Controllers/Api/SuperAdmin/V1/Backups/BackupController.php
-
-		-
-			message: '#^Cannot access property \$value on string\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Api/SuperAdmin/V1/Backups/BackupController.php
-
-		-
-			message: '#^Cannot access property \$value on string\.$#'
-			identifier: property.nonObject
-			count: 2
-			path: app/Http/Resources/Api/SuperAdmin/V1/Backups/BackupResource.php
-
-		-
-			message: '#^Result of && is always false\.$#'
-			identifier: booleanAnd.alwaysFalse
-			count: 1
-			path: app/Models/System/Backup.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\System\\BackupStatus\:\:Completed will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: app/Models/System/Backup.php
-
-		-
-			message: '#^Constant App\\Services\\System\\Backups\\BackupService\:\:ERROR_LIMIT is unused\.$#'
-			identifier: classConstant.unused
-			count: 1
-			path: app/Services/System/Backups/BackupService.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between string and App\\Enums\\System\\BackupStatus\:\:Pending will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: app/Services/System/Backups/BackupService.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Services/System/Backups/BackupService.php
