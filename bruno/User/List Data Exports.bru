@@ -1,0 +1,27 @@
+meta {
+  name: List Data Exports
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/v1/user/data-exports
+  body: none
+  auth: inherit
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const latest = res.body.data?.exports?.[0];
+    if (latest && latest.id) {
+      bru.setVar("dataExportId", latest.id);
+    }
+  }
+}
+
+docs {
+  The user's ten most recent personal data exports, newest first. Each
+  has `status` (`pending`, `processing`, `completed`, `failed`,
+  `expired`), `is_downloadable`, `size_bytes` and `expires_at`. Stores
+  the newest id as `dataExportId`.
+}

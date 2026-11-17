@@ -68,6 +68,9 @@ Schedule::onOneServer()->withoutOverlapping()->group(function (): void {
     Schedule::command('notifications:send-digests')->dailyAt((string) config('notifications.digest.send_at'));
     Schedule::command('model:prune', ['--model' => [InboxNotification::class, NotificationDelivery::class]])->dailyAt('04:50');
 
+    // Account
+    Schedule::command('account:prune-data-exports')->hourly();
+
     // Broadcasts
     Schedule::command('broadcasts:dispatch-due')->everyMinute();
     Schedule::command('changelog:publish-due')->everyMinute();
