@@ -18,7 +18,7 @@ use App\Notifications\Definitions\NotificationGrouping;
  * Operator alerts are not here: they live in `AdminAlerts` and
  * `AlertRuleCatalog` and must never reach a member.
  */
-enum NotificationEvent: string
+enum NotificationType: string
 {
     case MemberInvited = 'workspace.member_invited';
     case MemberJoined = 'workspace.member_joined';

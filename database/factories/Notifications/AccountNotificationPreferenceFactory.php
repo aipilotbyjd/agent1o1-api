@@ -2,7 +2,7 @@
 
 namespace Database\Factories\Notifications;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Notifications\AccountNotificationPreference;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -21,7 +21,7 @@ class AccountNotificationPreferenceFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'key' => NotificationEvent::AssistantDailyReport->value,
+            'key' => NotificationType::AssistantDailyReport->value,
             'in_app' => true,
             'email' => true,
             'email_digest' => false,

@@ -2,7 +2,7 @@
 
 namespace App\Services\Notifications;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\User;
 use Illuminate\Support\Facades\URL;
 
@@ -44,7 +44,7 @@ final class NotificationLinks
      * RFC 8058 one-click unsubscribe from one event's email. No expiry: an
      * old email must still be able to switch its own email off.
      */
-    public static function oneClickUnsubscribe(User $user, NotificationEvent $event, ?string $workspaceId): string
+    public static function oneClickUnsubscribe(User $user, NotificationType $event, ?string $workspaceId): string
     {
         return URL::signedRoute('notifications.unsubscribe.one-click', array_filter([
             'user' => $user->getKey(),

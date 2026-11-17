@@ -3,7 +3,7 @@
 namespace App\Http\Requests\Api\Internal\V1\Notifications;
 
 use App\Enums\Notifications\NotificationCategory;
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationScope;
 use App\Enums\Notifications\NotificationSeverity;
 use App\Enums\Workspaces\Permission;
@@ -40,7 +40,7 @@ class NotificationRouteRequest extends FormRequest
                 'uuid',
                 Rule::exists('notification_channels', 'id')->where('workspace_id', $workspace instanceof Workspace ? $workspace->id : null),
             ],
-            'event_key' => ['sometimes', 'nullable', Rule::enum(NotificationEvent::class)],
+            'event_key' => ['sometimes', 'nullable', Rule::enum(NotificationType::class)],
             'category' => ['sometimes', 'nullable', Rule::enum(NotificationCategory::class)],
             'min_severity' => ['sometimes', 'nullable', Rule::enum(NotificationSeverity::class)],
         ];
@@ -60,7 +60,7 @@ class NotificationRouteRequest extends FormRequest
                     $validator->errors()->add('event_key', 'A route covers one event or one category, not both.');
                 }
 
-                $event = is_string($eventKey) ? NotificationEvent::tryFrom($eventKey) : null;
+                $event = is_string($eventKey) ? NotificationType::tryFrom($eventKey) : null;
 
                 if ($event !== null && $event->definition()->scope !== NotificationScope::Workspace) {
                     $validator->errors()->add('event_key', 'Only workspace events can be sent to a channel.');

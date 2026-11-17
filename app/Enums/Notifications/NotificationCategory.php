@@ -7,8 +7,8 @@ namespace App\Enums\Notifications;
  * the settings page's groups and the level a member can switch a whole group
  * of events on or off at.
  *
- * Every `NotificationEvent` belongs to exactly one category
- * (`NotificationEvent::definition()`), so the frontend never has to guess a
+ * Every `NotificationType` belongs to exactly one category
+ * (`NotificationType::definition()`), so the frontend never has to guess a
  * category from an event key's prefix.
  */
 enum NotificationCategory: string

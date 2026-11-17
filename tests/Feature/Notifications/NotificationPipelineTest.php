@@ -2,7 +2,7 @@
 
 use App\Enums\Notifications\DeliveryStatus;
 use App\Enums\Notifications\NotificationCategory;
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationSeverity;
 use App\Enums\Workspaces\Role;
 use App\Events\Notifications\InboxNotificationChanged;
@@ -59,7 +59,7 @@ it('stores an inbox row with the event, category, severity and workspace filled 
 
     $row = InboxNotification::query()->sole();
 
-    expect($row->event_key)->toBe(NotificationEvent::PaymentFailed->value)
+    expect($row->event_key)->toBe(NotificationType::PaymentFailed->value)
         ->and($row->category)->toBe(NotificationCategory::Billing->value)
         ->and($row->severity)->toBe(NotificationSeverity::Critical->value)
         ->and($row->workspace_id)->toBe($this->workspace->id)
@@ -85,7 +85,7 @@ it('applies a category preference to every event in it, and lets an event prefer
     NotificationPreference::factory()->create([
         'workspace_id' => $this->workspace->id,
         'user_id' => $this->owner->id,
-        'event_key' => NotificationEvent::PaymentFailed->value,
+        'event_key' => NotificationType::PaymentFailed->value,
         'in_app' => true,
         'email' => false,
     ]);
@@ -98,7 +98,7 @@ it('holds email back for the digest when the member chose one', function () {
     NotificationPreference::factory()->create([
         'workspace_id' => $this->workspace->id,
         'user_id' => $this->owner->id,
-        'event_key' => NotificationEvent::PaymentFailed->value,
+        'event_key' => NotificationType::PaymentFailed->value,
         'in_app' => false,
         'email' => true,
         'email_digest' => true,
@@ -108,7 +108,7 @@ it('holds email back for the digest when the member chose one', function () {
     $this->dispatcher->dispatch([$this->owner], new PaymentFailedNotification($this->workspace, 1, 'in_2'));
 
     expect(NotificationDigestItem::query()->sole())
-        ->event_key->toBe(NotificationEvent::PaymentFailed->value)
+        ->event_key->toBe(NotificationType::PaymentFailed->value)
         ->action_url->toEndWith("/{$this->workspace->id}/settings/billing");
     Mail::assertNothingOutgoing();
 });
@@ -116,7 +116,7 @@ it('holds email back for the digest when the member chose one', function () {
 it('always sends a mandatory event, whatever the account preferences say', function () {
     AccountNotificationPreference::factory()->create([
         'user_id' => $this->owner->id,
-        'key' => NotificationEvent::SecurityAlert->value,
+        'key' => NotificationType::SecurityAlert->value,
         'in_app' => false,
         'email' => false,
     ]);
@@ -128,7 +128,7 @@ it('folds repeated failures of one workflow into the unread notification and ema
     NotificationPreference::factory()->create([
         'workspace_id' => $this->workspace->id,
         'user_id' => $this->owner->id,
-        'event_key' => NotificationEvent::RunFailed->value,
+        'event_key' => NotificationType::RunFailed->value,
         'in_app' => true,
         'email' => true,
     ]);
@@ -194,7 +194,7 @@ it('sends a routed event to a channel once, however many members were notified',
     $admin = User::factory()->create();
     $this->workspace->members()->create(['user_id' => $admin->id, 'role' => Role::Admin, 'joined_at' => now()]);
     $channel = NotificationChannel::factory()->create(['workspace_id' => $this->workspace->id, 'type' => 'slack']);
-    NotificationRoute::factory()->forChannel($channel)->create(['event_key' => NotificationEvent::PaymentFailed]);
+    NotificationRoute::factory()->forChannel($channel)->create(['event_key' => NotificationType::PaymentFailed]);
     NotificationRoute::factory()->forChannel($channel)->create(['category' => NotificationCategory::Billing]);
 
     $this->dispatcher->dispatch(

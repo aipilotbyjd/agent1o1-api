@@ -4,7 +4,7 @@ use App\Ai\Agents\Judges\ReflectionReviewerAgent;
 use App\Enums\Agents\ReflectionRunStatus;
 use App\Enums\Agents\ReflectionStatus;
 use App\Enums\Billing\CreditTransactionType;
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\RunStatus;
 use App\Jobs\Agents\ApplyReflectionJob;
 use App\Models\Agents\Agent;
@@ -331,7 +331,7 @@ it('notifies workspace owners and admins when reflections are proposed', functio
 
     app(ReflectionAnalyzer::class)->run($agent);
 
-    Notification::assertSentTo($owner, ReflectionReportNotification::class, fn ($notification) => $notification->event === NotificationEvent::ReflectionRunCompleted);
+    Notification::assertSentTo($owner, ReflectionReportNotification::class, fn ($notification) => $notification->type === NotificationType::ReflectionRunCompleted);
 });
 
 it('only notifies about a skipped run when notify_on_skip is enabled', function () {

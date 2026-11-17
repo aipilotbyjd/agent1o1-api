@@ -2,7 +2,8 @@
 
 namespace App\Notifications\Workspace;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Notifications\AppNotification;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Notifications\NotificationChannel;
 
 /**
@@ -10,13 +11,13 @@ use App\Models\Notifications\NotificationChannel;
  * switched off, so the workspace stops sending into a dead end. Sent to its
  * owners and admins (`DeliverIntegrationJob`).
  */
-class IntegrationChannelDisabledNotification extends WorkspaceEventNotification
+class IntegrationChannelDisabledNotification extends AppNotification
 {
     public function __construct(NotificationChannel $channel)
     {
         parent::__construct(
             workspace: $channel->workspace,
-            event: NotificationEvent::IntegrationChannelDisabled,
+            type: NotificationType::IntegrationChannelDisabled,
             title: "The {$channel->type} channel \"{$channel->name}\" was switched off",
             body: "It failed {$channel->consecutive_failures} deliveries in a row"
                 .($channel->last_error !== null ? " (last error: {$channel->last_error})" : '')

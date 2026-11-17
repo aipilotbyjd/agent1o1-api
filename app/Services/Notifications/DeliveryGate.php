@@ -37,7 +37,7 @@ class DeliveryGate
         }
 
         $groupKey = $notification->groupKey();
-        $grouping = $notification->event->definition()->grouping;
+        $grouping = $notification->type->definition()->grouping;
 
         if ($groupKey === null || $grouping === null) {
             return true;

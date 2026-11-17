@@ -2,7 +2,7 @@
 
 namespace App\Notifications\Assistant;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Assistant\AssistantFollowUp;
 use App\Notifications\AppNotification;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -17,14 +17,14 @@ class FollowUpReminderNotification extends AppNotification
         $subject = filled($followUp->subject) ? $followUp->subject : 'an email thread';
 
         parent::__construct(
-            event: NotificationEvent::AssistantFollowUp,
+            type: NotificationType::AssistantFollowUp,
             title: "No reply yet: {$subject}",
             body: "Nobody has replied to \"{$subject}\" yet.",
             data: array_filter([
                 'follow_up_id' => $followUp->id,
                 'subject' => $followUp->subject,
             ], fn (mixed $value): bool => $value !== null),
-            workspaceId: $followUp->assistant->workspace_id,
+            workspace: $followUp->assistant->workspace_id,
         );
     }
 

@@ -2,7 +2,7 @@
 
 namespace App\Notifications\Assistant;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Assistant\AssistantTrigger;
 use App\Notifications\AppNotification;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -19,7 +19,7 @@ class AssistantTriggerDisabledNotification extends AppNotification
         public readonly string $lastError,
     ) {
         parent::__construct(
-            event: NotificationEvent::AssistantTriggerDisabled,
+            type: NotificationType::AssistantTriggerDisabled,
             title: "Trigger \"{$trigger->name}\" was switched off",
             body: "It failed ".config('assistant.triggers.max_consecutive_failures').' times in a row. Last error: '.($lastError ?: 'unknown')
                 .'. A common cause is an app connection that expired. Fix it, then turn the trigger back on.',
@@ -28,7 +28,7 @@ class AssistantTriggerDisabledNotification extends AppNotification
                 'assistant_id' => $trigger->assistant_id,
                 'error' => $lastError,
             ],
-            workspaceId: $trigger->assistant->workspace_id,
+            workspace: $trigger->assistant->workspace_id,
         );
     }
 

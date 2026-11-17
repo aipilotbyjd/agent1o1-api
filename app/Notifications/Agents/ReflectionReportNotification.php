@@ -2,11 +2,11 @@
 
 namespace App\Notifications\Agents;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Agents\ReflectionRun;
-use App\Notifications\Workspace\WorkspaceEventNotification;
+use App\Notifications\AppNotification;
 
-class ReflectionReportNotification extends WorkspaceEventNotification
+class ReflectionReportNotification extends AppNotification
 {
     public function __construct(ReflectionRun $reflectionRun)
     {
@@ -15,7 +15,7 @@ class ReflectionReportNotification extends WorkspaceEventNotification
 
         parent::__construct(
             workspace: $reflectionRun->workspace,
-            event: NotificationEvent::ReflectionRunCompleted,
+            type: NotificationType::ReflectionRunCompleted,
             title: "Reflection completed for {$agent->name}",
             body: $reflectionRun->status->value === 'skipped'
                 ? "Skipped: {$reflectionRun->skip_reason}"

@@ -38,7 +38,7 @@ class InboxChannel
             return;
         }
 
-        $definition = $notification->event->definition();
+        $definition = $notification->type->definition();
 
         try {
             $row = InboxNotification::query()->forceCreate([
@@ -47,7 +47,7 @@ class InboxChannel
                 'notifiable_type' => $notifiable->getMorphClass(),
                 'notifiable_id' => $notifiable->getKey(),
                 'workspace_id' => $notification->workspaceId,
-                'event_key' => $notification->event->value,
+                'event_key' => $notification->type->value,
                 'category' => $definition->category->value,
                 'severity' => $notification->severity()->value,
                 'group_key' => $notification->groupKey(),
@@ -77,7 +77,7 @@ class InboxChannel
     private function foldIntoGroup(Model $notifiable, AppNotification $notification): bool
     {
         $groupKey = $notification->groupKey();
-        $grouping = $notification->event->definition()->grouping;
+        $grouping = $notification->type->definition()->grouping;
 
         if ($groupKey === null || $grouping === null) {
             return false;

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Internal\V1\Notifications;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationScope;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Internal\V1\Notifications\UpdateNotificationPreferencesRequest;
@@ -23,7 +23,7 @@ class NotificationUnsubscribeController extends Controller
 {
     public function __invoke(Request $request, User $user, PreferenceWriter $writer): JsonResponse
     {
-        $event = NotificationEvent::tryFrom((string) $request->query('event'));
+        $event = NotificationType::tryFrom((string) $request->query('event'));
         abort_if($event === null, 404);
 
         $scope = $event->definition()->scope;

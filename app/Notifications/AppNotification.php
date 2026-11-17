@@ -2,10 +2,11 @@
 
 namespace App\Notifications;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Notifications\NotificationSeverity;
 use App\Enums\Queue;
 use App\Models\User;
+use App\Models\Workspaces\Workspace;
 use App\Notifications\Channels\DigestChannel;
 use App\Notifications\Channels\InboxChannel;
 use App\Services\Notifications\DeliveryGate;
@@ -42,15 +43,27 @@ abstract class AppNotification extends Notification implements ShouldQueue
     use Queueable;
 
     /**
+     * The workspace the notification is about, when it is about one. Account
+     * notifications (assistant, security, platform messages) may still name
+     * the workspace they came from by id, for links, without loading it.
+     */
+    public readonly ?Workspace $workspace;
+
+    public readonly ?string $workspaceId;
+
+    /**
      * @param  array<string, mixed>  $data
      */
     public function __construct(
-        public readonly NotificationEvent $event,
+        public readonly NotificationType $type,
         public readonly string $title,
         public readonly ?string $body = null,
         public readonly array $data = [],
-        public readonly ?string $workspaceId = null,
+        Workspace|string|null $workspace = null,
     ) {
+        $this->workspace = $workspace instanceof Workspace ? $workspace : null;
+        $this->workspaceId = $workspace instanceof Workspace ? (string) $workspace->getKey() : $workspace;
+
         $this->onQueue(Queue::Notification->value);
         $this->afterCommit();
     }
@@ -61,10 +74,10 @@ abstract class AppNotification extends Notification implements ShouldQueue
     public function via(object $notifiable): array
     {
         if (! $notifiable instanceof User) {
-            return $this->event->definition()->defaultEmail ? ['mail'] : [];
+            return $this->type->definition()->defaultEmail ? ['mail'] : [];
         }
 
-        $preference = app(PreferenceResolver::class)->resolve($notifiable, $this->event, $this->workspaceId);
+        $preference = app(PreferenceResolver::class)->resolve($notifiable, $this->type, $this->workspaceId);
 
         $channels = [];
 
@@ -111,7 +124,7 @@ abstract class AppNotification extends Notification implements ShouldQueue
      */
     public function groupKey(): ?string
     {
-        $grouping = $this->event->definition()->grouping;
+        $grouping = $this->type->definition()->grouping;
 
         if ($grouping === null) {
             return null;
@@ -120,17 +133,17 @@ abstract class AppNotification extends Notification implements ShouldQueue
         $scope = $this->workspaceId ?? 'account';
 
         if ($grouping->by === null) {
-            return "{$this->event->value}:{$scope}";
+            return "{$this->type->value}:{$scope}";
         }
 
         $value = $this->data[$grouping->by] ?? null;
 
-        return is_scalar($value) && $value !== '' ? "{$this->event->value}:{$scope}:{$value}" : null;
+        return is_scalar($value) && $value !== '' ? "{$this->type->value}:{$scope}:{$value}" : null;
     }
 
     public function severity(): NotificationSeverity
     {
-        return $this->event->definition()->severity;
+        return $this->type->definition()->severity;
     }
 
     /**
@@ -138,7 +151,7 @@ abstract class AppNotification extends Notification implements ShouldQueue
      */
     public function actionPath(): ?string
     {
-        return $this->event->actionPath($this->workspaceId, $this->data);
+        return $this->type->actionPath($this->workspaceId, $this->data);
     }
 
     public function actionUrl(): ?string
@@ -157,7 +170,7 @@ abstract class AppNotification extends Notification implements ShouldQueue
     {
         return [
             'workspace_id' => $this->workspaceId,
-            'type' => $this->event->value,
+            'type' => $this->type->value,
             'title' => $this->title,
             'body' => $this->body,
             'data' => $this->data,
@@ -197,7 +210,7 @@ abstract class AppNotification extends Notification implements ShouldQueue
             title: $this->title,
             body: $this->body,
             actionUrl: $this->actionUrl(),
-            actionLabel: $this->event->actionLabel($this->data),
+            actionLabel: $this->type->actionLabel($this->data),
         );
     }
 
@@ -207,7 +220,7 @@ abstract class AppNotification extends Notification implements ShouldQueue
      */
     protected function mailMessage(object $notifiable): MailMessage
     {
-        $definition = $this->event->definition();
+        $definition = $this->type->definition();
 
         $mail = (new MailMessage)
             ->subject($this->title)
@@ -215,7 +228,7 @@ abstract class AppNotification extends Notification implements ShouldQueue
             ->salutation($this->footer($notifiable));
 
         $unsubscribeUrl = $notifiable instanceof User && ! $definition->mandatory
-            ? NotificationLinks::oneClickUnsubscribe($notifiable, $this->event, $this->workspaceId)
+            ? NotificationLinks::oneClickUnsubscribe($notifiable, $this->type, $this->workspaceId)
             : null;
 
         if ($unsubscribeUrl !== null) {
@@ -235,7 +248,7 @@ abstract class AppNotification extends Notification implements ShouldQueue
     protected function withAction(MailMessage $mail): MailMessage
     {
         $url = $this->actionUrl();
-        $label = $this->event->actionLabel($this->data);
+        $label = $this->type->actionLabel($this->data);
 
         return $url !== null && $label !== null ? $mail->action($label, $url) : $mail;
     }
@@ -243,9 +256,9 @@ abstract class AppNotification extends Notification implements ShouldQueue
     private function footer(object $notifiable): string
     {
         $settingsUrl = NotificationLinks::settings($this->workspaceId);
-        $reason = $this->event->definition()->mandatory
+        $reason = $this->type->definition()->mandatory
             ? 'This message is about your account, so it is always sent.'
-            : "You're getting this because \"{$this->event->label()}\" email is on in your notification settings.";
+            : "You're getting this because \"{$this->type->label()}\" email is on in your notification settings.";
 
         return $settingsUrl !== null ? "{$reason} [Manage notification settings]({$settingsUrl})" : $reason;
     }

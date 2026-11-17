@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\Api\Internal\V1\Notifications;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Models\Notifications\InboxNotification;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -27,7 +27,7 @@ class NotificationResource extends JsonResource
         $workspaceId = $this->workspace_id ?? ($payload['workspace_id'] ?? null);
         $event = $this->resource instanceof InboxNotification
             ? $this->resource->event()
-            : NotificationEvent::tryFrom((string) ($payload['type'] ?? ''));
+            : NotificationType::tryFrom((string) ($payload['type'] ?? ''));
         $actionPath = $event?->actionPath(is_string($workspaceId) ? $workspaceId : null, $data);
         $actionLabel = $event?->actionLabel($data);
 

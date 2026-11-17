@@ -2,17 +2,17 @@
 
 namespace App\Notifications\Workflows;
 
-use App\Enums\Notifications\NotificationEvent;
+use App\Enums\Notifications\NotificationType;
 use App\Enums\Workflows\PublishRequestStatus;
 use App\Models\Workflows\WorkflowPublishRequest;
-use App\Notifications\Workspace\WorkspaceEventNotification;
+use App\Notifications\AppNotification;
 use Illuminate\Notifications\Messages\MailMessage;
 
 /**
  * Tells the person who asked for a review how it went: approved and live, or
  * rejected with the reviewer's reason.
  */
-class PublishRequestDecidedNotification extends WorkspaceEventNotification
+class PublishRequestDecidedNotification extends AppNotification
 {
     public function __construct(private readonly WorkflowPublishRequest $publishRequest)
     {
@@ -23,7 +23,7 @@ class PublishRequestDecidedNotification extends WorkspaceEventNotification
 
         parent::__construct(
             workspace: $publishRequest->workspace,
-            event: NotificationEvent::PublishRequestDecided,
+            type: NotificationType::PublishRequestDecided,
             title: $approved
                 ? "{$reviewer} approved your changes to {$workflow->name}. v{$version} is live"
                 : "{$reviewer} rejected your changes to {$workflow->name}",
