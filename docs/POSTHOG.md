@@ -37,6 +37,35 @@ Server events go out on the `system-notification` queue, which Horizon already r
 | `run_completed` / `run_failed` | `CaptureRunFinished` listener | `run_id`, `runnable_type`, `trigger_type`, `is_child_run`, `duration_ms` |
 | `subscription_started` | Stripe `customer.subscription.created` | `stripe_status`, `is_trial` |
 | `subscription_canceled` | Stripe `customer.subscription.deleted` | `stripe_status`, `is_trial` |
+| `first_run_succeeded` | `CaptureRunFinished` listener, the first time a run a person started (not a child run) completes | `run_id`, `runnable_type`, `seconds_since_signup` |
+| `onboarding_step_completed` | `OnboardingService`, the first time progress moves past a step | `step`, `step_number` |
+| `onboarding_step_skipped` | `OnboardingService::skip`, the first time a step is skipped | `step`, `step_number` |
+| `onboarding_completed` | `OnboardingService::complete` (once) | none |
+| `onboarding_dismissed` | `OnboardingService::dismiss` (once) | `step` (where they left) |
+
+The browser sends one more: `onboarding_step_viewed` (`step`, `step_number`) from the onboarding shell each time a step is shown, since only the browser knows which screen is open.
+
+### Onboarding funnel
+
+Steps, in order (`step` values): `create_workspace`, `role_selection`, `choose_template`, `choose_plan`, `connect_ai`, `connect_apps`, `invite_team`, `discovery_survey`.
+
+Build it in PostHog as **Product analytics → New insight → Funnel**:
+
+1. `user_signed_up`
+2. `onboarding_step_viewed` where `step = create_workspace`
+3. `onboarding_step_completed` where `step = create_workspace`
+4. `onboarding_step_completed` where `step = role_selection`
+5. `onboarding_step_completed` or `onboarding_step_skipped` where `step = choose_template`
+6. `onboarding_step_completed` where `step = choose_plan`
+7. `onboarding_completed`
+8. `first_run_succeeded`
+
+Settings: aggregate by **Unique users**, conversion window **7 days**, order **sequential**. Save it to an "Onboarding" dashboard.
+
+Two companion insights answer the next questions:
+
+- **Where people stop:** a Trends insight of `onboarding_step_viewed`, broken down by `step`, next to `onboarding_step_completed` and `onboarding_step_skipped` by `step`. A step with many views and few completions is the one losing people.
+- **Time to first value:** `first_run_succeeded` with the `seconds_since_signup` property shown as a median. The goal is a first successful run within 10 minutes of signing up.
 
 Events with a workspace are grouped under the `workspace` group. A run with no `triggered_by` user is sent as an anonymous event (`$process_person_profile = false`) under `workspace:{id}`. Subscription events are attributed to the workspace owner.
 

@@ -93,18 +93,18 @@ it('refuses to skip the account setup steps', function (string $step) {
     expect($user->fresh()->onboarding_skipped_steps)->toBeNull();
 })->with(['create_workspace', 'choose_plan']);
 
-it('lets the profile picture be postponed', function () {
-    $user = onboardingSkipUser(OnboardingStep::ProfilePicture);
+it('lets the last step be postponed', function () {
+    $user = onboardingSkipUser(OnboardingStep::DiscoverySurvey);
     $tokens = onboardingSkipTokens($user->email, 'Password1!');
 
     $response = $this->withToken($tokens['access_token'])
-        ->postJson('/api/v1/onboarding/skip', ['step' => 'profile_picture'])
+        ->postJson('/api/v1/onboarding/skip', ['step' => 'discovery_survey'])
         ->assertOk();
 
-    $picture = collect($response->json('data.steps'))->firstWhere('key', 'profile_picture');
+    $survey = collect($response->json('data.steps'))->firstWhere('key', 'discovery_survey');
 
-    expect($picture['skipped'])->toBeTrue()
-        ->and($picture['completed'])->toBeFalse();
+    expect($survey['skipped'])->toBeTrue()
+        ->and($survey['completed'])->toBeFalse();
 });
 
 it('rejects an unknown step', function () {

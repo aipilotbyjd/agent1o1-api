@@ -6,8 +6,8 @@ namespace App\Enums\Onboarding;
  * The onboarding wizard's steps, in the order they are shown. The two that set
  * the account up (workspace, plan) come as early as they can; everything else
  * is optional. A template is offered right after the role, while the user is
- * still deciding what to build, and the profile picture is last because
- * nothing else depends on it.
+ * still deciding what to build. There is no profile picture step: the avatar
+ * comes from Google or GitHub, or the app shows initials.
  */
 enum OnboardingStep: string
 {
@@ -19,7 +19,6 @@ enum OnboardingStep: string
     case ConnectApps = 'connect_apps';
     case InviteTeam = 'invite_team';
     case DiscoverySurvey = 'discovery_survey';
-    case ProfilePicture = 'profile_picture';
 
     /**
      * Where a user who has not started yet is.
@@ -32,7 +31,6 @@ enum OnboardingStep: string
     public function label(): string
     {
         return match ($this) {
-            self::ProfilePicture => 'Profile Picture',
             self::CreateWorkspace => 'Create Workspace',
             self::InviteTeam => 'Invite Team',
             self::RoleSelection => 'Role Selection',
@@ -47,7 +45,6 @@ enum OnboardingStep: string
     public function description(): string
     {
         return match ($this) {
-            self::ProfilePicture => 'Add a profile picture to personalize your account.',
             self::CreateWorkspace => 'Create a workspace to organize your work.',
             self::InviteTeam => 'Invite teammates to collaborate with you.',
             self::RoleSelection => 'Tell us your role so we can tailor your experience.',

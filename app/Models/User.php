@@ -35,6 +35,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Billable;
 use Laravel\Passport\Contracts\OAuthenticatable;
@@ -100,6 +101,23 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     protected function pendingEmail(): Attribute
     {
         return Attribute::make(set: fn (?string $value): ?string => $value === null ? null : self::normalizeEmail($value));
+    }
+
+    /**
+     * The picture shown for this account: an uploaded one wins, else the one
+     * Google or GitHub gave at sign-in. Null means the app shows initials.
+     */
+    public function avatarUrl(): ?string
+    {
+        if ($this->avatar) {
+            return Storage::disk('public')->url($this->avatar);
+        }
+
+        $connections = $this->relationLoaded('oauthConnections')
+            ? $this->oauthConnections->sortByDesc('created_at')
+            : $this->oauthConnections()->latest()->get();
+
+        return $connections->firstWhere(fn (OAuthConnection $connection): bool => filled($connection->avatar))?->avatar;
     }
 
     public function hasTwoFactorEnabled(): bool
