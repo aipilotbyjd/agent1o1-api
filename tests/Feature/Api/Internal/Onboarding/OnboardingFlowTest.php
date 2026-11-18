@@ -68,10 +68,10 @@ it('walks through the onboarding steps in order', function () {
         ->assertOk()
         ->assertJsonPath('data.current_step', 'discovery_survey');
 
-    // discovery_survey leaves only the optional profile picture.
+    // discovery_survey is the last step: it stays current until Finish completes onboarding.
     $response = $client->postJson('/api/v1/onboarding/discovery', ['discovery_source' => 'google_search'])
         ->assertOk()
-        ->assertJsonPath('data.current_step', 'profile_picture');
+        ->assertJsonPath('data.current_step', 'discovery_survey');
 
     expect($response->json('data.completed'))->toBeFalse();
 

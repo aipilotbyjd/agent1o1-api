@@ -14,6 +14,7 @@ use App\Models\Ai\WorkspaceAiKeyPolicy;
 use App\Models\Billing\Plan;
 use App\Models\User;
 use App\Services\Ai\AiProviderSettings;
+use App\Services\Analytics\ProductAnalytics;
 use App\Services\Workspaces\WorkspaceInvitationService;
 use App\Services\Workspaces\WorkspaceService;
 
@@ -22,6 +23,7 @@ class OnboardingService
     public function __construct(
         private readonly WorkspaceService $workspaces,
         private readonly WorkspaceInvitationService $invitations,
+        private readonly ProductAnalytics $analytics,
     ) {}
 
     /**
@@ -100,16 +102,10 @@ class OnboardingService
     /**
      * Saves that the user finished a step and pressed Continue, so signing in
      * again resumes after it. Steps that exist to collect something must have
-     * it: a profile picture, a workspace.
+     * it: a workspace, a plan.
      */
     public function continue(User $user, OnboardingStep $step): array
     {
-        abort_if(
-            $step === OnboardingStep::ProfilePicture && $user->avatar === null,
-            422,
-            'Add a profile picture before continuing.',
-        );
-
         abort_if(
             $step === OnboardingStep::CreateWorkspace && $user->current_workspace_id === null,
             422,
@@ -151,7 +147,13 @@ class OnboardingService
     {
         $this->requireAccountSetup($user);
 
+        $alreadyCompleted = $user->hasCompletedOnboarding();
+
         $user->update(['onboarding_completed_at' => now()]);
+
+        if (! $alreadyCompleted) {
+            $this->track($user, 'onboarding_completed');
+        }
 
         return $this->state($user->fresh());
     }
@@ -160,7 +162,15 @@ class OnboardingService
     {
         $this->requireAccountSetup($user);
 
+        $alreadyDismissed = $user->onboarding_dismissed_at !== null;
+
         $user->update(['onboarding_dismissed_at' => now()]);
+
+        if (! $alreadyDismissed) {
+            $this->track($user, 'onboarding_dismissed', [
+                'step' => ($user->onboarding_current_step ?? OnboardingStep::first())->value,
+            ]);
+        }
     }
 
     /**
@@ -231,7 +241,6 @@ class OnboardingService
         }
 
         return match ($step) {
-            OnboardingStep::ProfilePicture => $user->avatar !== null,
             OnboardingStep::CreateWorkspace => $user->current_workspace_id !== null,
             OnboardingStep::RoleSelection => $user->job_role !== null,
             OnboardingStep::DiscoverySurvey => $user->discovery_source !== null,
@@ -277,6 +286,21 @@ class OnboardingService
         $current = $user->onboarding_current_step ?? OnboardingStep::first();
         $target = $this->heldAtAccountSetup($user, $step, $current, $step->next() ?? $step);
 
+        // Only the first time through a step, and only once progress really
+        // moves: picking a role saves it and the Continue that follows saves
+        // it again, and a later step saved while the workspace step is still
+        // open is held back. The last step has nowhere to move, so it counts
+        // when it is the current one.
+        $movesPast = $this->ordinal($target) > $this->ordinal($current)
+            || ($step->next() === null && $step === $current);
+
+        if ($movesPast && $this->ordinal($step) >= $this->ordinal($current)) {
+            $this->track($user, $keepSkipped ? 'onboarding_step_skipped' : 'onboarding_step_completed', [
+                'step' => $step->value,
+                'step_number' => $this->ordinal($step) + 1,
+            ]);
+        }
+
         if ($this->ordinal($target) > $this->ordinal($current)) {
             $user->update(['onboarding_current_step' => $target]);
         }
@@ -306,6 +330,22 @@ class OnboardingService
         }
 
         return $target;
+    }
+
+    /**
+     * Onboarding funnel events (see docs/POSTHOG.md), grouped under the
+     * workspace once the user has one.
+     *
+     * @param  array<string, scalar|null>  $properties
+     */
+    private function track(User $user, string $event, array $properties = []): void
+    {
+        $this->analytics->capture(
+            (string) $user->getKey(),
+            $event,
+            $properties,
+            $user->current_workspace_id !== null ? (string) $user->current_workspace_id : null,
+        );
     }
 
     private function ordinal(OnboardingStep $step): int

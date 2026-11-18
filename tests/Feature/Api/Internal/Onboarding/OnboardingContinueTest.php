@@ -33,14 +33,14 @@ it('saves a continued step so the next sign-in resumes after it', function () {
         ->assertJsonPath('data.current_step', 'choose_template');
 });
 
-it('does not let the profile picture step continue without a picture', function () {
+it('no longer has a profile picture step', function () {
     $user = onboardingContinueUser();
     $tokens = onboardingContinueTokens($user->email, 'Password1!');
 
     $this->withToken($tokens['access_token'])
         ->postJson('/api/v1/onboarding/continue', ['step' => 'profile_picture'])
         ->assertStatus(422)
-        ->assertJsonPath('message', 'Add a profile picture before continuing.');
+        ->assertJsonValidationErrors('step');
 
     expect($user->fresh()->onboarding_current_step)->toBe(OnboardingStep::CreateWorkspace);
 });
