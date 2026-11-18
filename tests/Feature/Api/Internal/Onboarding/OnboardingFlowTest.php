@@ -38,6 +38,11 @@ it('walks through the onboarding steps in order', function () {
     // role_selection
     $client->postJson('/api/v1/onboarding/role', ['job_role' => 'engineering'])
         ->assertOk()
+        ->assertJsonPath('data.current_step', 'choose_template');
+
+    // choose_template is optional.
+    $client->postJson('/api/v1/onboarding/skip', ['step' => 'choose_template'])
+        ->assertOk()
         ->assertJsonPath('data.current_step', 'choose_plan');
 
     // choose_plan

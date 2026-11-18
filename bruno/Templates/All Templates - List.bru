@@ -1,0 +1,39 @@
+meta {
+  name: All Templates - List
+  type: http
+  seq: 29
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/templates
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+}
+
+params:query {
+  ~type[]: agent
+  ~search: slack
+  ~page: 1
+  ~per_page: 12
+}
+
+docs {
+  Every template the workspace can see — workflow, agent, collection and
+  page templates — in one paginated list, featured first, then by sort
+  order and name. Requires the `template.view` permission. Used by the
+  onboarding "Start from a template" step.
+
+  - `type[]` — optional, repeatable: `workflow`, `agent`, `collection`, `page`.
+  - `search` — optional, matches name, description or category.
+  - `page`, `per_page` — page number and size (default 12, max 50).
+
+  Each row: `id`, `type`, `type_label`, `name`, `description`, `category`,
+  `icon`, `color`, `is_featured`, `is_own` (saved by this workspace),
+  `usage_count`, `items_count` (collections only).
+
+  Response: `{ success, statusCode, message, data: [...], meta: { current_page, last_page, per_page, total } }`.
+}
