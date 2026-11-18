@@ -37,7 +37,7 @@ Server events go out on the `system-notification` queue, which Horizon already r
 | `run_completed` / `run_failed` | `CaptureRunFinished` listener | `run_id`, `runnable_type`, `trigger_type`, `is_child_run`, `duration_ms` |
 | `subscription_started` | Stripe `customer.subscription.created` | `stripe_status`, `is_trial` |
 | `subscription_canceled` | Stripe `customer.subscription.deleted` | `stripe_status`, `is_trial` |
-| `first_run_succeeded` | `CaptureRunFinished` listener, the first time a run a person started (not a child run) completes | `run_id`, `runnable_type`, `seconds_since_signup` |
+| `first_run_succeeded` | `CaptureRunFinished` listener, the first time a run a person started (not a child run) completes | `run_id`, `runnable_type`, `is_sample` (the onboarding run on example data), `seconds_since_signup` |
 | `onboarding_step_completed` | `OnboardingService`, the first time progress moves past a step | `step`, `step_number` |
 | `onboarding_step_skipped` | `OnboardingService::skip`, the first time a step is skipped | `step`, `step_number` |
 | `onboarding_completed` | `OnboardingService::complete` (once) | none |
@@ -47,18 +47,17 @@ The browser sends one more: `onboarding_step_viewed` (`step`, `step_number`) fro
 
 ### Onboarding funnel
 
-Steps, in order (`step` values): `create_workspace`, `role_selection`, `choose_template`, `choose_plan`, `connect_ai`, `connect_apps`, `invite_team`. The discovery survey is no longer a step: it is asked on the dashboard after the first successful run.
+Steps, in order (`step` values): `role_selection` (describe what to automate), `connect_ai` (required: there is no platform model), `choose_template`, `first_run` (a sample run on example data, see `SampleRuns`). The workspace is created when the wizard opens (`POST /onboarding/start`) and every workspace starts on Free, so neither is a step. The discovery question is asked after the first successful run.
 
 Build it in PostHog as **Product analytics → New insight → Funnel**:
 
 1. `user_signed_up`
-2. `onboarding_step_viewed` where `step = create_workspace`
-3. `onboarding_step_completed` where `step = create_workspace`
-4. `onboarding_step_completed` where `step = role_selection`
+2. `onboarding_step_viewed` where `step = role_selection`
+3. `onboarding_step_completed` where `step = role_selection`
+4. `onboarding_step_completed` where `step = connect_ai`
 5. `onboarding_step_completed` or `onboarding_step_skipped` where `step = choose_template`
-6. `onboarding_step_completed` where `step = choose_plan`
+6. `first_run_succeeded`
 7. `onboarding_completed`
-8. `first_run_succeeded`
 
 Settings: aggregate by **Unique users**, conversion window **7 days**, order **sequential**. Save it to an "Onboarding" dashboard.
 

@@ -59,6 +59,7 @@ class WorkflowRunner
         private readonly SecretRedactor $secretRedactor,
         private readonly RunCanceller $canceller,
         private readonly CostGuard $costGuard,
+        private readonly SampleRuns $sampleRuns,
     ) {}
 
     public function executeStep(NodeRun $nodeRun): void
@@ -98,6 +99,27 @@ class WorkflowRunner
             return;
         }
 
+        // A sample run is watched as it happens, so it never stops to wait
+        // for a person or a timer: the step settles as if it had been
+        // approved, or its wait had passed.
+        $pauses = in_array($nodeRun->type, [FlowControlNodeType::HumanApproval->value, FlowControlNodeType::Wait->value], true);
+
+        if ($pauses && $this->sampleRuns->isSample($run)) {
+            $this->settleWithoutPausing($run, $nodeRun);
+
+            return;
+        }
+
+        $this->executeNode($run, $nodeRun, $nodeDefinition, $graph, $context, $secrets);
+    }
+
+    /**
+     * @param  array{key: string, type: string, config: array<string, mixed>}  $nodeDefinition
+     * @param  array{nodes: array<int, array{key: string, type: string, config: array<string, mixed>}>, edges: array<int, array{from: string, to: string, condition: string|null}>}  $graph
+     * @param  array<string, mixed>  $context
+     */
+    private function executeNode(Run $run, NodeRun $nodeRun, array $nodeDefinition, array $graph, array $context, ResolvedSecrets $secrets): void
+    {
         match ($nodeRun->type) {
             FlowControlNodeType::HumanApproval->value => $this->pauseForApproval($run, $nodeRun, $nodeDefinition),
             FlowControlNodeType::Wait->value => $this->pauseForWait($nodeRun, $nodeDefinition),
@@ -194,11 +216,15 @@ class WorkflowRunner
             // called with) would otherwise write the plaintext secret into
             // `node_runs`, readable by every run-viewer in the workspace.
             // A reader node that started this run as its flow trigger outputs
-            // the item it fired for, rather than reading the list again.
+            // the item it fired for, rather than reading the list again. A
+            // sample run shows what an app step would send instead of sending
+            // it (see `SampleRuns`).
             $output = $this->secretRedactor->redact(
-                $node instanceof SupportsTriggerMode && $run->entry_node_key === $nodeRun->key
-                    ? (array) ($context['input'] ?? [])
-                    : $node->execute($run, $config, $context),
+                match (true) {
+                    $node instanceof SupportsTriggerMode && $run->entry_node_key === $nodeRun->key => (array) ($context['input'] ?? []),
+                    $this->sampleRuns->previews($node, $config) && $this->sampleRuns->isSample($run) => $this->sampleRuns->previewOutput($config),
+                    default => $node->execute($run, $config, $context),
+                },
                 $secrets->sensitiveValues(),
             );
 
@@ -240,6 +266,25 @@ class WorkflowRunner
 
             $this->failureHandler->handle($run, $nodeRun, $nodeDefinition, $graph, $e, $secrets->sensitiveValues());
         }
+    }
+
+    /**
+     * Settles an approval or wait step of a sample run at once, with the
+     * output it has once a person approves or the wait ends.
+     */
+    private function settleWithoutPausing(Run $run, NodeRun $nodeRun): void
+    {
+        $output = [...(FlowControlNodeType::from($nodeRun->type)->sampleOutput() ?? []), 'sample' => true];
+
+        if (! $nodeRun->transitionFrom([NodeRunStatus::Running], [
+            'status' => NodeRunStatus::Completed,
+            'output' => $output,
+            'finished_at' => now(),
+        ])) {
+            return;
+        }
+
+        DispatchNextNodesJob::afterSettling($run->id, $nodeRun->id);
     }
 
     /**

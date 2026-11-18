@@ -5,6 +5,7 @@ namespace App\Models\Workflows;
 use App\Exceptions\PublishApprovalRequiredException;
 use App\Exceptions\WorkflowValidationException;
 use App\Models\Runs\Run;
+use App\Models\Templates\WorkflowTemplate;
 use App\Models\User;
 use App\Models\Workspaces\Workspace;
 use App\Services\Triggers\TriggerNodeSync;
@@ -26,7 +27,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 
-#[Fillable(['workspace_id', 'folder_id', 'name', 'slug', 'description', 'input_schema', 'created_by', 'is_internal'])]
+#[Fillable(['workspace_id', 'folder_id', 'template_id', 'name', 'slug', 'description', 'input_schema', 'created_by', 'is_internal'])]
 class Workflow extends Model
 {
     /** @use HasFactory<WorkflowFactory> */
@@ -67,6 +68,17 @@ class Workflow extends Model
     public function folder(): BelongsTo
     {
         return $this->belongsTo(Folder::class);
+    }
+
+    /**
+     * The template this workflow was made from, if any: where its sample run
+     * takes its example answers from.
+     *
+     * @return BelongsTo<WorkflowTemplate, $this>
+     */
+    public function template(): BelongsTo
+    {
+        return $this->belongsTo(WorkflowTemplate::class);
     }
 
     /**

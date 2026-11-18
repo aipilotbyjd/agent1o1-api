@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Internal\V1\Workflows\WorkflowFavoriteController;
 use App\Http\Controllers\Api\Internal\V1\Workflows\WorkflowInterfaceController;
 use App\Http\Controllers\Api\Internal\V1\Workflows\WorkflowNodePinController;
 use App\Http\Controllers\Api\Internal\V1\Workflows\WorkflowPublishRequestController;
+use App\Http\Controllers\Api\Internal\V1\Workflows\WorkflowSampleRunController;
 use App\Http\Controllers\Api\Internal\V1\Workflows\WorkflowVersionController;
 use App\Http\Controllers\Api\Internal\V1\Workflows\WorkspacePublishRequestController;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,9 @@ Route::middleware(['auth:api', 'workspace.context'])
         Route::post('{workflow}/restore', [WorkflowController::class, 'restore'])->withTrashed()->name('restore');
         Route::delete('{workflow}/force', [WorkflowController::class, 'forceDestroy'])->withTrashed()->name('force-destroy');
         Route::post('{workflow}/duplicate', [WorkflowController::class, 'duplicate'])->name('duplicate');
+
+        Route::get('{workflow}/sample-run', [WorkflowSampleRunController::class, 'show'])->name('sample-run.show');
+        Route::post('{workflow}/sample-runs', [WorkflowSampleRunController::class, 'store'])->name('sample-runs.store');
 
         Route::get('{workflow}/versions', [WorkflowVersionController::class, 'index'])->name('versions.index');
         Route::post('{workflow}/versions', [WorkflowVersionController::class, 'store'])->name('versions.store');

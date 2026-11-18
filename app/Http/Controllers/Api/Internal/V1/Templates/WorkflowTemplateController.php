@@ -117,6 +117,7 @@ class WorkflowTemplateController extends Controller
             'name' => $name,
             'slug' => Str::slug($name).'-'.Str::random(6),
             'folder_id' => $request->validated('folder_id'),
+            'template_id' => $workflowTemplate->id,
             'description' => $workflowTemplate->description,
             'created_by' => $request->user()->id,
         ]);

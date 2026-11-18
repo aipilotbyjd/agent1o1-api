@@ -28,15 +28,15 @@ final class OnboardingReminders
     public const int MAX_ACCOUNT_AGE_DAYS = 7;
 
     /**
-     * The steps between a new user and their first automation. Connecting
-     * AI, apps and a team helps, but none of them stands in the way.
+     * The steps between a new user and their first automation. Telling us
+     * their role helps, but it does not stand in the way.
      *
      * @var array<int, OnboardingStep>
      */
     private const array STEPS_TO_FIRST_AUTOMATION = [
-        OnboardingStep::CreateWorkspace,
+        OnboardingStep::ConnectAi,
         OnboardingStep::ChooseTemplate,
-        OnboardingStep::ChoosePlan,
+        OnboardingStep::FirstRun,
     ];
 
     public function __construct(private readonly OnboardingService $onboarding) {}

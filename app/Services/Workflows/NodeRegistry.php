@@ -75,6 +75,15 @@ class NodeRegistry
     }
 
     /**
+     * Whether the node acts on an outside app through a connected account
+     * (Gmail, Slack, HubSpot...): every node under `App\Nodes\Integrations`.
+     */
+    public function isAppNode(NodeContract $node): bool
+    {
+        return str_starts_with($node::class, 'App\\Nodes\\Integrations\\');
+    }
+
+    /**
      * Whether this is a workspace's own `custom:{id}` node.
      *
      * A graph may hold one: it saves and publishes, and fails only when a run

@@ -26,6 +26,23 @@ enum GettingStartedMilestone: string
         };
     }
 
+    /**
+     * Credits a workspace earns for reaching this milestone, claimed once
+     * from the checklist (`GettingStarted::claim()`). A teammate earns the
+     * most because it is the strongest sign a workspace will stay, and is
+     * paid only once they have joined, not when the invite is sent.
+     */
+    public function reward(): int
+    {
+        return match ($this) {
+            self::RunWorkflow => 20,
+            self::ConnectApp => 20,
+            self::ActivateTrigger => 30,
+            self::CreateAgent => 20,
+            self::InviteTeammate => 50,
+        };
+    }
+
     public function description(): string
     {
         return match ($this) {

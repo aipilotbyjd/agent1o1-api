@@ -1,0 +1,36 @@
+meta {
+  name: Sample Runs - Start
+  type: http
+  seq: 52
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/sample-runs
+  body: json
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+body:json {
+  {
+    "input": {
+      "first_name": "Priya"
+    }
+  }
+}
+
+docs {
+  Starts a sample run (`trigger_type = sample`): AI steps run for real, but
+  app steps and any step with an external effect complete with what they
+  would have sent (`{ sample: true, would_send: {...} }`) instead of calling
+  the app, and approval or wait steps settle at once. A workflow that has
+  never been published is published first, which needs `workflow.publish`
+  as well as `run.trigger`.
+
+  Returns 202 with `data.run`, like `Runs - Start`. Follow it over the run's
+  realtime channel or `Runs - Get`.
+}

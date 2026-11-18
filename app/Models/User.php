@@ -14,6 +14,7 @@ use App\Models\Nodes\NodeCategory;
 use App\Models\Notifications\AccountNotificationPreference;
 use App\Models\Notifications\InboxNotification;
 use App\Models\Notifications\NotificationPreference;
+use App\Models\Onboarding\LifecycleEmailSend;
 use App\Models\Referrals\Referral;
 use App\Models\Referrals\ReferralCode;
 use App\Models\Referrals\ReferralReward;
@@ -41,7 +42,7 @@ use Laravel\Cashier\Billable;
 use Laravel\Passport\Contracts\OAuthenticatable;
 use Laravel\Passport\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'avatar', 'timezone', 'pending_email', 'pending_email_requested_at', 'current_workspace_id', 'free_workspace_id', 'onboarding_current_step', 'onboarding_skipped_steps', 'onboarding_completed_at', 'onboarding_dismissed_at', 'job_role', 'discovery_source'])]
+#[Fillable(['name', 'email', 'password', 'avatar', 'timezone', 'pending_email', 'pending_email_requested_at', 'current_workspace_id', 'free_workspace_id', 'onboarding_current_step', 'onboarding_skipped_steps', 'onboarding_completed_at', 'onboarding_dismissed_at', 'job_role', 'discovery_source', 'signup_attribution'])]
 #[Hidden(['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'])]
 class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
 {
@@ -70,6 +71,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
             'onboarding_reminder_sent_at' => 'datetime',
             'job_role' => JobRole::class,
             'discovery_source' => DiscoverySource::class,
+            'signup_attribution' => 'array',
             'suspended_at' => 'datetime',
             'marketing_opted_out_at' => 'datetime',
         ];
@@ -160,6 +162,14 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     public function hasCompletedOnboarding(): bool
     {
         return $this->onboarding_completed_at !== null;
+    }
+
+    /**
+     * @return HasMany<LifecycleEmailSend, $this>
+     */
+    public function lifecycleEmailSends(): HasMany
+    {
+        return $this->hasMany(LifecycleEmailSend::class);
     }
 
     /**

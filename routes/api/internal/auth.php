@@ -69,6 +69,7 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('/', [UserController::class, 'destroy'])->middleware('throttle:5,1')->name('destroy');
         Route::delete('pending-email', [UserController::class, 'cancelEmailChange'])->name('pending-email.destroy');
         Route::post('switch-workspace', [UserController::class, 'switchWorkspace'])->name('switch-workspace');
+        Route::post('signup-attribution', [UserController::class, 'recordSignupAttribution'])->name('signup-attribution.store');
         Route::post('avatar', [UserController::class, 'uploadAvatar'])->name('avatar.store');
         Route::delete('avatar', [UserController::class, 'deleteAvatar'])->name('avatar.destroy');
 

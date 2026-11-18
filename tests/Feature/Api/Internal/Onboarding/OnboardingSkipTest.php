@@ -20,95 +20,84 @@ function onboardingSkipUser(OnboardingStep $step): User
 }
 
 it('moves past a skipped step and records it as skipped, not completed', function () {
-    $user = onboardingSkipUser(OnboardingStep::ConnectApps);
+    $user = onboardingSkipUser(OnboardingStep::ChooseTemplate);
     $tokens = onboardingSkipTokens($user->email, 'Password1!');
 
     $response = $this->withToken($tokens['access_token'])
-        ->postJson('/api/v1/onboarding/skip', ['step' => 'connect_apps'])
+        ->postJson('/api/v1/onboarding/skip', ['step' => 'choose_template'])
         ->assertOk()
         ->assertJsonPath('message', 'Step skipped.')
-        ->assertJsonPath('data.current_step', 'invite_team');
+        ->assertJsonPath('data.current_step', 'first_run');
 
-    $plan = collect($response->json('data.steps'))->firstWhere('key', 'connect_apps');
+    $template = collect($response->json('data.steps'))->firstWhere('key', 'choose_template');
 
-    expect($plan['skipped'])->toBeTrue()
-        ->and($plan['completed'])->toBeFalse();
-    expect($user->fresh()->onboarding_skipped_steps)->toBe(['connect_apps']);
+    expect($template['skipped'])->toBeTrue()
+        ->and($template['completed'])->toBeFalse();
+    expect($user->fresh()->onboarding_skipped_steps)->toBe(['choose_template']);
 });
 
 it('does not send the user back to a skipped step at the next sign-in', function () {
-    $user = onboardingSkipUser(OnboardingStep::ConnectApps);
+    $user = onboardingSkipUser(OnboardingStep::ChooseTemplate);
 
     $first = onboardingSkipTokens($user->email, 'Password1!');
     $this->withToken($first['access_token'])
-        ->postJson('/api/v1/onboarding/skip', ['step' => 'connect_apps'])
+        ->postJson('/api/v1/onboarding/skip', ['step' => 'choose_template'])
         ->assertOk();
 
     $second = onboardingSkipTokens($user->email, 'Password1!');
     $this->withToken($second['access_token'])
         ->getJson('/api/v1/user/onboarding')
         ->assertOk()
-        ->assertJsonPath('data.current_step', 'invite_team');
+        ->assertJsonPath('data.current_step', 'first_run');
 });
 
 it('records a step once however many times it is skipped', function () {
-    $user = onboardingSkipUser(OnboardingStep::ConnectApps);
+    $user = onboardingSkipUser(OnboardingStep::ChooseTemplate);
     $tokens = onboardingSkipTokens($user->email, 'Password1!');
 
     foreach (range(1, 2) as $attempt) {
         $this->withToken($tokens['access_token'])
-            ->postJson('/api/v1/onboarding/skip', ['step' => 'connect_apps'])
+            ->postJson('/api/v1/onboarding/skip', ['step' => 'choose_template'])
             ->assertOk();
     }
 
-    expect($user->fresh()->onboarding_skipped_steps)->toBe(['connect_apps']);
+    expect($user->fresh()->onboarding_skipped_steps)->toBe(['choose_template']);
 });
 
 it('clears the skipped mark when the step is finished later', function () {
-    $user = onboardingSkipUser(OnboardingStep::ConnectApps);
+    $user = onboardingSkipUser(OnboardingStep::ChooseTemplate);
     $tokens = onboardingSkipTokens($user->email, 'Password1!');
     $client = $this->withToken($tokens['access_token']);
 
-    $client->postJson('/api/v1/onboarding/skip', ['step' => 'connect_apps'])->assertOk();
+    $client->postJson('/api/v1/onboarding/skip', ['step' => 'choose_template'])->assertOk();
 
-    $response = $client->postJson('/api/v1/onboarding/continue', ['step' => 'connect_apps'])
+    $response = $client->postJson('/api/v1/onboarding/continue', ['step' => 'choose_template'])
         ->assertOk()
-        ->assertJsonPath('data.current_step', 'invite_team');
+        ->assertJsonPath('data.current_step', 'first_run');
 
-    $plan = collect($response->json('data.steps'))->firstWhere('key', 'connect_apps');
+    $template = collect($response->json('data.steps'))->firstWhere('key', 'choose_template');
 
-    expect($plan['skipped'])->toBeFalse()
-        ->and($plan['completed'])->toBeTrue();
+    expect($template['skipped'])->toBeFalse()
+        ->and($template['completed'])->toBeTrue();
     expect($user->fresh()->onboarding_skipped_steps)->toBe([]);
 });
 
-it('refuses to skip the account setup steps', function (string $step) {
-    $user = onboardingSkipUser(OnboardingStep::from($step));
-    $tokens = onboardingSkipTokens($user->email, 'Password1!');
-
-    $this->withToken($tokens['access_token'])
-        ->postJson('/api/v1/onboarding/skip', ['step' => $step])
-        ->assertStatus(422);
-
-    expect($user->fresh()->onboarding_skipped_steps)->toBeNull();
-})->with(['create_workspace', 'choose_plan']);
-
-it('lets the last step be postponed', function () {
-    $user = onboardingSkipUser(OnboardingStep::InviteTeam);
+it('lets the first run be postponed', function () {
+    $user = onboardingSkipUser(OnboardingStep::FirstRun);
     $tokens = onboardingSkipTokens($user->email, 'Password1!');
 
     $response = $this->withToken($tokens['access_token'])
-        ->postJson('/api/v1/onboarding/skip', ['step' => 'invite_team'])
+        ->postJson('/api/v1/onboarding/skip', ['step' => 'first_run'])
         ->assertOk();
 
-    $survey = collect($response->json('data.steps'))->firstWhere('key', 'invite_team');
+    $run = collect($response->json('data.steps'))->firstWhere('key', 'first_run');
 
-    expect($survey['skipped'])->toBeTrue()
-        ->and($survey['completed'])->toBeFalse();
+    expect($run['skipped'])->toBeTrue()
+        ->and($run['completed'])->toBeFalse();
 });
 
 it('rejects an unknown step', function () {
-    $user = onboardingSkipUser(OnboardingStep::ConnectApps);
+    $user = onboardingSkipUser(OnboardingStep::ChooseTemplate);
     $tokens = onboardingSkipTokens($user->email, 'Password1!');
 
     $this->withToken($tokens['access_token'])
@@ -118,6 +107,6 @@ it('rejects an unknown step', function () {
 });
 
 it('requires authentication to skip a step', function () {
-    $this->postJson('/api/v1/onboarding/skip', ['step' => 'connect_apps'])
+    $this->postJson('/api/v1/onboarding/skip', ['step' => 'choose_template'])
         ->assertUnauthorized();
 });

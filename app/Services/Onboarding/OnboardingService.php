@@ -7,36 +7,44 @@ use App\Enums\Connectors\ConnectorCredentialScope;
 use App\Enums\Onboarding\DiscoverySource;
 use App\Enums\Onboarding\JobRole;
 use App\Enums\Onboarding\OnboardingStep;
-use App\Enums\Workspaces\Role;
-use App\Http\Resources\Api\Internal\V1\Billing\PlanResource;
 use App\Models\Ai\AiProviderCredential;
 use App\Models\Ai\WorkspaceAiKeyPolicy;
-use App\Models\Billing\Plan;
+use App\Models\Runs\Run;
 use App\Models\User;
 use App\Services\Ai\AiProviderSettings;
 use App\Services\Analytics\ProductAnalytics;
-use App\Services\Workspaces\WorkspaceInvitationService;
+use App\Services\Templates\TemplateRecommendations;
 use App\Services\Workspaces\WorkspaceService;
+use Illuminate\Support\Str;
 
 class OnboardingService
 {
     public function __construct(
         private readonly WorkspaceService $workspaces,
-        private readonly WorkspaceInvitationService $invitations,
         private readonly ProductAnalytics $analytics,
+        private readonly TemplateRecommendations $templates,
     ) {}
 
     /**
-     * @return array<string, mixed>
+     * @return array{
+     *     dismissed: bool,
+     *     discovery_answered: bool,
+     *     completed: bool,
+     *     percent: int,
+     *     current_step: string,
+     *     steps: array<int, array{key: string, label: string, description: string, skippable: bool, completed: bool, skipped: bool}>,
+     *     meta: array<string, mixed>
+     * }
      */
     public function state(User $user): array
     {
         $currentStep = $user->onboarding_current_step ?? OnboardingStep::first();
 
-        $steps = collect(OnboardingStep::cases())->map(fn (OnboardingStep $step) => [
+        $steps = collect(OnboardingStep::cases())->map(fn (OnboardingStep $step): array => [
             'key' => $step->value,
             'label' => $step->label(),
             'description' => $step->description(),
+            'skippable' => $step->isSkippable(),
             'completed' => $this->isStepCompleted($user, $step, $currentStep),
             'skipped' => $this->isStepSkipped($user, $step),
         ]);
@@ -55,19 +63,15 @@ class OnboardingService
     }
 
     /**
-     * @param  array<int, string>  $emails
+     * Opens the wizard. Signup creates no workspace, so a user who has none
+     * (and was not invited into one) gets their own here, on the Free plan,
+     * instead of being asked to name it before they have seen anything.
      */
-    public function inviteTeam(User $user, array $emails, Role $role, ?string $note): array
+    public function start(User $user): array
     {
-        $workspace = $user->currentWorkspace;
-
-        abort_if($workspace === null, 422, 'Create a workspace before inviting your team.');
-
-        foreach ($emails as $email) {
-            $this->invitations->invite($workspace, $email, $role, $user);
+        if ($user->current_workspace_id === null && ! $user->workspaces()->exists()) {
+            $this->workspaces->create($user, ['name' => $this->workspaceNameFor($user)]);
         }
-
-        $this->advancePast($user, OnboardingStep::InviteTeam);
 
         return $this->state($user->fresh());
     }
@@ -81,20 +85,9 @@ class OnboardingService
         return $this->state($user->fresh());
     }
 
-    public function selectPlan(User $user, string $planSlug): array
-    {
-        Plan::query()->where('slug', $planSlug)->where('is_active', true)->firstOrFail();
-
-        // Free is the only plan actionable here; paid plans go through Stripe checkout separately.
-        $this->advancePast($user, OnboardingStep::ChoosePlan);
-
-        return $this->state($user->fresh());
-    }
-
     /**
      * "How did you find us", asked in the app once the user has had a
-     * successful run. It is no longer an onboarding step, so it moves no
-     * progress.
+     * successful run. It is not an onboarding step, so it moves no progress.
      */
     public function submitDiscovery(User $user, DiscoverySource $source): array
     {
@@ -105,21 +98,15 @@ class OnboardingService
 
     /**
      * Saves that the user finished a step and pressed Continue, so signing in
-     * again resumes after it. Steps that exist to collect something must have
-     * it: a workspace, a plan.
+     * again resumes after it. The AI step needs a working key to be behind
+     * the user: the first run cannot work without one.
      */
     public function continue(User $user, OnboardingStep $step): array
     {
         abort_if(
-            $step === OnboardingStep::CreateWorkspace && $user->current_workspace_id === null,
+            $step === OnboardingStep::ConnectAi && ! $this->hasAiKey($user),
             422,
-            'Create a workspace before continuing.',
-        );
-
-        abort_if(
-            $step === OnboardingStep::ChoosePlan && ! $this->isStepCompleted($user, $step, $user->onboarding_current_step ?? OnboardingStep::first()),
-            422,
-            'Choose a plan before continuing.',
+            'Connect an AI provider before continuing.',
         );
 
         $this->advancePast($user, $step);
@@ -149,7 +136,7 @@ class OnboardingService
 
     public function complete(User $user): array
     {
-        $this->requireAccountSetup($user);
+        $this->requireWorkspace($user);
 
         $alreadyCompleted = $user->hasCompletedOnboarding();
 
@@ -164,7 +151,7 @@ class OnboardingService
 
     public function dismiss(User $user): void
     {
-        $this->requireAccountSetup($user);
+        $this->requireWorkspace($user);
 
         $alreadyDismissed = $user->onboarding_dismissed_at !== null;
 
@@ -178,41 +165,35 @@ class OnboardingService
     }
 
     /**
-     * Signup creates no workspace and no plan, so onboarding is where every
-     * owner gets both. It cannot be closed, by finishing or by dismissing it,
-     * until they have.
+     * The name a new user's workspace starts with: their company, read from
+     * a work email's domain (`jane@northwind.io` is "Northwind"), else
+     * "Jane's workspace". It can be renamed at any time.
      */
-    private function requireAccountSetup(User $user): void
+    public function workspaceNameFor(User $user): string
     {
-        abort_if($user->current_workspace_id === null, 422, 'Create a workspace to finish onboarding.');
+        $domain = Str::of($user->email)->after('@')->lower()->value();
+        $sharedProviders = config('referrals.free_email_domains', []);
 
-        $current = $user->onboarding_current_step ?? OnboardingStep::first();
+        if ($domain !== '' && ! in_array($domain, $sharedProviders, true)) {
+            $company = Str::of($domain)->before('.')->replace(['-', '_'], ' ')->headline()->value();
 
-        abort_unless($this->isStepCompleted($user, OnboardingStep::ChoosePlan, $current), 422, 'Choose a plan to finish onboarding.');
-    }
-
-    /**
-     * A plan is chosen by picking Free (which moves past the step), or by the
-     * workspace holding a subscription or plan grant. A member of someone
-     * else's workspace has nothing to choose: the owner pays for it.
-     */
-    private function hasPlan(User $user): bool
-    {
-        $workspace = $user->currentWorkspace()->first();
-
-        if ($workspace === null) {
-            return false;
+            if ($company !== '') {
+                return $company;
+            }
         }
 
-        return $workspace->owner_id !== $user->id
-            || $workspace->activeSubscription() !== null
-            || $workspace->activePlanGrant() !== null;
+        return Str::of($user->name)->before(' ')->trim()->value()."'s workspace";
+    }
+
+    private function requireWorkspace(User $user): void
+    {
+        abort_if($user->current_workspace_id === null, 422, 'Open onboarding to set up your workspace first.');
     }
 
     /**
-     * Whether the member's workspace already runs AI on a key of its own
-     * that their calls would use: a working team key, or a working personal
-     * key of theirs while the workspace allows personal keys.
+     * Whether the member's workspace runs AI on a key of its own that their
+     * calls would use: a working team key, or a working personal key of
+     * theirs while the workspace allows personal keys.
      */
     private function hasAiKey(User $user): bool
     {
@@ -234,6 +215,24 @@ class OnboardingService
             ->exists();
     }
 
+    /**
+     * A workflow run the user started that finished successfully, in their
+     * current workspace. Sample runs count: the point of the step is seeing
+     * an automation work. A single-step test from the editor does not.
+     */
+    private function hasSucceededRun(User $user): bool
+    {
+        if ($user->current_workspace_id === null) {
+            return false;
+        }
+
+        return Run::query()
+            ->succeededWorkflowRuns()
+            ->where('workspace_id', $user->current_workspace_id)
+            ->where('triggered_by', $user->id)
+            ->exists();
+    }
+
     private function isStepCompleted(User $user, OnboardingStep $step, OnboardingStep $currentStep): bool
     {
         if ($user->hasCompletedOnboarding()) {
@@ -245,10 +244,9 @@ class OnboardingService
         }
 
         return match ($step) {
-            OnboardingStep::CreateWorkspace => $user->current_workspace_id !== null,
             OnboardingStep::RoleSelection => $user->job_role !== null,
-            OnboardingStep::ChoosePlan => $this->ordinal($step) < $this->ordinal($currentStep) || $this->hasPlan($user),
-            OnboardingStep::ConnectAi => $this->ordinal($step) < $this->ordinal($currentStep) || $this->hasAiKey($user),
+            OnboardingStep::ConnectAi => $this->hasAiKey($user),
+            OnboardingStep::FirstRun => $this->hasSucceededRun($user),
             default => $this->ordinal($step) < $this->ordinal($currentStep),
         };
     }
@@ -259,6 +257,9 @@ class OnboardingService
     }
 
     /**
+     * Saved values that no longer name a step (from an earlier version of
+     * the wizard) are ignored.
+     *
      * @return array<int, OnboardingStep>
      */
     private function skippedSteps(User $user): array
@@ -287,13 +288,12 @@ class OnboardingService
         }
 
         $current = $user->onboarding_current_step ?? OnboardingStep::first();
-        $target = $this->heldAtAccountSetup($user, $step, $current, $step->next() ?? $step);
+        $target = $this->heldAtAiStep($user, $step, $current, $step->next() ?? $step);
 
         // Only the first time through a step, and only once progress really
         // moves: picking a role saves it and the Continue that follows saves
-        // it again, and a later step saved while the workspace step is still
-        // open is held back. The last step has nowhere to move, so it counts
-        // when it is the current one.
+        // it again. The last step has nowhere to move, so it counts when it
+        // is the current one.
         $movesPast = $this->ordinal($target) > $this->ordinal($current)
             || ($step->next() === null && $step === $current);
 
@@ -310,29 +310,19 @@ class OnboardingService
     }
 
     /**
-     * Saved progress means "everything before this is behind me", and a plan
-     * counts as chosen once progress is past it. So finishing a later step
-     * first (inviting the team, say) must not carry progress over a
-     * workspace or plan step that is still open: it stops there instead.
+     * Saved progress means "everything before this is behind me". Finishing
+     * a later step first must not carry progress over the AI step while the
+     * workspace still has no key: it stops there instead.
      */
-    private function heldAtAccountSetup(User $user, OnboardingStep $step, OnboardingStep $current, OnboardingStep $target): OnboardingStep
+    private function heldAtAiStep(User $user, OnboardingStep $step, OnboardingStep $current, OnboardingStep $target): OnboardingStep
     {
-        foreach ([OnboardingStep::CreateWorkspace, OnboardingStep::ChoosePlan] as $required) {
-            if ($this->ordinal($required) >= $this->ordinal($target)) {
-                break;
-            }
+        $aiStep = OnboardingStep::ConnectAi;
 
-            $isBehind = $required === $step || $this->ordinal($required) < $this->ordinal($current);
-            $isDone = $required === OnboardingStep::CreateWorkspace
-                ? $user->current_workspace_id !== null
-                : $this->hasPlan($user);
+        $isAhead = $this->ordinal($aiStep) < $this->ordinal($target)
+            && $aiStep !== $step
+            && $this->ordinal($aiStep) >= $this->ordinal($current);
 
-            if (! $isBehind && ! $isDone) {
-                return $required;
-            }
-        }
-
-        return $target;
+        return $isAhead && ! $this->hasAiKey($user) ? $aiStep : $target;
     }
 
     /**
@@ -357,23 +347,33 @@ class OnboardingService
     }
 
     /**
-     * @return array<string, mixed>
+     * `recommended_templates` is what the Pick step offers first: the
+     * template their signup link pointed at, then ones for their role (see
+     * `TemplateRecommendations`).
+     *
+     * @return array{
+     *     job_roles: array<int, array{value: string, label: string, description: string}>,
+     *     discovery_sources: array<int, array{value: string, label: string}>,
+     *     recommended_templates: array<int, array<string, mixed>>
+     * }
      */
     private function meta(User $user): array
     {
+        $workspace = $user->currentWorkspace()->first();
+
         return [
-            'workspace_slug_suggestion' => $this->workspaces->suggestSlug($user->name),
-            'plans' => PlanResource::collection(Plan::query()->where('is_active', true)->orderBy('sort_order')->get()),
-            'job_roles' => collect(JobRole::cases())->map(fn (JobRole $role) => [
+            'job_roles' => collect(JobRole::cases())->map(fn (JobRole $role): array => [
                 'value' => $role->value,
                 'label' => $role->label(),
                 'description' => $role->description(),
             ])->all(),
-            'discovery_sources' => collect(DiscoverySource::cases())->map(fn (DiscoverySource $source) => [
+            'discovery_sources' => collect(DiscoverySource::cases())->map(fn (DiscoverySource $source): array => [
                 'value' => $source->value,
                 'label' => $source->label(),
             ])->all(),
-            'credential_types' => [],
+            'recommended_templates' => $workspace === null
+                ? []
+                : $this->templates->forRole($workspace, $user->job_role, linkedSlug: $user->signup_attribution['template'] ?? null),
         ];
     }
 }

@@ -152,19 +152,25 @@ Route::prefix('onboarding')->group(function () {
 - `tests/Feature/Api/Internal/Onboarding/OnboardingDismissTest.php`.
 - New Bruno folder `bruno/Onboarding/` (`folder.bru` seq 5), flattened naming matching `Workspaces/`'s convention: `Onboarding - Get State`, `Onboarding - Invite Team`, `Onboarding - Select Role`, `Onboarding - Select Plan`, `Onboarding - Submit Discovery`, `Onboarding - Complete`, `Onboarding - Dismiss`.
 
-## The 7-step flow, as the FE drives it
+## The flow as built now
 
-| # | step key | FE calls | Backend need |
+The phases above built the first, seven-step wizard. It has since been cut to the steps between signup and a first successful run; the rest moved to where it pays off.
+
+| # | step key | Screen | Backend |
 |---|---|---|---|
-| 0 | `profile_picture` | `POST /user/avatar` | Phase 3.5 |
-| 1 | `create_workspace` | `POST /workspaces` → `POST /user/switch-workspace` | Phase 1 + existing `WorkspaceController::store` |
-| 2 | `invite_team` | `POST /onboarding/invite-team` | Phase 4, wraps existing `WorkspaceInvitationService` |
-| 3 | `role_selection` | `POST /onboarding/role` | Phase 2 + 4 |
-| 4 | `choose_plan` | `POST /onboarding/plan` or Stripe checkout | Phase 3 (free path only) |
-| 5 | `connect_apps` | *(hardcoded on FE, no backend call today)* | none for v1 |
-| 6 | `discovery_survey` | `POST /onboarding/discovery` + `POST /onboarding/complete` | Phase 2 + 4 |
+| — | — | Wizard opens | `POST /onboarding/start`: creates the user's own workspace (named from a work email's domain, else "Jane's workspace") unless they have or were invited into one. Every workspace starts on Free. |
+| 1 | `role_selection` | "What do you want to automate?": a description and the team | `POST /onboarding/role` or `continue` |
+| 2 | `connect_ai` | Connect an AI provider. **Cannot be skipped**: there is no platform model. | `continue` refuses until the workspace has a working key |
+| 3 | `choose_template` | Build from the description (hands it to the AI builder in the editor via `?build=`, and ends the wizard) or pick a template (`meta.recommended_templates`: the signup link's template, then the role's, sample-ready first) | template `use`, then `continue` |
+| 4 | `first_run` | Run the template on its example answers and watch it, then see the result | `GET/POST /workspaces/{ws}/workflows/{workflow}/sample-run(s)` (`SampleRuns`); the step completes from the successful run itself |
 
-Plus: `GET /user/onboarding` (state + meta), `POST /user/dismiss-onboarding` — callable at any step.
+After the run: "put it on autopilot" (editor), invite a teammate, `POST /onboarding/complete`. The plan is offered when a limit is reached (HTTP 402 opens the upgrade prompt, card trial on paid plans). Apps are connected inside the run step, and only if the user wants to.
+
+Around the wizard:
+
+- **Signup** has no password confirmation; where the visitor came from is kept (`users.signup_attribution`, `SignupAttribution`).
+- **Getting-started checklist** milestones each pay a one-off credit reward (`GettingStarted::claim()`), only on the owner's first workspace (`FreeCreditPolicy`); the teammate reward needs a teammate who joined.
+- **Lifecycle emails** (`LifecycleEmails`, every 15 minutes): welcome, first-run nudge, automate it, role templates, first-week recap, win-back, last check-in. Each goes once, only while it still applies, at most one a day, never to opted-out or suspended accounts.
 
 ## Explicitly out of scope for v1
 

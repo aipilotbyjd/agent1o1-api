@@ -1,7 +1,8 @@
 <?php
 
-use App\Models\Billing\Plan;
+use App\Models\Templates\WorkflowTemplate;
 use App\Models\User;
+use App\Services\Workspaces\WorkspaceService;
 
 function onboardingTokens(string $email, string $password): array
 {
@@ -12,8 +13,6 @@ function onboardingTokens(string $email, string $password): array
 }
 
 it('returns the onboarding state shape with meta', function () {
-    Plan::factory()->create(['slug' => 'free', 'is_active' => true]);
-
     $user = User::factory()->create(['password' => 'Password1!']);
     $tokens = onboardingTokens($user->email, 'Password1!');
 
@@ -28,26 +27,23 @@ it('returns the onboarding state shape with meta', function () {
                 'percent',
                 'current_step',
                 'steps' => [
-                    '*' => ['key', 'label', 'description', 'completed'],
+                    '*' => ['key', 'label', 'description', 'skippable', 'completed', 'skipped'],
                 ],
                 'meta' => [
-                    'workspace_slug_suggestion',
-                    'plans',
                     'job_roles',
                     'discovery_sources',
-                    'credential_types',
+                    'recommended_templates',
                 ],
             ],
         ])
-        ->assertJsonPath('data.current_step', 'create_workspace')
+        ->assertJsonPath('data.current_step', 'role_selection')
+        ->assertJsonPath('data.steps.*.key', ['role_selection', 'connect_ai', 'choose_template', 'first_run'])
         ->assertJsonPath('data.percent', 0)
         ->assertJsonPath('data.completed', false)
         ->assertJsonPath('data.dismissed', false);
 });
 
 it('computes percent as completed steps accumulate', function () {
-    Plan::factory()->create(['slug' => 'free', 'is_active' => true]);
-
     $user = User::factory()->create([
         'password' => 'Password1!',
         'job_role' => 'engineering',
@@ -60,8 +56,24 @@ it('computes percent as completed steps accumulate', function () {
 
     $steps = collect($response->json('data.steps'));
 
-    expect($steps->pluck('key'))->not->toContain('profile_picture')
-        ->and($steps->pluck('key'))->not->toContain('discovery_survey');
-    expect($steps->firstWhere('key', 'role_selection')['completed'])->toBeTrue();
-    expect($steps->firstWhere('key', 'create_workspace')['completed'])->toBeFalse();
+    expect($steps->firstWhere('key', 'role_selection')['completed'])->toBeTrue()
+        ->and($steps->firstWhere('key', 'connect_ai')['completed'])->toBeFalse()
+        ->and($response->json('data.percent'))->toBe(25);
+});
+
+it('offers the template a signup link pointed at first', function () {
+    WorkflowTemplate::factory()->global()->count(3)->create(['is_featured' => true]);
+    $linked = WorkflowTemplate::factory()->global()->create(['slug' => 'sales-call-prep-brief']);
+
+    $user = User::factory()->create([
+        'password' => 'Password1!',
+        'signup_attribution' => ['template' => 'sales-call-prep-brief'],
+    ]);
+    app(WorkspaceService::class)->create($user, ['name' => 'Acme']);
+    $tokens = onboardingTokens($user->email, 'Password1!');
+
+    $this->withToken($tokens['access_token'])
+        ->getJson('/api/v1/user/onboarding')
+        ->assertOk()
+        ->assertJsonPath('data.meta.recommended_templates.0.id', $linked->id);
 });

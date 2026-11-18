@@ -8,6 +8,7 @@ use App\Events\Runs\RunFailed;
 use App\Models\Runs\Run;
 use App\Models\User;
 use App\Services\Analytics\ProductAnalytics;
+use App\Services\Workflows\SampleRuns;
 use Illuminate\Support\Carbon;
 
 /**
@@ -61,6 +62,7 @@ class CaptureRunFinished
             [
                 'run_id' => (string) $run->getKey(),
                 'runnable_type' => $run->runnable_type,
+                'is_sample' => $run->trigger_type === SampleRuns::TRIGGER_TYPE,
                 'seconds_since_signup' => $signedUpAt !== null ? (int) Carbon::parse($signedUpAt)->diffInSeconds(now()) : null,
             ],
             (string) $run->workspace_id,

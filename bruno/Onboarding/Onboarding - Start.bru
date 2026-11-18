@@ -1,0 +1,20 @@
+meta {
+  name: Onboarding - Start
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/v1/onboarding/start
+  auth: inherit
+}
+
+docs {
+  Called when the wizard opens. A user with no workspace (and not invited
+  into one) gets their own, on the Free plan, named after the company in a
+  work email (`jane@northwind.io` → "Northwind") or "Jane's workspace".
+  Calling it again changes nothing.
+
+  Response is wrapped: `{ success, statusCode, message, data }` where `data`
+  is the full onboarding state (same shape as `Onboarding - Get State`).
+}

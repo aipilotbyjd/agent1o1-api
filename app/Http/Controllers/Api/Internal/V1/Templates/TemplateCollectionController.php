@@ -125,6 +125,7 @@ class TemplateCollectionController extends Controller
         $workflow = $workspace->workflows()->create([
             'name' => $template->name,
             'slug' => Str::slug($template->name).'-'.Str::random(6),
+            'template_id' => $template->id,
             'description' => $template->description,
             'created_by' => auth()->id(),
         ]);

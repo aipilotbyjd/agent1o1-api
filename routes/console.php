@@ -73,6 +73,7 @@ Schedule::onOneServer()->withoutOverlapping()->group(function (): void {
 
     // Onboarding
     Schedule::command('onboarding:send-reminders')->hourly();
+    Schedule::command('onboarding:send-lifecycle-emails')->everyFifteenMinutes();
 
     // Broadcasts
     Schedule::command('broadcasts:dispatch-due')->everyMinute();

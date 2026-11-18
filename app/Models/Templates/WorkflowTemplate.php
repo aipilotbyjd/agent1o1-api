@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * `Workflow` via `Workflow::replaceGraph()` when used. `workspace_id` null
  * means a global/system template visible to every workspace.
  */
-#[Fillable(['workspace_id', 'source_workflow_id', 'created_by', 'name', 'slug', 'description', 'category', 'icon', 'color', 'graph', 'visibility', 'is_featured', 'sort_order'])]
+#[Fillable(['workspace_id', 'source_workflow_id', 'created_by', 'name', 'slug', 'description', 'category', 'icon', 'color', 'graph', 'sample_input', 'visibility', 'is_featured', 'sort_order'])]
 class WorkflowTemplate extends Model
 {
     /** @use HasFactory<WorkflowTemplateFactory> */
@@ -41,6 +41,7 @@ class WorkflowTemplate extends Model
     {
         return [
             'graph' => 'array',
+            'sample_input' => 'array',
             'is_featured' => 'boolean',
             'sort_order' => 'integer',
             'usage_count' => 'integer',

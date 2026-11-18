@@ -5,11 +5,8 @@ namespace App\Http\Controllers\Api\Internal\V1\Onboarding;
 use App\Enums\Onboarding\DiscoverySource;
 use App\Enums\Onboarding\JobRole;
 use App\Enums\Onboarding\OnboardingStep;
-use App\Enums\Workspaces\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Internal\V1\Onboarding\ContinueStepRequest;
-use App\Http\Requests\Api\Internal\V1\Onboarding\InviteTeamRequest;
-use App\Http\Requests\Api\Internal\V1\Onboarding\SelectPlanRequest;
 use App\Http\Requests\Api\Internal\V1\Onboarding\SelectRoleRequest;
 use App\Http\Requests\Api\Internal\V1\Onboarding\SkipStepRequest;
 use App\Http\Requests\Api\Internal\V1\Onboarding\SubmitDiscoveryRequest;
@@ -28,16 +25,13 @@ class OnboardingController extends Controller
         return ApiResponse::success($this->onboarding->state($request->user()));
     }
 
-    public function inviteTeam(InviteTeamRequest $request)
+    /**
+     * Opening the wizard: sets up the user's own workspace when they have
+     * none, then returns the state.
+     */
+    public function start(Request $request)
     {
-        $state = $this->onboarding->inviteTeam(
-            $request->user(),
-            $request->validated('emails'),
-            Role::from($request->validated('role')),
-            $request->validated('personal_note'),
-        );
-
-        return ApiResponse::success($state, 'Invites sent successfully.');
+        return ApiResponse::success($this->onboarding->start($request->user()));
     }
 
     public function selectRole(SelectRoleRequest $request)
@@ -45,13 +39,6 @@ class OnboardingController extends Controller
         $state = $this->onboarding->selectRole($request->user(), JobRole::from($request->validated('job_role')));
 
         return ApiResponse::success($state, 'Role saved successfully.');
-    }
-
-    public function selectPlan(SelectPlanRequest $request)
-    {
-        $state = $this->onboarding->selectPlan($request->user(), $request->validated('plan_slug'));
-
-        return ApiResponse::success($state, 'Plan selected successfully.');
     }
 
     public function submitDiscovery(SubmitDiscoveryRequest $request)

@@ -15,7 +15,12 @@ body:json {
     "name": "Jane Doe",
     "email": "jane.doe@example.com",
     "password": "Password123!",
-    "password_confirmation": "Password123!"
+    "attribution": {
+      "utm_source": "newsletter",
+      "utm_campaign": "launch",
+      "landing_path": "/templates/lead-intake-and-scoring",
+      "template": "lead-intake-and-scoring"
+    }
   }
 }
 
@@ -28,8 +33,13 @@ script:post-response {
 docs {
   Creates a new user account and returns the user plus an access token
   (the refresh token is set as an httpOnly `refresh_token` cookie, as on
-  `Login`). Requires email uniqueness and a confirmed password meeting
-  the app's password policy. Stores `accessToken`.
+  `Login`). Requires email uniqueness and a password meeting the app's
+  password policy (no confirmation field: the form shows the password
+  instead). Stores `accessToken`.
+
+  Optional `attribution`: where the signup came from (`utm_source`,
+  `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, `referrer`,
+  `landing_path`, `template`). Kept once, on the user.
 
   Optional referral attribution: `referral_code` (max 64) and
   `referral_visitor_id` (UUID, from `Referrals/Referrals - Record

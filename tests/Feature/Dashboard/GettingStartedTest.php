@@ -1,9 +1,11 @@
 <?php
 
+use App\Enums\Billing\CreditGrantSource;
 use App\Enums\Onboarding\JobRole;
 use App\Enums\RunStatus;
 use App\Enums\Workspaces\Role;
 use App\Models\Agents\Agent;
+use App\Models\Billing\CreditGrant;
 use App\Models\Connectors\ConnectorCredential;
 use App\Models\Runs\Run;
 use App\Models\Templates\WorkflowTemplate;
@@ -122,6 +124,27 @@ it('recommends templates for the viewer\'s role first, capped at three', functio
     expect($recommended[0])->toHaveKeys(['id', 'name', 'description', 'category', 'icon', 'color']);
 });
 
+it('puts templates that can show a sample run first among the role\'s templates', function () {
+    $this->owner->update(['job_role' => JobRole::Sales]);
+    WorkflowTemplate::factory()->global()->create(['category' => 'Sales & Outreach', 'is_featured' => true]);
+    $runnable = WorkflowTemplate::factory()->global()->create([
+        'category' => 'Sales & Outreach',
+        'sample_input' => ['email' => 'priya@example.com'],
+        'graph' => ['nodes' => [['key' => 'notify', 'type' => 'slack_post_message', 'config' => []]], 'edges' => []],
+    ]);
+
+    Passport::actingAs($this->owner);
+
+    $recommended = $this->getJson("/api/v1/workspaces/{$this->workspace->id}/dashboard")
+        ->assertOk()
+        ->json('data.getting_started.recommended_templates');
+
+    expect($recommended[0]['id'])->toBe($runnable->id)
+        ->and($recommended[0]['has_sample'])->toBeTrue()
+        ->and($recommended[0]['apps'])->toBe(['slack'])
+        ->and($recommended[1]['has_sample'])->toBeFalse();
+});
+
 it('never recommends another workspace\'s private template', function () {
     WorkflowTemplate::factory()->create();
 
@@ -166,4 +189,62 @@ it('refuses a dismissal from outside the workspace', function () {
     Passport::actingAs($this->owner);
     $this->getJson("/api/v1/workspaces/{$this->workspace->id}/dashboard")
         ->assertJsonPath('data.getting_started.dismissed', false);
+});
+
+it('pays a reached milestone\'s reward once', function () {
+    $workflow = Workflow::factory()->forWorkspace($this->workspace)->create();
+    Run::factory()->forWorkflow($workflow)->create(['status' => RunStatus::Completed, 'triggered_by' => $this->owner->id]);
+    Passport::actingAs($this->owner);
+    $url = "/api/v1/workspaces/{$this->workspace->id}/dashboard/getting-started/run_workflow/claim";
+
+    $this->postJson($url)
+        ->assertOk()
+        ->assertJsonPath('data.credits', 20)
+        ->assertJsonPath('data.getting_started.milestones.0.reward_claimed', true)
+        ->assertJsonPath('data.getting_started.milestones.0.reward_claimable', false);
+
+    $this->postJson($url)->assertUnprocessable();
+
+    expect(CreditGrant::query()->where('workspace_id', $this->workspace->id)->where('source', CreditGrantSource::Promo)->sum('amount'))->toEqual(20);
+});
+
+it('pays nothing for a milestone that has not been reached', function () {
+    Passport::actingAs($this->owner);
+
+    $this->postJson("/api/v1/workspaces/{$this->workspace->id}/dashboard/getting-started/create_agent/claim")
+        ->assertUnprocessable()
+        ->assertJsonPath('message', 'Finish this step to claim its reward.');
+});
+
+it('pays the teammate reward once someone has joined, not when an invite is sent', function () {
+    app(WorkspaceInvitationService::class)->invite($this->workspace, 'teammate@example.com', Role::Member, $this->owner);
+    Passport::actingAs($this->owner);
+    $url = "/api/v1/workspaces/{$this->workspace->id}/dashboard/getting-started/invite_teammate/claim";
+
+    $this->postJson($url)
+        ->assertUnprocessable()
+        ->assertJsonPath('message', 'The reward arrives once a teammate has joined.');
+
+    $this->workspace->members()->create(['user_id' => User::factory()->create()->id, 'role' => Role::Member, 'joined_at' => now()]);
+
+    $this->postJson($url)->assertOk()->assertJsonPath('data.credits', 50);
+});
+
+it('offers no rewards in a second workspace of the same owner', function () {
+    $second = app(WorkspaceService::class)->create($this->owner, ['name' => 'Side project']);
+    $workflow = Workflow::factory()->forWorkspace($second)->create();
+    Run::factory()->forWorkflow($workflow)->create(['status' => RunStatus::Completed]);
+    Passport::actingAs($this->owner);
+
+    $this->getJson("/api/v1/workspaces/{$second->id}/dashboard")
+        ->assertJsonPath('data.getting_started.rewards_available', false)
+        ->assertJsonPath('data.getting_started.milestones.0.reward_claimable', false);
+
+    $this->postJson("/api/v1/workspaces/{$second->id}/dashboard/getting-started/run_workflow/claim")->assertUnprocessable();
+});
+
+it('rejects an unknown milestone', function () {
+    Passport::actingAs($this->owner);
+
+    $this->postJson("/api/v1/workspaces/{$this->workspace->id}/dashboard/getting-started/not_a_milestone/claim")->assertNotFound();
 });

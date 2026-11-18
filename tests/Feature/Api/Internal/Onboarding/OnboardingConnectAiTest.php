@@ -14,10 +14,20 @@ function connectAiStep(User $user): array
     return collect(test()->getJson('/api/v1/user/onboarding')->assertOk()->json('data.steps'))->firstWhere('key', 'connect_ai');
 }
 
-it('puts the connect AI step right after choosing a plan, and lets it be skipped', function () {
-    expect(OnboardingStep::ChoosePlan->next())->toBe(OnboardingStep::ConnectAi)
-        ->and(OnboardingStep::ConnectAi->next())->toBe(OnboardingStep::ConnectApps)
-        ->and(OnboardingStep::ConnectAi->isSkippable())->toBeTrue();
+it('puts the connect AI step right after the role, before the template, and never lets it be skipped', function () {
+    expect(OnboardingStep::RoleSelection->next())->toBe(OnboardingStep::ConnectAi)
+        ->and(OnboardingStep::ConnectAi->next())->toBe(OnboardingStep::ChooseTemplate)
+        ->and(OnboardingStep::ConnectAi->isSkippable())->toBeFalse();
+});
+
+it('refuses to skip the connect AI step', function () {
+    $user = User::factory()->create(['onboarding_current_step' => OnboardingStep::ConnectAi]);
+    app(WorkspaceService::class)->create($user, ['name' => 'Acme']);
+    Passport::actingAs($user);
+
+    test()->postJson('/api/v1/onboarding/skip', ['step' => 'connect_ai'])->assertUnprocessable();
+
+    expect($user->fresh()->onboarding_current_step)->toBe(OnboardingStep::ConnectAi);
 });
 
 it('marks the connect AI step done once the workspace has a key of its own', function () {

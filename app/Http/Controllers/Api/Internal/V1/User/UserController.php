@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Internal\V1\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Internal\V1\User\DeleteAccountRequest;
+use App\Http\Requests\Api\Internal\V1\User\RecordSignupAttributionRequest;
 use App\Http\Requests\Api\Internal\V1\User\SwitchWorkspaceRequest;
 use App\Http\Requests\Api\Internal\V1\User\UpdateUserRequest;
 use App\Http\Requests\Api\Internal\V1\User\UploadAvatarRequest;
@@ -12,6 +13,7 @@ use App\Http\Responses\ApiResponse;
 use App\Models\Workspaces\Workspace;
 use App\Services\Account\AccountDeletionService;
 use App\Services\Auth\AuthService;
+use App\Services\Auth\SignupAttribution;
 use App\Services\Workspaces\WorkspaceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -27,6 +29,17 @@ class UserController extends Controller
     public function show(Request $request)
     {
         return ApiResponse::success(['user' => UserResource::make($request->user())]);
+    }
+
+    /**
+     * Where a Google or GitHub signup came from, sent by the browser right
+     * after the account is made. Only the first set is kept.
+     */
+    public function recordSignupAttribution(RecordSignupAttributionRequest $request, SignupAttribution $attribution)
+    {
+        $attribution->record($request->user(), $request->validated('attribution') ?? []);
+
+        return ApiResponse::success(message: 'Saved.');
     }
 
     public function switchWorkspace(SwitchWorkspaceRequest $request)

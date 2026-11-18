@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Internal\V1\Dashboard;
 
+use App\Enums\Dashboard\GettingStartedMilestone;
 use App\Enums\Workspaces\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
@@ -25,5 +26,21 @@ class GettingStartedController extends Controller
         $this->gettingStarted->dismiss($workspace, $request->user());
 
         return ApiResponse::noContent();
+    }
+
+    /**
+     * Pays a reached milestone's credits into the workspace. Gated like the
+     * checklist: the credits are the workspace's, whoever presses Claim.
+     */
+    public function claim(Request $request, Workspace $workspace, GettingStartedMilestone $milestone)
+    {
+        $this->requirePermission(Permission::RunView);
+
+        $credits = $this->gettingStarted->claim($workspace, $milestone);
+
+        return ApiResponse::success([
+            'credits' => $credits,
+            'getting_started' => $this->gettingStarted->for($workspace, $request->user()),
+        ], "{$credits} credits added to your workspace.");
     }
 }
