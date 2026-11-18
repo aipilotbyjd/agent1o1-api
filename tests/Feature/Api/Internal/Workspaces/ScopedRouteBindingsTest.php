@@ -40,6 +40,7 @@ function unscopedWorkspaceRoutes(): array
         'api/v1/workspaces/{workspace}/agent-templates' => 'Same: platform-wide templates are readable from every workspace.',
         'api/v1/workspaces/{workspace}/page-templates' => 'Same: platform-wide templates are readable from every workspace.',
         'api/v1/workspaces/{workspace}/template-collections' => 'Same: platform-wide collections are readable from every workspace.',
+        'api/v1/workspaces/{workspace}/templates' => 'The combined catalog: platform-wide templates of every type, filtered by visibleTo() in TemplateCatalog.',
         'api/v1/workspaces/{workspace}/artifacts/{artifact}/shares/{user}' => '{user} is any user; removeShare() checks the artifact\'s workspace itself.',
     ];
 }
