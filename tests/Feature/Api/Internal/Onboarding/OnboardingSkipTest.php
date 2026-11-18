@@ -94,14 +94,14 @@ it('refuses to skip the account setup steps', function (string $step) {
 })->with(['create_workspace', 'choose_plan']);
 
 it('lets the last step be postponed', function () {
-    $user = onboardingSkipUser(OnboardingStep::DiscoverySurvey);
+    $user = onboardingSkipUser(OnboardingStep::InviteTeam);
     $tokens = onboardingSkipTokens($user->email, 'Password1!');
 
     $response = $this->withToken($tokens['access_token'])
-        ->postJson('/api/v1/onboarding/skip', ['step' => 'discovery_survey'])
+        ->postJson('/api/v1/onboarding/skip', ['step' => 'invite_team'])
         ->assertOk();
 
-    $survey = collect($response->json('data.steps'))->firstWhere('key', 'discovery_survey');
+    $survey = collect($response->json('data.steps'))->firstWhere('key', 'invite_team');
 
     expect($survey['skipped'])->toBeTrue()
         ->and($survey['completed'])->toBeFalse();

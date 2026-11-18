@@ -23,6 +23,7 @@ it('returns the onboarding state shape with meta', function () {
         ->assertJsonStructure([
             'data' => [
                 'dismissed',
+                'discovery_answered',
                 'completed',
                 'percent',
                 'current_step',
@@ -59,7 +60,8 @@ it('computes percent as completed steps accumulate', function () {
 
     $steps = collect($response->json('data.steps'));
 
-    expect($steps->pluck('key'))->not->toContain('profile_picture');
+    expect($steps->pluck('key'))->not->toContain('profile_picture')
+        ->and($steps->pluck('key'))->not->toContain('discovery_survey');
     expect($steps->firstWhere('key', 'role_selection')['completed'])->toBeTrue();
     expect($steps->firstWhere('key', 'create_workspace')['completed'])->toBeFalse();
 });

@@ -45,6 +45,7 @@ class OnboardingService
 
         return [
             'dismissed' => $user->onboarding_dismissed_at !== null,
+            'discovery_answered' => $user->discovery_source !== null,
             'completed' => $user->hasCompletedOnboarding(),
             'percent' => $percent,
             'current_step' => $currentStep->value,
@@ -90,11 +91,14 @@ class OnboardingService
         return $this->state($user->fresh());
     }
 
+    /**
+     * "How did you find us", asked in the app once the user has had a
+     * successful run. It is no longer an onboarding step, so it moves no
+     * progress.
+     */
     public function submitDiscovery(User $user, DiscoverySource $source): array
     {
         $user->update(['discovery_source' => $source]);
-
-        $this->advancePast($user, OnboardingStep::DiscoverySurvey);
 
         return $this->state($user->fresh());
     }
@@ -243,7 +247,6 @@ class OnboardingService
         return match ($step) {
             OnboardingStep::CreateWorkspace => $user->current_workspace_id !== null,
             OnboardingStep::RoleSelection => $user->job_role !== null,
-            OnboardingStep::DiscoverySurvey => $user->discovery_source !== null,
             OnboardingStep::ChoosePlan => $this->ordinal($step) < $this->ordinal($currentStep) || $this->hasPlan($user),
             OnboardingStep::ConnectAi => $this->ordinal($step) < $this->ordinal($currentStep) || $this->hasAiKey($user),
             default => $this->ordinal($step) < $this->ordinal($currentStep),
@@ -309,7 +312,7 @@ class OnboardingService
     /**
      * Saved progress means "everything before this is behind me", and a plan
      * counts as chosen once progress is past it. So finishing a later step
-     * first (answering the survey, say) must not carry progress over a
+     * first (inviting the team, say) must not carry progress over a
      * workspace or plan step that is still open: it stops there instead.
      */
     private function heldAtAccountSetup(User $user, OnboardingStep $step, OnboardingStep $current, OnboardingStep $target): OnboardingStep

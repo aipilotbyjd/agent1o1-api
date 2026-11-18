@@ -7,7 +7,9 @@ namespace App\Enums\Onboarding;
  * the account up (workspace, plan) come as early as they can; everything else
  * is optional. A template is offered right after the role, while the user is
  * still deciding what to build. There is no profile picture step: the avatar
- * comes from Google or GitHub, or the app shows initials.
+ * comes from Google or GitHub, or the app shows initials. Nor is there a
+ * survey: "how did you find us" is asked in the app after the first
+ * successful run, so it never stands between a new user and that win.
  */
 enum OnboardingStep: string
 {
@@ -18,7 +20,6 @@ enum OnboardingStep: string
     case ConnectAi = 'connect_ai';
     case ConnectApps = 'connect_apps';
     case InviteTeam = 'invite_team';
-    case DiscoverySurvey = 'discovery_survey';
 
     /**
      * Where a user who has not started yet is.
@@ -38,7 +39,6 @@ enum OnboardingStep: string
             self::ChoosePlan => 'Choose Plan',
             self::ConnectAi => 'Connect AI',
             self::ConnectApps => 'Connect Apps',
-            self::DiscoverySurvey => 'Discovery Survey',
         };
     }
 
@@ -52,7 +52,6 @@ enum OnboardingStep: string
             self::ChoosePlan => 'Choose the plan that fits your team.',
             self::ConnectAi => 'Connect your own AI provider in one click, or start on the free model.',
             self::ConnectApps => 'Connect the apps you use every day.',
-            self::DiscoverySurvey => 'Let us know how you found us.',
         };
     }
 
