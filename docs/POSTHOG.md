@@ -47,7 +47,7 @@ The browser sends one more: `onboarding_step_viewed` (`step`, `step_number`) fro
 
 ### Onboarding funnel
 
-Steps, in order (`step` values): `create_workspace`, `role_selection`, `choose_template`, `choose_plan`, `connect_ai`, `connect_apps`, `invite_team`, `discovery_survey`.
+Steps, in order (`step` values): `create_workspace`, `role_selection`, `choose_template`, `choose_plan`, `connect_ai`, `connect_apps`, `invite_team`. The discovery survey is no longer a step: it is asked on the dashboard after the first successful run.
 
 Build it in PostHog as **Product analytics → New insight → Funnel**:
 

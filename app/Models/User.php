@@ -67,6 +67,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
             'onboarding_skipped_steps' => 'array',
             'onboarding_completed_at' => 'datetime',
             'onboarding_dismissed_at' => 'datetime',
+            'onboarding_reminder_sent_at' => 'datetime',
             'job_role' => JobRole::class,
             'discovery_source' => DiscoverySource::class,
             'suspended_at' => 'datetime',

@@ -93,7 +93,7 @@ it('never moves progress backwards', function () {
 
 it('clears a skipped mark when the step is continued later', function () {
     $user = onboardingContinueUser([
-        'onboarding_current_step' => OnboardingStep::DiscoverySurvey,
+        'onboarding_current_step' => OnboardingStep::InviteTeam,
         'onboarding_skipped_steps' => ['connect_apps'],
     ]);
     $tokens = onboardingContinueTokens($user->email, 'Password1!');
