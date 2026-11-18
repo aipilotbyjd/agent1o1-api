@@ -49,7 +49,10 @@ it('deletes the account and revokes both token kinds', function () {
 
     $userId = $user->id;
 
-    $this->withToken($token)->deleteJson('/api/v1/user')->assertNoContent();
+    $this->withToken($token)->deleteJson('/api/v1/user', [
+        'confirm_email' => 'jane@example.com',
+        'current_password' => 'Password1!',
+    ])->assertNoContent();
 
     expect(User::query()->whereKey($userId)->exists())->toBeFalse();
     expect(RefreshToken::query()->where('revoked', false)->count())->toBe(0);
@@ -61,7 +64,10 @@ it('deletes the account and revokes both token kinds', function () {
 it('logs the deletion before the account goes', function () {
     $user = User::factory()->create(['email' => 'jane@example.com']);
 
-    $this->actingAs($user, 'api')->deleteJson('/api/v1/user')->assertNoContent();
+    $this->actingAs($user, 'api')->deleteJson('/api/v1/user', [
+        'confirm_email' => 'jane@example.com',
+        'current_password' => 'password',
+    ])->assertNoContent();
 
     // The log outlives the account: user_id is nulled, the address is kept.
     $event = AuthEventLog::query()

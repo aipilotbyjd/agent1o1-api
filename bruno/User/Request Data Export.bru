@@ -1,0 +1,28 @@
+meta {
+  name: Request Data Export
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/v1/user/data-exports
+  body: none
+  auth: inherit
+}
+
+script:post-response {
+  if (res.status === 202) {
+    const id = res.body.data?.export?.id;
+    if (id) {
+      bru.setVar("dataExportId", id);
+    }
+  }
+}
+
+docs {
+  Queues a ZIP archive of the user's personal data and emails them when
+  it is ready. Returns the export already in flight instead of starting
+  a second one. Throttled to 5 requests an hour.
+
+  Responds `202` with `data.export`. Stores the id as `dataExportId`.
+}
