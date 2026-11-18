@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\Internal\V1\Auth;
 
 use App\Models\User;
+use App\Services\Auth\SignupAttribution;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
@@ -25,6 +26,9 @@ class RegisterRequest extends FormRequest
     }
 
     /**
+     * The form has one password field with a show/hide toggle, so there is
+     * no confirmation to match.
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -32,9 +36,10 @@ class RegisterRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'confirmed', Password::defaults()],
+            'password' => ['required', Password::defaults()],
             'referral_code' => ['nullable', 'string', 'max:64'],
             'referral_visitor_id' => ['nullable', 'uuid'],
+            ...SignupAttribution::rules(),
         ];
     }
 }

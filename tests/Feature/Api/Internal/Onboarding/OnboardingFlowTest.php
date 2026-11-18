@@ -1,8 +1,9 @@
 <?php
 
-use App\Models\Billing\Plan;
+use App\Models\Ai\AiProviderCredential;
+use App\Models\Runs\Run;
 use App\Models\User;
-use App\Services\Workspaces\WorkspaceService;
+use App\Models\Workflows\Workflow;
 
 function onboardingFlowTokens(string $email, string $password): array
 {
@@ -13,70 +14,50 @@ function onboardingFlowTokens(string $email, string $password): array
 }
 
 it('walks through the onboarding steps in order', function () {
-    Plan::factory()->create(['slug' => 'free', 'is_active' => true]);
-
-    $user = User::factory()->create(['password' => 'Password1!']);
+    $user = User::factory()->create(['password' => 'Password1!', 'email' => 'jane@northwind.io']);
     $tokens = onboardingFlowTokens($user->email, 'Password1!');
     $client = $this->withToken($tokens['access_token']);
 
-    $client->getJson('/api/v1/user/onboarding')
-        ->assertOk()
-        ->assertJsonPath('data.current_step', 'create_workspace');
-
-    // create_workspace
-    $workspaceId = $client->postJson('/api/v1/workspaces', ['name' => 'Acme Inc'])
-        ->assertCreated()
-        ->json('data.workspace.id');
-
-    $client->postJson('/api/v1/user/switch-workspace', ['workspace_id' => $workspaceId])
-        ->assertOk();
-
-    $client->postJson('/api/v1/onboarding/continue', ['step' => 'create_workspace'])
+    // Opening the wizard sets up the workspace: no step asks for one.
+    $client->postJson('/api/v1/onboarding/start')
         ->assertOk()
         ->assertJsonPath('data.current_step', 'role_selection');
 
-    // role_selection
-    $client->postJson('/api/v1/onboarding/role', ['job_role' => 'engineering'])
-        ->assertOk()
-        ->assertJsonPath('data.current_step', 'choose_template');
+    $workspace = $user->fresh()->currentWorkspace;
+    expect($workspace->name)->toBe('Northwind');
 
-    // choose_template is optional.
-    $client->postJson('/api/v1/onboarding/skip', ['step' => 'choose_template'])
-        ->assertOk()
-        ->assertJsonPath('data.current_step', 'choose_plan');
-
-    // choose_plan
-    $client->postJson('/api/v1/onboarding/plan', ['plan_slug' => 'free'])
+    $client->postJson('/api/v1/onboarding/role', ['job_role' => 'sales'])
         ->assertOk()
         ->assertJsonPath('data.current_step', 'connect_ai');
 
-    // connect_ai is skippable; the member starts on the free model.
-    $client->postJson('/api/v1/onboarding/skip', ['step' => 'connect_ai'])
-        ->assertOk()
-        ->assertJsonPath('data.current_step', 'connect_apps');
+    // There is no platform model: the AI step waits for a key of the workspace's own.
+    $client->postJson('/api/v1/onboarding/continue', ['step' => 'connect_ai'])->assertUnprocessable();
 
-    // connect_apps collects nothing of its own.
-    $client->postJson('/api/v1/onboarding/continue', ['step' => 'connect_apps'])
-        ->assertOk()
-        ->assertJsonPath('data.current_step', 'invite_team');
+    AiProviderCredential::factory()->forWorkspace($workspace)->provider('openrouter')->create();
 
-    // invite_team
-    $client->postJson('/api/v1/onboarding/invite-team', [
-        'emails' => ['teammate@example.com'],
-        'role' => 'member',
-    ])
+    $client->postJson('/api/v1/onboarding/continue', ['step' => 'connect_ai'])
         ->assertOk()
-        ->assertJsonPath('data.current_step', 'invite_team');
+        ->assertJsonPath('data.current_step', 'choose_template');
 
-    // invite_team is the last step: it stays current until Finish completes onboarding.
-    expect($client->getJson('/api/v1/user/onboarding')->json('data.completed'))->toBeFalse();
+    $client->postJson('/api/v1/onboarding/continue', ['step' => 'choose_template'])
+        ->assertOk()
+        ->assertJsonPath('data.current_step', 'first_run');
+
+    $workflow = Workflow::factory()->for($workspace)->create();
+    Run::factory()->forWorkflow($workflow)->completed()->create([
+        'triggered_by' => $user->id,
+        'trigger_type' => 'sample',
+    ]);
+
+    $state = $client->getJson('/api/v1/user/onboarding')->assertOk();
+    expect(collect($state->json('data.steps'))->firstWhere('key', 'first_run')['completed'])->toBeTrue()
+        ->and($state->json('data.completed'))->toBeFalse();
 
     $client->postJson('/api/v1/onboarding/complete')
         ->assertOk()
         ->assertJsonPath('data.completed', true);
 
-    $user->refresh();
-    expect($user->onboarding_completed_at)->not->toBeNull();
+    expect($user->fresh()->onboarding_completed_at)->not->toBeNull();
 });
 
 it('saves the discovery answer without moving onboarding progress', function () {
@@ -87,26 +68,18 @@ it('saves the discovery answer without moving onboarding progress', function () 
         ->postJson('/api/v1/onboarding/discovery', ['discovery_source' => 'google_search'])
         ->assertOk()
         ->assertJsonPath('data.discovery_answered', true)
-        ->assertJsonPath('data.current_step', 'create_workspace');
+        ->assertJsonPath('data.current_step', 'role_selection');
 
     expect($user->fresh()->discovery_source?->value)->toBe('google_search');
 });
 
-it('does not count the plan as chosen because a later step was finished first', function () {
+it('does not carry progress past the AI step while the workspace has no key', function () {
     $user = User::factory()->create(['password' => 'Password1!']);
-    app(WorkspaceService::class)->create($user, ['name' => 'Acme']);
     $tokens = onboardingFlowTokens($user->email, 'Password1!');
     $client = $this->withToken($tokens['access_token']);
+    $client->postJson('/api/v1/onboarding/start')->assertOk();
 
-    $response = $client->postJson('/api/v1/onboarding/continue', ['step' => 'connect_apps'])
+    $client->postJson('/api/v1/onboarding/skip', ['step' => 'first_run'])
         ->assertOk()
-        ->assertJsonPath('data.current_step', 'choose_plan');
-
-    expect(collect($response->json('data.steps'))->firstWhere('key', 'choose_plan')['completed'])->toBeFalse();
-
-    $client->postJson('/api/v1/onboarding/complete')->assertUnprocessable();
-    $client->postJson('/api/v1/user/dismiss-onboarding')->assertUnprocessable();
-
-    expect($user->fresh()->onboarding_completed_at)->toBeNull()
-        ->and($user->fresh()->onboarding_dismissed_at)->toBeNull();
+        ->assertJsonPath('data.current_step', 'connect_ai');
 });

@@ -3,23 +3,23 @@
 namespace App\Enums\Onboarding;
 
 /**
- * The onboarding wizard's steps, in the order they are shown. The two that set
- * the account up (workspace, plan) come as early as they can; everything else
- * is optional. A template is offered right after the role, while the user is
- * still deciding what to build. There is no profile picture step: the avatar
- * comes from Google or GitHub, or the app shows initials. Nor is there a
- * survey: "how did you find us" is asked in the app after the first
- * successful run, so it never stands between a new user and that win.
+ * The onboarding wizard's steps, in the order they are shown. Everything
+ * between signing up and a first successful run, and nothing else: the
+ * workspace is created for the user when the wizard opens, every workspace
+ * starts on the Free plan (upgrades are offered when a limit is reached),
+ * and inviting the team waits until there is a result to share.
+ *
+ * The AI step is the one that cannot be skipped, and it comes before the
+ * template: there is no platform model, so a workspace runs AI on a provider
+ * key of its own, and both building a workflow from a description and the
+ * first run need one.
  */
 enum OnboardingStep: string
 {
-    case CreateWorkspace = 'create_workspace';
     case RoleSelection = 'role_selection';
-    case ChooseTemplate = 'choose_template';
-    case ChoosePlan = 'choose_plan';
     case ConnectAi = 'connect_ai';
-    case ConnectApps = 'connect_apps';
-    case InviteTeam = 'invite_team';
+    case ChooseTemplate = 'choose_template';
+    case FirstRun = 'first_run';
 
     /**
      * Where a user who has not started yet is.
@@ -32,35 +32,26 @@ enum OnboardingStep: string
     public function label(): string
     {
         return match ($this) {
-            self::CreateWorkspace => 'Create Workspace',
-            self::InviteTeam => 'Invite Team',
-            self::RoleSelection => 'Role Selection',
-            self::ChooseTemplate => 'Choose Template',
-            self::ChoosePlan => 'Choose Plan',
+            self::RoleSelection => 'Describe',
+            self::ChooseTemplate => 'Pick',
             self::ConnectAi => 'Connect AI',
-            self::ConnectApps => 'Connect Apps',
+            self::FirstRun => 'Run',
         };
     }
 
     public function description(): string
     {
         return match ($this) {
-            self::CreateWorkspace => 'Create a workspace to organize your work.',
-            self::InviteTeam => 'Invite teammates to collaborate with you.',
-            self::RoleSelection => 'Tell us your role so we can tailor your experience.',
+            self::RoleSelection => 'Tell us what you want to automate and which team you are on.',
             self::ChooseTemplate => 'Start from a ready-made workflow, agent or collection.',
-            self::ChoosePlan => 'Choose the plan that fits your team.',
-            self::ConnectAi => 'Connect your own AI provider in one click, or start on the free model.',
-            self::ConnectApps => 'Connect the apps you use every day.',
+            self::ConnectAi => 'Connect your own AI provider, so your automations can think.',
+            self::FirstRun => 'Run your first workflow and see the result.',
         };
     }
 
-    /**
-     * Workspace and plan set the account up and cannot be postponed.
-     */
     public function isSkippable(): bool
     {
-        return ! in_array($this, [self::CreateWorkspace, self::ChoosePlan], strict: true);
+        return $this !== self::ConnectAi;
     }
 
     public function next(): ?self

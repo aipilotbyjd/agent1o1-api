@@ -16,6 +16,7 @@ use App\Http\Responses\ApiResponse;
 use App\Models\User;
 use App\Services\Auth\AuthEventRecorder;
 use App\Services\Auth\AuthService;
+use App\Services\Auth\SignupAttribution;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
@@ -33,6 +34,7 @@ class AuthController extends Controller
         private readonly AuthService $auth,
         private readonly AuthEventRecorder $events,
         private readonly AttributeReferralAction $attributeReferral,
+        private readonly SignupAttribution $signupAttribution,
     ) {}
 
     public function register(RegisterRequest $request)
@@ -40,6 +42,7 @@ class AuthController extends Controller
         $result = $this->auth->register($request->validated());
 
         $this->attributeSignupToReferrer($request, $result['user']);
+        $this->signupAttribution->record($result['user'], $request->validated('attribution') ?? []);
 
         return $this->respondWithTokens($result['user'], $result['tokens'], 'Registered successfully.', 201);
     }

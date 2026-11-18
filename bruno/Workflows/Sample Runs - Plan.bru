@@ -1,0 +1,26 @@
+meta {
+  name: Sample Runs - Plan
+  type: http
+  seq: 51
+}
+
+get {
+  url: {{baseUrl}}/v1/workspaces/:workspace/workflows/:workflow/sample-run
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  workflow: {{workflowId}}
+}
+
+docs {
+  What the onboarding "Run it" screen shows before a sample run: the run
+  form (`fields[]`, each with `key`, `label`, `type`, `required`,
+  `description` and the template's example answer as `sample`) and the app
+  steps a sample run previews instead of executing (`app_steps[]`, each with
+  `key`, `name`, `connector` and whether that app is `connected`).
+
+  Response is wrapped: `{ success, statusCode, message, data }`.
+}

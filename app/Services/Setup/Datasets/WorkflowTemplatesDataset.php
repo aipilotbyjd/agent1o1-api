@@ -34,7 +34,7 @@ class WorkflowTemplatesDataset extends AbstractSetupDataset
 
     protected function dataFiles(): array
     {
-        return [database_path('setup/workflow-templates.php')];
+        return [database_path('setup/workflow-templates.php'), database_path('setup/workflow-template-samples.php')];
     }
 
     public function apply(): void
@@ -52,11 +52,20 @@ class WorkflowTemplatesDataset extends AbstractSetupDataset
     }
 
     /**
+     * Each template with its sample run-form answers, if it has any.
+     *
      * @return array<string, array<string, mixed>>
      */
     private function templates(): array
     {
-        return require database_path('setup/workflow-templates.php');
+        $templates = require database_path('setup/workflow-templates.php');
+        $samples = require database_path('setup/workflow-template-samples.php');
+
+        foreach ($templates as $slug => $template) {
+            $templates[$slug]['sample_input'] = $samples[$slug] ?? null;
+        }
+
+        return $templates;
     }
 
     public function problems(): array
@@ -72,8 +81,35 @@ class WorkflowTemplatesDataset extends AbstractSetupDataset
             foreach ($validator->validate($template['graph']['nodes'] ?? [], $template['graph']['edges'] ?? []) as $issue) {
                 $problems[] = "Workflow template [{$slug}]: {$issue}";
             }
+
+            foreach ($this->unknownSampleFields($template) as $field) {
+                $problems[] = "Workflow template [{$slug}] has a sample answer for [{$field}], which is not one of its Input steps.";
+            }
+        }
+
+        $unknownSlugs = array_diff_key(require database_path('setup/workflow-template-samples.php'), $this->templates());
+
+        foreach (array_keys($unknownSlugs) as $slug) {
+            $problems[] = "Workflow template samples name [{$slug}], which is not a template.";
         }
 
         return $problems;
+    }
+
+    /**
+     * Sample answers that match no Input step: a renamed field would
+     * otherwise leave the sample run's form silently empty.
+     *
+     * @param  array<string, mixed>  $template
+     * @return array<int, string>
+     */
+    private function unknownSampleFields(array $template): array
+    {
+        $inputKeys = collect($template['graph']['nodes'] ?? [])
+            ->where('type', 'workflow_input')
+            ->pluck('key')
+            ->all();
+
+        return array_values(array_diff(array_keys($template['sample_input'] ?? []), $inputKeys));
     }
 }

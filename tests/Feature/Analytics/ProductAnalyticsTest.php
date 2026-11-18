@@ -4,6 +4,7 @@ use App\Enums\RunStatus;
 use App\Events\Runs\RunCompleted;
 use App\Events\Runs\RunFailed;
 use App\Jobs\Analytics\CapturePostHogEvent;
+use App\Models\Ai\AiProviderCredential;
 use App\Models\Billing\Plan;
 use App\Models\Runs\Run;
 use App\Models\User;
@@ -161,11 +162,12 @@ it('records each onboarding step once, as completed or skipped', function () {
     Plan::factory()->create(['slug' => 'free', 'is_active' => true]);
 
     $user = User::factory()->create();
-    app(WorkspaceService::class)->create($user, ['name' => 'Acme']);
+    $workspace = app(WorkspaceService::class)->create($user, ['name' => 'Acme']);
+    AiProviderCredential::factory()->forWorkspace($workspace)->provider('openrouter')->create();
     Passport::actingAs($user);
 
-    $this->postJson('/api/v1/onboarding/continue', ['step' => 'create_workspace'])->assertOk();
     $this->postJson('/api/v1/onboarding/role', ['job_role' => 'engineering'])->assertOk();
+    $this->postJson('/api/v1/onboarding/continue', ['step' => 'connect_ai'])->assertOk();
     $this->postJson('/api/v1/onboarding/continue', ['step' => 'role_selection'])->assertOk();
     $this->postJson('/api/v1/onboarding/skip', ['step' => 'choose_template'])->assertOk();
 
@@ -173,11 +175,11 @@ it('records each onboarding step once, as completed or skipped', function () {
         && $job->properties['step'] === $step
         && $job->distinctId === (string) $user->getKey();
 
-    Bus::assertDispatchedTimes($stepEvents('onboarding_step_completed', 'create_workspace'), 1);
     Bus::assertDispatchedTimes($stepEvents('onboarding_step_completed', 'role_selection'), 1);
+    Bus::assertDispatchedTimes($stepEvents('onboarding_step_completed', 'connect_ai'), 1);
     Bus::assertDispatchedTimes($stepEvents('onboarding_step_skipped', 'choose_template'), 1);
-    Bus::assertDispatched(CapturePostHogEvent::class, fn (CapturePostHogEvent $job) => $job->event === 'onboarding_step_completed'
-        && $job->properties['step_number'] === 2
+    Bus::assertDispatched(CapturePostHogEvent::class, fn (CapturePostHogEvent $job) => $job->event === 'onboarding_step_skipped'
+        && $job->properties['step_number'] === 3
         && $job->workspaceId === (string) $user->fresh()->current_workspace_id);
 });
 
@@ -190,7 +192,6 @@ it('records finishing onboarding once', function () {
     app(WorkspaceService::class)->create($user, ['name' => 'Acme']);
     Passport::actingAs($user);
 
-    $this->postJson('/api/v1/onboarding/plan', ['plan_slug' => 'free'])->assertOk();
     $this->postJson('/api/v1/onboarding/complete')->assertOk();
     $this->postJson('/api/v1/onboarding/complete')->assertOk();
 

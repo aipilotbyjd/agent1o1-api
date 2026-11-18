@@ -28,13 +28,42 @@ it('registers a user without a workspace and issues tokens', function () {
     expect($user->workspaces()->count())->toBe(0);
 });
 
-it('rejects registration with a mismatched password confirmation', function () {
+it('registers without a password confirmation, since the form has one password field', function () {
     $this->postJson('/api/v1/auth/register', [
         'name' => 'Jane Doe',
         'email' => 'jane@example.com',
         'password' => 'Password1!',
-        'password_confirmation' => 'nope',
-    ])->assertUnprocessable();
+    ])->assertCreated();
+});
+
+it('still rejects a weak password', function () {
+    $this->postJson('/api/v1/auth/register', [
+        'name' => 'Jane Doe',
+        'email' => 'jane@example.com',
+        'password' => 'short',
+    ])->assertUnprocessable()->assertJsonValidationErrors('password');
+});
+
+it('keeps where the signup came from', function () {
+    $this->postJson('/api/v1/auth/register', [
+        'name' => 'Jane Doe',
+        'email' => 'jane@example.com',
+        'password' => 'Password1!',
+        'attribution' => [
+            'utm_source' => 'newsletter',
+            'utm_campaign' => 'launch',
+            'landing_path' => '/templates/lead-intake-and-scoring',
+            'template' => 'lead-intake-and-scoring',
+            'unknown_field' => 'dropped',
+        ],
+    ])->assertCreated();
+
+    expect(User::query()->where('email', 'jane@example.com')->firstOrFail()->signup_attribution)->toBe([
+        'utm_source' => 'newsletter',
+        'utm_campaign' => 'launch',
+        'landing_path' => '/templates/lead-intake-and-scoring',
+        'template' => 'lead-intake-and-scoring',
+    ]);
 });
 
 it('saves no account when the tokens cannot be issued, so the same email can retry', function () {

@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Api\Internal\V1\Onboarding;
+namespace App\Http\Requests\Api\Internal\V1\User;
 
+use App\Services\Auth\SignupAttribution;
 use Illuminate\Foundation\Http\FormRequest;
 
-class SelectPlanRequest extends FormRequest
+class RecordSignupAttributionRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,8 +17,6 @@ class SelectPlanRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'plan_slug' => ['required', 'string', 'exists:plans,slug'],
-        ];
+        return SignupAttribution::rules();
     }
 }

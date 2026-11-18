@@ -15,9 +15,11 @@ use App\Models\Workflows\Workflow;
 use App\Models\Workflows\WorkflowApproval;
 use App\Models\Workflows\WorkflowVersion;
 use App\Models\Workspaces\Workspace;
+use App\Services\Workflows\NodeTester;
 use Closure;
 use Database\Factories\Runs\RunFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -196,6 +198,22 @@ class Run extends Model
             AgentSessionEvaluation::class => $agent,
             AgentEvalRun::class => ['suite.agent' => fn (BelongsTo $agent) => $agent->withTrashed()],
         ]), 'workflow' => fn (BelongsTo $workflow) => $workflow->withTrashed()->select(['id', 'name'])];
+    }
+
+    /**
+     * Workflow runs that finished successfully: "it worked". A single-step
+     * test from the editor is not a run of the workflow, so it does not
+     * count; sample runs do.
+     *
+     * @param  Builder<Run>  $query
+     * @return Builder<Run>
+     */
+    public function scopeSucceededWorkflowRuns(Builder $query): Builder
+    {
+        return $query
+            ->whereNotNull('workflow_id')
+            ->where('status', RunStatus::Completed)
+            ->where('trigger_type', '!=', NodeTester::TRIGGER_TYPE);
     }
 
     /**

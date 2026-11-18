@@ -10,9 +10,8 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('onboarding')->group(function () {
-        Route::post('invite-team', [OnboardingController::class, 'inviteTeam']);
+        Route::post('start', [OnboardingController::class, 'start']);
         Route::post('role', [OnboardingController::class, 'selectRole']);
-        Route::post('plan', [OnboardingController::class, 'selectPlan']);
         Route::post('discovery', [OnboardingController::class, 'submitDiscovery']);
         Route::post('continue', [OnboardingController::class, 'continue']);
         Route::post('skip', [OnboardingController::class, 'skip']);

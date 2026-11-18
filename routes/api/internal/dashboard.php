@@ -17,4 +17,5 @@ Route::middleware(['auth:api', 'workspace.context'])
         Route::get('credit-usage', [CreditUsageController::class, 'index'])->name('credit-usage.index');
         Route::get('pending-approvals', [PendingApprovalController::class, 'index'])->name('pending-approvals.index');
         Route::post('getting-started/dismiss', [GettingStartedController::class, 'dismiss'])->name('getting-started.dismiss');
+        Route::post('getting-started/{milestone}/claim', [GettingStartedController::class, 'claim'])->name('getting-started.claim');
     });

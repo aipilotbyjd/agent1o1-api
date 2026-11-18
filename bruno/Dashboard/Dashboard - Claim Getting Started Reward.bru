@@ -1,0 +1,30 @@
+meta {
+  name: Dashboard - Claim Getting Started Reward
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/v1/workspaces/:workspace/dashboard/getting-started/:milestone/claim
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspace: {{workspaceId}}
+  milestone: run_workflow
+}
+
+docs {
+  Pays a reached checklist milestone's credits into the workspace, once.
+  `milestone` is one of `run_workflow` (20), `connect_app` (20),
+  `activate_trigger` (30), `create_agent` (20), `invite_teammate` (50, paid
+  once a teammate has joined). Rewards follow the free allowance's rules:
+  only the owner's first workspace, verified email, not a repeat signup
+  (`rewards_available` in the overview says whether they apply).
+
+  422 when already claimed, not reached yet, or not eligible, with the
+  reason as `message`. Requires `run.view`.
+
+  Response is wrapped: `{ success, statusCode, message, data: { credits, getting_started } }`.
+}

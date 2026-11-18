@@ -12,8 +12,8 @@ function onboardingDismissTokens(string $email, string $password): array
     ])->json('data.tokens');
 }
 
-it('dismisses onboarding once the user has a workspace and a plan', function () {
-    $user = User::factory()->create(['password' => 'Password1!', 'onboarding_current_step' => OnboardingStep::ConnectApps]);
+it('dismisses onboarding once the user has a workspace', function () {
+    $user = User::factory()->create(['password' => 'Password1!', 'onboarding_current_step' => OnboardingStep::ChooseTemplate]);
     app(WorkspaceService::class)->create($user, ['name' => 'Acme']);
     $tokens = onboardingDismissTokens($user->email, 'Password1!');
 
@@ -22,8 +22,7 @@ it('dismisses onboarding once the user has a workspace and a plan', function () 
         ->assertOk()
         ->assertJsonPath('message', 'Onboarding dismissed.');
 
-    $user->refresh();
-    expect($user->onboarding_dismissed_at)->not->toBeNull();
+    expect($user->fresh()->onboarding_dismissed_at)->not->toBeNull();
 });
 
 it('does not let a user without a workspace dismiss or complete onboarding', function () {
@@ -42,21 +41,10 @@ it('does not let a user without a workspace dismiss or complete onboarding', fun
         ->and($user->fresh()->onboarding_completed_at)->toBeNull();
 });
 
-it('does not let a workspace owner close onboarding before choosing a plan', function () {
-    $user = User::factory()->create(['password' => 'Password1!', 'onboarding_current_step' => OnboardingStep::ChoosePlan]);
-    app(WorkspaceService::class)->create($user, ['name' => 'Acme']);
-    $tokens = onboardingDismissTokens($user->email, 'Password1!');
-
-    $this->withToken($tokens['access_token'])->postJson('/api/v1/user/dismiss-onboarding')->assertUnprocessable();
-    $this->withToken($tokens['access_token'])->postJson('/api/v1/onboarding/complete')->assertUnprocessable();
-
-    expect($user->fresh()->onboarding_dismissed_at)->toBeNull();
-});
-
-it('treats a member of someone else\'s workspace as having a plan', function () {
+it('lets a member of someone else\'s workspace dismiss onboarding', function () {
     $owner = User::factory()->create();
     $workspace = app(WorkspaceService::class)->create($owner, ['name' => 'Acme']);
-    $member = User::factory()->create(['password' => 'Password1!', 'onboarding_current_step' => OnboardingStep::ChoosePlan]);
+    $member = User::factory()->create(['password' => 'Password1!']);
     $workspace->members()->create(['user_id' => $member->id, 'role' => 'member', 'joined_at' => now()]);
     $member->update(['current_workspace_id' => $workspace->id]);
     $tokens = onboardingDismissTokens($member->email, 'Password1!');

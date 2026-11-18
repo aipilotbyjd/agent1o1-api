@@ -12,8 +12,11 @@ get {
 
 docs {
   Returns the authenticated user's onboarding progress: `dismissed`,
-  `completed`, `percent`, `current_step`, `steps[]`, and `meta` (plan
-  catalog, job roles, discovery sources, workspace slug suggestion).
+  `completed`, `percent`, `current_step`, `steps[]` (`role_selection`,
+  `connect_ai`, `choose_template`, `first_run`, each with `skippable`,
+  `completed` and `skipped`; only `connect_ai` cannot be skipped), and
+  `meta` (job roles, discovery sources, and `recommended_templates` for the
+  user's role, each with `has_sample` and the `apps` it uses).
 
   Response is wrapped: `{ success, statusCode, message, data }`.
 }

@@ -37,10 +37,10 @@ it('emails a user who left onboarding a day ago, once', function () {
 it('counts the steps still standing before a first automation', function () {
     $fresh = idleOnboardingUser();
 
-    $withWorkspace = User::factory()->create();
-    app(WorkspaceService::class)->create($withWorkspace, ['name' => 'Acme']);
-    $withWorkspace->forceFill([
-        'onboarding_current_step' => OnboardingStep::ChooseTemplate,
+    $pastTemplate = User::factory()->create();
+    app(WorkspaceService::class)->create($pastTemplate, ['name' => 'Acme']);
+    $pastTemplate->forceFill([
+        'onboarding_current_step' => OnboardingStep::FirstRun,
         'created_at' => now()->subDays(2),
         'updated_at' => now()->subHours(25),
     ])->saveQuietly();
@@ -48,9 +48,9 @@ it('counts the steps still standing before a first automation', function () {
     $this->artisan('onboarding:send-reminders')->assertSuccessful();
 
     Notification::assertSentTo($fresh, fn (FinishOnboardingReminderNotification $notification) => $notification->stepsLeft === 3);
-    Notification::assertSentTo($withWorkspace, function (FinishOnboardingReminderNotification $notification) use ($withWorkspace) {
+    Notification::assertSentTo($pastTemplate, function (FinishOnboardingReminderNotification $notification) use ($pastTemplate) {
         return $notification->stepsLeft === 2
-            && $notification->toMail($withWorkspace)->subject === "You're 2 steps from your first automation";
+            && $notification->toMail($pastTemplate)->subject === "You're 2 steps from your first automation";
     });
 });
 
