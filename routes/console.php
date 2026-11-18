@@ -71,6 +71,9 @@ Schedule::onOneServer()->withoutOverlapping()->group(function (): void {
     // Account
     Schedule::command('account:prune-data-exports')->hourly();
 
+    // Onboarding
+    Schedule::command('onboarding:send-reminders')->hourly();
+
     // Broadcasts
     Schedule::command('broadcasts:dispatch-due')->everyMinute();
     Schedule::command('changelog:publish-due')->everyMinute();

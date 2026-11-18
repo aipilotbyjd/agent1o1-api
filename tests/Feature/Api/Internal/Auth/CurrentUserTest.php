@@ -2,7 +2,9 @@
 
 use App\Enums\Auth\AuthEvent;
 use App\Models\Auth\AuthEventLog;
+use App\Models\Credentials\OAuthConnection;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Passport\RefreshToken;
 use PragmaRX\Google2FA\Google2FA;
 
@@ -33,6 +35,33 @@ it('reports two-factor as enabled once it is confirmed', function () {
     $this->actingAs($user, 'api')
         ->getJson('/api/v1/user')
         ->assertJsonPath('data.user.two_factor_enabled', true);
+});
+
+it('falls back to the Google or GitHub avatar when no picture was uploaded', function () {
+    $user = User::factory()->create(['avatar' => null]);
+    OAuthConnection::query()->create([
+        'user_id' => $user->id,
+        'provider' => 'google',
+        'provider_id' => '123',
+        'avatar' => 'https://lh3.googleusercontent.com/a/photo.jpg',
+    ]);
+
+    $this->actingAs($user, 'api')
+        ->getJson('/api/v1/user')
+        ->assertJsonPath('data.user.avatar', 'https://lh3.googleusercontent.com/a/photo.jpg');
+});
+
+it('prefers an uploaded picture over the provider avatar, and has none without either', function () {
+    $uploaded = User::factory()->create(['avatar' => 'avatars/me.png']);
+    OAuthConnection::query()->create(['user_id' => $uploaded->id, 'provider' => 'github', 'provider_id' => '9', 'avatar' => 'https://avatars.githubusercontent.com/u/9']);
+
+    $this->actingAs($uploaded, 'api')
+        ->getJson('/api/v1/user')
+        ->assertJsonPath('data.user.avatar', Storage::disk('public')->url('avatars/me.png'));
+
+    $this->actingAs(User::factory()->create(['avatar' => null]), 'api')
+        ->getJson('/api/v1/user')
+        ->assertJsonPath('data.user.avatar', null);
 });
 
 it('refuses the current user endpoint to a guest', function () {
