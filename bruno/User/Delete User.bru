@@ -6,13 +6,29 @@ meta {
 
 delete {
   url: {{baseUrl}}/v1/user
-  body: none
+  body: json
   auth: inherit
+}
+
+body:json {
+  {
+    "confirm_email": "jane@example.com",
+    "current_password": "Password1!"
+  }
 }
 
 docs {
   Deletes the authenticated user's account and revokes all of their
   tokens. Destructive — use a disposable test account.
 
-  Responds `204 No Content` with no envelope.
+  `confirm_email` must match the account email. `current_password` is
+  required unless the account signs in with Google or GitHub (see
+  `Get Deletion Blockers` → `requires_password`).
+
+  Workspaces the user owns alone are deleted with the account. Responds
+  `409` with `errors.workspaces` (each `{ id, name, reasons }`, reasons
+  `has_other_members` / `active_subscription`) while the user owns a
+  workspace other people belong to or one with a renewing subscription.
+
+  Responds `204 No Content` with no envelope on success.
 }

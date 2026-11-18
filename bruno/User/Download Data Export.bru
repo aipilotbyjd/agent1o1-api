@@ -1,0 +1,17 @@
+meta {
+  name: Download Data Export
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/v1/user/data-exports/{{dataExportId}}/download
+  body: none
+  auth: inherit
+}
+
+docs {
+  Streams the finished export as `application/zip`. Responds `410`
+  while the export is still being built or after it has expired (7
+  days), and `404` for another account's export.
+}

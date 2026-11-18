@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api\Internal\V1\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Internal\V1\User\DeleteAccountRequest;
 use App\Http\Requests\Api\Internal\V1\User\SwitchWorkspaceRequest;
 use App\Http\Requests\Api\Internal\V1\User\UpdateUserRequest;
 use App\Http\Requests\Api\Internal\V1\User\UploadAvatarRequest;
 use App\Http\Resources\Api\Internal\V1\User\UserResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Workspaces\Workspace;
+use App\Services\Account\AccountDeletionService;
 use App\Services\Auth\AuthService;
 use App\Services\Workspaces\WorkspaceService;
 use Illuminate\Http\Request;
@@ -19,6 +21,7 @@ class UserController extends Controller
     public function __construct(
         private readonly WorkspaceService $workspaces,
         private readonly AuthService $auth,
+        private readonly AccountDeletionService $accountDeletion,
     ) {}
 
     public function show(Request $request)
@@ -99,9 +102,27 @@ class UserController extends Controller
         return ApiResponse::success(['user' => UserResource::make($user)], 'Avatar removed successfully.');
     }
 
-    public function destroy(Request $request)
+    /**
+     * What the delete-account dialog needs up front: the owned workspaces
+     * that would stop the deletion right now, and whether a password is
+     * asked for.
+     */
+    public function deletionBlockers(Request $request)
     {
-        $this->auth->deleteAccount($request->user());
+        return ApiResponse::success([
+            'workspaces' => $this->accountDeletion->blockers($request->user()),
+            'requires_password' => $this->accountDeletion->requiresPassword($request->user()),
+        ]);
+    }
+
+    /**
+     * Refused with a 409 listing the blocking workspaces while the account
+     * owns a shared or still-subscribed workspace (see
+     * `AccountDeletionService`).
+     */
+    public function destroy(DeleteAccountRequest $request)
+    {
+        $this->accountDeletion->delete($request->user());
 
         return ApiResponse::noContent();
     }
