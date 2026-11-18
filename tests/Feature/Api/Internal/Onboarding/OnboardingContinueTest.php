@@ -24,23 +24,23 @@ it('saves a continued step so the next sign-in resumes after it', function () {
         ->postJson('/api/v1/onboarding/continue', ['step' => 'role_selection'])
         ->assertOk()
         ->assertJsonPath('message', 'Progress saved.')
-        ->assertJsonPath('data.current_step', 'choose_plan');
+        ->assertJsonPath('data.current_step', 'choose_template');
 
     $second = onboardingContinueTokens($user->email, 'Password1!');
     $this->withToken($second['access_token'])
         ->getJson('/api/v1/user/onboarding')
         ->assertOk()
-        ->assertJsonPath('data.current_step', 'choose_plan');
+        ->assertJsonPath('data.current_step', 'choose_template');
 });
 
-it('does not let the profile picture step continue without a picture', function () {
+it('no longer has a profile picture step', function () {
     $user = onboardingContinueUser();
     $tokens = onboardingContinueTokens($user->email, 'Password1!');
 
     $this->withToken($tokens['access_token'])
         ->postJson('/api/v1/onboarding/continue', ['step' => 'profile_picture'])
         ->assertStatus(422)
-        ->assertJsonPath('message', 'Add a profile picture before continuing.');
+        ->assertJsonValidationErrors('step');
 
     expect($user->fresh()->onboarding_current_step)->toBe(OnboardingStep::CreateWorkspace);
 });
@@ -93,7 +93,7 @@ it('never moves progress backwards', function () {
 
 it('clears a skipped mark when the step is continued later', function () {
     $user = onboardingContinueUser([
-        'onboarding_current_step' => OnboardingStep::DiscoverySurvey,
+        'onboarding_current_step' => OnboardingStep::InviteTeam,
         'onboarding_skipped_steps' => ['connect_apps'],
     ]);
     $tokens = onboardingContinueTokens($user->email, 'Password1!');
@@ -103,6 +103,16 @@ it('clears a skipped mark when the step is continued later', function () {
         ->assertOk();
 
     expect($user->fresh()->onboarding_skipped_steps)->toBe([]);
+});
+
+it('saves the template step without requiring a template to be used', function () {
+    $user = onboardingContinueUser(['onboarding_current_step' => OnboardingStep::ChooseTemplate]);
+    $tokens = onboardingContinueTokens($user->email, 'Password1!');
+
+    $this->withToken($tokens['access_token'])
+        ->postJson('/api/v1/onboarding/continue', ['step' => 'choose_template'])
+        ->assertOk()
+        ->assertJsonPath('data.current_step', 'choose_plan');
 });
 
 it('rejects an unknown step', function () {

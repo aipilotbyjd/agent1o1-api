@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Internal\V1\Templates\AgentTemplateController;
 use App\Http\Controllers\Api\Internal\V1\Templates\PageTemplateController;
+use App\Http\Controllers\Api\Internal\V1\Templates\TemplateCatalogController;
 use App\Http\Controllers\Api\Internal\V1\Templates\TemplateCollectionController;
 use App\Http\Controllers\Api\Internal\V1\Templates\TemplateCollectionItemController;
 use App\Http\Controllers\Api\Internal\V1\Templates\WorkflowTemplateController;
@@ -17,6 +18,8 @@ Route::middleware(['auth:api', 'workspace.context'])
         // Don't put `scopeBindings()` on this outer group: a nested
         // `withoutScopedBindings()` can't undo it. Only the routes after the
         // groups, which take a workflow, page or agent, are scoped.
+        Route::get('templates', [TemplateCatalogController::class, 'index'])->name('templates.index');
+
         Route::prefix('workflow-templates')->as('workflow-templates.')->group(function () {
             Route::get('/', [WorkflowTemplateController::class, 'index'])->name('index');
             Route::post('/', [WorkflowTemplateController::class, 'store'])->name('store');

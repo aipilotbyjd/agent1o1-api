@@ -38,6 +38,11 @@ it('walks through the onboarding steps in order', function () {
     // role_selection
     $client->postJson('/api/v1/onboarding/role', ['job_role' => 'engineering'])
         ->assertOk()
+        ->assertJsonPath('data.current_step', 'choose_template');
+
+    // choose_template is optional.
+    $client->postJson('/api/v1/onboarding/skip', ['step' => 'choose_template'])
+        ->assertOk()
         ->assertJsonPath('data.current_step', 'choose_plan');
 
     // choose_plan
@@ -61,14 +66,10 @@ it('walks through the onboarding steps in order', function () {
         'role' => 'member',
     ])
         ->assertOk()
-        ->assertJsonPath('data.current_step', 'discovery_survey');
+        ->assertJsonPath('data.current_step', 'invite_team');
 
-    // discovery_survey leaves only the optional profile picture.
-    $response = $client->postJson('/api/v1/onboarding/discovery', ['discovery_source' => 'google_search'])
-        ->assertOk()
-        ->assertJsonPath('data.current_step', 'profile_picture');
-
-    expect($response->json('data.completed'))->toBeFalse();
+    // invite_team is the last step: it stays current until Finish completes onboarding.
+    expect($client->getJson('/api/v1/user/onboarding')->json('data.completed'))->toBeFalse();
 
     $client->postJson('/api/v1/onboarding/complete')
         ->assertOk()
@@ -78,14 +79,17 @@ it('walks through the onboarding steps in order', function () {
     expect($user->onboarding_completed_at)->not->toBeNull();
 });
 
-it('does not let a later step carry progress past an open workspace step', function () {
+it('saves the discovery answer without moving onboarding progress', function () {
     $user = User::factory()->create(['password' => 'Password1!']);
     $tokens = onboardingFlowTokens($user->email, 'Password1!');
 
     $this->withToken($tokens['access_token'])
         ->postJson('/api/v1/onboarding/discovery', ['discovery_source' => 'google_search'])
         ->assertOk()
+        ->assertJsonPath('data.discovery_answered', true)
         ->assertJsonPath('data.current_step', 'create_workspace');
+
+    expect($user->fresh()->discovery_source?->value)->toBe('google_search');
 });
 
 it('does not count the plan as chosen because a later step was finished first', function () {
@@ -94,7 +98,7 @@ it('does not count the plan as chosen because a later step was finished first', 
     $tokens = onboardingFlowTokens($user->email, 'Password1!');
     $client = $this->withToken($tokens['access_token']);
 
-    $response = $client->postJson('/api/v1/onboarding/discovery', ['discovery_source' => 'google_search'])
+    $response = $client->postJson('/api/v1/onboarding/continue', ['step' => 'connect_apps'])
         ->assertOk()
         ->assertJsonPath('data.current_step', 'choose_plan');
 
