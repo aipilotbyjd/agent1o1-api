@@ -1,4 +1,6 @@
-# Hosting Plan
+# Hosting Plan: Two Servers
+
+Starting out on one VPS? Use `docs/HOSTING_PLAN_SINGLE_SERVER.md` first, and move to this plan when its "When to grow" triggers are reached.
 
 How Agent1o1 (this API, `agent1o1-admin` and the `agent1o1` React frontend) is hosted in production: two Hostinger VPS servers managed by Coolify, with Cloudflare in front, builds in GitHub Actions and backups off-server. Work through the phases in order. Pair this with `docs/LAUNCH_CHECKLIST.md` (what must be true before launch) and `docs/BACKUP_RESTORE_RUNBOOK.md` (how to back up and restore).
 
@@ -329,7 +331,7 @@ SUPER_ADMIN_ENABLED=false
 | --- | --- | --- | --- |
 | **api-web** | `agent1o1-api-web` | 8080 → `https://api.yourdomain.com` | `AUTORUN_ENABLED=true` (**only here**: migrations and config/route/view caching). Health check `/up`. Rolling updates. Limits: 2 CPU, 2 GB. |
 | **api-reverb** | `agent1o1-api-reverb` | 8000 → `https://ws.yourdomain.com` | Health check `/up`. `--ulimit nofile=65535:65535`. Limit 512 MB. |
-| **api-horizon** | `agent1o1-api-horizon` | none | **Stop grace period 1260 s**, matching the 1200 s `ai-assistant` timeout (`config/horizon.php`, `ASSISTANT_QUEUE_RETRY_AFTER=1260`) so deploys do not kill running assistant jobs. If that makes deploys too slow, lower it deliberately and rely on retries and the reaper jobs. Limit 4 GB. |
+| **api-horizon** | `agent1o1-api-horizon` | none | **Stop grace period 1260 s**, matching the 1200 s `ai-assistant` timeout (`config/horizon.php`, `ASSISTANT_QUEUE_RETRY_AFTER=1260`) so deploys do not kill running assistant jobs. If that makes deploys too slow, lower it deliberately and rely on retries and the reaper jobs. Worker caps through `HORIZON_*_MAX_PROCESSES` (the KVM 4 column in `docs/HOSTING_PLAN_SINGLE_SERVER.md` §7.3, about 31 workers); the defaults allow 70, too many for 16 GB shared with Postgres. Limit 4 GB. |
 | **api-scheduler** | `agent1o1-api-scheduler` | none | **Exactly one replica.** Limit 256 MB. |
 | **admin** | `agent1o1-admin` | 8080 → `https://admin.yourdomain.com` | `AUTORUN_ENABLED=true`, `REDIS_HOST`=redis-queue, `REDIS_DB=2`, `REDIS_CACHE_DB=3`, `REDIS_PREFIX=admin_`. Post-deploy `php artisan admin:preflight`. `SUPER_ADMIN_ALLOWED_IPS`, `SUPER_ADMIN_HOST`. Behind Cloudflare Access. |
 
@@ -494,3 +496,4 @@ Rehearse a restore before launch and then monthly (runbook §3).
 - [ ] Postgres image with pgvector and WAL-G, and point-in-time restore steps in `docs/BACKUP_RESTORE_RUNBOOK.md` (5.1).
 - [ ] Sentry SDK for GlitchTip in api, admin and frontend (8.1).
 - [ ] Scheduler and Horizon heartbeats to Uptime Kuma push URLs (8.2).
+- [x] Horizon worker caps through `HORIZON_*_MAX_PROCESSES` (7.2).
