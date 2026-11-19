@@ -420,62 +420,68 @@ return [
     ],
 
     'environments' => [
+        /*
+         * Each production supervisor's process ceiling can be lowered per
+         * server through HORIZON_*_MAX_PROCESSES (defaults below sum to 70).
+         * Every worker holds its own PHP memory and database connection, so
+         * keep the total within the server's RAM and Postgres max_connections.
+         */
         'production' => [
             'supervisor-1' => [
-                'maxProcesses' => 10,
+                'maxProcesses' => (int) env('HORIZON_DEFAULT_MAX_PROCESSES', 10),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'supervisor-triggers-event' => [
-                'maxProcesses' => 5,
+                'maxProcesses' => (int) env('HORIZON_TRIGGERS_EVENT_MAX_PROCESSES', 5),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'supervisor-triggers-poll' => [
-                'maxProcesses' => 3,
+                'maxProcesses' => (int) env('HORIZON_TRIGGERS_POLL_MAX_PROCESSES', 3),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'supervisor-workflows-dispatch' => [
-                'maxProcesses' => 5,
+                'maxProcesses' => (int) env('HORIZON_WORKFLOWS_DISPATCH_MAX_PROCESSES', 5),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'supervisor-workflows-execute' => [
-                'maxProcesses' => 10,
+                'maxProcesses' => (int) env('HORIZON_WORKFLOWS_EXECUTE_MAX_PROCESSES', 10),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'supervisor-ai-agent' => [
-                'maxProcesses' => 3,
+                'maxProcesses' => (int) env('HORIZON_AI_AGENT_MAX_PROCESSES', 3),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'supervisor-ai-subagent' => [
-                'maxProcesses' => 10,
+                'maxProcesses' => (int) env('HORIZON_AI_SUBAGENT_MAX_PROCESSES', 10),
             ],
             'supervisor-ai-assistant' => [
-                'maxProcesses' => 10,
+                'maxProcesses' => (int) env('HORIZON_AI_ASSISTANT_MAX_PROCESSES', 10),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'supervisor-workflow-builder' => [
-                'maxProcesses' => 5,
+                'maxProcesses' => (int) env('HORIZON_WORKFLOW_BUILDER_MAX_PROCESSES', 5),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'supervisor-billing' => [
-                'maxProcesses' => 3,
+                'maxProcesses' => (int) env('HORIZON_BILLING_MAX_PROCESSES', 3),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'supervisor-broadcasts' => [
-                'maxProcesses' => 3,
+                'maxProcesses' => (int) env('HORIZON_BROADCASTS_MAX_PROCESSES', 3),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'supervisor-long-running' => [
-                'maxProcesses' => 3,
+                'maxProcesses' => (int) env('HORIZON_LONG_RUNNING_MAX_PROCESSES', 3),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
