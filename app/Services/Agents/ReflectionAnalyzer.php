@@ -39,7 +39,7 @@ use Throwable;
  * instruction changes, or flagged tool gaps.
  *
  * Collapses the "mine → validate against transcripts → check existing
- * knowledge" pipeline (docs/gumloop/output/raw/core-concepts/reflections.md)
+ * knowledge" pipeline
  * into one model call that sees the transcripts, instructions, skills and
  * earlier reflections together, so a review costs about one conversation.
  *

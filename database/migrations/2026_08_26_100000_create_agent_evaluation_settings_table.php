@@ -7,9 +7,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * One row per `Agent`, whether/how its live `AgentSession`s are
  * automatically graded after each turn. See
- * `Services\Agents\SessionEvaluator` and
- * docs/gumloop/output/raw/core-concepts/evaluations.md, the feature this
- * mirrors.
+ * `Services\Agents\SessionEvaluator`.
  *
  * `criteria`/`tags`/`data_points` are JSON arrays rather than normalized
  * tables (the same choice `agent_eval_cases.assertions` made) because

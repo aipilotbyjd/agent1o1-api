@@ -12,7 +12,7 @@ use App\Models\Workspaces\Workspace;
 use App\Services\Billing\CreditOverage;
 
 /**
- * Gumloop's Subscription-page overage switch: whether the workspace keeps
+ * The Subscription-page overage switch: whether the workspace keeps
  * running once its allowance is spent, and the ceiling on what that may
  * cost it. Read with `billing.view`, changed with `billing.manage`: the
  * same split the rest of the billing surface uses, since flipping this on

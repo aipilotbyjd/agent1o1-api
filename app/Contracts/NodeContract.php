@@ -41,7 +41,7 @@ interface NodeContract
      * JSON-schema-shaped description of this node's `config`, used to
      * validate both draft saves and publishes (`ConfigSchemaValidator`).
      * Every implementation's `config` may also carry a reserved `_loop` key
-     * ({items_path, max_concurrent?, on_item_error?}) enabling Gumloop-style
+     * ({items_path, max_concurrent?, on_item_error?}) enabling
      * per-node "Loop Mode" - `Services\Workflows\LoopModeCompiler` compiles
      * it away at publish time, so it's never seen by `execute()` and never
      * needs to be declared here.

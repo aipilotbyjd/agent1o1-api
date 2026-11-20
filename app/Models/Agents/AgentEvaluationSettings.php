@@ -24,8 +24,7 @@ class AgentEvaluationSettings extends Model
     use HasFactory, HasUuids;
 
     /**
-     * Gumloop's published limits (docs/gumloop/output/raw/core-concepts/evaluations.md's
-     * "Limits" table): kept as the ceiling here too so a config can't grow
+     * Limits on the evaluation config: kept as a ceiling so a config can't grow
      * to a size the judge prompt can no longer reason about accurately.
      */
     public const int MAX_CRITERIA = 30;

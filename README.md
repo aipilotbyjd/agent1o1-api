@@ -1,6 +1,6 @@
 <p align="center"><strong>Agent1o1 API</strong></p>
 
-<p align="center">A Gumloop-style, node-based workflow & AI-agent automation platform — backend API only.</p>
+<p align="center">A node-based workflow & AI-agent automation platform — backend API only.</p>
 
 ## About
 

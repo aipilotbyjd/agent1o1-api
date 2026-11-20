@@ -54,7 +54,7 @@ class WebhookTriggerNode extends TriggerNode
         return $this->withActivateSwitch([
             'type' => 'object',
             'properties' => [
-                // Like n8n's Webhook node. The secret is never stored in the
+                // The secret is never stored in the
                 // workflow: it's set on the published trigger, encrypted.
                 'authentication' => Field::select('Authentication', [
                     WebhookAuthentication::None->value => 'None: anyone with the URL',

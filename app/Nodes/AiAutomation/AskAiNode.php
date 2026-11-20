@@ -8,7 +8,7 @@ use App\Nodes\Support\Field;
 use RuntimeException;
 
 /**
- * Gumloop's "Ask AI" node: a provider-agnostic single-turn LLM call routed
+ * The "Ask AI" node: a provider-agnostic single-turn LLM call routed
  * through `laravel/ai`'s own provider abstraction (see docs/NODES_CATALOG.md's
  * "AI nodes" section). The open-ended one: for a recurring job, the
  * classify, extract, summarize, translate, rewrite, sentiment and score nodes

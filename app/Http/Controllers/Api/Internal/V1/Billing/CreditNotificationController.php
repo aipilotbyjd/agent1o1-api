@@ -9,7 +9,7 @@ use App\Http\Responses\ApiResponse;
 use App\Models\Workspaces\Workspace;
 
 /**
- * Gumloop's Credit Notification Preferences: the workspace-level switches
+ * Credit notification preferences: the workspace-level switches
  * over *whether* credit warnings are sent at all. The per-user, per-event
  * choice of how to receive them (in-app, email, webhook) stays on
  * `/notifications/preferences`; these two settings sit above it, which is

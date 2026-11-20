@@ -5,9 +5,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Which `document_embeddings.collection`s an agent may search: Gumloop's
- * "attach a Brain source to an agent" (docs/gumloop/output/raw/core-concepts/brain.md
- * §"Giving an agent knowledge"). `collection` is a plain string, not a
+ * Which `document_embeddings.collection`s an agent may search: attaching a
+ * knowledge source to an agent. `collection` is a plain string, not a
  * foreign key: `document_embeddings.collection` has no model of its own,
  * it is just a grouping column: see that table's migration.
  */

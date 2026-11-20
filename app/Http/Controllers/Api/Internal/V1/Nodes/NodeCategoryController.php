@@ -82,7 +82,7 @@ class NodeCategoryController extends Controller
 
     /**
      * Triggers & Events lists every node that can start a flow, like
-     * Gumloop's Triggers section: the dedicated trigger nodes, then each
+     * a Triggers section: the dedicated trigger nodes, then each
      * app's reader that can act as one (also still listed under its app).
      *
      * @param  Collection<int, array<string, mixed>>  $nodes

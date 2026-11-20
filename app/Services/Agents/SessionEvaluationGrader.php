@@ -6,9 +6,8 @@ use App\Enums\Agents\SessionEvaluationGrade;
 
 /**
  * Turns the judge's raw verdict into a `SessionEvaluationGrade`, in code,
- * never the LLM. Mirrors Gumloop's published, deterministic rule
- * (docs/gumloop/output/raw/core-concepts/evaluations.md's "Grade computation
- * logic"), the one part of that feature copied faithfully because it is a
+ * never the LLM. A deterministic rule,
+ * chosen because it is a
  * good, auditable rule: the same inputs always produce the same grade,
  * independently of anything the judge model felt like emphasizing.
  */

@@ -9,9 +9,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 /**
- * Compiles Gumloop-style per-node "Loop Mode": a reserved `config._loop`
- * key any node may carry (see docs/gumloop/output/raw/core-concepts/agent_node.md's
- * "Loop Mode Support"): into a real `loop` node, at publish time only,
+ * Compiles per-node "Loop Mode": a reserved `config._loop`
+ * key any node may carry: into a real `loop` node, at publish time only,
  * never on the live draft.
  *
  * Deliberately does not touch `Services\Workflows\Engine\LoopCoordinator` or

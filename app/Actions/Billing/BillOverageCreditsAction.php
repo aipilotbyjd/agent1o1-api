@@ -16,8 +16,8 @@ use Throwable;
 
 /**
  * Turns accrued overage into a Stripe invoice: the second half of
- * Gumloop's "keep running past your monthly credits, billed at $0.005 per
- * credit". Overage is metered as it is spent (`DeductCreditsAction` writes
+ * keeping a workspace running past its monthly credits, billed at $0.005 per
+ * credit. Overage is metered as it is spent (`DeductCreditsAction` writes
  * `usage_periods.overage_credits_used`) and charged after the fact, because
  * invoicing per node run would mean a Stripe call inside the metering path.
  *

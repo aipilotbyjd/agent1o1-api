@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Notification;
 use Laravel\Passport\Passport;
 
 /**
- * Gumloop's Credit Notification Preferences: usage thresholds the workspace
+ * Credit notification preferences: usage thresholds the workspace
  * picks for itself (75% and 90% by default), and an out-of-credits switch.
  * Distinct from `admin_alerts.usage.threshold_percent`, which is the one
  * estate-wide line the operator watches.

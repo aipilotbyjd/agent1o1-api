@@ -50,10 +50,9 @@ enum TriggerNodeType: string
      * Whether the editor and the builder assistant offer this node for new
      * workflows.
      *
-     * The manual trigger isn't offered: as in Gumloop, clicking Run already
+     * The manual trigger isn't offered: clicking Run already
      * starts a workflow at its first steps, so the node only duplicated the
-     * Run button. (n8n has one because its engine can't start without a
-     * trigger node.) It stays registered so workflows that already hold one
+     * Run button. It stays registered so workflows that already hold one
      * still save and run.
      */
     public function isListed(): bool

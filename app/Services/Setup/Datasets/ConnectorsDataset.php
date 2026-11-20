@@ -15,7 +15,7 @@ use App\Services\Setup\AbstractSetupDataset;
  *
  * Every Google product is its own connector: its own "Connect" button, its
  * own consent screen, its own scope, rather than one shared Google login
- * covering all of them. Matches how Gumloop (and most workflow tools) model
+ * covering all of them. Matches how most workflow tools model
  * Google integrations: users grant only what a given product needs.
  */
 class ConnectorsDataset extends AbstractSetupDataset

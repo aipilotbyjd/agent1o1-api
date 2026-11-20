@@ -8,9 +8,8 @@ use App\Models\Workspaces\Workspace;
 
 /**
  * The one place that answers "may this workspace spend past its allowance,
- * and by how much": Gumloop's credit overage: "enable credit overage to
- * keep running past your monthly credits, billed at $0.005 per credit"
- * (docs/gumloop/output/raw/core-concepts/credits.md).
+ * and by how much": credit overage lets a workspace keep running past its
+ * monthly credits, billed at $0.005 per credit.
  *
  * Three independent things have to line up before a single overage credit is
  * granted, and each is a deliberate off switch:
@@ -47,7 +46,7 @@ class CreditOverage
      * where it set one, otherwise the estate default, and never above the
      * estate default however the column was written. `null` means uncapped,
      * which only happens when the estate default is itself uncapped:
-     * Gumloop's Enterprise case.
+     * The Enterprise case.
      */
     public function effectiveLimitFor(Workspace $workspace): ?int
     {

@@ -7,8 +7,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * One row per `Agent`, whether/how it periodically reviews its own past
  * `AgentSession`s and proposes improvements. See
- * `Services\Agents\ReflectionAnalyzer` and docs/gumloop/output/raw/core-concepts/reflections.md,
- * the feature this mirrors.
+ * `Services\Agents\ReflectionAnalyzer`.
  *
  * Report delivery itself (email/in-app/webhook) rides the existing
  * `NotificationType::ReflectionRunCompleted`/`NotificationPreference`

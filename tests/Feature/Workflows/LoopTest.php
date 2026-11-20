@@ -226,7 +226,7 @@ it('loops a single node via config._loop without a hand-built child workflow', f
     expect($run->nodeRuns->firstWhere('key', 'after')->status)->toBe(NodeRunStatus::Completed);
 });
 
-it('loops an Agent node via config._loop, matching Gumloop\'s "Loop Mode Support"', function () {
+it('loops an Agent node via config._loop', function () {
     WorkspaceAgent::fake(['reply']);
 
     $owner = User::factory()->create();

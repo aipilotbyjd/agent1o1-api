@@ -5,8 +5,8 @@ namespace App\Contracts;
 use App\Models\Runs\Run;
 
 /**
- * A reader node that can also start a workflow: Gumloop's "Activate as flow
- * trigger" on a Gmail, Slack or Sheets step.
+ * A reader node that can also start a workflow: an "Activate as flow
+ * trigger" option on a Gmail, Slack or Sheets step.
  *
  * Switched on, the node is published as a polling trigger (TriggerNodeSync).
  * Each poll runs the node's own execute(), picks the items out of its output

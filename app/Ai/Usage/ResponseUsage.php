@@ -6,7 +6,7 @@ use Carbon\CarbonInterface;
 use Laravel\Ai\Responses\TextResponse;
 
 /**
- * What `CreditMeter` needs to price a model call like a Gumloop chat turn:
+ * What `CreditMeter` needs to price a model call for a chat turn:
  * token usage, which model served it (so $-based pricing can look it up),
  * how many tool calls it made, and how long it ran.
  *

@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * still be relied on for API responses, this is a second guard, not the
  * only one.
  *
- * `scope` + `is_default` back Gumloop's Personal/Team credentials and
+ * `scope` + `is_default` back Personal/Team credentials and
  * default-account resolution: see `HasScopedVisibility` and
  * `Nodes\Integrations\Concerns\ResolvesConnectorCredential`.
  */

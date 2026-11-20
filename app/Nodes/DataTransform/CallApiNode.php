@@ -13,7 +13,7 @@ use App\Services\Http\GuardedHttp;
 use App\Services\Http\SsrfGuard;
 
 /**
- * Generic outbound HTTP request node (Gumloop's "Call API"/`CallApiNode`).
+ * Generic outbound HTTP request node ("Call API").
  */
 class CallApiNode implements DeclaresEffect, HasIcon, NodeContract
 {

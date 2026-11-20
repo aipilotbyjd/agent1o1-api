@@ -128,7 +128,7 @@ class ArtifactController extends Controller
     }
 
     /**
-     * Sets the group's sharing tier: General Access in Gumloop's terms.
+     * Sets the group's sharing tier: General Access.
      */
     public function updateAccess(UpdateArtifactAccessRequest $request, Workspace $workspace, Artifact $artifact)
     {

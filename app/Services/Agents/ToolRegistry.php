@@ -64,7 +64,7 @@ use Laravel\Ai\Providers\Tools\WebSearch;
  * "Knowledge / RAG" sections.
  *
  * Knowledge tools (`SearchKnowledgeTool`/`ReadKnowledgeDocumentTool`) follow
- * Gumloop's "attach a source to use it" model: see `knowledgeTools()`.
+ * an "attach a source to use it" model: see `knowledgeTools()`.
  *
  * `ExportArtifactTool` is only attached when there's an `AgentSession` to
  * file an artifact under: normally `$run->runnable` for a session-backed
