@@ -17,13 +17,10 @@ use RuntimeException;
  * compatibility with nodes configured before `ConnectorCredential` existed
  * (docs/PLAN.md Phase 6).
  *
- * With neither pinned, falls back to a *default* credential: Gumloop's
- * "Personal Default"/"if you only have one account connected, it's
- * automatically your default" (see
- * docs/gumloop/output/raw/core-concepts/credentials.md). The acting user's
- * personal default takes priority over the workspace's team default,
- * matching the doc's "everyone uses their own account by default" rule of
- * thumb.
+ * With neither pinned, falls back to a *default* credential (a
+ * single connected account is automatically the default). The acting
+ * user's personal default takes priority over the workspace's team
+ * default, so everyone uses their own account by default.
  *
  * Shared by node execution (`ResolvesConnectorCredential`, acting user =
  * `Run::triggered_by`) and the editor's dynamic field options

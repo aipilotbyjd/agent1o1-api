@@ -27,14 +27,12 @@ use Throwable;
  * `AgentEvaluationSettings` and records the result: the live-conversation
  * counterpart to `EvalRunner`'s offline suite grading. See
  * `Listeners\Agents\ScheduleSessionEvaluation` for how this gets called
- * (debounced, off `RunCompleted`) and
- * docs/gumloop/output/raw/core-concepts/evaluations.md for the feature this
- * mirrors.
+ * (debounced, off `RunCompleted`).
  *
  * A session that continues after being graded and completes again produces
  * a new evaluation that replaces the old one (`updateOrCreate` on
- * `agent_session_id`), same as Gumloop's "you always see the most recent
- * evaluation result".
+ * `agent_session_id`), so you always see the most recent
+ * evaluation result.
  */
 class SessionEvaluator
 {

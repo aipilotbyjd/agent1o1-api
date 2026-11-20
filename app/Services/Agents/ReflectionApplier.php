@@ -19,8 +19,7 @@ use Throwable;
  * `Agent::instructions` (which `AgentObserver` snapshots into a new
  * `AgentVersion` on save, same as any other instruction edit). Records the
  * change as its own `Run` so it shows up in the agent's history exactly like
- * the "self-improvement interaction" the feature this mirrors describes:
- * see docs/gumloop/output/raw/core-concepts/reflections.md.
+ * a "self-improvement interaction".
  *
  * `tool_access` reflections have nothing safe to automate: applying one only
  * marks it resolved, a human still has to grant the connector/credential

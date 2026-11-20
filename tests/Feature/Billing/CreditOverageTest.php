@@ -18,8 +18,8 @@ use Illuminate\Support\Facades\Notification;
 use Laravel\Passport\Passport;
 
 /**
- * Credit overage: Gumloop's "keep running past your monthly credits, billed
- * at $0.005 per credit", with a cap that can only ever be lowered.
+ * Credit overage: keep running past the monthly credits, billed
+ * at $0.005 per credit, with a cap that can only ever be lowered.
  */
 function workspaceOnOveragePlan(int $creditsMonthly = 10, bool $sellsOverage = true): Workspace
 {

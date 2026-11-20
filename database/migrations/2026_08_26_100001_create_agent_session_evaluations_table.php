@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Schema;
  * The latest QA grading of one `AgentSession`: see
  * `Services\Agents\SessionEvaluator`. Unique on `agent_session_id`: a
  * session that continues after being graded and completes again produces a
- * new evaluation that *replaces* the old one, same as Gumloop's "you always
- * see the most recent evaluation result for any given interaction", rather
+ * new evaluation that *replaces* the old one, so you always
+ * see the most recent evaluation result for any given interaction, rather
  * than piling up one row per turn.
  */
 return new class extends Migration

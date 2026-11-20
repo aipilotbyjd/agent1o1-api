@@ -65,9 +65,8 @@ class ProcessWorkflowBuilderMessageJob implements ShouldQueue
     /**
      * The `model_catalog` slug for the workflow-builder assistant itself
      * (not a user-selectable entry: see `ModelCatalog::is_internal`).
-     * Gumloop's own equivalent internal agent runs on an open-weight model
-     * via Fireworks for a large cost saving with no UX change; this lets you
-     * do the same here by adding/enabling a route on this slug.
+     * Routing this slug to a cheaper open-weight model (e.g. via Fireworks)
+     * cuts cost with no UX change: just add/enable a route on it.
      */
     public const string MODEL_CATALOG_SLUG = 'workflow-builder-assistant';
 

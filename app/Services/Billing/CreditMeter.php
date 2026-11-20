@@ -28,7 +28,7 @@ use Laravel\Pulse\Facades\Pulse;
  * runs here either way.
  *
  * Workflow node runs and agent chat turns are priced by two different
- * Gumloop formulas (see docs/gumloop/output/raw/core-concepts/credits.md):
+ * formulas:
  * a node run is `1 base credit + its fixed node cost + its token cost`,
  * with no compute or orchestration fee, while a chat turn is
  * `reasoning + tool calls + compute`, plus an orchestration fee on that
@@ -53,16 +53,16 @@ class CreditMeter
 
     /**
      * Credits per session-minute of active processing, and the floor below
-     * which a turn still costs at least one credit: Gumloop's "5 credits
+     * which a turn still costs at least one credit: 5 credits
      * per session-minute of active processing, with a minimum of 1 credit
-     * per response."
+     * per response.
      */
     private const int COMPUTE_CREDITS_PER_MINUTE = 5;
 
     private const int MINIMUM_COMPUTE_CREDITS = 1;
 
     /**
-     * 1 credit per successful tool call: Gumloop's "Tool Calls" component.
+     * 1 credit per successful tool call: the "Tool Calls" component.
      */
     private const int CREDITS_PER_TOOL_CALL = 1;
 
@@ -234,7 +234,7 @@ class CreditMeter
     }
 
     /**
-     * Gumloop's agent-chat formula: Chat & Reasoning + Tool Calls + Compute,
+     * The agent-chat formula: Chat & Reasoning + Tool Calls + Compute,
      * then an Orchestration Fee on top of that subtotal. Unlike a workflow
      * node run, a chat turn has no separate flat base credit: Compute's own
      * one-credit floor already guarantees a minimum charge.
@@ -247,7 +247,7 @@ class CreditMeter
     }
 
     /**
-     * A chat turn's charge split into Gumloop's Chat Details lines. A turn
+     * A chat turn's charge split into its Chat Details lines. A turn
      * served by the workspace's own key pays nothing for reasoning, and its
      * orchestration fee is `billing.byok_orchestration_fee_rate` of what the
      * turn would have been worth on the platform's key ("16% instead of 8%,

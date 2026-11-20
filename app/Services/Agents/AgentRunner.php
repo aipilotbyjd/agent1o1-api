@@ -863,9 +863,8 @@ class AgentRunner
     }
 
     /**
-     * What `Nodes\AiAutomation\AgentNode` calls during a workflow run: see
-     * docs/gumloop/output/raw/core-concepts/agent_node.md's "Node Inputs"/
-     * "Node Outputs"/"Continuing Conversations" sections. Unlike `ask()`,
+     * What `Nodes\AiAutomation\AgentNode` calls during a workflow run.
+     * Unlike `ask()`,
      * this turn is persisted as a real `AgentSession`/`AgentMessage` pair so
      * a later Agent-node call can continue it via `$previousConversationId`:
      * started fresh when that's null, otherwise loaded and validated
@@ -1004,8 +1003,7 @@ class AgentRunner
      * the calling run's own workspace, for this same `$agent`. A session
      * belongs to exactly one agent (`AgentSession::pinnedAgent()`), so
      * continuing it with a different agent selected on the node wouldn't
-     * mean anything; Gumloop's own doc calls the equivalent failure
-     * "Conversation Not Found".
+     * mean anything.
      */
     private function conversationFor(AgentModel $agent, Run $run, string $previousConversationId): AgentSession
     {

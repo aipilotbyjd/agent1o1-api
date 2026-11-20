@@ -11,7 +11,7 @@ use App\Notifications\AppNotification;
  * `CreditsExhaustedNotification` because the remedy is different: the
  * allowance is gone *and* the overage the workspace agreed to pay for is
  * spent, so the fix is to raise the cap (or upgrade), not to wait for the
- * period to reset: Gumloop's "agents stop once the cap is reached".
+ * period to reset: agents stop once the cap is reached.
  */
 class OverageCapReachedNotification extends AppNotification
 {

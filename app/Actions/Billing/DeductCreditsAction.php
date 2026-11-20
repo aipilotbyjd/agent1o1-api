@@ -195,7 +195,7 @@ class DeductCreditsAction
      * The operator's line and the customer's lines are different questions
      * and are answered separately: `admin_alerts.usage.threshold_percent` is
      * one estate-wide number for whoever runs the platform, while a
-     * workspace picks its own (Gumloop's 75% and 90% by default) for the
+     * workspace picks its own (75% and 90% by default) for the
      * people who pay the bill.
      *
      * Either way only the charge that actually crosses a line fires: every

@@ -16,9 +16,8 @@ use App\Services\Agents\KnowledgeBase;
 use App\Services\Agents\SkillInjector;
 
 /**
- * Which `document_embeddings.collection`s an agent uses, and how: Gumloop's
- * "attach a Brain source to an agent" (see
- * docs/gumloop/output/raw/core-concepts/brain.md). A collection attached in
+ * Which `document_embeddings.collection`s an agent uses, and how: attaching a
+ * knowledge source to an agent. A collection attached in
  * `KnowledgeMode::Search` scopes `ToolRegistry`'s `SearchKnowledgeTool`/
  * `ReadKnowledgeDocumentTool` to it instead of the whole workspace; one in
  * `KnowledgeMode::Always` is also put in the agent's prompt by

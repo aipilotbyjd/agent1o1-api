@@ -19,8 +19,7 @@ use Throwable;
  *
  * Only *ended* periods are billed. A period still accruing would need a
  * second invoice for whatever it spent afterwards, which is a worse
- * experience than one line at the end of the cycle and is not how Gumloop
- * bills it either.
+ * experience than one line at the end of the cycle.
  */
 class InvoiceOverageCommand extends Command
 {

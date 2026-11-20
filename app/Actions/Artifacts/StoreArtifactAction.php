@@ -34,10 +34,9 @@ use Throwable;
  *
  * When the artifact is filed under an agent and its content is
  * text-extractable, it is also indexed into that agent's
- * `Agent::artifactKnowledgeCollection()`: Gumloop's "Your agents'
- * artifacts" (docs/gumloop/output/raw/core-concepts/brain.md), letting the
- * agent search its own past outputs. Only the newest version stays
- * indexed, mirroring the doc's "updates in place" behavior.
+ * `Agent::artifactKnowledgeCollection()`, letting the agent search its own
+ * past outputs. Only the newest version stays indexed, so an update
+ * replaces it in place.
  */
 class StoreArtifactAction
 {

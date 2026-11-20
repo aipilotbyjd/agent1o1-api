@@ -13,7 +13,7 @@ use App\Models\Runs\Run;
 use App\Services\Workflows\NodeRegistry;
 
 /**
- * What one run cost the customer, line by line, the way Gumloop's Chat
+ * What one run cost the customer, line by line, the way the Chat
  * Details panel shows it: an agent turn as Chat & Reasoning, Tool Calls,
  * Compute and the Orchestration Fee (reasoning on the workspace's own key
  * shown as waived), a workflow run by step and kind of step, plus the models

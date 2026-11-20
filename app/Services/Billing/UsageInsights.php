@@ -7,7 +7,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
 /**
- * A workspace's own view of where its credits go (Gumloop's Insights):
+ * A workspace's own view of where its credits go (Insights):
  * credits by day, by kind of work, by workflow and agent, and by model, for
  * the last `$days` days. Only credits and counts: what a model costs the
  * platform is never shown to customers.

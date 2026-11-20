@@ -167,18 +167,17 @@ return [
     | Credit Overage
     |--------------------------------------------------------------------------
     |
-    | Gumloop's "enable credit overage to keep running past your monthly
-    | credits, billed at $0.005 per credit". Off per workspace until it opts
+    | Credit overage lets a workspace keep running past its monthly credits,
+    | billed per credit. Off per workspace until it opts
     | in (`workspaces.credit_overage_enabled`) and only offered on plans
     | carrying the `credit_overage` feature.
     |
     | `default_limit` is the ceiling on how many overage credits one billing
-    | period may accrue when a workspace hasn't set its own: Gumloop's
-    | "default ceiling is 1,000,000 overage credits per billing period
-    | ($5,000)". A workspace may lower this on its subscription screen but
+    | period may accrue when a workspace hasn't set its own
+    | (1,000,000 overage credits per billing period, $5,000). A workspace may lower this on its subscription screen but
     | never raise it, so overage can't run away unbounded. Setting the env var
-    | to `null` lifts the ceiling estate-wide, which is Gumloop's uncapped
-    | Enterprise case.
+    | to `null` lifts the ceiling estate-wide (the uncapped
+    | Enterprise case).
     |
     | `credit_value_usd` is what one overage credit is invoiced at. It is kept
     | above `billing.credit_value_usd` on purpose: overage credits are mostly
@@ -207,8 +206,8 @@ return [
     | Credit Notifications
     |--------------------------------------------------------------------------
     |
-    | Gumloop's Credit Notification Preferences: "Credit Usage Notifications
-    | ... defaults to 75% and 90%". These are the thresholds a workspace gets
+    | Credit Notification Preferences: usage notifications default to 75%
+    | and 90%. These are the thresholds a workspace gets
     | until it sets its own on `PUT /billing/credit-notifications`; each is a
     | percentage of the period's `credits_limit`, and only the charge that
     | actually crosses one notifies.
@@ -235,16 +234,12 @@ return [
     | 1 credit per run, keyed by the node's `type()` string (matches
     | `workflow_nodes.type` / `NodeRun.type`). A type left out of this table
     | costs nothing extra: most nodes (transform, filter, Slack, Gmail,
-    | GitHub, Google Suite, ...) are free beyond the base credit, same as
-    | Gumloop's node pricing.
+    | GitHub, Google Suite, ...) are free beyond the base credit.
     |
     | `run_code` is priced here because it executes in an isolated sandbox
-    | for security, which carries a real infra cost: the same bracket as
-    | Gumloop's "Custom and MCP nodes: 3 credits each". `agent` matches
-    | Gumloop's own stated Agent-node price: "a base cost of 3 credits per
-    | run, charged on top of the actual credit cost of running the agent"
-    | (docs/gumloop/output/raw/core-concepts/agent_node.md's "Credit Costs"
-    | section): `CreditMeter::costForNodeRun()` already adds this on top of
+    | for security, which carries a real infra cost, priced like
+    | custom and MCP nodes. `agent` is a base cost per run, charged on top
+    | of the actual credit cost of running the agent: `CreditMeter::costForNodeRun()` already adds this on top of
     | the node's own token cost. Add an entry here for any future node type
     | that deserves its own surcharge (a real custom/MCP node, image
     | generation, data enrichment, ...) instead of changing `CreditMeter`.
@@ -279,8 +274,8 @@ return [
     | Credit Value
     |--------------------------------------------------------------------------
     |
-    | What one credit is worth in USD: mirrors Gumloop's "$1 buys 200
-    | credits" ($0.005/credit). `CreditMeter` divides a model call's real
+    | What one credit is worth in USD: $1 buys 200
+    | credits ($0.005/credit). `CreditMeter` divides a model call's real
     | dollar cost (from `model_prices` below) by this to get its credit
     | price, rounded up.
     |
@@ -293,11 +288,10 @@ return [
     | Orchestration Fee
     |--------------------------------------------------------------------------
     |
-    | Gumloop's "running the agent loop itself" surcharge on agent chats:
+    | The "running the agent loop itself" surcharge on agent chats:
     | applied by `CreditMeter` to the sum of an agent turn's reasoning, tool
-    | call, and compute credits. Workflow runs never carry this fee; see
-    | Gumloop's "Compute and the orchestration fee apply to agent chats
-    | only."
+    | call, and compute credits. Workflow runs never carry this fee:
+    | compute and the orchestration fee apply to agent chats only.
     |
     */
 
@@ -334,8 +328,8 @@ return [
     | BYOK Orchestration Fee
     |--------------------------------------------------------------------------
     |
-    | Gumloop's "agent chats on BYOK carry a 16% orchestration fee instead of
-    | 8%, calculated on what the run would have been worth". A chat turn
+    | Agent chats on BYOK carry a 16% orchestration fee instead of 8%,
+    | calculated on what the run would have been worth. A chat turn
     | served by a workspace's own key pays no token credits, so the fee is
     | taken on the turn's would-be value (its token cost at list price plus
     | tool calls and compute) at this rate instead of `orchestration_fee_rate`.
@@ -474,8 +468,8 @@ return [
     | provider/model strings `laravel/ai` reports back on a response's
     | `Meta` (and that match `model_routes.execution_provider`/
     | `execution_model_id`). `CreditMeter` uses this to bill a model call at
-    | its real cost (`credit_value_usd` above), the same way Gumloop's
-    | "Model calls bill at cost" works.
+    | its real cost (`credit_value_usd` above): model calls bill at
+    | cost.
     |
     | This app's `ModelCatalogDataset` lists a mostly fictional, future-dated
     | model lineup (Claude Opus 5, GPT-5.6 *, Gemini 3.x, Grok 4.6, DeepSeek

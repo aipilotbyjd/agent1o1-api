@@ -7,8 +7,8 @@ use App\Models\Workspaces\Workspace;
 use App\Notifications\AppNotification;
 
 /**
- * Gumloop's Credit Usage Notification: "an email when usage crosses a
- * threshold", at whichever of the workspace's own thresholds this charge
+ * Credit Usage Notification: an email when usage crosses a
+ * threshold, at whichever of the workspace's own thresholds this charge
  * crossed.
  *
  * `$thresholdPercent` is the line that was crossed and `$percentUsed` is

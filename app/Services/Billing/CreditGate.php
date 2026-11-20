@@ -138,7 +138,7 @@ class CreditGate
      * already agreed to pay past the allowance.
      *
      * Suppressed entirely by the workspace's own "Out of Credits
-     * Notification" switch (Gumloop's, on by default). The admin alert above
+     * Notification" switch (on by default). The admin alert above
      * is not: an operator still wants to know a tenant is blocked, whatever
      * the tenant chose to be emailed about.
      */

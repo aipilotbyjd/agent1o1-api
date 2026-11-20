@@ -545,7 +545,7 @@ class Workspace extends Model
 
     /**
      * Percentages of this period's allowance at which the workspace wants to
-     * be told it is running low: Gumloop's Credit Usage Notifications,
+     * be told it is running low (Credit Usage Notifications),
      * defaulting to 75% and 90%.
      *
      * `null` means the workspace never chose, so the estate default applies.

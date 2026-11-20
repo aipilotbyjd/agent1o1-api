@@ -16,8 +16,7 @@ use InvalidArgumentException;
 
 /**
  * Embeds an `Agent` inside a workflow: the Workflow→Agent direction (Stage 7's
- * `WorkflowTool` is the reverse, Agent→Workflow), and this app's version of
- * Gumloop's Agent node (docs/gumloop/output/raw/core-concepts/agent_node.md).
+ * `WorkflowTool` is the reverse, Agent→Workflow).
  * Ported design from the old project's `AgentStepHandler`: resolves the
  * `Agent` scoped to the run's workspace and prompts it via
  * `AgentRunner::askInConversation()`, which persists the turn as a real

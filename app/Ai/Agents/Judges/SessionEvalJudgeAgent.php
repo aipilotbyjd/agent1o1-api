@@ -25,9 +25,8 @@ use Laravel\Ai\Promptable;
  * measured against.
  *
  * Given only the agent's name, description and skills (never its system
- * prompt) mirroring Gumloop's stated privacy boundary
- * (docs/gumloop/output/raw/core-concepts/evaluations.md's "Does the
- * evaluator see my agent's system prompt?"). It answers with a structured
+ * prompt), so the evaluator never sees the agent's private instructions.
+ * It answers with a structured
  * verdict (`SubmitEvaluationTool`'s schema) and has no tool that can act on
  * anything. Transcript content is treated purely as data, never as
  * instructions.
