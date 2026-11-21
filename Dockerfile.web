@@ -4,7 +4,7 @@ FROM serversideup/php:8.5-fpm-nginx
 
 USER root
 # pcntl required by Horizon, pdo_pgsql for Postgres. (predis is pure PHP, no ext-redis)
-RUN install-php-extensions pcntl intl bcmath exif pdo_pgsql
+RUN install-php-extensions pcntl intl bcmath exif pdo_pgsql gd
 
 ENV PHP_OPCACHE_ENABLE=1 \
     SSL_MODE=off \
