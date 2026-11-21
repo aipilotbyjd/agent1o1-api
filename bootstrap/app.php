@@ -29,6 +29,7 @@ use App\Http\Middleware\SuperAdmin\EnsureSuperAdminIsActive;
 use App\Http\Middleware\SuperAdmin\EnsureSuperAdminTwoFactor;
 use App\Http\Middleware\SuperAdmin\IdempotentSuperAdminRequest;
 use App\Http\Middleware\TouchAccessTokenUsage;
+use App\Http\Middleware\TreatRequestAsHttps;
 use App\Http\Responses\ApiResponse;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -78,6 +79,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'super-admin.audit' => AuditSuperAdminRequest::class,
             'super-admin.idempotent' => IdempotentSuperAdminRequest::class,
         ]);
+
+        $middleware->prepend(TreatRequestAsHttps::class);
 
         $middleware->append(SecurityHeaders::class);
 
