@@ -56,6 +56,11 @@ class Connector extends Model
         return $this->auth_type === ConnectorAuthType::OAuth2;
     }
 
+    public function oauthConfig(string $field): mixed
+    {
+        return config("connectors.{$this->key}.{$field}");
+    }
+
     /**
      * The labels of the fields its form marks required that `$data` leaves
      * empty, so a connection can't be saved half-filled (a Twilio account with
@@ -85,8 +90,8 @@ class Connector extends Model
             return true;
         }
 
-        return filled(config("services.{$this->key}.client_id"))
-            && filled(config("services.{$this->key}.client_secret"));
+        return filled($this->oauthConfig('client_id'))
+            && filled($this->oauthConfig('client_secret'));
     }
 
     /**

@@ -20,7 +20,7 @@ beforeEach(function () {
     $this->workspace = app(WorkspaceService::class)->create($this->owner, ['name' => 'Acme']);
     $this->gmail = Connector::query()->where('key', 'gmail')->first() ?? Connector::factory()->oauth()->create(['key' => 'gmail', 'name' => 'Gmail']);
     $this->gmail->forceFill(['auth_type' => 'oauth2', 'oauth' => ['authorize_url' => 'https://accounts.google.com/o/oauth2/v2/auth', 'token_url' => 'https://oauth2.googleapis.com/token', 'scopes' => []]])->save();
-    config(['services.gmail.client_id' => 'cid', 'services.gmail.client_secret' => 'secret']);
+    config(['connectors.gmail.client_id' => 'cid', 'connectors.gmail.client_secret' => 'secret']);
 
     $this->credential = fn (array $attributes = []) => ConnectorCredential::factory()->forWorkspace($this->workspace)->forConnector($this->gmail)->create([
         'data' => ['access_token' => 'live-token', 'refresh_token' => 'refresh-1'],

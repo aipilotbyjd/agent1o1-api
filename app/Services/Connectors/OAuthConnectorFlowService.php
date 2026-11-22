@@ -284,7 +284,7 @@ class OAuthConnectorFlowService
      */
     private function clientConfig(Connector $connector, string $key): string
     {
-        $value = config("services.{$connector->key}.{$key}");
+        $value = $connector->oauthConfig($key);
 
         if (! is_string($value) || $value === '') {
             throw ConnectorException::notConfigured($connector);

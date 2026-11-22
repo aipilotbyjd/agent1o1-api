@@ -26,9 +26,9 @@ it('flags oauth connectors the server has no client credentials for', function (
     [, $owner] = ownerWorkspaceForConnectors();
 
     config([
-        'services.github.client_id' => 'client-123',
-        'services.github.client_secret' => 'secret-123',
-        'services.gmail' => null,
+        'connectors.github.client_id' => 'client-123',
+        'connectors.github.client_secret' => 'secret-123',
+        'connectors.gmail' => null,
     ]);
 
     Passport::actingAs($owner);

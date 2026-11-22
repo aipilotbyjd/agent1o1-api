@@ -964,8 +964,8 @@ return [
         'oauth' => [
             // DocuSign signs people in on `account.docusign.com`, or on `account-d.docusign.com`
             // for its developer sandbox (set DOCUSIGN_AUTH_HOST to switch).
-            'authorize_url' => 'https://'.config('services.docusign.auth_host', 'account.docusign.com').'/oauth/auth',
-            'token_url' => 'https://'.config('services.docusign.auth_host', 'account.docusign.com').'/oauth/token',
+            'authorize_url' => 'https://'.config('connectors.docusign.auth_host', 'account.docusign.com').'/oauth/auth',
+            'token_url' => 'https://'.config('connectors.docusign.auth_host', 'account.docusign.com').'/oauth/token',
             // DocuSign wants the client id and secret in a Basic authorization header.
             'token_auth' => 'basic',
             // `extended` is what makes DocuSign issue a refresh token.

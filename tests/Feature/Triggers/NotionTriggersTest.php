@@ -87,7 +87,7 @@ describe('connecting', function () {
 
     it('sends the person to notion as the owner, with no scope', function () {
         $this->syncSetup('connectors');
-        config(['services.notion.client_id' => 'cid', 'services.notion.client_secret' => 'csecret']);
+        config(['connectors.notion.client_id' => 'cid', 'connectors.notion.client_secret' => 'csecret']);
         $owner = User::factory()->create();
         $workspace = app(WorkspaceService::class)->create($owner, ['name' => 'Acme']);
 
@@ -101,7 +101,7 @@ describe('connecting', function () {
 
     it('trades the code with basic auth and keeps the workspace id for webhooks', function () {
         $this->syncSetup('connectors');
-        config(['services.notion.client_id' => 'cid', 'services.notion.client_secret' => 'csecret']);
+        config(['connectors.notion.client_id' => 'cid', 'connectors.notion.client_secret' => 'csecret']);
         $connector = Connector::query()->where('key', 'notion')->firstOrFail();
         $owner = User::factory()->create();
         $workspace = app(WorkspaceService::class)->create($owner, ['name' => 'Acme']);

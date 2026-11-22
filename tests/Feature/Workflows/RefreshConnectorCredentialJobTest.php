@@ -16,7 +16,7 @@ it('refreshes an oauth connector credential', function () {
     $owner = User::factory()->create();
     $workspace = app(WorkspaceService::class)->create($owner, ['name' => 'Acme']);
     $connector = Connector::factory()->oauth()->create(['key' => 'github']);
-    config(['services.github.client_id' => 'client-123', 'services.github.client_secret' => 'secret-123']);
+    config(['connectors.github.client_id' => 'client-123', 'connectors.github.client_secret' => 'secret-123']);
 
     $credential = ConnectorCredential::factory()
         ->forWorkspace($workspace)
@@ -53,7 +53,7 @@ it('preserves existing tokens when refresh returns an oauth error', function () 
     $owner = User::factory()->create();
     $workspace = app(WorkspaceService::class)->create($owner, ['name' => 'Acme']);
     $connector = Connector::factory()->oauth()->create(['key' => 'github']);
-    config(['services.github.client_id' => 'client-123', 'services.github.client_secret' => 'secret-123']);
+    config(['connectors.github.client_id' => 'client-123', 'connectors.github.client_secret' => 'secret-123']);
     $tokens = ['access_token' => 'existing', 'refresh_token' => 'refresh-abc'];
     $credential = ConnectorCredential::factory()->forWorkspace($workspace)->forConnector($connector)
         ->create(['data' => $tokens]);

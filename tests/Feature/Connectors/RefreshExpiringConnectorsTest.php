@@ -27,7 +27,7 @@ it('queues refreshes only for tokens about to expire that can be refreshed', fun
 });
 
 it('asks Google for offline access so connections can be refreshed', function () {
-    config(['services.google_test.client_id' => 'cid', 'services.google_test.client_secret' => 'secret']);
+    config(['connectors.google_test.client_id' => 'cid', 'connectors.google_test.client_secret' => 'secret']);
     $owner = User::factory()->create();
     $workspace = app(WorkspaceService::class)->create($owner, ['name' => 'Acme']);
     $connector = Connector::factory()->create([

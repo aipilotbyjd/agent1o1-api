@@ -30,7 +30,7 @@ it('seeds a connector and a node category for every google node family', functio
             ->and($connector->oauth['authorize_url'])->toBe('https://accounts.google.com/o/oauth2/v2/auth')
             ->and($connector->oauth['authorize_params'])->toMatchArray(['access_type' => 'offline', 'prompt' => 'consent'])
             ->and($connector->oauth['scopes'])->not->toBeEmpty()
-            ->and(config("services.{$key}.client_id"))->toBe(config('services.gmail.client_id'));
+            ->and(config("connectors.{$key}.client_id"))->toBe(config('connectors.gmail.client_id'));
 
         expect(NodeCategory::query()->where('slug', $key)->where('kind', 'app')->exists())->toBeTrue("No node category for {$key}");
     }

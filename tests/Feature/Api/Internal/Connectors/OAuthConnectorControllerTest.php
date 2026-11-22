@@ -26,7 +26,7 @@ it('initiates the oauth flow with a state-backed authorize url', function () {
     [$workspace, $owner] = ownerWorkspaceForOAuth();
     $connector = Connector::factory()->oauth()->create(['key' => 'github']);
 
-    config(['services.github.client_id' => 'client-123', 'services.github.client_secret' => 'secret-123']);
+    config(['connectors.github.client_id' => 'client-123', 'connectors.github.client_secret' => 'secret-123']);
 
     Passport::actingAs($owner);
 
@@ -46,7 +46,7 @@ it('exchanges the callback code for tokens and stores a connector credential', f
     [$workspace, $owner] = ownerWorkspaceForOAuth();
     $connector = Connector::factory()->oauth()->create(['key' => 'github']);
 
-    config(['services.github.client_id' => 'client-123', 'services.github.client_secret' => 'secret-123']);
+    config(['connectors.github.client_id' => 'client-123', 'connectors.github.client_secret' => 'secret-123']);
 
     Http::fake([
         $connector->oauth['token_url'] => Http::response([
@@ -110,7 +110,7 @@ it('rejects storing a manual credential for an oauth-only connector at the schem
 it('rejects invalid token responses without saving a credential', function (mixed $body) {
     [$workspace, $owner] = ownerWorkspaceForOAuth();
     $connector = Connector::factory()->oauth()->create(['key' => 'github']);
-    config(['services.github.client_id' => 'client-123', 'services.github.client_secret' => 'secret-123']);
+    config(['connectors.github.client_id' => 'client-123', 'connectors.github.client_secret' => 'secret-123']);
     Http::fake([$connector->oauth['token_url'] => Http::response($body)]);
 
     $state = OAuthConnectorState::create([
@@ -143,7 +143,7 @@ it('refuses to initiate the oauth flow for a connector the server has no client 
     [$workspace, $owner] = ownerWorkspaceForOAuth();
     $connector = Connector::factory()->oauth()->create(['key' => 'gmail', 'name' => 'Gmail']);
 
-    config(['services.gmail' => null]);
+    config(['connectors.gmail' => null]);
 
     Passport::actingAs($owner);
 
@@ -162,7 +162,7 @@ it('fails the callback cleanly when the connector lost its client credentials', 
     [$workspace, $owner] = ownerWorkspaceForOAuth();
     $connector = Connector::factory()->oauth()->create(['key' => 'gmail', 'name' => 'Gmail']);
 
-    config(['services.gmail' => null]);
+    config(['connectors.gmail' => null]);
 
     $state = OAuthConnectorState::create([
         'workspace_id' => $workspace->id,
@@ -187,7 +187,7 @@ it('keeps the provider\'s error body out of the callback response and refuses a 
     [$workspace, $owner] = ownerWorkspaceForOAuth();
     $connector = Connector::factory()->oauth()->create(['key' => 'github']);
 
-    config(['services.github.client_id' => 'client-123', 'services.github.client_secret' => 'secret-123']);
+    config(['connectors.github.client_id' => 'client-123', 'connectors.github.client_secret' => 'secret-123']);
     Http::fake([$connector->oauth['token_url'] => Http::response(['error_description' => 'client secret secret-123 rejected'], 400)]);
 
     OAuthConnectorState::create([
@@ -213,7 +213,7 @@ it('keeps the provider\'s error body out of the callback response and refuses a 
 it('reconnects an existing account in place instead of creating a second one', function () {
     [$workspace, $owner] = ownerWorkspaceForOAuth();
     $connector = Connector::factory()->oauth()->create(['key' => 'github']);
-    config(['services.github.client_id' => 'client-123', 'services.github.client_secret' => 'secret-123']);
+    config(['connectors.github.client_id' => 'client-123', 'connectors.github.client_secret' => 'secret-123']);
 
     $credential = ConnectorCredential::factory()->forWorkspace($workspace)->forConnector($connector)->create([
         'name' => 'Work GitHub',
@@ -249,7 +249,7 @@ it('refuses to reconnect a credential from another workspace or connector', func
     [$workspace, $owner] = ownerWorkspaceForOAuth();
     $connector = Connector::factory()->oauth()->create(['key' => 'github']);
     $otherConnector = Connector::factory()->oauth()->create(['key' => 'slack']);
-    config(['services.github.client_id' => 'client-123', 'services.github.client_secret' => 'secret-123']);
+    config(['connectors.github.client_id' => 'client-123', 'connectors.github.client_secret' => 'secret-123']);
 
     [$otherWorkspace] = ownerWorkspaceForOAuth();
     $foreign = ConnectorCredential::factory()->forWorkspace($otherWorkspace)->forConnector($connector)->create();
@@ -272,7 +272,7 @@ it('refuses to reconnect a credential from another workspace or connector', func
 it('refuses to finish a sign-in started by someone else, and burns it', function () {
     [$workspace, $owner] = ownerWorkspaceForOAuth();
     $connector = Connector::factory()->oauth()->create(['key' => 'github']);
-    config(['services.github.client_id' => 'client-123', 'services.github.client_secret' => 'secret-123']);
+    config(['connectors.github.client_id' => 'client-123', 'connectors.github.client_secret' => 'secret-123']);
     Http::fake();
 
     OAuthConnectorState::create([
@@ -305,7 +305,7 @@ it('refuses to finish once the member can no longer connect apps', function () {
     $member = User::factory()->create();
     $workspace->members()->create(['user_id' => $member->id, 'role' => Role::Viewer, 'joined_at' => now()]);
     $connector = Connector::factory()->oauth()->create(['key' => 'github']);
-    config(['services.github.client_id' => 'client-123', 'services.github.client_secret' => 'secret-123']);
+    config(['connectors.github.client_id' => 'client-123', 'connectors.github.client_secret' => 'secret-123']);
     Http::fake();
 
     OAuthConnectorState::create([
@@ -325,4 +325,48 @@ it('refuses to finish once the member can no longer connect apps', function () {
 
     Http::assertNothingSent();
     expect(ConnectorCredential::query()->exists())->toBeFalse();
+});
+
+it('connects GitHub through its own OAuth app, never the sign-in one', function () {
+    [$workspace, $owner] = ownerWorkspaceForOAuth();
+    $connector = Connector::factory()->oauth()->create(['key' => 'github']);
+
+    config([
+        'services.github.client_id' => 'sign-in-client',
+        'services.github.client_secret' => 'sign-in-secret',
+        'connectors.github.client_id' => 'connector-client',
+        'connectors.github.client_secret' => 'connector-secret',
+    ]);
+
+    Passport::actingAs($owner);
+
+    $response = $this->postJson("/api/v1/workspaces/{$workspace->id}/connector-credentials/oauth/initiate", [
+        'connector_id' => $connector->id,
+        'name' => 'My GitHub',
+        'redirect_uri' => 'https://app.test/callback',
+    ])->assertOk();
+
+    expect($response->json('data.authorize_url'))
+        ->toContain('client_id=connector-client')
+        ->not->toContain('sign-in-client');
+});
+
+it('does not treat the GitHub sign-in app as a configured connector', function () {
+    $connector = Connector::factory()->oauth()->create(['key' => 'github']);
+
+    config([
+        'services.github.client_id' => 'sign-in-client',
+        'services.github.client_secret' => 'sign-in-secret',
+        'connectors.github.client_id' => null,
+        'connectors.github.client_secret' => null,
+    ]);
+
+    expect($connector->isConfigured())->toBeFalse();
+
+    config([
+        'connectors.github.client_id' => 'connector-client',
+        'connectors.github.client_secret' => 'connector-secret',
+    ]);
+
+    expect($connector->isConfigured())->toBeTrue();
 });

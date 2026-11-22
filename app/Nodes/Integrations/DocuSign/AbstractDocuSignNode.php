@@ -22,7 +22,7 @@ use RuntimeException;
  * picks one; left empty it uses the login's default account.
  *
  * The login server is the live one unless the install points at DocuSign's
- * developer sandbox (`services.docusign.auth_host`).
+ * developer sandbox (`connectors.docusign.auth_host`).
  */
 abstract class AbstractDocuSignNode implements DeclaresEffect, DeclaresOutputSchema, NodeContract
 {
@@ -72,7 +72,7 @@ abstract class AbstractDocuSignNode implements DeclaresEffect, DeclaresOutputSch
 
         $accounts = Cache::remember('docusign:accounts:'.sha1($token), 300, function () use ($token): array {
             try {
-                $response = Http::withToken($token)->acceptJson()->timeout(20)->get('https://'.config('services.docusign.auth_host', 'account.docusign.com').'/oauth/userinfo');
+                $response = Http::withToken($token)->acceptJson()->timeout(20)->get('https://'.config('connectors.docusign.auth_host', 'account.docusign.com').'/oauth/userinfo');
             } catch (ConnectionException) {
                 throw new RuntimeException('DocuSign could not be reached. Try again in a moment.');
             }

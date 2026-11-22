@@ -131,7 +131,7 @@ it('refuses a replacement that cannot stand in for a shared account', function (
 });
 
 it('learns the account identity right after an oauth connect', function () {
-    config(['services.gmail.client_id' => 'cid', 'services.gmail.client_secret' => 'secret']);
+    config(['connectors.gmail.client_id' => 'cid', 'connectors.gmail.client_secret' => 'secret']);
     $this->gmail->forceFill(['auth_type' => 'oauth2', 'oauth' => ['authorize_url' => 'https://accounts.google.com/o/oauth2/v2/auth', 'token_url' => 'https://oauth2.googleapis.com/token', 'scopes' => []]])->save();
 
     Http::fake([

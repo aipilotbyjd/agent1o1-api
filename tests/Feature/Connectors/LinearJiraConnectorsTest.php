@@ -79,7 +79,7 @@ it('has a connector and a category for every connected node of both families', f
 it('is off until its client credentials are set', function () {
     $this->syncSetup('connectors');
 
-    config(['services.linear.client_id' => null, 'services.jira.client_id' => 'x', 'services.jira.client_secret' => 'y']);
+    config(['connectors.linear.client_id' => null, 'connectors.jira.client_id' => 'x', 'connectors.jira.client_secret' => 'y']);
 
     expect(Connector::query()->where('key', 'linear')->firstOrFail()->isConfigured())->toBeFalse()
         ->and(Connector::query()->where('key', 'jira')->firstOrFail()->isConfigured())->toBeTrue();
@@ -87,7 +87,7 @@ it('is off until its client credentials are set', function () {
 
 it('sends the person to linear with comma-separated scopes', function () {
     $this->syncSetup('connectors');
-    config(['services.linear.client_id' => 'lin-id', 'services.linear.client_secret' => 'lin-secret']);
+    config(['connectors.linear.client_id' => 'lin-id', 'connectors.linear.client_secret' => 'lin-secret']);
     [$owner, $workspace] = connectorOwner();
 
     $url = app(OAuthConnectorFlowService::class)->initiate($workspace, $owner, Connector::query()->where('key', 'linear')->firstOrFail(), 'Linear', 'https://app.test/cb')['authorize_url'];
@@ -99,7 +99,7 @@ it('sends the person to linear with comma-separated scopes', function () {
 
 it('sends the person to atlassian with the audience and a consent screen', function () {
     $this->syncSetup('connectors');
-    config(['services.jira.client_id' => 'atl-id', 'services.jira.client_secret' => 'atl-secret']);
+    config(['connectors.jira.client_id' => 'atl-id', 'connectors.jira.client_secret' => 'atl-secret']);
     [$owner, $workspace] = connectorOwner();
 
     $url = app(OAuthConnectorFlowService::class)->initiate($workspace, $owner, Connector::query()->where('key', 'jira')->firstOrFail(), 'Jira', 'https://app.test/cb')['authorize_url'];
@@ -112,7 +112,7 @@ it('sends the person to atlassian with the audience and a consent screen', funct
 
 it('trades the code for atlassian tokens with a JSON body, and refreshes the same way', function () {
     $this->syncSetup('connectors');
-    config(['services.jira.client_id' => 'atl-id', 'services.jira.client_secret' => 'atl-secret']);
+    config(['connectors.jira.client_id' => 'atl-id', 'connectors.jira.client_secret' => 'atl-secret']);
     $connector = Connector::query()->where('key', 'jira')->firstOrFail();
     [$owner, $workspace] = connectorOwner();
 
@@ -141,7 +141,7 @@ it('trades the code for atlassian tokens with a JSON body, and refreshes the sam
 
 it('still trades the other connectors\' codes in a form body', function () {
     $this->syncSetup('connectors');
-    config(['services.linear.client_id' => 'lin-id', 'services.linear.client_secret' => 'lin-secret']);
+    config(['connectors.linear.client_id' => 'lin-id', 'connectors.linear.client_secret' => 'lin-secret']);
     $connector = Connector::query()->where('key', 'linear')->firstOrFail();
     [$owner, $workspace] = connectorOwner();
 
