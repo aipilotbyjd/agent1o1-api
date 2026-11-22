@@ -134,6 +134,11 @@ return [
         'client_secret' => env('ZOOM_CLIENT_SECRET'),
     ],
 
+    // Healthchecks.io expects a ping from the scheduler every minute. Leave the URL empty to switch it off.
+    'healthchecks' => [
+        'scheduler_url' => env('HEALTHCHECKS_SCHEDULER_URL'),
+    ],
+
     // Microsoft Teams signs in with the same Microsoft app as Outlook.
     'microsoft_teams' => [
         'client_id' => env('MICROSOFT_CONNECTORS_CLIENT_ID'),
