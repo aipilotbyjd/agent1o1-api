@@ -5,6 +5,8 @@ use App\Events\Runs\RunCompleted;
 use App\Events\Runs\RunFailed;
 use App\Jobs\Analytics\CapturePostHogEvent;
 use App\Models\Billing\Plan;
+use App\Models\Connectors\Connector;
+use App\Models\Connectors\ConnectorCredential;
 use App\Models\Runs\Run;
 use App\Models\User;
 use App\Services\Analytics\ProductAnalytics;
@@ -195,4 +197,40 @@ it('records finishing onboarding once', function () {
     $this->postJson('/api/v1/onboarding/complete')->assertOk();
 
     Bus::assertDispatchedTimes(fn (CapturePostHogEvent $job) => $job->event === 'onboarding_completed', 1);
+});
+
+it('records a connected app with its key and scope but never its credentials', function () {
+    Bus::fake();
+    enablePostHog();
+
+    $user = User::factory()->create();
+    $workspace = app(WorkspaceService::class)->create($user, ['name' => 'Acme']);
+    $connector = Connector::factory()->create(['key' => 'gmail']);
+
+    ConnectorCredential::factory()->forWorkspace($workspace)->forConnector($connector)->create([
+        'created_by' => $user->getKey(),
+        'data' => ['api_key' => 'sk_secret_value'],
+    ]);
+
+    Bus::assertDispatched(CapturePostHogEvent::class, fn (CapturePostHogEvent $job) => $job->event === 'connector_connected'
+        && $job->distinctId === (string) $user->getKey()
+        && $job->workspaceId === (string) $workspace->getKey()
+        && $job->properties === ['connector' => 'gmail', 'scope' => 'team']);
+});
+
+it('records a teammate invite with the role only, never the email address', function () {
+    Bus::fake();
+    enablePostHog();
+
+    $owner = User::factory()->create();
+    $workspace = app(WorkspaceService::class)->create($owner, ['name' => 'Acme']);
+    Passport::actingAs($owner);
+
+    $this->postJson("/api/v1/workspaces/{$workspace->id}/invitations", ['email' => 'new@example.com', 'role' => 'member'])
+        ->assertCreated();
+
+    Bus::assertDispatched(CapturePostHogEvent::class, fn (CapturePostHogEvent $job) => $job->event === 'team_invite_sent'
+        && $job->distinctId === (string) $owner->getKey()
+        && $job->workspaceId === (string) $workspace->getKey()
+        && $job->properties === ['role' => 'member']);
 });

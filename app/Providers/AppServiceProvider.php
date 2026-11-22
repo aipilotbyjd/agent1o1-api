@@ -41,9 +41,11 @@ use App\Models\Workspaces\WorkspaceMember;
 use App\Observers\AgentMessageObserver;
 use App\Observers\AgentObserver;
 use App\Observers\AuditObserver;
+use App\Observers\ConnectorCredentialObserver;
 use App\Observers\NodeRunObserver;
 use App\Observers\RunObserver;
 use App\Observers\WorkflowObserver;
+use App\Observers\WorkspaceInvitationObserver;
 use App\Observers\WorkspaceMemberObserver;
 use App\Services\Ai\AiProviderSettings;
 use App\Services\Ai\OperatorEndpoints;
@@ -359,6 +361,10 @@ class AppServiceProvider extends ServiceProvider
         ] as $audited) {
             $audited::observe(AuditObserver::class);
         }
+
+        // Product analytics: see `docs/POSTHOG.md`.
+        ConnectorCredential::observe(ConnectorCredentialObserver::class);
+        WorkspaceInvitation::observe(WorkspaceInvitationObserver::class);
 
         // Behavioral history for agents: see `AgentVersioner`.
         Agent::observe(AgentObserver::class);
